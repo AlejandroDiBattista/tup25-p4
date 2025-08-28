@@ -169,3 +169,29 @@ function imprimirTabla(contactos){
 }
 
 async function pausar(){ await prompt("\nPresione Enter para continuar... ") }
+
+async function menu(agenda){
+    while(true){
+        console.log("\n=== AGENDA DE CONTACTOS ===")
+        console.log("1. Listar")
+        console.log("0. Salir")
+        const op = await prompt("\nIngresar opción :> ")
+        console.log("\n-----\n")
+        if(op === '0'){
+            return
+        }
+        if(op === '1'){
+            console.log("== Lista de contactos ==")
+            const lista = agenda.listarOrdenado()
+            imprimirTabla(lista)
+            await pausar()
+        } else {
+            console.log("Opción no válida")
+        }
+    }
+}
+
+// Programa principal
+const datos = await read('./agenda.json')
+const agenda = Agenda.fromJson(datos)
+await menu(agenda)
