@@ -174,6 +174,7 @@ async function menu(agenda){
     while(true){
         console.log("\n=== AGENDA DE CONTACTOS ===")
         console.log("1. Listar")
+        console.log("2. Agregar")
         console.log("0. Salir")
         const op = await prompt("\nIngresar opción :> ")
         console.log("\n-----\n")
@@ -184,6 +185,18 @@ async function menu(agenda){
             console.log("== Lista de contactos ==")
             const lista = agenda.listarOrdenado()
             imprimirTabla(lista)
+            await pausar()
+        } else if (op === '2') {
+            console.log("== Agregando contacto ==")
+            const nombre = await prompt("Nombre      :> ")
+            const apellido = await prompt("Apellido    :> ")
+            const edad = await prompt("Edad        :> ")
+            const telefono = await prompt("Teléfono    :> ")
+            const email = await prompt("Email       :> ")
+            const nuevo = agenda.agregar({ nombre, apellido, edad, telefono, email })
+            await write(agenda.toJson(), './agenda.json')
+            console.log("\nAgregado:")
+            imprimirTabla([nuevo])
             await pausar()
         } else {
             console.log("Opción no válida")
