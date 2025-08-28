@@ -2,209 +2,199 @@ import { prompt, read, write } from './io.js';
 
 class Contacto {
 
-    // Inicializar los atributos en el constructor
     constructor(nombre, apellido, edad, telefono, email) {
         this.id = null;
-        this.apellido = apellido;
         this.nombre = nombre;
+        this.apellido = apellido;
         this.edad = edad;
         this.telefono = telefono;
         this.email = email;
     }
 
+    toString() {
+        return `${this.id} - ${this.nombre} ${this.apellido}, ${this.edad} años, ${this.telefono}, ${this.email}`;
+    }
 }
 
 class Agenda {
-
     static idAutoincrementable = 1;
 
     constructor() {
-        this.contactos = []; // Array para almacenar los contactos
+        this.contactos = [];
     }
 
-    // Metodo para agregar un contacto a la agenda
     agregar(contacto) {
         contacto.id = Agenda.idAutoincrementable++;
         this.contactos.push(contacto);
     }
 
-
-    editar(contactoViejo, contactoNuevo) {
-        let indice = this.contactos.indexOf(contactoViejo);
+    editar(id, nuevoContacto) {
+        let indice = this.contactos.findIndex(contacto => contacto.id == id);
+        
         if (indice !== -1) {
-            this.contactos[indice] = contactoNuevo;
-            console.log("Contacto editado en la agenda.");
+            nuevoContacto.id = id; // Mantener el mismo id
+            this.contactos[indice] = nuevoContacto;
+            console.log("Contacto editado.");
         } else {
             console.log("Contacto no encontrado.");
         }
-
     }
 
-    // Metodo para eliminar un contacto de la agenda
-    eliminar(contacto) {
-        //Buscar el contacto en el array y eliminarlo
-        let indice = this.contactos.indexOf(contacto);
-
+    eliminar(id) {
+        let indice = this.contactos.findIndex(contacto => contacto.id == id);
         if (indice !== -1) {
             this.contactos.splice(indice, 1);
-            console.log("Contacto eliminado de la agenda.");
+            console.log("Contacto eliminado.");
         } else {
-            console.log("Contacto no encontrado");
-            return;
+            console.log("Contacto no encontrado.");
         }
     }
 
     listar() {
-
-        console.log(" === LISTA DE CONTACTOS ===");
-
-        //Ordenar contactos por Apellido, nombre  alfabéticamente con localeCompare
-
         this.contactos.sort((a, b) => {
-            let apellidoComparacion = a.apellido.localeCompare(b.apellido);
-
-            if (apellidoComparacion !== 0) {
-                return apellidoComparacion;
-            }
-
+            let compararApellido = a.apellido.localeCompare(b.apellido);
+            if (compararApellido !== 0) return compararApellido;
             return a.nombre.localeCompare(b.nombre);
-
         });
-
-        console.table(this.contactos);
-
+        console.log("=== LISTA DE CONTACTOS ===");
+        console.table(this.contactos.map(contacto => ({
+            ID: contacto.id,
+            Nombre: contacto.nombre,
+            Apellido: contacto.apellido,
+            Edad: contacto.edad,
+            Teléfono: contacto.telefono,
+            Email: c.email
+        })));
     }
 
     buscar(criterio) {
+        let resultados = this.contactos.filter(contacto =>
+            contacto.nombre.includes(criterio) ||
+            contacto.apellido.includes(criterio) ||
+            contacto.email.includes(criterio) ||
+            contacto.telefono.includes(criterio)
+        );
 
-        let resultados =
-            this.contactos.filter(c =>
-                c.nombre.includes(criterio) ||
-                c.apellido.includes(criterio) ||
-                c.email.includes(criterio) ||
-                c.telefono.includes(criterio)
-            );
-
-
-        console.log("Contactos encontrados:");
-        resultados.forEach(c => console.log(c.toString()));
-
+        if (resultados.length === 0) {
+            console.log("No se encontraron contactos.");
+        } else {
+            console.log("Contactos encontrados:");
+            resultados.forEach(contacto => console.log(contacto.toString()));
+        }
     }
 
     static async cargar() {
-        // Crear una nueva agenda
         let agenda = new Agenda();
-
-        // Cargar contactos desde el archivo JSON
-        // Convertimos el texto JSON a un array de objetos Contacto
-        agenda.contactos = JSON.parse(await read("./agenda.json"));
-
-        if (agenda.contactos.length > 0) {
-            // Actualizar idAutoincrementable
-            let idMaximo = Math.max(...agenda.contactos.map(c => c.id));
-            Agenda.idAutoincrementable = idMaximo + 1;
+        try {
+            const data = await read("./agenda.json");
+            agenda.contactos = JSON.parse(data);
+            if (agenda.contactos.length > 0) {
+                let idMax = Math.max(...agenda.contactos.map(c => c.id));
+                Agenda.idAutoincrementable = idMax + 1;
+            }
+        } catch {
+            agenda.contactos = [];
         }
-
         return agenda;
     }
 
     async guardar() {
-
-        // Guardar contactos en el archivo JSON
-        // agenda.json podemos enviarlo o no
         await write(JSON.stringify(this.contactos, null, 2), "./agenda.json");
     }
-
-
 }
 
+class Menu {
+    constructor(agenda) {
+        this.agenda = agenda;
+    }
 
+    mostrar() {
+        console.log("=== AGENDA DE CONTACTOS ===");
+        console.log("1 - Agregar contacto");
+        console.log("2 - Editar contacto");
+        console.log("3 - Eliminar contacto");
+        console.log("4 - Listar contactos");
+        console.log("5 - Buscar contacto");
+        console.log("6 - Salir");
+    }
+
+    async ejecutar() {
+        let salir = false;
+        while (!salir) {
+            this.mostrar();
+            let opcion = await prompt("Seleccione una opción (1-6): ");
+            switch (opcion) {
+                case "1":
+                    await this.agregar();
+                    break;
+                case "2":
+                    await this.editar();
+                    break;
+                case "3":
+                    await this.eliminar();
+                    break;
+                case "4":
+                    this.agenda.listar();
+                    break;
+                case "5":
+                    await this.buscar();
+                    break;
+                case "6":
+                    let confirmar = await prompt("¿Desea salir? (s/n): ");
+                    if (confirmar.toLowerCase() === "s") salir = true;
+                    break;
+                default:
+                    console.log("Opción no válida.");
+            }
+        }
+        await this.agenda.guardar();
+        console.log("¡Gracias por usar la agenda!");
+    }
+
+    async agregar() {
+        let nombre = await prompt("Nombre: ");
+        let apellido = await prompt("Apellido: ");
+        let edad = await prompt("Edad: ");
+        let telefono = await prompt("Teléfono: ");
+        let email = await prompt("Email: ");
+        let contacto = new Contacto(nombre, apellido, edad, telefono, email);
+        this.agenda.agregar(contacto);
+        await this.agenda.guardar();
+        console.log("Contacto agregado correctamente.");
+    }
+
+    async editar() {
+
+        // Mostrar contactos para seleccionar cuál editar
+        this.agenda.listar();
+
+
+        let id = await prompt("Ingrese el ID del contacto a editar: ");
+        let nombre = await prompt("Nuevo nombre: ");
+        let apellido = await prompt("Nuevo apellido: ");
+        let edad = await prompt("Nueva edad: ");
+        let telefono = await prompt("Nuevo teléfono: ");
+        let email = await prompt("Nuevo email: ");
+        let nuevoContacto = new Contacto(nombre, apellido, edad, telefono, email);
+        this.agenda.editar(Number(id), nuevoContacto);
+        await this.agenda.guardar();
+    }
+
+    async eliminar() {
+        this.agenda.listar();
+        let id = await prompt("Ingrese el ID del contacto a eliminar: ");
+        this.agenda.eliminar(Number(id));
+        await this.agenda.guardar();
+    }
+
+    async buscar() {
+        let criterio = await prompt("Ingrese nombre, apellido, email o teléfono a buscar: ");
+        this.agenda.buscar(criterio);
+    }
+}
+
+// Programa principal
 
 let agenda = await Agenda.cargar();
-let contacto1 = new Contacto();
-
-
-
-console.log("=== AGENDA DE CONTACTOS ===");
-
-console.log(" Porfavor seleccione la operacion a realizar:");
-
-console.log(" 1 - Agregar contacto");
-console.log(" 2 - Editar contacto");
-console.log(" 3 - Eliminar contacto");
-console.log(" 4 - Listar contactos");
-console.log(" 5 - Buscar contacto");
-console.log(" 6 - Salir");
-
-let opcion = await prompt("Ingrese una opcion (1-6): ");
-
-
-switch (opcion) {
-
-    case "1":
-
-        contacto1.nombre = await prompt("Ingrese el nombre:      ");
-        contacto1.apellido = await prompt("Ingrese el apellido:    ");
-        contacto1.edad = await prompt("Ingrese la edad: ");
-        contacto1.telefono = await prompt("Ingrese el telefono: ");
-        contacto1.email = await prompt("Ingrese el email: ");
-
-        agenda.agregar(contacto1);
-        console.log("Contacto agregado a la agenda.");
-        await agenda.guardar();
-        break;
-
-    case "2":
-        // Objeto para almacenar los nuevos datos del contacto
-        let contacto2 = {};
-
-        let idBuscar = await prompt("Ingrese el ID del contacto a editar: ");
-        contacto1 = agenda.contactos.find(c => c.id == idBuscar);
-
-        if (!contacto1) {
-            console.log("Contacto no encontrado.");
-            break;
-        }
-        console.log("Ingrese los nuevos datos del contacto:");
-
-        contacto2.id = contacto1.id; // Mantener el mismo ID
-        contacto2.nombre = await prompt("Ingrese el nuevo nombre: ");
-        contacto2.apellido = await prompt("Ingrese el nuevo apellido: ");
-        contacto2.edad = await prompt("Ingrese la nueva edad: ");
-        contacto2.telefono = await prompt("Ingrese el nuevo telefono: ");
-        contacto2.email = await prompt("Ingrese el nuevo email: ");
-
-        agenda.editar(contacto1, contacto2);
-        await agenda.guardar();
-        break;
-
-    case "3":
-        agenda.eliminar(contacto1);
-        console.log("Contacto eliminado de la agenda.");
-        await agenda.guardar();
-        break;
-
-    case "4":
-        agenda.listar();
-        break;
-
-    case "5":
-        let criterio = await prompt("Ingrese el criterio de búsqueda: ");
-        agenda.buscar(criterio);
-
-        console.log("Desea realizar otra operación? (s/n)");
-        break;
-
-    case "6":
-        console.log("Saliendo...");
-        break;
-
-    default:
-        console.log("Opción no válida.");
-        break;
-}
-
-
-console.log("Gracias por usar la agenda de contactos.");
-
-
+let menu = new Menu(agenda);
+await menu.ejecutar();
