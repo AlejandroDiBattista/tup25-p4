@@ -8,6 +8,14 @@ class Contacto {
     #telefono
     #email
     /* implementar */
+    constructor({ id, nombre, apellido, edad, telefono, email }) {
+        this.#id = id;
+        this.#nombre = nombre ?? '';
+        this.#apellido = apellido ?? '';
+        this.#edad = edad ?? '';
+        this.#telefono = telefono ?? '';
+        this.#email = email ?? '';
+    }
 }
 
 class Agenda {
