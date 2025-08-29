@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": 2,
+    "nombre": "Marcelo Ezequiel",
+    "apellido": "Duclós",
+    "edad": 31,
+    "telefono": "3815514353",
+    "email": "ezeduclosrespaldo@gmail.com"
+  }
+]
