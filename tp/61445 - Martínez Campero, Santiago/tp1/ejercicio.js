@@ -175,6 +175,9 @@ async function menu(agenda){
         console.log("\n=== AGENDA DE CONTACTOS ===")
         console.log("1. Listar")
         console.log("2. Agregar")
+    console.log("3. Editar")
+    console.log("4. Borrar")
+            console.log("5. Buscar")
         console.log("0. Salir")
         const op = await prompt("\nIngresar opción :> ")
         console.log("\n-----\n")
@@ -198,13 +201,64 @@ async function menu(agenda){
             console.log("\nAgregado:")
             imprimirTabla([nuevo])
             await pausar()
+        } else if (op === '3') {
+            console.log("== Editar contacto ==")
+            const id = await prompt("ID contacto :> ")
+            const c = agenda.obtenerPorId(+id)
+            if (!c) {
+                console.log("No existe ese ID")
+                await pausar()
+                continue
+            }
+            const nombre = await prompt(`Nombre (${c.nombre})      :> `)
+            const apellido = await prompt(`Apellido (${c.apellido})    :> `)
+            const edad = await prompt(`Edad (${c.edad == null ? '-' : c.edad})        :> `)
+            const telefono = await prompt(`Teléfono (${c.telefono})    :> `)
+            const email = await prompt(`Email (${c.email})       :> `)
+            const campos = {}
+            if (nombre) campos.nombre = nombre
+            if (apellido) campos.apellido = apellido
+            if (edad) campos.edad = edad
+            if (telefono) campos.telefono = telefono
+            if (email) campos.email = email
+            const actualizado = agenda.editar(+id, campos)
+            await write(agenda.toJson(), './agenda.json')
+            console.log("\nActualizado:")
+            imprimirTabla([actualizado])
+            await pausar()
+        } else if (op === '4') {
+            console.log("== Borrar contacto ==")
+            const id = await prompt("ID contacto :> ")
+            const c = agenda.obtenerPorId(+id)
+            if (!c) {
+                console.log("No existe ese ID")
+                await pausar()
+                continue
+            }
+            console.log("\nBorrando...")
+            imprimirTabla([c])
+            const conf = await prompt("\n¿Confirma borrado? :> S/N ")
+            if ((conf || '').trim().toLowerCase() === 's') {
+                agenda.borrarPorId(+id)
+                await write(agenda.toJson(), './agenda.json')
+                console.log("\nEliminado.")
+            } else {
+                console.log("\nCancelado.")
+            }
+            await pausar()
+            } else if (op === '5') {
+                console.log("== Buscar contacto ==")
+                const q = await prompt("Buscar      :> ")
+                const res = agenda.buscar(q)
+                imprimirTabla(res)
+                await pausar()
         } else {
             console.log("Opción no válida")
         }
     }
 }
 
-// Programa principal
+
 const datos = await read('./agenda.json')
 const agenda = Agenda.fromJson(datos)
 await menu(agenda)
