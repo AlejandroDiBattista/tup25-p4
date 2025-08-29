@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": 2,
+    "nombre": "Ana",
+    "apellido": "Lopez",
+    "edad": 21,
+    "telefono": "345563454",
+    "email": "ana@gmail,com"
+  },
+  {
+    "id": 0,
+    "nombre": "leo",
+    "apellido": "vece",
+    "edad": 31,
+    "telefono": "23123123",
+    "email": "leo1@gmail.com"
+  }
+]
