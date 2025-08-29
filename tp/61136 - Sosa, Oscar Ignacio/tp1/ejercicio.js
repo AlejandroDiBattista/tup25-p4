@@ -21,4 +21,4 @@ c.edad   = await prompt("Edad   :>");
 agenda.agregar(c);
 
 await agenda.guardar(); 
-console.log("Contacto guardado! :)");
+console.log("Contacto guardado! :(");
