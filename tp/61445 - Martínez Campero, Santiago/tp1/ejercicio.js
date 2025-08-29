@@ -89,11 +89,13 @@ class Agenda {
     }
 
     listarOrdenado(){
-        return [...this.#contactos].sort((a,b)=>a.nombreCompleto.localeCompare(b.nombreCompleto, 'es'))
+        return [...this.#contactos].sort((a,b)=>
+            a.nombreCompleto.localeCompare(b.nombreCompleto, 'es', { sensitivity: 'base' })
+        )
     }
 
     buscar(texto){
-        const q = (texto || '').toLowerCase()
+        const q = (texto || '').toLowerCase().trim()
         const resultados = []
         for (const c of this.#contactos) {
             const nombre = (c.nombre || '').toLowerCase()
@@ -111,7 +113,9 @@ class Agenda {
                 resultados.push(c)
             }
         }
-        return resultados
+        return resultados.sort((a,b)=>
+            a.nombreCompleto.localeCompare(b.nombreCompleto, 'es', { sensitivity: 'base' })
+        )
     }
 
     obtenerPorId(id){
@@ -178,7 +182,7 @@ async function vacio(etiqueta){
     }
 }
 
-async function getEdad(){
+async function getEdadOpcional(){
     while(true){
         const e = await prompt("Edad        :> ")
         const t = e.trim()
@@ -194,7 +198,7 @@ async function getTexto(etiqueta, actual){
     return v ? v : undefined
 }
 
-async function getEdad(actual){
+async function getEdadQuizas(actual){
     const v = await prompt(`Edad (${actual == null ? '-' : actual})        :> `)
     if (!v) return undefined
     const n = +v
@@ -228,11 +232,11 @@ async function opcionAgregar(agenda){
     console.log("== Agregando contacto ==")
     const nombre = await vacio("Nombre      :> ")
     const apellido = await prompt("Apellido    :> ")
-    const edad = await getEdad()
+    const edad = await getEdadOpcional()
     const telefono = await prompt("Teléfono    :> ")
     const email = await prompt("Email       :> ")
     const nuevo = agenda.agregar({ nombre, apellido, edad, telefono, email })
-    await write(agenda.toJson(), './agenda.json')
+    await write(agenda.toJson())
     console.log("\nAgregado:")
     imprimirTabla([nuevo])
     await pausar()
@@ -241,11 +245,13 @@ async function opcionAgregar(agenda){
 async function opcionEditar(agenda){
     console.log("== Editar contacto ==")
     const id = await prompt("ID contacto :> ")
-    const c = agenda.obtenerPorId(+id)
+    const n = +id
+    if (!Number.isFinite(n) || n <= 0) { console.log("ID inválido"); await pausar(); return }
+    const c = agenda.obtenerPorId(n)
     if (!c) { console.log("No existe ese ID"); await pausar(); return }
     const nombre = await getTexto('Nombre', c.nombre)
     const apellido = await getTexto('Apellido', c.apellido)
-    const edad = await getEdad(c.edad)
+    const edad = await getEdadQuizas(c.edad)
     const telefono = await getTexto('Teléfono', c.telefono)
     const email = await getTexto('Email', c.email)
     const campos = {}
@@ -256,7 +262,7 @@ async function opcionEditar(agenda){
     if (email !== undefined) campos.email = email
     if (Object.keys(campos).length === 0) { console.log("Sin cambios."); await pausar(); return }
     const actualizado = agenda.editar(+id, campos)
-    await write(agenda.toJson(), './agenda.json')
+    await write(agenda.toJson())
     console.log("\nActualizado:")
     imprimirTabla([actualizado])
     await pausar()
@@ -265,14 +271,16 @@ async function opcionEditar(agenda){
 async function opcionBorrar(agenda){
     console.log("== Borrar contacto ==")
     const id = await prompt("ID contacto :> ")
-    const c = agenda.obtenerPorId(+id)
+    const n = +id
+    if (!Number.isFinite(n) || n <= 0) { console.log("ID inválido"); await pausar(); return }
+    const c = agenda.obtenerPorId(n)
     if (!c) { console.log("No existe ese ID"); await pausar(); return }
     console.log("\nBorrando...")
     imprimirTabla([c])
-    const ok = await confirmarSN("\n¿Confirma borrado? :> S/N ")
+    const ok = await confirmarSN("\n¿Confirma borrados? :> S/N ")
     if (ok) {
-        agenda.borrarPorId(+id)
-        await write(agenda.toJson(), './agenda.json')
+        agenda.borrarPorId(n)
+    await write(agenda.toJson())
         console.log("\nEliminado.")
     } else {
         console.log("\nCancelado.")
@@ -311,6 +319,16 @@ async function menu(agenda){
     }
 }
 
-const datosLeidos = await read('./agenda.json')
+let datosLeidos
+try {
+    datosLeidos = await read()
+} catch (e) {
+    if (e && e.code === 'ENOENT') {
+        console.log("No se encontró en la agenda del json, se creará al guardarlo.")
+        datosLeidos = []
+    } else {
+        throw e
+    }
+}
 const agenda = Agenda.fromJson(datosLeidos)
 await menu(agenda)
