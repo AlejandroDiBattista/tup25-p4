@@ -13,7 +13,6 @@ class Agenda {
 
 // EJEMPLO DE USO... borrar...
 let agenda = await Agenda.cargar();
-
 console.log("=== Ingresar nuevo contacto ===");
 
 let c = new Contacto();
@@ -22,3 +21,4 @@ c.edad   = await prompt("Edad   :>");
 agenda.agregar(c);
 
 await agenda.guardar(); 
+console.log("Contacto guardado! :)");
