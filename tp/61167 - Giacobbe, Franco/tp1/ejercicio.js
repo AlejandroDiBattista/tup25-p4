@@ -18,39 +18,67 @@ class Agenda {
   constructor() {
     this.contactos = [];
   }
+
   agregar(contacto) {
     this.contactos.push(contacto);
   }
+
+  listar() {
+    return this.contactos
+      .sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre));
+  }
+
+  encontrarPorId(id) {
+    return this.contactos.find(c => c.id === id);
+  }
+
+  editar(id, nuevoNombre, nuevoApellido, nuevaEdad, nuevoTelefono, nuevoEmail) {
+    const c = this.encontrarPorId(id);
+    if (!c) return false;
+    c.nombre = nuevoNombre.toUpperCase();
+    c.apellido = nuevoApellido.toUpperCase();
+    c.edad = nuevaEdad;
+    c.telefono = nuevoTelefono;
+    c.email = nuevoEmail.toLowerCase();
+    return true;
+  }
+
+  buscarPorNombre(valor) {
+    return this.contactos.filter(c => c.nombre.includes(valor.toUpperCase()));
+  }
+
+  buscarPorApellido(valor) {
+    return this.contactos.filter(c => c.apellido.includes(valor.toUpperCase()));
+  }
+
+  buscarPorEmail(valor) {
+    return this.contactos.filter(c => c.email.includes(valor.toLowerCase()));
+  }
+
+  eliminar(id) {
+    this.contactos = this.contactos.filter(c => c.id !== id);
+  }
+
+  async guardar() {
+    await write(JSON.stringify(this.contactos, null, 2));
+  }
+
   static async cargar() {
     const data = await read("./agenda.json");
     const agenda = new Agenda();
     agenda.contactos = JSON.parse(data);
+
+    agenda.contactos.forEach(c => {
+      if (c.id > Contacto.ultimoId) Contacto.ultimoId = c.id;
+    });
+
     return agenda;
-  }
-  async guardar() {
-    const data = this.contactos;
-    await write(JSON.stringify(data, null, 2));
   }
 }
 
-// EJEMPLO DE USO... borrar...
-// let agenda = await Agenda.cargar();
-// console.log(agenda);
-// console.log("=== Ingresar nuevo contacto ===");
-
-// let c = new Contacto();
-// c.nombre = await prompt("Nombre :>");
-// c.edad = await prompt("Edad   :>");
-// agenda.agregar(c);
-
-// await agenda.guardar();
 const agenda = await Agenda.cargar();
-agenda.contactos.forEach((c) => {
-  if (c.id > Contacto.ultimoId) {
-    Contacto.ultimoId = c.id;
-  }
-});
 let opcion;
+
 do {
   console.clear();
   console.log("-------- MENU AGENDA --------");
@@ -63,128 +91,132 @@ do {
   opcion = await prompt("Seleccione una opción:> ");
 
   switch (opcion) {
-    case "1":
+    case "1": {
       console.clear();
-      console.log("=== Agregar contacto ===");
-      console.log("");
+      console.log("=== Agregar contacto ===\n");
 
-      let contactoNuevo = new Contacto();
-      contactoNuevo.id = Contacto.ultimoId + 1;
-      contactoNuevo.nombre = await prompt("Nombre:> ");
-      contactoNuevo.apellido = await prompt("Apellido:> ");
-      contactoNuevo.edad = await prompt("Edad:> ");
-      contactoNuevo.telefono = await prompt("Teléfono:> ");
-      contactoNuevo.email = await prompt("Email:> ");
-      agenda.agregar(contactoNuevo);
+      const nombre = await prompt("Nombre:> ");
+      const apellido = await prompt("Apellido:> ");
+      const edad = await prompt("Edad:> ");
+      const telefono = await prompt("Teléfono:> ");
+      const email = await prompt("Email:> ");
 
-      try {
-        await agenda.guardar();
-        console.clear();
-        console.log("-------------------------------");
-        console.log("Contacto guardado correctamente");
-        await prompt("Presione cualquier tecla para volver...");
-      } catch (error) {
-        console.clear();
-        console.error("Error al guardar la agenda: ", error);
-      }
+      const nuevoContacto = new Contacto(nombre, apellido, edad, telefono, email);
+      agenda.agregar(nuevoContacto);
+      await agenda.guardar();
+
+      console.log("\nContacto agregado correctamente");
+      await prompt("\nPresione cualquier tecla para volver...");
       break;
+    }
 
-    case "2":
+    case "2": {
       console.clear();
       console.log("=== Lista de contactos ===\n");
 
-      const listaOrdenada = agenda.contactos.sort(
-        (a, b) =>
-          a.apellido.localeCompare(b.apellido) ||
-          a.nombre.localeCompare(b.nombre)
-      );
-
-      console.log(
-        "ID".padEnd(5) +
-          "Nombre Completo".padEnd(25) +
-          "Edad".padEnd(8) +
-          "Teléfono".padEnd(15) +
-          "Email"
-      );
-
-      listaOrdenada.forEach((c) => {
+      const lista = agenda.listar();
+      console.log("ID".padEnd(5) + "Nombre Completo".padEnd(25) + "Edad".padEnd(8) + "Teléfono".padEnd(15) + "Email");
+      lista.forEach(c => {
         const nombreCompleto = `${c.apellido}, ${c.nombre}`;
         console.log(
           String(c.id).padEnd(5) +
+          nombreCompleto.padEnd(25) +
+          String(c.edad).padEnd(8) +
+          c.telefono.padEnd(15) +
+          c.email
+        );
+      });
+
+      await prompt("\nPresione cualquier tecla para volver...");
+      break;
+    }
+
+    case "3": {
+      console.clear();
+      console.log("=== Editar contacto ===\n");
+
+      const id = parseInt(await prompt("ID del contacto a editar:> "));
+      const contacto = agenda.encontrarPorId(id);
+
+      if (!contacto) {
+        console.log("No se encontró un contacto con ese ID.");
+        await prompt("\nPresione cualquier tecla para volver...");
+        break;
+      }
+
+      const nombre = await prompt("Nuevo Nombre:> ");
+      const apellido = await prompt("Nuevo Apellido:> ");
+      const edad = await prompt("Nueva Edad:> ");
+      const telefono = await prompt("Nuevo Teléfono:> ");
+      const email = await prompt("Nuevo Email:> ");
+
+      agenda.editar(id, nombre, apellido, edad, telefono, email);
+      await agenda.guardar();
+
+      console.log("\nContacto editado correctamente");
+      await prompt("\nPresione cualquier tecla para volver...");
+      break;
+    }
+
+    case "4": {
+      console.clear();
+      console.log("=== Buscar contacto ===\n");
+
+      const criterio = await prompt("Buscar por (nombre, apellido o email):> ");
+      const valor = await prompt("Ingrese el valor a buscar:> ");
+
+      let resultados = [];
+      if (criterio.toLowerCase() === "nombre") resultados = agenda.buscarPorNombre(valor);
+      else if (criterio.toLowerCase() === "apellido") resultados = agenda.buscarPorApellido(valor);
+      else if (criterio.toLowerCase() === "email") resultados = agenda.buscarPorEmail(valor);
+
+      if (resultados.length > 0) {
+        console.log("\nContactos encontrados:");
+        console.log("ID".padEnd(5) + "Nombre Completo".padEnd(25) + "Edad".padEnd(8) + "Teléfono".padEnd(15) + "Email");
+        resultados.forEach(c => {
+          const nombreCompleto = `${c.apellido}, ${c.nombre}`;
+          console.log(
+            String(c.id).padEnd(5) +
             nombreCompleto.padEnd(25) +
             String(c.edad).padEnd(8) +
             c.telefono.padEnd(15) +
             c.email
-        );
-      });
+          );
+        });
+      } else {
+        console.log("\nNo se encontraron contactos");
+      }
+
       await prompt("\nPresione cualquier tecla para volver...");
       break;
+    }
 
-    case "3":
-      console.clear();
-      console.log("=== Editar contacto ===");
-      const idEditar = await prompt("ID del contacto a editar:> ");
-      const contactoEditar = agenda.contactos.find(
-        (c) => c.id === parseInt(idEditar)
-      );
-      if (contactoEditar) {
-        contactoEditar.apellido = await prompt("Nuevo Apellido:> ");
-        contactoEditar.edad = await prompt("Nueva Edad:> ");
-        contactoEditar.telefono = await prompt("Nuevo Teléfono:> ");
-        contactoEditar.email = await prompt("Nuevo Email:> ");
-        await agenda.guardar();
-      } else {
-        console.log("Contacto no encontrado");
-      }
-      break;
-    case "4":
-      console.log("=== Buscar contacto ===");
-      const nombreBuscar = await prompt("Nombre del contacto a buscar :>");
-      const contactoBuscar = agenda.contactos.find(
-        (c) => c.nombre === nombreBuscar
-      );
-      console.log(contactoBuscar ? contactoBuscar : "Contacto no encontrado");
-      break;
-    case "5":
+    case "5": {
       console.clear();
       console.log("=== Eliminar contacto ===\n");
 
-      const idEliminar = await prompt("ID del contacto a eliminar:> ");
-      const idNum = parseInt(idEliminar);
+      const id = parseInt(await prompt("ID del contacto a eliminar:> "));
+      const contacto = agenda.encontrarPorId(id);
 
-      const contacto = agenda.contactos.find((c) => c.id === idNum);
-      const nombreCompleto = `${contacto.apellido}, ${contacto.nombre}`;
       if (!contacto) {
         console.log("No se encontró un contacto con ese ID.");
+        await prompt("\nPresione cualquier tecla para volver...");
         break;
       }
 
-      console.log(
-        "\nID".padEnd(5) +
-          "Nombre Completo".padEnd(25) +
-          "Edad".padEnd(8) +
-          "Teléfono".padEnd(15) +
-          "Email"
-      );
-      console.log(
-        String(contacto.id).padEnd(5) +
-          nombreCompleto.padEnd(25) +
-          String(contacto.edad).padEnd(8) +
-          contacto.telefono.padEnd(15) +
-          contacto.email
-      );
-      console.log("\n¿Está seguro que desea eliminar?");
+      console.log("\nContacto a eliminar:", contacto);
       const confirmacion = await prompt("Presione S/N:> ");
-
       if (confirmacion.toUpperCase() === "S") {
-        agenda.contactos = agenda.contactos.filter((c) => c.id !== idNum);
-        console.log("\nContacto eliminado");
+        agenda.eliminar(id);
+        await agenda.guardar();
+        console.log("\nContacto eliminado correctamente");
       } else {
         console.log("\nEliminación cancelada");
       }
+
       await prompt("\nPresione cualquier tecla para volver...");
-      await agenda.guardar();
       break;
+    }
 
     case "6":
       console.clear();

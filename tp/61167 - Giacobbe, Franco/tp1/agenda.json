@@ -1,10 +1,26 @@
 [
   {
     "id": 4,
-    "nombre": "Franco",
-    "apellido": "Giacobbe",
+    "nombre": "FRANCO",
+    "apellido": "GIACOBBE",
     "edad": "26",
     "telefono": "3815880371",
     "email": "frandg47@gmail.com"
+  },
+  {
+    "id": 5,
+    "nombre": "HECTOR",
+    "apellido": "TIMO",
+    "edad": "42",
+    "telefono": "3815000000",
+    "email": "timo@gmail.com"
+  },
+  {
+    "id": 6,
+    "nombre": "ESTEBAN",
+    "apellido": "SAMANIEGO",
+    "edad": "20",
+    "telefono": "3815111111",
+    "email": "esteban@gmail.com"
   }
 ]
