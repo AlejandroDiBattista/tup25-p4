@@ -11,7 +11,12 @@ class Contacto {
         this.#id = id;
         this.#nombre = nombre ?? '';
         this.#apellido = apellido ?? '';
-        this.#edad = edad ?? '';
+        let e = null;
+        if (edad !== undefined && edad !== null && String(edad).trim() !== '') {
+            const n = +edad;
+            e = (!Number.isNaN(n) && n >= 0) ? n : null;
+        }
+        this.#edad = e;
         this.#telefono = telefono ?? '';
         this.#email = email ?? '';
     }

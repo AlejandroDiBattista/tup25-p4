@@ -6,5 +6,29 @@
     "edad": 19,
     "telefono": "77777",
     "email": "maxidelosmassey@gmail.com"
+  },
+  {
+    "id": 2,
+    "nombre": "luis",
+    "apellido": "enrique",
+    "edad": 49,
+    "telefono": "290898274",
+    "email": "luienriqueto@hotmail.com"
+  },
+  {
+    "id": 3,
+    "nombre": "maria",
+    "apellido": "de las nieves",
+    "edad": 34,
+    "telefono": "23432523",
+    "email": "maria123@outlook.com"
+  },
+  {
+    "id": 4,
+    "nombre": "hernan",
+    "apellido": "lobo",
+    "edad": 34,
+    "telefono": "34589839",
+    "email": "hernangamer777@gmail.com"
   }
 ]
