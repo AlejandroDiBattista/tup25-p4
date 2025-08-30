@@ -13,6 +13,35 @@ function color(str, c) {
   return `${COLORES[c]}${str}${RESET}`;
 }
 
+function validarEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
+function validarEdad(edad) {
+  const num = parseInt(edad, 10);
+  return !isNaN(num) && num > 0 && num <= 150;
+}
+
+function validarTelefono(telefono) {
+  // Acepta números con espacios, guiones, paréntesis
+  const regex = /^[\d\s\-\(\)\+]+$/;
+  return regex.test(telefono) && telefono.replace(/\D/g, "").length >= 7;
+}
+
+function validarTextoNoVacio(texto) {
+  return texto && texto.trim().length > 0;
+}
+
+async function validarPromp(mensaje, validador, mensajeError) {
+  while (true) {
+    const input = await prompt(mensaje);
+    if (validador(input)) {
+      return input;
+    }
+    centerLog(color(mensajeError, "red"));
+  }
+}
 class Contacto {
   #id;
   #nombre;
@@ -325,11 +354,37 @@ async function main() {
       case "2": {
         // Agregar
         centerLog(color("\n== Agregando contacto ==", "yellow"));
-        const nombre = await prompt(color("Nombre      :> ", "cyan"));
-        const apellido = await prompt(color("Apellido    :> ", "cyan"));
-        const edad = await prompt(color("Edad        :> ", "cyan"));
-        const telefono = await prompt(color("Teléfono    :> ", "cyan"));
-        const email = await prompt(color("Email       :> ", "cyan"));
+
+        const nombre = await validarPromp(
+          color("Nombre      :> ", "cyan"),
+          validarTextoNoVacio,
+          "El nombre no puede estar vacío."
+        );
+
+        const apellido = await validarPromp(
+          color("Apellido    :> ", "cyan"),
+          validarTextoNoVacio,
+          "El apellido no puede estar vacío."
+        );
+
+        const edad = await validarPromp(
+          color("Edad        :> ", "cyan"),
+          validarEdad,
+          "La edad debe ser un número entre 1 y 150."
+        );
+
+        const telefono = await validarPromp(
+          color("Teléfono    :> ", "cyan"),
+          validarTelefono,
+          "El teléfono debe contener al menos 7 dígitos."
+        );
+
+        const email = await validarPromp(
+          color("Email       :> ", "cyan"),
+          validarEmail,
+          "Ingrese un email válido (ejemplo: usuario@dominio.com)."
+        );
+
         agenda.agregar(nombre, apellido, edad, telefono, email);
         await write(agenda.toJson(), "./agenda.json");
         centerLog(color("\nContacto agregado exitosamente.", "green"));
