@@ -1,1 +1,36 @@
-[]
+{
+  "contactos": [
+    {
+      "id": 2,
+      "nombre": "Ana",
+      "apellido": "Cabrera",
+      "edad": "26",
+      "telefono": "38166666",
+      "email": "ana@gmail.com"
+    },
+    {
+      "id": 1,
+      "nombre": "Micaela",
+      "apellido": "Ponce",
+      "edad": "24",
+      "telefono": "3819999666",
+      "email": "Mica@gmail.com"
+    },
+    {
+      "id": 4,
+      "nombre": "Pipo",
+      "apellido": "Rosalez",
+      "edad": "12",
+      "telefono": "381777777",
+      "email": "pipo@gmail.com"
+    },
+    {
+      "id": 5,
+      "nombre": "Damian",
+      "apellido": "Ruiz",
+      "edad": "26",
+      "telefono": "38156666",
+      "email": "damian@gmail.com"
+    }
+  ]
+}
