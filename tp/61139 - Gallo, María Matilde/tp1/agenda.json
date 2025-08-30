@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": 1,
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "edad": 30,
+    "telefono": "3815551234",
+    "email": "jperez@gmail.com"
+  },
+  {
+    "id": 2,
+    "nombre": "José",
+    "apellido": "Gómez",
+    "edad": 25,
+    "telefono": "3815551235",
+    "email": "jgomez@gmail.com"
+  },
+  {
+    "id": 3,
+    "nombre": "Pedro",
+    "apellido": "Sánchez",
+    "edad": 18,
+    "telefono": "3815551236",
+    "email": "psanchez@gmail.com"
+  }
+]
