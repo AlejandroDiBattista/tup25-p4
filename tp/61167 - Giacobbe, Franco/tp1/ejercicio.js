@@ -1,7 +1,11 @@
 import { prompt, read, write } from "./io.js";
 
 class Contacto {
+    static ultimoId = 0;
+
   constructor(nombre, apellido, edad, telefono, email) {
+    this.id = ++Contacto.ultimoId;
+    Contacto.ultimoId = this.id;
     this.nombre = nombre;
     this.apellido = apellido;
     this.edad = edad;
@@ -57,6 +61,7 @@ do {
         case "1":
             console.log("=== Agregar contacto ===");
             let contactoNuevo = new Contacto();
+            contactoNuevo.id = Contacto.ultimoId + 1;
             contactoNuevo.nombre = await prompt("Nombre:> ");
             contactoNuevo.apellido = await prompt("Apellido:> ");
             contactoNuevo.edad = await prompt("Edad:> ");
