@@ -11,22 +11,18 @@ class Contacto {
         this.#id = id;
         this.#nombre = nombre ?? '';
         this.#apellido = apellido ?? '';
-        let e = null;
-        if (edad !== undefined && edad !== null && String(edad).trim() !== '') {
-            const n = +edad;
-            e = (!Number.isNaN(n) && n >= 0) ? n : null;
-        }
-        this.#edad = e;
+        this.#edad = edad ?? null;
         this.#telefono = telefono ?? '';
         this.#email = email ?? '';
     }
-    get id(){ return this.#id }
-    get nombre(){ return this.#nombre }
-    get apellido(){ return this.#apellido }
-    get edad(){ return this.#edad }
-    get telefono(){ return this.#telefono }
-    get email(){ return this.#email }
-    get nombreCompleto(){
+        get id(){ return this.#id }
+        get nombre(){ return this.#nombre }
+        get apellido(){ return this.#apellido }
+        get edad(){ return this.#edad }
+        get telefono(){ return this.#telefono }
+        get email(){ return this.#email }
+        
+        get nombreCompleto(){
         const apellido = (this.#apellido || '').trim()
         const nombre = (this.#nombre || '').trim()
         if (apellido && nombre) {
@@ -64,7 +60,6 @@ class Contacto {
 class Agenda {
     #contactos = []
     #proximoId = 1
-
     constructor(contactos = []){
         this.#contactos = []
         for (const item of contactos) {
@@ -103,20 +98,15 @@ class Agenda {
         const q = (texto || '').toLowerCase().trim()
         const resultados = []
         for (const c of this.#contactos) {
-            const nombre = (c.nombre || '').toLowerCase()
-            const apellido = (c.apellido || '').toLowerCase()
-            const edadStr = String(c.edad == null ? '' : c.edad).toLowerCase()
-            const telefono = (c.telefono || '').toLowerCase()
-            const email = (c.email || '').toLowerCase()
-            if (
-                nombre.includes(q) ||
-                apellido.includes(q) ||
-                edadStr.includes(q) ||
-                telefono.includes(q) ||
-                email.includes(q)
-            ) {
-                resultados.push(c)
-            }
+            const valores = [
+                c.nombre,
+                c.apellido,
+                c.edad == null ? '' : String(c.edad),
+                c.telefono,
+                c.email
+            ]
+            const coincide = valores.some(v => String(v || '').toLowerCase().includes(q))
+            if (coincide) resultados.push(c)
         }
         return resultados.sort((a,b)=>
             a.nombreCompleto.localeCompare(b.nombreCompleto, 'es', { sensitivity: 'base' })
@@ -226,6 +216,30 @@ function mostrarTablaOSinDatos(lista, mensajeVacio, etiquetaCantidad){
     }
 }
 
+async function obtenerContactoPorIdInteractivo(agenda){
+    const id = await prompt("ID contacto :> ")
+    const n = +id
+    if (!Number.isFinite(n) || n <= 0) { console.log("ID inválido"); await pausar(); return null }
+    const c = agenda.obtenerPorId(n)
+    if (!c) { console.log("No existe ese ID"); await pausar(); return null }
+    return c
+}
+
+async function getCamposEdicion(c){
+    const nombre = await getTexto('Nombre', c.nombre)
+    const apellido = await getTexto('Apellido', c.apellido)
+    const edad = await getEdadQuizas(c.edad)
+    const telefono = await getTexto('Teléfono', c.telefono)
+    const email = await getTexto('Email', c.email)
+    const campos = {}
+    if (nombre !== undefined) campos.nombre = nombre
+    if (apellido !== undefined) campos.apellido = apellido
+    if (edad !== undefined) campos.edad = edad
+    if (telefono !== undefined) campos.telefono = telefono
+    if (email !== undefined) campos.email = email
+    return Object.keys(campos).length ? campos : null
+}
+
 async function opcionListar(agenda){
     console.log("== Lista de contactos ==")
     const lista = agenda.listarOrdenado()
@@ -249,24 +263,11 @@ async function opcionAgregar(agenda){
 
 async function opcionEditar(agenda){
     console.log("== Editar contacto ==")
-    const id = await prompt("ID contacto :> ")
-    const n = +id
-    if (!Number.isFinite(n) || n <= 0) { console.log("ID inválido"); await pausar(); return }
-    const c = agenda.obtenerPorId(n)
-    if (!c) { console.log("No existe ese ID"); await pausar(); return }
-    const nombre = await getTexto('Nombre', c.nombre)
-    const apellido = await getTexto('Apellido', c.apellido)
-    const edad = await getEdadQuizas(c.edad)
-    const telefono = await getTexto('Teléfono', c.telefono)
-    const email = await getTexto('Email', c.email)
-    const campos = {}
-    if (nombre !== undefined) campos.nombre = nombre
-    if (apellido !== undefined) campos.apellido = apellido
-    if (edad !== undefined) campos.edad = edad
-    if (telefono !== undefined) campos.telefono = telefono
-    if (email !== undefined) campos.email = email
-    if (Object.keys(campos).length === 0) { console.log("Sin cambios."); await pausar(); return }
-    const actualizado = agenda.editar(+id, campos)
+    const c = await obtenerContactoPorIdInteractivo(agenda)
+    if (!c) return
+    const campos = await getCamposEdicion(c)
+    if (!campos) { console.log("Sin cambios."); await pausar(); return }
+    const actualizado = agenda.editar(c.id, campos)
     await write(agenda.toJson())
     console.log("\nActualizado:")
     imprimirTabla([actualizado])
@@ -275,16 +276,13 @@ async function opcionEditar(agenda){
 
 async function opcionBorrar(agenda){
     console.log("== Borrar contacto ==")
-    const id = await prompt("ID contacto :> ")
-    const n = +id
-    if (!Number.isFinite(n) || n <= 0) { console.log("ID inválido"); await pausar(); return }
-    const c = agenda.obtenerPorId(n)
-    if (!c) { console.log("No existe ese ID"); await pausar(); return }
+    const c = await obtenerContactoPorIdInteractivo(agenda)
+    if (!c) return
     console.log("\nBorrando...")
     imprimirTabla([c])
-    const ok = await confirmarSN("\n¿Confirma borrados? :> S/N ")
+    const ok = await confirmarSN("\n¿Confirma borrado? :> S/N ")
     if (ok) {
-        agenda.borrarPorId(n)
+        agenda.borrarPorId(c.id)
     await write(agenda.toJson())
         console.log("\nEliminado.")
     } else {
