@@ -15,36 +15,33 @@ class Contacto {
         this.#telefono = telefono ?? '';
         this.#email = email ?? '';
     }
-        get id(){ return this.#id }
-        get nombre(){ return this.#nombre }
-        get apellido(){ return this.#apellido }
-        get edad(){ return this.#edad }
-        get telefono(){ return this.#telefono }
-        get email(){ return this.#email }
+    get id(){ return this.#id }
+    get nombre(){ return this.#nombre }
+    get apellido(){ return this.#apellido }
+    get edad(){ return this.#edad }
+    get telefono(){ return this.#telefono }
+    get email(){ return this.#email }
 
-        get nombreCompleto(){
+    get nombreCompleto(){
         const apellido = (this.#apellido || '').trim()
         const nombre = (this.#nombre || '').trim()
-        if (apellido && nombre) {
-            return apellido + ", " + nombre
-        } else if (apellido) {
-            return apellido
-        } else if (nombre) {
-            return nombre
-        } else {
-            return ''
+        if (apellido && nombre) return `${apellido}, ${nombre}`
+        if (apellido) return apellido
+        if (nombre) return nombre
+        return ''
+    }
+
+    toJSON(){
+        return {
+            id: this.#id,
+            nombre: this.#nombre,
+            apellido: this.#apellido,
+            edad: this.#edad,
+            telefono: this.#telefono,
+            email: this.#email
         }
     }
-    toJSON(){
-        const obj = {}
-        obj.id = this.#id
-        obj.nombre = this.#nombre
-        obj.apellido = this.#apellido
-        obj.edad = this.#edad
-        obj.telefono = this.#telefono
-        obj.email = this.#email
-        return obj
-    }
+
     static from(obj){
         return new Contacto({
             id: obj.id,
@@ -60,6 +57,7 @@ class Contacto {
 class Agenda {
     #contactos = []
     #proximoId = 1
+
     constructor(contactos = []){
         this.#contactos = []
         for (const item of contactos) {
@@ -68,18 +66,30 @@ class Agenda {
         }
         let maximoId = 0
         for (const c of this.#contactos) {
-            if (typeof c.id === 'number' && c.id > maximoId) {
-                maximoId = c.id
-            }
+            if (typeof c.id === 'number' && c.id > maximoId) maximoId = c.id
         }
         this.#proximoId = maximoId + 1
     }
 
     static fromJson(json){
-        return new Agenda(json) /*implementar*/
+        // Acepta: array, objeto con array, o string JSON
+        if (!json) return new Agenda([])
+        try {
+            const data = (typeof json === 'string') ? JSON.parse(json) : json
+            const lista = Array.isArray(data) ? data : (Array.isArray(data?.contactos) ? data.contactos : [])
+            return new Agenda(lista)
+        } catch {
+            // Si viene corrupto, devolvemos agenda vacía para no romper el flujo
+            return new Agenda([])
+        }
     }
 
-    toJson(){ return this.#contactos /*implementar*/ }
+    toJson(){
+        // Devuelve un array de objetos plain listo para persistir
+        return this.#contactos.map(c => c.toJSON())
+        // Si tu write() necesita string, usá:
+        // return JSON.stringify(this.#contactos.map(c => c.toJSON()), null, 2)
+    }
 
     agregar({nombre, apellido='', edad=null, telefono='', email=''}){
         const contacto = new Contacto({ id: this.#proximoId++, nombre, apellido, edad, telefono, email })
@@ -116,9 +126,7 @@ class Agenda {
         const buscado = +id
         for (let i = 0; i < this.#contactos.length; i++) {
             const c = this.#contactos[i]
-            if (c.id === buscado) {
-                return c
-            }
+            if (c.id === buscado) return c
         }
         return null
     }
@@ -282,7 +290,7 @@ async function opcionBorrar(agenda){
     const ok = await confirmarSN("\n¿Confirma borrado? :> S/N ")
     if (ok) {
         agenda.borrarPorId(c.id)
-    await write(agenda.toJson(), './agenda.json')
+        await write(agenda.toJson(), './agenda.json')
         console.log("\nEliminado.")
     } else {
         console.log("\nCancelado.")

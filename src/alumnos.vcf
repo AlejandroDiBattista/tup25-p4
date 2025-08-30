@@ -16,8 +16,8 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Ledesma, Paulo
-N:Ledesma;Paulo;;;
+FN:Ledesma, Paulo Marcelo
+N:Ledesma;Paulo Marcelo;;;
 TEL;TYPE=CELL:3816648356
 NOTE:Legajo: 61035 - Comision: P4-C1
 END:VCARD
@@ -56,8 +56,8 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Guerrero, Ana Sofia
-N:Guerrero;Ana Sofia;;;
+FN:Guerrero, Ana Sofía
+N:Guerrero;Ana Sofía;;;
 TEL;TYPE=CELL:3814181564
 NOTE:Legajo: 61120 - Comision: P4-C1
 END:VCARD
@@ -96,8 +96,8 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Timo, Gabriel
-N:Timo;Gabriel;;;
+FN:Timo, Hector Gabriel
+N:Timo;Hector Gabriel;;;
 TEL;TYPE=CELL:3813430992
 NOTE:Legajo: 61240 - Comision: P4-C1
 END:VCARD
@@ -216,8 +216,8 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Ballespin, Cristian ~1
-N:Ballespin;Cristian ~1;;;
+FN:Ballespin, Cristian
+N:Ballespin;Cristian;;;
 TEL;TYPE=CELL:3816045734
 NOTE:Legajo: 62171 - Comision: P4-C1
 END:VCARD
@@ -248,18 +248,18 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Desconocido ~2
-N:;Desconocido ~2;;;
-TEL;TYPE=CELL:3815390011
+FN:Branda, Cesar
+N:Branda;Cesar;;;
+TEL;TYPE=CELL:3812126932
 NOTE:Legajo: 99001 - Comision: P4-C1
 END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Branda, Cesar ~3
-N:Branda;Cesar ~3;;;
-TEL;TYPE=CELL:3812126932
-NOTE:Legajo: 99002 - Comision: P4-C1
+FN:Ponce, Rodrigo Exequiel
+N:Ponce;Rodrigo Exequiel;;;
+TEL;TYPE=CELL:3815690318
+NOTE:Legajo: 61028 - Comision: P4-C3
 END:VCARD
 
 BEGIN:VCARD
@@ -272,6 +272,14 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
+FN:Paz, Rodrigo Federico
+N:Paz;Rodrigo Federico;;;
+TEL;TYPE=CELL:3816376461
+NOTE:Legajo: 61037 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
 FN:Palavecino, Fabricio Gaston
 N:Palavecino;Fabricio Gaston;;;
 TEL;TYPE=CELL:3816666103
@@ -280,10 +288,26 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Oriz Caballero, Juan José
-N:Oriz Caballero;Juan José;;;
+FN:Suárez Vece, Leandro Andrés
+N:Suárez Vece;Leandro Andrés;;;
+TEL;TYPE=CELL:3815126476
+NOTE:Legajo: 61096 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Oríz Caballero, Juan José
+N:Oríz Caballero;Juan José;;;
 TEL;TYPE=CELL:3816317223
 NOTE:Legajo: 61113 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Tello, Abril María Agosti
+N:Tello;Abril María Agosti;;;
+TEL;TYPE=CELL:3814472483
+NOTE:Legajo: 61129 - Comision: P4-C3
 END:VCARD
 
 BEGIN:VCARD
@@ -292,6 +316,22 @@ FN:Sosa, Oscar Ignacio
 N:Sosa;Oscar Ignacio;;;
 TEL;TYPE=CELL:3815289145
 NOTE:Legajo: 61136 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Gallo, María Matilde
+N:Gallo;María Matilde;;;
+TEL;TYPE=CELL:3813334836
+NOTE:Legajo: 61139 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Di Clemente, Maria Antonela
+N:Di Clemente;Maria Antonela;;;
+TEL;TYPE=CELL:3813983935
+NOTE:Legajo: 61141 - Comision: P4-C3
 END:VCARD
 
 BEGIN:VCARD
@@ -336,10 +376,26 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
+FN:Duclós, Marcelo Ezequiel
+N:Duclós;Marcelo Ezequiel;;;
+TEL;TYPE=CELL:3815514353
+NOTE:Legajo: 61221 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
 FN:Palma Collado, Nahuel
 N:Palma Collado;Nahuel;;;
 TEL;TYPE=CELL:3816747012
 NOTE:Legajo: 61248 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Donelli, Gerardo Exequiel
+N:Donelli;Gerardo Exequiel;;;
+TEL;TYPE=CELL:3815143223
+NOTE:Legajo: 61271 - Comision: P4-C3
 END:VCARD
 
 BEGIN:VCARD
@@ -472,8 +528,8 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Maximiliano, Massey
-N:Maximiliano;Massey;;;
+FN:Massey, Maximiliano
+N:Massey;Maximiliano;;;
 TEL;TYPE=CELL:3813599941
 NOTE:Legajo: 61676 - Comision: P4-C3
 END:VCARD
@@ -552,8 +608,16 @@ END:VCARD
 
 BEGIN:VCARD
 VERSION:3.0
-FN:Aiquen, Ahumada
-N:Aiquen;Ahumada;;;
+FN:Herrera Palomino, Ivan Agustín
+N:Herrera Palomino;Ivan Agustín;;;
+TEL;TYPE=CELL:3816970643
+NOTE:Legajo: 62053 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Aumada, Aiquen Osvaldo
+N:Aumada;Aiquen Osvaldo;;;
 TEL;TYPE=CELL:3814199202
 NOTE:Legajo: 62055 - Comision: P4-C3
 END:VCARD
@@ -564,6 +628,14 @@ FN:Frias Silva, Juan Segundo
 N:Frias Silva;Juan Segundo;;;
 TEL;TYPE=CELL:3814158753
 NOTE:Legajo: 62093 - Comision: P4-C3
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Mariana Aylen Salcedo
+N:;Mariana Aylen Salcedo;;;
+TEL;TYPE=CELL:3814669695
+NOTE:Legajo: 62172 - Comision: P4-C3
 END:VCARD
 
 BEGIN:VCARD
