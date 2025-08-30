@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "nombre": "ale",
+    "edad": "26"
+  },
+  {
+    "nombre": "franco",
+    "edad": "25"
+  },
+  {
+    "nombre": "sol",
+    "edad": "26"
+  },
+  {
+    "nombre": "emi",
+    "edad": "19"
+  }
+]
