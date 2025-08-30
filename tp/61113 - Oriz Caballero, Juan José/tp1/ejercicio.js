@@ -111,10 +111,10 @@ class Agenda {
       c.email.toLowerCase().includes(q)
     );
     if (rs.length === 0) {
-      console.log('🙈 No se encontraron coincidencias.');
+      console.log(' No se encontraron coincidencias.');
       return;
     }
-    console.log('\n🔎 Resultados de búsqueda:');
+    console.log('\n Resultados de búsqueda:');
     rs.forEach(c => console.log(this.#format(c)));
   }
 
