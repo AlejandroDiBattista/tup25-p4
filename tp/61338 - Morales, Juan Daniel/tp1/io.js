@@ -3,12 +3,12 @@ import readline from "readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
 
-export async function read(origen='./agenda.json'){
+export async function read(origen='tp/61338 - Morales, Juan Daniel/tp1/agenda.json'){
     const data = await fsp.readFile(origen, 'utf-8');
     return data ?? "[]";
 }
 
-export async function write(texto, destino='./agenda.json'){
+export async function write(texto, destino='tp/61338 - Morales, Juan Daniel/tp1/agenda.json'){
   await fsp.writeFile(destino, texto, 'utf-8');
 }
 
@@ -21,4 +21,3 @@ export async function prompt(mensaje = "") {
     linea.close();
   }
 }
-
