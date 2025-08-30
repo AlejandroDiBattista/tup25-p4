@@ -52,14 +52,12 @@ class Contacto {
   }
 
   static async crearDesdePrompt() {
-    let agenda = await Agenda.cargar();
-    let id = agenda.contactos.length + 1;
     let nombre = await prompt("Nombre :>");
     let apellido = await prompt("Apellido :>");
     let edad = await prompt("Edad :>");
     let telefono = await prompt("Teléfono :>");
     let email = await prompt("Email :>");
-    const c = new Contacto(id, nombre, apellido, edad, telefono, email);
+    const c = new Contacto(null, nombre, apellido, edad, telefono, email);
     return c;
   }
   toJSON() {
@@ -89,10 +87,25 @@ class Agenda {
   }
 
   async agregar(contacto) {
-    this.contactos.push(contacto);
+
+    const ultimoId =
+      this.contactos.length > 0
+        ? this.contactos[this.contactos.length - 1].id
+        : 0;
+
+    const nuevoContacto = new Contacto(
+      ultimoId + 1,
+      contacto.nombre,
+      contacto.apellido,
+      contacto.edad,
+      contacto.telefono,
+      contacto.email
+    );
+
+    this.contactos.push(nuevoContacto);
     await this.guardar();
 
-    console.log("Contacto agregado:", contacto.toJSON());
+    console.log("Contacto agregado:", nuevoContacto.toJSON());
   }
 
   static async cargar() {
