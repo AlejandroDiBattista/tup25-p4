@@ -11,7 +11,7 @@ class Agenda {
 }
 
 
-// EJEMPLO DE USO... borrar...
+// EJEMPLO DE USO... borrar..
 let agenda = await Agenda.cargar();
 
 console.log("=== Ingresar nuevo contacto ===");
