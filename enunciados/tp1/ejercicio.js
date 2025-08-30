@@ -1,5 +1,6 @@
 import {prompt, read, write} from './io.js';
 
+
 class Contacto {
     /*...*/
 }
