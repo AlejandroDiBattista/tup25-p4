@@ -1,19 +1,7 @@
 
+import { log } from 'node:console';
 import {prompt, read, write} from './io.js';
 
-function esperarCualquierTecla(mensaje = "Presione cualquier tecla para volver al menú...") {
-    return new Promise(resolve => {
-        process.stdin.setRawMode(true);
-        process.stdin.resume();
-        process.stdout.write(mensaje);
-        process.stdin.once('data', () => {
-            process.stdin.setRawMode(false);
-            process.stdin.pause();
-            process.stdout.write('\n');
-            resolve();
-        });
-    });
-}
 
 class Contacto {
     constructor(id, nombre, apellido, edad, telefono, email) {
@@ -62,8 +50,63 @@ class Agenda {
         console.log("Contacto agregado exitosamente.\n");
     }
 
-    async editarcontacto(id, nuevosDatos) {}
-    async eliminarcontacto(id) {}
+    async editarcontacto() {
+        if (this.contactos.length === 0) {
+            console.log("No hay contactos para editar.");
+            console.log("Precione la tecla enter para volver...")
+            await prompt();
+            return;
+        }
+        const id = parseInt(await prompt("Ingrese el ID del contacto a editar: "), 10);
+        const contacto = this.contactos.find(c => c.id === id);
+        if (!contacto) {
+            console.log("Contacto no encontrado.");
+            return;
+        }
+        console.log(`\n==Editar contacto ID: ${contacto.id}==`);
+        const nombre = await prompt(`Nombre (${contacto.nombre}): `) || contacto.nombre;
+        const apellido = await prompt(`Apellido (${contacto.apellido}): `) || contacto.apellido;
+        const edadInput = await prompt(`Edad (${contacto.edad}): `);
+        const edad = edadInput ? parseInt(edadInput, 10) : contacto.edad;
+        const telefono = await prompt(`Teléfono (${contacto.telefono}): `) || contacto.telefono;
+        const email = await prompt(`Email (${contacto.email}): `) || contacto.email;
+        contacto.nombre = nombre;
+        contacto.apellido = apellido;
+        contacto.edad = edad;
+        contacto.telefono = telefono;
+        contacto.email = email;
+        await this.guardarEnArchivo();
+        console.log("Contacto editado exitosamente.");
+        console.log("=========================================")
+        console.log("Precione la tecla enter para continuar...")
+        await prompt();
+
+    }
+    async eliminarcontacto() {
+        if (this.contactos.length === 0) {
+            console.log("No hay contactos para eliminar.");
+            console.log("=========================================")
+            console.log("Precione la tecla enter para continuar...")
+        await prompt();
+            return;
+        }
+        const id = parseInt(await prompt("Ingrese el ID del contacto a eliminar: "), 10);
+        const index = this.contactos.findIndex(c => c.id === id);
+        if (index === -1) {
+            console.log("Contacto no encontrado.");
+            return;
+        } 
+        const confirmado = (await prompt(`¿Está seguro que desea eliminar el contacto ${this.contactos[index].nombre} ${this.contactos[index].apellido}? (s/n): `)).toLowerCase();
+        if (confirmado === 's') {
+            this.contactos.splice(index, 1);
+            await this.guardarEnArchivo();
+            console.log("Contacto eliminado exitosamente.");
+        } else {
+            console.log("Operación cancelada.");
+        }
+        console.log("Precione la tecla enter para continuar...")
+        await prompt();
+    }
     async listarcontactos() {
         if (this.contactos.length === 0) {
             console.log("No hay contactos en la agenda.");
@@ -75,9 +118,31 @@ class Agenda {
                 console.log(`ID: ${c.id}, Nombre: ${c.nombre}, apellido: ${c.apellido}, Edad: ${c.edad}, Teléfono: ${c.telefono}, Email: ${c.email}`);
             });
         }
-        await esperarCualquierTecla();
+        console.log("=========================================")
+        console.log("Precione la tecla enter para continuar...")
+        await prompt();
     }
-    buscarcontacto(texto) {}
+    async buscarcontacto() {
+        if (this.contactos.length === 0) {
+            console.log("No hay contactos para buscar.");
+            return;
+        }
+        const termino = await prompt("Ingrese el nombre o apellido a buscar: ")//.toLowerCase();
+        const resultados = this.contactos.filter(c => c.nombre.toLowerCase().includes(termino) || c.apellido.toLowerCase().includes(termino));
+        if (resultados.length === 0) {
+            console.log("No se encontraron contactos que coincidan con la búsqueda.");
+        } else {
+            console.log("\n==Resultados de la búsqueda==");
+            console.log("ID | Nombre | Apellido | Edad | Teléfono | Email");
+            console.log("--------------------------------------------------");
+            resultados.forEach(c => {
+                console.log(`ID: ${c.id}, Nombre: ${c.nombre}, apellido: ${c.apellido}, Edad: ${c.edad}, Teléfono: ${c.telefono}, Email: ${c.email}`);
+            });
+        }
+        console.log("=========================================")
+        console.log("Precione la tecla enter para continuar...")
+        await prompt();
+    }
 }
 
 async function mostrarMenu(agenda) {
@@ -96,16 +161,16 @@ async function mostrarMenu(agenda) {
             await agenda.agregarcontacto();
             break;
         case '2':
-            console.log("Opcion: Editar contacto");
+            await agenda.editarcontacto();
             break;
         case '3':
-            console.log("Opcion: Eliminar contacto");
+            await agenda.eliminarcontacto();
             break;
         case '4':
             await agenda.listarcontactos();
             break;
         case '5':
-            console.log("Opcion: Buscar contacto");
+            await agenda.buscarcontacto();
             break;
         case '0':
             console.log("Saliendo...");
