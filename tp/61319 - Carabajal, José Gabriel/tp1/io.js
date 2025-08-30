@@ -1,18 +1,18 @@
-import { promises as fsp } from "fs";
-import readline from "readline/promises";
-import { stdin as input, stdout as output } from "node:process";
+const fsp = require("fs").promises;
+const readline = require("readline/promises");
+const { stdin: input, stdout: output } = require("node:process");
 
 
-export async function read(origen='./agenda.json'){
+async function read(origen = './agenda.json'){
     const data = await fsp.readFile(origen, 'utf-8');
     return data ?? "[]";
 }
 
-export async function write(texto, destino='./agenda.json'){
+async function write(texto, destino = './agenda.json'){
   await fsp.writeFile(destino, texto, 'utf-8');
 }
 
-export async function prompt(mensaje = "") {
+async function prompt(mensaje = "") {
   const linea = readline.createInterface({ input, output });
   try {
     const respuesta = await linea.question(mensaje);
@@ -22,3 +22,4 @@ export async function prompt(mensaje = "") {
   }
 }
 
+module.exports = { read, write, prompt };

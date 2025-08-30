@@ -1,1 +1,21 @@
-[]
+{
+  "contactos": [
+    {
+      "id": 1,
+      "nombre": "Nicolas",
+      "apellido": "Carabajal",
+      "edad": "19",
+      "telefono": "381765278",
+      "email": "nico1234@gmail.com"
+    },
+    {
+      "id": 2,
+      "nombre": "Gabriel",
+      "apellido": "Carabajal",
+      "edad": "20",
+      "telefono": "3815627688",
+      "email": "gabriel7carabajal@gmail.com"
+    }
+  ],
+  "ultimoId": 3
+}
