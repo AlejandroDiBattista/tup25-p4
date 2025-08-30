@@ -16,6 +16,15 @@ class Contacto {
     const tel = (this.telefono || "").padEnd(14);
     return `${idStr} ${nombreCompleto} ${edadStr} ${tel} ${this.email}`;
   }
+
+  mostrarData(){
+    console.log(`ID      : ${this.id}`);
+    console.log(`Nombre  : ${this.nombre}`);
+    console.log(`Apellido: ${this.apellido}`);
+    console.log(`Edad    : ${this.edad}`);
+    console.log(`Teléfono: ${this.telefono}`);
+    console.log(`Email   : ${this.email}`);
+  }
 }
 
 class Agenda {
@@ -97,7 +106,7 @@ class Agenda {
         console.log("║ 2️⃣  Agregar contacto                 ║");
         console.log("║ 3️⃣  Editar contacto                  ║");
         console.log("║ 4️⃣  Borrar contacto                  ║");
-        console.log("║ 5️⃣  Buscar contacto por ID           ║");
+        console.log("║ 5️⃣  Buscar contacto por Contenido    ║");
         console.log("║ 0️⃣  Salir                            ║");
         console.log("╚══════════════════════════════════════╝");
         const opcion = await prompt("\nSeleccione una opción 👉 ");
@@ -132,12 +141,7 @@ class Agenda {
                     console.log("❌ No encontrado");
                 } else {
                     console.log("Editando:");
-                    console.log(`ID      : ${contacto.id}`);
-                    console.log(`Nombre  : ${contacto.nombre}`);
-                    console.log(`Apellido: ${contacto.apellido}`);
-                    console.log(`Edad    : ${contacto.edad}`);
-                    console.log(`Teléfono: ${contacto.telefono}`);
-                    console.log(`Email   : ${contacto.email}`);
+                    contacto.mostrarData();//sda
                     const nombre = await prompt(`Nuevo nombre (${contacto.nombre}): `);
                     const apellido = await prompt(`Nuevo apellido (${contacto.apellido}): `);
                     const edad = await prompt(`Nueva edad (${contacto.edad}): `);
@@ -161,12 +165,7 @@ class Agenda {
                 const borrado = agenda.buscarPorId(idDel);
                 if (borrado) {
                     console.log("🗑️  Contacto a borrar:");
-                    console.log(`ID      : ${borrado.id}`);
-                    console.log(`Nombre  : ${borrado.nombre}`);
-                    console.log(`Apellido: ${borrado.apellido}`);
-                    console.log(`Edad    : ${borrado.edad}`);
-                    console.log(`Teléfono: ${borrado.telefono}`);
-                    console.log(`Email   : ${borrado.email}`);
+                    borrado.mostrarData(); //asd
                     const seguro = await prompt("¿Está seguro que desea borrar este contacto? (s/n): ");
                     if (seguro.trim().toLowerCase() === "s") {
                         agenda.borrar(idDel);
@@ -182,18 +181,16 @@ class Agenda {
                 break;
 
             case "5":
-                const idBuscar = await prompt("🔎 Ingrese el ID a buscar : ");
-                const resultado = agenda.buscarPorId(idBuscar);
-                if (resultado) {
-                    console.log("🔍 Encontrado:");
-                    console.log(`ID      : ${resultado.id}`);
-                    console.log(`Nombre  : ${resultado.nombre}`);
-                    console.log(`Apellido: ${resultado.apellido}`);
-                    console.log(`Edad    : ${resultado.edad}`);
-                    console.log(`Teléfono: ${resultado.telefono}`);
-                    console.log(`Email   : ${resultado.email}`);
+                const textoBuscar = await prompt("🔎 Ingrese texto a buscar : ");
+                const resultados = agenda.buscar(textoBuscar);
+                if (resultados.length > 0) {
+                    console.log("🔍 Resultados encontrados:");
+                    resultados.forEach(c => {
+                        c.mostrarData(); //asd
+                        console.log("-----------------------------");
+                    });
                 } else {
-                    console.log("❌ No encontrado");
+                    console.log("❌ No se encontraron contactos.");
                 }
                 await prompt("\n🔵 Presione Enter para continuar...");
                 break;
