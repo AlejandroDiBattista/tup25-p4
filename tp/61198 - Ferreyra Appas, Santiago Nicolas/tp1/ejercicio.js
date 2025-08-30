@@ -203,5 +203,3 @@ function mostrarMenu() {
 }
 
 mostrarMenu();
-
-// No hice bien el pull request
