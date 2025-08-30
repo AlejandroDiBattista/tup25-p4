@@ -323,9 +323,9 @@ function imprimirContactos(contactos, encabezado) {
 async function main() {
   let agenda;
   try {
-    // read() pordia retornar error o ""
+    // FIX
     const data = await read("./agenda.json");
-    agenda = Agenda.fromJson(data);
+    agenda = Agenda.fromJson(JSON.parse(data));
   } catch (error) {
     agenda = new Agenda();
   }
@@ -386,7 +386,8 @@ async function main() {
         );
 
         agenda.agregar(nombre, apellido, edad, telefono, email);
-        await write(agenda.toJson(), "./agenda.json");
+        // FIX
+        await write(JSON.stringify(agenda.toJson(), null, 2), "./agenda.json");
         centerLog(color("\nContacto agregado exitosamente.", "green"));
         break;
       }
@@ -423,7 +424,9 @@ async function main() {
             contacto.email;
 
           agenda.editar(id, { nombre, apellido, edad, telefono, email });
-          await write(agenda.toJson(), "./agenda.json");
+          // FIX
+          await write(
+            JSON.stringify(agenda.toJson(), null, 2), "./agenda.json");
           centerLog(color("\nContacto actualizado exitosamente.", "green"));
         } else {
           centerLog(color("No se encontró un contacto con ese ID.", "red"));
@@ -445,7 +448,8 @@ async function main() {
           );
           if (confirma.toUpperCase() === "S") {
             agenda.borrar(id);
-            await write(agenda.toJson(), "./agenda.json");
+            // FIX
+            await write(JSON.stringify(agenda.toJson(), null, 2), "./agenda.json");
             centerLog(color("\nContacto borrado exitosamente.", "green"));
           } else {
             centerLog(color("\nOperación cancelada.", "blue"));
