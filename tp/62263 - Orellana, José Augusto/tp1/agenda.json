@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": 2,
+    "nombre": "Minguito",
+    "apellido": "Dominguez",
+    "edad": 46,
+    "telefono": "954 654 321",
+    "email": "minguito@mail.com"
+  }
+]
