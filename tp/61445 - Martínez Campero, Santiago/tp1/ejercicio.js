@@ -21,7 +21,7 @@ class Contacto {
         get edad(){ return this.#edad }
         get telefono(){ return this.#telefono }
         get email(){ return this.#email }
-        
+
         get nombreCompleto(){
         const apellido = (this.#apellido || '').trim()
         const nombre = (this.#nombre || '').trim()
@@ -76,11 +76,10 @@ class Agenda {
     }
 
     static fromJson(json){
-        if(!Array.isArray(json)) return new Agenda([])
-        return new Agenda(json)
+        return new Agenda(json) /*implementar*/
     }
 
-    toJson(){ return this.#contactos.map(c=>c.toJSON()) }
+    toJson(){ return this.#contactos /*implementar*/ }
 
     agregar({nombre, apellido='', edad=null, telefono='', email=''}){
         const contacto = new Contacto({ id: this.#proximoId++, nombre, apellido, edad, telefono, email })
@@ -255,7 +254,7 @@ async function opcionAgregar(agenda){
     const telefono = await prompt("Teléfono    :> ")
     const email = await prompt("Email       :> ")
     const nuevo = agenda.agregar({ nombre, apellido, edad, telefono, email })
-    await write(agenda.toJson())
+    await write(agenda.toJson(), './agenda.json')
     console.log("\nAgregado:")
     imprimirTabla([nuevo])
     await pausar()
@@ -268,7 +267,7 @@ async function opcionEditar(agenda){
     const campos = await getCamposEdicion(c)
     if (!campos) { console.log("Sin cambios."); await pausar(); return }
     const actualizado = agenda.editar(c.id, campos)
-    await write(agenda.toJson())
+    await write(agenda.toJson(), './agenda.json')
     console.log("\nActualizado:")
     imprimirTabla([actualizado])
     await pausar()
@@ -283,7 +282,7 @@ async function opcionBorrar(agenda){
     const ok = await confirmarSN("\n¿Confirma borrado? :> S/N ")
     if (ok) {
         agenda.borrarPorId(c.id)
-    await write(agenda.toJson())
+    await write(agenda.toJson(), './agenda.json')
         console.log("\nEliminado.")
     } else {
         console.log("\nCancelado.")
@@ -322,16 +321,5 @@ async function menu(agenda){
     }
 }
 
-let datosLeidos
-try {
-    datosLeidos = await read()
-} catch (e) {
-    if (e && e.code === 'ENOENT') {
-        console.log("No se encontró en la agenda del json, se creará al guardarlo.")
-        datosLeidos = []
-    } else {
-        throw e
-    }
-}
-const agenda = Agenda.fromJson(datosLeidos)
+let agenda = Agenda.fromJson(await read('./agenda.json'));
 await menu(agenda)

@@ -30,5 +30,13 @@
     "edad": 34,
     "telefono": "34589839",
     "email": "hernangamer777@gmail.com"
+  },
+  {
+    "id": 5,
+    "nombre": "mario",
+    "apellido": "ahumada",
+    "edad": 89,
+    "telefono": "432998332",
+    "email": "botellaplastica4@gmail.com"
   }
 ]
