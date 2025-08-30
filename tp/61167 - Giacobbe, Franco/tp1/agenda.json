@@ -1,57 +1,10 @@
 [
   {
-    "nombre": "ale",
-    "edad": "26"
-  },
-  {
-    "nombre": "franco",
-    "edad": "25"
-  },
-  {
-    "nombre": "sol",
-    "edad": "26"
-  },
-  {
-    "nombre": "emi",
-    "edad": "19"
-  },
-  {
-    "nombre": "franco",
-    "apellido": "giacobbe",
+    "id": 4,
+    "nombre": "Franco",
+    "apellido": "Giacobbe",
     "edad": "26",
     "telefono": "3815880371",
     "email": "frandg47@gmail.com"
-  },
-  {
-    "id": 1,
-    "nombre": "franco",
-    "apellido": "giacobbe",
-    "edad": "26",
-    "telefono": "3815880371",
-    "email": "frandg47@gmail.com"
-  },
-  {
-    "id": 1,
-    "nombre": "esteban",
-    "apellido": "samaniego",
-    "edad": "20",
-    "telefono": "39819",
-    "email": "e@e.com"
-  },
-  {
-    "id": 1,
-    "nombre": "gabriel",
-    "apellido": "timo",
-    "edad": "40",
-    "telefono": "38929238",
-    "email": "g@g.com"
-  },
-  {
-    "id": 2,
-    "nombre": "mica",
-    "apellido": "perez",
-    "edad": "22",
-    "telefono": "1983",
-    "email": "m@m.com"
   }
 ]
