@@ -54,13 +54,13 @@ class Agenda {
     const contacto = new Contacto(this.nextId++, nombre, apellido, edad, telefono, email);
     this.contactos.push(contacto);
     this.guardar();
-    console.log('✅ Contacto agregado con éxito.');
+    console.log(' Contacto agregado con éxito.');
   }
 
   editar(id, nuevosDatos) {
     const contacto = this.contactos.find(c => c.id === id);
     if (!contacto) {
-      console.log('⚠️  Contacto no encontrado.');
+      console.log(' Contacto no encontrado.');
       return;
     }
 
@@ -72,26 +72,26 @@ class Agenda {
     if (nuevosDatos.email?.trim()) contacto.email = limpio(nuevosDatos.email);
 
     this.guardar();
-    console.log('✏️  Contacto editado correctamente.');
+    console.log('  Contacto editado correctamente.');
   }
 
   borrar(id) {
     const i = this.contactos.findIndex(c => c.id === id);
     if (i === -1) {
-      console.log('⚠️  Contacto no encontrado.');
+      console.log('  Contacto no encontrado.');
       return;
     }
     this.contactos.splice(i, 1);
     this.guardar();
-    console.log('🗑️  Contacto eliminado.');
+    console.log('  Contacto eliminado.');
   }
 
   listar() {
     if (this.contactos.length === 0) {
-      console.log('📭 Agenda vacía.');
+      console.log(' Agenda vacía.');
       return;
     }
-    console.log('\n📒 Lista de contactos:');
+    console.log('\n Lista de contactos:');
     const ordenados = this.contactos.slice().sort((a, b) =>
       (a.apellido + a.nombre).localeCompare(b.apellido + b.nombre)
     );
@@ -101,7 +101,7 @@ class Agenda {
   buscar(texto) {
     const q = (texto || '').toLowerCase().trim();
     if (!q) {
-      console.log('⚠️  Escribe algo para buscar.');
+      console.log('  Escribe algo para buscar.');
       return;
     }
     const rs = this.contactos.filter(c =>
@@ -158,12 +158,12 @@ async function accionAgregar() {
 async function accionEditar() {
   const id = parseInt(await ask('ID del contacto a editar: '));
   if (Number.isNaN(id)) {
-    console.log('⚠️  ID inválido.');
+    console.log('  ID inválido.');
     return;
   }
   const c = agenda.contactos.find(x => x.id === id);
   if (!c) {
-    console.log('⚠️  No existe ese ID.');
+    console.log('  No existe ese ID.');
     return;
   }
   console.log('Deja vacío para mantener el valor actual.');
@@ -179,7 +179,7 @@ async function accionEditar() {
 async function accionBorrar() {
   const id = parseInt(await ask('ID del contacto a borrar: '));
   if (Number.isNaN(id)) {
-    console.log('⚠️  ID inválido.');
+    console.log('  ID inválido.');
     return;
   }
   agenda.borrar(id);
