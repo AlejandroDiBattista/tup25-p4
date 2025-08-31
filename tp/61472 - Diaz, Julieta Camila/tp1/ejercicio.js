@@ -15,7 +15,6 @@ class Agenda {
   constructor() {
     this.contactos = [];
     this.ultimoId = 0;
-    this.cargarJSON();
   }
 
   async agregarContacto(nombre, apellido, edad, telefono, email) {
@@ -60,7 +59,7 @@ class Agenda {
     console.log("\n📋 Lista de contactos:");
     this.contactos.forEach((c) => {
       console.log(
-       `${c.id}. ${c.apellido}, ${c.nombre} - ${c.telefono} - ${c.email}`
+        `${c.id}. ${c.apellido}, ${c.nombre} - ${c.telefono} - ${c.email}`
       );
     });
   }
@@ -89,75 +88,100 @@ class Agenda {
   }
 
   async guardarJSON() {
-    await write(this, "agenda.json");
+    const jsonString = JSON.stringify(this, null, 2);
+    await write(jsonString, "agenda.json");
   }
 
   async cargarJSON() {
     try {
-      const data = await read("agenda.json");
-      this.contactos = data.contactos.map(
-        (c) =>
-          new Contacto(c.id, c.nombre, c.apellido, c.edad, c.telefono, c.email)
-      );
-      this.ultimoId = data.ultimoId;
+      const jsonString = await read("agenda.json");
+      const data = JSON.parse(jsonString);
+      if (data && data.contactos) {
+        this.contactos = data.contactos.map(
+          (c) =>
+            new Contacto(
+              c.id,
+              c.nombre,
+              c.apellido,
+              c.edad,
+              c.telefono,
+              c.email
+            )
+        );
+        this.ultimoId = data.ultimoId || 0;
+      }
     } catch (error) {
-      // File doesn't exist yet, keep empty arrays
+      this.contactos = [];
+      this.ultimoId = 0;
     }
   }
 }
 //Menu
-const agenda = new Agenda();
-let opcion = "";
+async function main() {
+  const agenda = new Agenda();
+  await agenda.cargarJSON();
+  let opcion = "";
 
-do {
-  console.log("\n===== 📒 AGENDA DE CONTACTOS =====");
-  console.log("1. Agregar contacto");
-  console.log("2. Editar contacto");
-  console.log("3. Borrar contacto");
-  console.log("4. Listar contactos");
-  console.log("5. Buscar contacto");
-  console.log("0. Salir");
-  opcion = await prompt("👉 Elija una opcion: ");
+  do {
+    console.log("\n===== 📒 AGENDA DE CONTACTOS =====");
+    console.log("1. Agregar contacto");
+    console.log("2. Editar contacto");
+    console.log("3. Borrar contacto");
+    console.log("4. Listar contactos");
+    console.log("5. Buscar contacto");
+    console.log("0. Salir");
+    opcion = await prompt("👉 Elija una opcion: ");
 
-  switch (opcion) {
-    case "1":
-      const nombre = await prompt("Nombre: ");
-      const apellido = await prompt("Apellido: ");
-      const edad = parseInt(await prompt("Edad: "));
-      const telefono = await prompt("Telefono: ");
-      const email = await prompt("Email: ");
-      await agenda.agregarContacto(nombre, apellido, edad, telefono, email);
-      break;
+    switch (opcion) {
+      case "1":
+        const nombre = await prompt("Nombre: ");
+        const apellido = await prompt("Apellido: ");
+        const edad = parseInt(await prompt("Edad: ")) || 0;
+        const telefono = await prompt("Telefono: ");
+        const email = await prompt("Email: ");
+        await agenda.agregarContacto(nombre, apellido, edad, telefono, email);
+        break;
 
-    case "2":
-      const idEditar = parseInt(await prompt("ID del contacto a editar: "));
-      const nuevoTelefono = await prompt("Nuevo telefono: ");
-      const nuevoEmail = await prompt("Nuevo email: ");
-      await agenda.editarContacto(idEditar, {
-        telefono: nuevoTelefono,
-        email: nuevoEmail,
-      });
-      break;
+      case "2":
+        const idEditar = parseInt(await prompt("ID del contacto a editar: "));
+        if (isNaN(idEditar)) {
+          console.log("ID inválido.");
+          break;
+        }
+        const nuevoTelefono = await prompt("Nuevo telefono: ");
+        const nuevoEmail = await prompt("Nuevo email: ");
+        await agenda.editarContacto(idEditar, {
+          telefono: nuevoTelefono,
+          email: nuevoEmail,
+        });
+        break;
 
-    case "3":
-      const idBorrar = parseInt(await prompt("ID del contacto a borrar: "));
-      await agenda.borrarContacto(idBorrar);
-      break;
+      case "3":
+        const idBorrar = parseInt(await prompt("ID del contacto a borrar: "));
+        if (isNaN(idBorrar)) {
+          console.log("ID inválido.");
+          break;
+        }
+        await agenda.borrarContacto(idBorrar);
+        break;
 
-    case "4":
-      agenda.listarContactos();
-      break;
+      case "4":
+        agenda.listarContactos();
+        break;
 
-    case "5":
-      const palabra = await prompt("Ingrese nombre o apellido a buscar: ");
-      agenda.buscarContacto(palabra);
-      break;
+      case "5":
+        const palabra = await prompt("Ingrese nombre o apellido a buscar: ");
+        agenda.buscarContacto(palabra);
+        break;
 
-    case "0":
-      console.log("👋 Saliendo de la agenda...");
-      break;
+      case "0":
+        console.log("👋 Saliendo de la agenda...");
+        break;
 
-    default:
-      console.log("❌ Opción inválida.");
-  }
-} while (opcion !== "0");
+      default:
+        console.log("❌ Opción inválida.");
+    }
+  } while (opcion !== "0");
+}
+
+main();
