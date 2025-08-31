@@ -60,7 +60,7 @@ class Agenda {
     console.log("\n📋 Lista de contactos:");
     this.contactos.forEach((c) => {
       console.log(
-        ${c.id}. ${c.apellido}, ${c.nombre} - ${c.telefono} - ${c.email}
+       `${c.id}. ${c.apellido}, ${c.nombre} - ${c.telefono} - ${c.email}`
       );
     });
   }
@@ -74,7 +74,7 @@ class Agenda {
     console.log("\n🔎 Resultados de la búsqueda:");
     resultados.forEach((c) => {
       console.log(
-        ${c.id}. ${c.apellido}, ${c.nombre} - ${c.telefono} - ${c.email}
+        `${c.id}. ${c.apellido}, ${c.nombre} - ${c.telefono} - ${c.email}`
       );
     });
   }
