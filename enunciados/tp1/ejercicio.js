@@ -1,5 +1,6 @@
 import {prompt, read, write} from './io.js';
 
+
 class Contacto {
     constructor({id=null,nombre="",apellido="",edad=0,telefono="",email=""}={}){
    this.id = id;
@@ -206,5 +207,5 @@ class Agenda {
     }
 }
 
-// Ejecutar menú
+await agenda.guardar(); 
 menu();
