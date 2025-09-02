@@ -1,1 +1,21 @@
-[]
+{
+  "contactos": [
+    {
+      "id": 1,
+      "nombre": "1",
+      "apellido": "apu",
+      "edad": "20",
+      "telefono": "123123123",
+      "email": "123@aiq"
+    },
+    {
+      "id": 2,
+      "nombre": "as",
+      "apellido": "asa",
+      "edad": "sas",
+      "telefono": "as",
+      "email": "asas"
+    }
+  ],
+  "nextId": 3
+}
