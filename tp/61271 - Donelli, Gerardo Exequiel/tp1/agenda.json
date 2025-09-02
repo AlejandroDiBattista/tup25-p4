@@ -1,1 +1,34 @@
-[]
+[
+  {
+    "id": 1,
+    "nombre": "gerardo",
+    "apellido": "donelli",
+    "edad": 25,
+    "telefono": "231214",
+    "email": "gerardodonelli@gmail.com"
+  },
+  {
+    "id": 2,
+    "apellido": "Perez",
+    "nombre": "Juan",
+    "edad": "30",
+    "telefono": "3813447121",
+    "email": "juanperez@gmail.com"
+  },
+  {
+    "id": 3,
+    "apellido": "Gomez",
+    "nombre": "Maria",
+    "edad": "25",
+    "telefono": "3813447122",
+    "email": "mariagomez@gmail.com"
+  },
+  {
+    "id": 4,
+    "apellido": "Lopez",
+    "nombre": "Ana",
+    "edad": "28",
+    "telefono": "3813447123",
+    "email": "lopezana@gmail.com"
+    }
+]
