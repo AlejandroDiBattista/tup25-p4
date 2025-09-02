@@ -1,0 +1,12 @@
+{
+  "name": "agenda-contactos",
+  "version": "1.0.0",
+  "description": "Agenda de contactos en Node.js usando ES Modules",
+  "type": "module",
+  "main": "ejercicio.js",
+  "scripts": {
+    "start": "node ejercicio.js"
+  },
+  "author": "Tomas",
+  "license": "MIT"
+}

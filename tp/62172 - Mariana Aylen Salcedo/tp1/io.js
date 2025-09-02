@@ -8,7 +8,7 @@ export async function read(origen='./agenda.json'){
     return data ?? "[]";
 }
 
-export async function write(texto, destino='./agenda.json'){
+export async function write(destino='./agenda.json', texto){
   await fsp.writeFile(destino, texto, 'utf-8');
 }
 

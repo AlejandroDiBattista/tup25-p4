@@ -1,1 +1,29 @@
-[]
+{
+  "ultimoId": 3,
+  "contactos": [
+    {
+      "id": 1,
+      "nombre": "Jorge",
+      "apellido": "Villagra",
+      "edad": "19",
+      "telefono": "3815941635",
+      "email": "jorgevillagra551@gmail.com"
+    },
+    {
+      "id": 2,
+      "nombre": "Pedro",
+      "apellido": "araoz",
+      "edad": "29",
+      "telefono": "3994942",
+      "email": "pedroaraoz@gmail.com"
+    },
+    {
+      "id": 3,
+      "nombre": "js",
+      "apellido": "script",
+      "edad": "23",
+      "telefono": "324442",
+      "email": "fdssdkfsk"
+    }
+  ]
+}
