@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": 1,
+    "nombre": "maxi",
+    "apellido": "masye",
+    "edad": 19,
+    "telefono": "45961368",
+    "email": "massi"
+  },
+  {
+    "id": 2,
+    "nombre": "juan",
+    "apellido": "juan",
+    "edad": 99,
+    "telefono": "66663",
+    "email": "juanelgamercachondo@hotmail.com"
+  },
+  {
+    "id": 3,
+    "nombre": "luciano",
+    "apellido": "masa",
+    "edad": 23,
+    "telefono": "2222222",
+    "email": "lul@gmail.com"
+  }
+]
