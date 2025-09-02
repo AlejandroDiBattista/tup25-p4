@@ -1,1 +1,253 @@
-[]
+{
+  "nextId": 32,
+  "contactos": [
+    {
+      "id": 1,
+      "nombre": "Raúl Ricardo",
+      "apellido": "Álvarez",
+      "edad": 20,
+      "telefono": "3875432122",
+      "email": "raulalvarez@gmail.com"
+    },
+    {
+      "id": 2,
+      "nombre": "Paul",
+      "apellido": "Pogba",
+      "edad": 20,
+      "telefono": "1154987437",
+      "email": "polpogba@gmail.com"
+    },
+    {
+      "id": 3,
+      "nombre": "Jorge",
+      "apellido": "Trujillo",
+      "edad": 35,
+      "telefono": "3884123442",
+      "email": "jorgitruji@icloud.com"
+    },
+    {
+      "id": 4,
+      "nombre": "Jorgelina",
+      "apellido": "Williams",
+      "edad": 20,
+      "telefono": "3815177283",
+      "email": "jorgelinawilly@yahoo.com.ar"
+    },
+    {
+      "id": 5,
+      "nombre": "Roberto",
+      "apellido": "Castro",
+      "edad": 31,
+      "telefono": "37121213321",
+      "email": "robertcastro@gmail.com"
+    },
+    {
+      "id": 6,
+      "nombre": "Paula",
+      "apellido": "Díaz",
+      "edad": 18,
+      "telefono": "2664332181",
+      "email": "pdiaz@icloud.com"
+    },
+    {
+      "id": 7,
+      "nombre": "Pedro",
+      "apellido": "Rodríguez",
+      "edad": 19,
+      "telefono": "3413890838",
+      "email": "prodriguez@icloud.com"
+    },
+    {
+      "id": 8,
+      "nombre": "Bruno",
+      "apellido": "Pereyra",
+      "edad": 27,
+      "telefono": "2610265423",
+      "email": "bpereyra@yahoo.com"
+    },
+    {
+      "id": 9,
+      "nombre": "Martín",
+      "apellido": "Martínez",
+      "edad": 24,
+      "telefono": "2215594078",
+      "email": "mmartinez@gmail.com"
+    },
+    {
+      "id": 10,
+      "nombre": "Emiliano",
+      "apellido": "Martínez",
+      "edad": 26,
+      "telefono": "2619593103",
+      "email": "emartinez@yahoo.com"
+    },
+    {
+      "id": 11,
+      "nombre": "Pablo",
+      "apellido": "Acosta",
+      "edad": 31,
+      "telefono": "2216475255",
+      "email": "pacosta@hotmail.com"
+    },
+    {
+      "id": 12,
+      "nombre": "Rocío",
+      "apellido": "Herrera",
+      "edad": 29,
+      "telefono": "2966192832",
+      "email": "rherrera@icloud.com"
+    },
+    {
+      "id": 13,
+      "nombre": "Emiliano",
+      "apellido": "Herrera",
+      "edad": 32,
+      "telefono": "2648350305",
+      "email": "eherrera@icloud.com"
+    },
+    {
+      "id": 14,
+      "nombre": "Franco",
+      "apellido": "López",
+      "edad": 21,
+      "telefono": "2966953767",
+      "email": "flopez@hotmail.com"
+    },
+    {
+      "id": 15,
+      "nombre": "Agustín",
+      "apellido": "Romero",
+      "edad": 20,
+      "telefono": "2668849696",
+      "email": "agusromero@yahoo.com"
+    },
+    {
+      "id": 16,
+      "nombre": "Bruno",
+      "apellido": "Romero",
+      "edad": 26,
+      "telefono": "3791012269",
+      "email": "bromero@gmail.com"
+    },
+    {
+      "id": 17,
+      "nombre": "Emiliano",
+      "apellido": "Navarro",
+      "edad": 27,
+      "telefono": "3798480184",
+      "email": "enavarro@yahoo.com"
+    },
+    {
+      "id": 18,
+      "nombre": "Diego",
+      "apellido": "Vargas",
+      "edad": 24,
+      "telefono": "3517048281",
+      "email": "dvargas@yahoo.com"
+    },
+    {
+      "id": 19,
+      "nombre": "Paula",
+      "apellido": "Vega",
+      "edad": 27,
+      "telefono": "3412528809",
+      "email": "pvega@yahoo.com"
+    },
+    {
+      "id": 20,
+      "nombre": "María",
+      "apellido": "Rodríguez",
+      "edad": 19,
+      "telefono": "2966543039",
+      "email": "mrodriguez@gmail.com"
+    },
+    {
+      "id": 21,
+      "nombre": "Pablo",
+      "apellido": "Ponce",
+      "edad": 31,
+      "telefono": "2218227824",
+      "email": "pponce@icloud.com"
+    },
+    {
+      "id": 22,
+      "nombre": "Federico",
+      "apellido": "Peralta",
+      "edad": 30,
+      "telefono": "2663465787",
+      "email": "fperalta@gmail.com"
+    },
+    {
+      "id": 23,
+      "nombre": "Facundo",
+      "apellido": "Acosta",
+      "edad": 19,
+      "telefono": "3810983930",
+      "email": "facosta@gmail.com"
+    },
+    {
+      "id": 24,
+      "nombre": "Pilar",
+      "apellido": "Fernández",
+      "edad": 21,
+      "telefono": "2210518347",
+      "email": "pfernandez@hotmail.com"
+    },
+    {
+      "id": 25,
+      "nombre": "Julieta",
+      "apellido": "Romero",
+      "edad": 29,
+      "telefono": "2966997376",
+      "email": "jromero@hotmail.com"
+    },
+    {
+      "id": 26,
+      "nombre": "Martín",
+      "apellido": "Sánchez",
+      "edad": 28,
+      "telefono": "3625667010",
+      "email": "msanchez@icloud.com"
+    },
+    {
+      "id": 27,
+      "nombre": "Celeste",
+      "apellido": "Suárez",
+      "edad": 30,
+      "telefono": "2964133387",
+      "email": "csuarez@hotmail.com"
+    },
+    {
+      "id": 28,
+      "nombre": "Ricardo",
+      "apellido": "Ruiz",
+      "edad": 22,
+      "telefono": "3793178108",
+      "email": "rruiz@gmail.com"
+    },
+    {
+      "id": 29,
+      "nombre": "Pablo",
+      "apellido": "Medina",
+      "edad": 20,
+      "telefono": "3627736026",
+      "email": "pmedina@gmail.com"
+    },
+    {
+      "id": 30,
+      "nombre": "Emiliano",
+      "apellido": "Silva",
+      "edad": 32,
+      "telefono": "2807468723",
+      "email": "esilva@yahoo.com"
+    },
+    {
+      "id": 31,
+      "nombre": "Noelia",
+      "apellido": "Farfán",
+      "edad": 30,
+      "telefono": "3882182821",
+      "email": "noefarfan@gmail.com"
+    }
+  ]
+}

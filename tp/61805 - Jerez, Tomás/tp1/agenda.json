@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": 1,
+    "nombre": "tomas",
+    "apellido": "jerez",
+    "edad": "20",
+    "telefono": "3813380186",
+    "email": "tomasjerezjaier3@gmail.com"
+  },
+  {
+    "id": 2,
+    "nombre": "Daniela",
+    "apellido": "Ladona",
+    "edad": "20",
+    "telefono": "489568723675",
+    "email": "nanibloo@gmail.com"
+  }
+]
