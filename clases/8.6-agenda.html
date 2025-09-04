@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agenda de Contactos</title>
+  <style>
+    /* Design tokens (inspirados en 8.6.estilo.json) */
+    :root{
+      --color-bg: #f3f6f8;
+      --card-bg: #ffffff;
+      --primary: #16a34a; /* verde */
+      --muted: #6b7280;
+      --accent: #06b6d4;
+      --danger: #ef4444;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 6px 18px rgba(2,6,23,0.08);
+      --font-sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      --max-width: 920px;
+      --gap: 12px;
+      --glass: rgba(255,255,255,0.6);
+    }
+
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:var(--font-sans);
+      background: linear-gradient(180deg,var(--color-bg),#e9f3f0 60%);
+      display:flex;
+      align-items:flex-start; /* alineado en la parte superior */
+      justify-content:center;
+      padding:20px 28px; /* menos padding vertical para quedar más arriba */
+      -webkit-font-smoothing:antialiased;
+    }
+
+    .container{
+      width:100%;
+      max-width:var(--max-width);
+      background:var(--card-bg);
+      border-radius:calc(var(--radius) + 4px);
+      box-shadow:var(--shadow);
+      padding:20px;
+    }
+
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    h1{font-size:1.25rem;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:0.9rem}
+
+    .controls{display:flex;gap:12px;align-items:center}
+    .search{
+      display:flex;align-items:center;gap:8px;background:#f8fafb;padding:8px 12px;border-radius:999px;border:1px solid #eef2f7;min-width:180px;
+    }
+    .search input{border:0;background:transparent;outline:none;font-size:0.95rem}
+
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:0;background:var(--primary);color:white;font-weight:600;cursor:pointer;
+      box-shadow:0 6px 14px rgba(16,185,129,0.12);
+    }
+    .btn.ghost{background:transparent;color:var(--muted);border:1px solid #eef2f7;padding:8px 10px;border-radius:8px;box-shadow:none}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--gap);}
+
+    .card{
+      background:var(--card-bg);
+      border-radius:var(--radius-sm);
+      padding:14px;
+      box-shadow:0 8px 20px rgba(8,20,50,0.04);
+      display:flex;flex-direction:column;gap:8px;min-height:110px;
+    }
+    .card .row{display:flex;justify-content:space-between;align-items:center}
+    .name{font-weight:700}
+    .meta{color:var(--muted);font-size:0.9rem}
+
+    .actions{display:flex;gap:8px}
+    .icon-btn{background:transparent;border:0;padding:6px;border-radius:8px;cursor:pointer;color:var(--muted)}
+    .icon-btn:hover{background:#f3f7f6;color:var(--accent)}
+
+    /* Modal */
+    .overlay{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+    .overlay.show{display:flex}
+    .modal{width:100%;max-width:520px;background:var(--card-bg);border-radius:12px;padding:18px;box-shadow:0 20px 60px rgba(2,6,23,0.2)}
+    .modal h2{margin:0 0 8px 0}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    .field label{font-size:0.85rem;color:var(--muted)}
+    .field input{padding:10px;border-radius:8px;border:1px solid #e6eef0;outline:none}
+    .field input:invalid{border-color:var(--danger)}
+
+    .footer{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+
+    /* Empty state */
+    .empty{padding:26px;text-align:center;color:var(--muted);border-radius:8px;background:linear-gradient(180deg,#fbfcfd,#ffffff);border:1px dashed #e6eef0}
+
+    /* Responsive tweaks */
+    @media (max-width:520px){
+      .form-row{grid-template-columns:1fr}
+      header{flex-direction:column;align-items:stretch;gap:12px}
+      .controls{justify-content:space-between}
+    }
+
+    /* small helpers */
+    .muted{color:var(--muted);font-size:0.9rem}
+
+  </style>
+</head>
+<body>
+  <div class="container" role="application" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">Agenda de Contactos</h1>
+        <p class="lead">Gestiona tus contactos fácilmente — prueba la búsqueda, editar y agregar.</p>
+      </div>
+      <div class="controls">
+        <div class="search" aria-hidden="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="#94a3b8" stroke-width="1.6"></circle></svg>
+          <input id="q" type="search" placeholder="Buscar por nombre, teléfono o email" aria-label="Buscar contactos">
+        </div>
+        <button id="addBtn" class="btn" aria-haspopup="dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Agregar
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="list" class="grid" aria-live="polite"></section>
+      <div id="empty" class="empty" style="display:none;margin-top:12px">No hay contactos. Presiona "Agregar" para crear uno nuevo.</div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <h2 id="modalTitle">Agregar contacto</h2>
+      <form id="form">
+        <div class="form-row">
+          <div class="field">
+            <label for="name">Nombre</label>
+            <input id="name" name="name" type="text" required minlength="2" placeholder="Ej: Juan Pérez">
+          </div>
+          <div class="field">
+            <label for="phone">Teléfono</label>
+            <input id="phone" name="phone" type="tel" pattern="[0-9()+\-\s]{6,20}" placeholder="Ej: +54 11 1234 5678">
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="ejemplo@correo.com">
+        </div>
+
+        <div class="footer">
+          <button type="button" id="cancel" class="btn ghost">Cancelar</button>
+          <button type="submit" class="btn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Datos de ejemplo
+      const exampleContacts = [
+        {id: cryptoRandomId(), name: 'María López', phone: '+54 9 11 4321-0000', email: 'maria.lopez@example.com'},
+        {id: cryptoRandomId(), name: 'Carlos García', phone: '+54 11 5555 1234', email: 'carlos.g@example.net'},
+        {id: cryptoRandomId(), name: 'Lucía Fernández', phone: '+54 11 9876 5432', email: 'lucia.f@example.org'},
+        {id: cryptoRandomId(), name: 'Andrés Gómez', phone: '', email: 'andres.g@example.com'},
+      ];
+
+      // State
+      let contacts = [...exampleContacts];
+      let editId = null;
+
+      // Elements
+      const listEl = document.getElementById('list');
+      const q = document.getElementById('q');
+      const addBtn = document.getElementById('addBtn');
+      const overlay = document.getElementById('overlay');
+      const form = document.getElementById('form');
+      const modalTitle = document.getElementById('modalTitle');
+      const cancel = document.getElementById('cancel');
+      const empty = document.getElementById('empty');
+
+      // Helpers
+      function cryptoRandomId(){
+        return 'id-' + Math.random().toString(36).slice(2,9);
+      }
+
+      function formatPhone(p){
+        if(!p) return '';
+        return p;
+      }
+
+      function render(){
+        const term = q.value.trim().toLowerCase();
+        const filtered = contacts.filter(c=>{
+          if(!term) return true;
+          return (c.name && c.name.toLowerCase().includes(term)) ||
+                 (c.phone && c.phone.toLowerCase().includes(term)) ||
+                 (c.email && c.email.toLowerCase().includes(term));
+        });
+
+        listEl.innerHTML = '';
+        if(filtered.length===0){
+          empty.style.display='block';
+        } else { empty.style.display='none'; }
+
+        filtered.forEach(c=>{
+          const card = document.createElement('article');
+          card.className='card';
+
+          const row = document.createElement('div'); row.className='row';
+          const left = document.createElement('div');
+          const name = document.createElement('div'); name.className='name'; name.textContent = c.name || '—';
+          const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML = [c.phone?'<div>'+formatPhone(c.phone)+'</div>':'', c.email?'<div>'+c.email+'</div>':''].join('');
+
+          left.appendChild(name); left.appendChild(meta);
+
+          const actions = document.createElement('div'); actions.className='actions';
+
+          const editBtn = document.createElement('button'); editBtn.className='icon-btn'; editBtn.title='Editar'; editBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 21l3-1 11-11 2 2L8 22 3 21zM20.7 7.3a1 1 0 0 0 0-1.4l-2.6-2.6a1 1 0 0 0-1.4 0L14 4.6l4 4 2.7-1.3z" fill="currentColor"/></svg>';
+          editBtn.addEventListener('click',()=>openEdit(c.id));
+
+          const delBtn = document.createElement('button'); delBtn.className='icon-btn'; delBtn.title='Eliminar'; delBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6M10 6V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          delBtn.addEventListener('click',()=>deleteContact(c.id));
+
+          actions.appendChild(editBtn); actions.appendChild(delBtn);
+
+          row.appendChild(left); row.appendChild(actions);
+
+          card.appendChild(row);
+          listEl.appendChild(card);
+        });
+      }
+
+      function openForm(){
+        editId = null;
+        modalTitle.textContent = 'Agregar contacto';
+        form.reset();
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden','false');
+        // focus first input
+        setTimeout(()=>document.getElementById('name').focus(),120);
+      }
+
+      function openEdit(id){
+        const c = contacts.find(x=>x.id===id);
+        if(!c) return;
+        editId = id;
+        modalTitle.textContent = 'Editar contacto';
+        document.getElementById('name').value = c.name || '';
+        document.getElementById('phone').value = c.phone || '';
+        document.getElementById('email').value = c.email || '';
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden','false');
+        setTimeout(()=>document.getElementById('name').focus(),120);
+      }
+
+      function closeForm(){
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden','true');
+        editId = null;
+      }
+
+      function deleteContact(id){
+        contacts = contacts.filter(c=>c.id!==id);
+        render();
+      }
+
+      form.addEventListener('submit',function(e){
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        if(!name || name.length<2){
+          alert('El nombre es obligatorio y debe tener al menos 2 caracteres.');
+          return;
+        }
+
+        if(editId){
+          contacts = contacts.map(c=> c.id===editId ? {...c,name,phone,email} : c);
+        } else {
+          contacts.unshift({id: cryptoRandomId(), name, phone, email});
+        }
+
+        closeForm();
+        render();
+      });
+
+      addBtn.addEventListener('click',openForm);
+      cancel.addEventListener('click',closeForm);
+
+      // close on overlay click (but not when clicking modal)
+      overlay.addEventListener('click',function(e){ if(e.target===overlay) closeForm(); });
+
+      // keyboard accessibility
+      document.addEventListener('keydown',function(e){
+        if(e.key==='Escape' && overlay.classList.contains('show')){ closeForm(); }
+      });
+
+      // search
+      q.addEventListener('input',render);
+
+      // initial render
+      render();
+
+      // expose some functions for debugging
+      window._agenda = {get contacts(){return contacts}, add(contact){contacts.unshift(contact);render()}, render};
+
+      // small polyfill: if crypto is available, use it for ids
+      function cryptoRandomId(){
+        try{ if(window.crypto && crypto.getRandomValues){ const arr=new Uint32Array(2); crypto.getRandomValues(arr); return 'id-'+Array.from(arr).map(n=>n.toString(36)).join('').slice(0,9);} }
+        catch(e){}
+        return 'id-'+Math.random().toString(36).slice(2,9);
+      }
+
+    })();
+  </script>
+</body>
+</html>

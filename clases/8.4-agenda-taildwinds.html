@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda con Tailwind</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <main class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">📒 Agenda de Contactos</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Contacto 1 -->
+      <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+        <img src="https://via.placeholder.com/120" alt="Foto Juan Pérez" 
+             class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+        <h2 class="text-xl font-semibold text-gray-800">Juan Pérez</h2>
+        <p class="text-gray-500 mb-2">Desarrollador Web</p>
+        <p class="text-gray-600">📞 +54 11 1234-5678</p>
+        <p class="text-gray-600">📧 juan.perez@email.com</p>
+      </div>
+
+      <!-- Contacto 2 -->
+      <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+        <img src="https://via.placeholder.com/120" alt="Foto María González" 
+             class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+        <h2 class="text-xl font-semibold text-gray-800">María González</h2>
+        <p class="text-gray-500 mb-2">Diseñadora UX</p>
+        <p class="text-gray-600">📞 +54 9 11 8765-4321</p>
+        <p class="text-gray-600">📧 maria.gonzalez@email.com</p>
+      </div>
+
+      <!-- Contacto 3 -->
+      <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+        <img src="https://via.placeholder.com/120" alt="Foto Carlos López" 
+             class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+        <h2 class="text-xl font-semibold text-gray-800">Carlos López</h2>
+        <p class="text-gray-500 mb-2">Proveedor</p>
+        <p class="text-gray-600">📞 +54 341 555-1212</p>
+        <p class="text-gray-600">📧 carlos.lopez@email.com</p>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

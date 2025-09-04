@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Contactos</title>
+    <style>
+        :root {
+            --bg-deck: #E9EEF0;
+            --bg-card: #1E7B6D;
+            --bg-card-alt: #196D60;
+            --surface-field: rgba(255, 255, 255, 0.02);
+            --ink-primary: #E8FFF6;
+            --ink-secondary: #CFEDE3;
+            --ink-muted: #A9D7CA;
+            --ink-placeholder: #A6D3C6;
+            --border-soft: #97D4C5;
+            --border-strong: #76BEAD;
+            --accent-brand: #A7E7BE;
+            --accent-brand-strong: #6FD3A8;
+            --error: #E86161;
+            --focus: #B9F1C9;
+            --cta-gradient: linear-gradient(0deg, #BDEEC7, #93DBB2);
+            --hero-sky-gradient: linear-gradient(90deg, #EBFFF5, #CDEDDC);
+            --radius-xs: 6px;
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --radius-2xl: 28px;
+            --radius-pill: 999px;
+            --spacing-0: 0px;
+            --spacing-1: 4px;
+            --spacing-2: 8px;
+            --spacing-3: 12px;
+            --spacing-4: 16px;
+            --spacing-5: 20px;
+            --spacing-6: 24px;
+            --spacing-7: 28px;
+            --spacing-8: 32px;
+            --spacing-10: 40px;
+            --spacing-12: 48px;
+            --spacing-16: 64px;
+            --input-height: 44px;
+            --button-height: 44px;
+            --button-lg-height: 48px;
+            --card-max-width: 920px;
+            --card-padding-x: 40px;
+            --card-padding-y: 32px;
+            --icon-size: 20px;
+            --shadow-spread: 24px;
+            --font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial;
+            --font-weight-regular: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-size-caption: 12px;
+            --font-size-body: 14px;
+            --font-size-label: 15px;
+            --font-size-heading: 26px;
+            --line-height-base: 1.35;
+            --letter-spacing-heading: 0.2px;
+            --shadow-soft-lg: 0 20px 50px rgba(0, 0, 0, 0.10);
+            --shadow-soft-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --shadow-focus: 0 0 0 3px rgba(185, 241, 201, 0.9);
+            --divider: 1px solid rgba(255, 255, 255, 0.25);
+            --outline: 1px solid #97D4C5;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-deck);
+            font-family: var(--font-family);
+            color: var(--ink-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: var(--card-max-width);
+            width: 100%;
+            padding: var(--spacing-4);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-soft-lg);
+            padding: var(--card-padding-y) var(--card-padding-x);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .welcome {
+            font-size: var(--font-size-heading);
+            font-weight: var(--font-weight-semibold);
+            color: #7AB8A6;
+            letter-spacing: 6px;
+            margin-bottom: var(--spacing-8);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: var(--font-size-heading);
+            font-weight: var(--font-weight-semibold);
+            color: var(--ink-primary);
+            margin-bottom: var(--spacing-6);
+            text-align: center;
+        }
+
+        form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-4);
+        }
+
+        label {
+            display: block;
+            font-size: var(--font-size-body);
+            color: var(--ink-secondary);
+            margin-bottom: var(--spacing-2);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"] {
+            width: 100%;
+            height: var(--input-height);
+            border-radius: var(--radius-pill);
+            background: var(--surface-field);
+            border: var(--outline);
+            color: var(--ink-primary);
+            padding: 0 var(--spacing-4);
+            font-size: var(--font-size-body);
+            box-sizing: border-box;
+        }
+
+        input::placeholder {
+            color: var(--ink-placeholder);
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: var(--shadow-focus);
+        }
+
+        .button {
+            width: 100%;
+            height: var(--button-height);
+            border-radius: var(--radius-pill);
+            border: none;
+            background: var(--cta-gradient);
+            color: var(--bg-card);
+            font-size: var(--font-size-label);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            margin-top: var(--spacing-4);
+            transition: opacity 0.2s;
+        }
+
+        .button:hover {
+            opacity: 0.98;
+        }
+
+        .contacts-list {
+            margin-top: var(--spacing-8);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .contact-item {
+            background: var(--bg-card-alt);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-2);
+            color: var(--ink-secondary);
+        }
+
+        .contact-item h3 {
+            margin: 0 0 var(--spacing-2) 0;
+            color: var(--ink-primary);
+        }
+
+        .divider {
+            border-top: var(--divider);
+            margin: var(--spacing-6) 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="welcome">WELCOME</div>
+            <h1>Agenda de Contactos</h1>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" placeholder="Ingresa el nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido</label>
+                    <input type="text" id="apellido" placeholder="Ingresa el apellido" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" placeholder="Ingresa el teléfono" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Ingresa el email" required>
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección</label>
+                    <input type="text" id="direccion" placeholder="Ingresa la dirección">
+                </div>
+                <button type="submit" class="button">Agregar Contacto</button>
+            </form>
+            <div class="divider"></div>
+            <div class="contacts-list" id="contactsList">
+                <h2>Contactos</h2>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('contactForm');
+        const contactsList = document.getElementById('contactsList');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const telefono = document.getElementById('telefono').value;
+            const email = document.getElementById('email').value;
+            const direccion = document.getElementById('direccion').value;
+
+            const contactItem = document.createElement('div');
+            contactItem.className = 'contact-item';
+            contactItem.innerHTML = `
+                <h3>${nombre} ${apellido}</h3>
+                <p><strong>Teléfono:</strong> ${telefono}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                ${direccion ? `<p><strong>Dirección:</strong> ${direccion}</p>` : ''}
+            `;
+
+            contactsList.appendChild(contactItem);
+
+            form.reset();
+        });
+    </script>
+</body>
+</html>

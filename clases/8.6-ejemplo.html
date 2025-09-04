@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Contactos</title>
+  <style>
+    :root {
+      --color-background: #00b894;
+      --color-surface: #ffffff;
+      --color-surface-alt: #f5f9f7;
+      --color-primary-500: #00b894;
+      --color-primary-600: #00a383;
+      --color-primary-700: #008f70;
+      --color-text-strong: #212529;
+      --color-text-default: #333333;
+      --color-text-muted: #7d8890;
+      --color-border: #e5e9ec;
+      --color-urgent: #ff4d6d;
+      --color-running: #4d8dff;
+      --color-done: #34c759;
+      --font-family: ui-sans-serif, system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial;
+      --h1-size: 28px;
+      --h1-weight: 800;
+      --h1-line: 1.2;
+      --h2-size: 20px;
+      --h2-weight: 700;
+      --h2-line: 1.3;
+      --body-size: 16px;
+      --body-line: 1.45;
+      --small-size: 14px;
+      --small-line: 1.4;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 9999px;
+      --shadow-card: 0 6px 20px rgba(0,0,0,.06);
+      --shadow-card-elevated: 0 10px 28px rgba(0,0,0,.1);
+      --shadow-btn: 0 8px 16px rgba(0,184,148,.25);
+    }
+    body {
+      background: var(--color-background);
+      font-family: var(--font-family);
+      margin: 0;
+      min-height: 100vh;
+      color: var(--color-text-default);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .agenda-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card-elevated);
+      margin: var(--space-xl) 0;
+      padding: var(--space-xl) var(--space-lg);
+      max-width: 400px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+    h1 {
+      font-size: var(--h1-size);
+      font-weight: var(--h1-weight);
+      line-height: var(--h1-line);
+      margin: 0 0 var(--space-md) 0;
+      color: var(--color-primary-700);
+      text-align: center;
+    }
+    .search-row {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+    .search-row input[type="text"] {
+      flex: 1;
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--body-size);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      outline: none;
+      background: var(--color-surface-alt);
+      color: var(--color-text-default);
+      transition: border-color 0.2s;
+    }
+    .search-row input[type="text"]:focus {
+      border-color: var(--color-primary-500);
+    }
+    .add-btn {
+      background: var(--color-primary-500);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 12px 20px;
+      font-size: var(--body-size);
+      font-weight: 700;
+      box-shadow: var(--shadow-btn);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .add-btn:hover {
+      background: var(--color-primary-600);
+    }
+    .cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: var(--space-lg) var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      border: 1px solid var(--color-border);
+    }
+    .card-nombre {
+      font-size: var(--h2-size);
+      font-weight: var(--h2-weight);
+      color: var(--color-text-strong);
+      margin-bottom: var(--space-xs);
+    }
+    .card-tel {
+      font-size: var(--body-size);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-xs);
+    }
+    .card-email {
+      font-size: var(--small-size);
+      color: var(--color-text-default);
+    }
+    .modal-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(33,37,41,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card-elevated);
+      padding: var(--space-xl) var(--space-lg);
+      min-width: 300px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      animation: modalIn 0.2s;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal h2 {
+      font-size: var(--h2-size);
+      font-weight: var(--h2-weight);
+      margin: 0 0 var(--space-md) 0;
+      color: var(--color-primary-700);
+      text-align: center;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-sm);
+    }
+    .form-group label {
+      font-size: var(--small-size);
+      color: var(--color-text-muted);
+    }
+    .form-group input {
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--body-size);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      outline: none;
+      background: var(--color-surface-alt);
+      color: var(--color-text-default);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+      border-color: var(--color-primary-500);
+    }
+    .modal-actions {
+      display: flex;
+      gap: var(--space-sm);
+      justify-content: flex-end;
+      margin-top: var(--space-md);
+    }
+    @media (max-width: 500px) {
+      .agenda-container {
+        max-width: 98vw;
+        padding: var(--space-lg) var(--space-sm);
+      }
+    }
+    /* Iconos y estilos */
+    .card-actions {
+      float: right;
+      display: flex;
+      gap: 8px;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .icon-btn:hover {
+      background: #e5e9ec;
+    }
+  </style>
+</head>
+<body>
+  <div class="agenda-container">
+    <h1>Agenda de Contactos</h1>
+    <div class="search-row">
+      <input type="text" id="buscador" placeholder="Buscar contacto...">
+      <button class="add-btn" id="agregarBtn">Agregar</button>
+    </div>
+    <div class="cards-list" id="cardsList">
+      <!-- Las tarjetas se generan por JS -->
+    </div>
+  </div>
+  <!-- Modal para agregar contacto -->
+  <div class="modal-bg" id="modalBg" style="display:none;">
+    <div class="modal">
+      <h2>Nuevo contacto</h2>
+      <form id="formAgregar">
+        <div class="form-group">
+          <label for="nombreInput">Nombre completo</label>
+          <input type="text" id="nombreInput" required>
+        </div>
+        <div class="form-group">
+          <label for="telInput">Teléfono</label>
+          <input type="tel" id="telInput" required>
+        </div>
+        <div class="form-group">
+          <label for="emailInput">Email</label>
+          <input type="email" id="emailInput" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="add-btn">Guardar</button>
+          <button type="button" class="add-btn" id="cancelarBtn" style="background:#d7f3e8;color:#008f70;box-shadow:none;">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    // Datos de prueba
+    const contactos = [
+      { nombre: "Juan Pérez", tel: "381-555-0001", email: "juan.perez@mail.com" },
+      { nombre: "María Gómez", tel: "381-555-0002", email: "maria.gomez@mail.com" },
+      { nombre: "Luis Martínez", tel: "381-555-0003", email: "luis.martinez@mail.com" },
+      { nombre: "Ana Torres", tel: "381-555-0004", email: "ana.torres@mail.com" },
+      { nombre: "Sofía Díaz", tel: "381-555-0005", email: "sofia.diaz@mail.com" }
+    ];
+
+    function renderCards(filtro = "") {
+      const lista = document.getElementById("cardsList");
+      lista.innerHTML = "";
+      contactos
+        .filter((c, i) => c.nombre.toLowerCase().includes(filtro.toLowerCase()) || c.tel.includes(filtro) || c.email.toLowerCase().includes(filtro.toLowerCase()))
+        .forEach((c, i) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `<div class="card-nombre">${c.nombre}
+            <span class="card-actions">
+              <button class="icon-btn" title="Editar" data-idx="${i}" data-action="edit">✏️</button>
+              <button class="icon-btn" title="Borrar" data-idx="${i}" data-action="delete">🗑️</button>
+            </span>
+          </div>
+            <div class="card-tel">📱 ${c.tel}</div>
+            <div class="card-email">${c.email}</div>`;
+          lista.appendChild(card);
+        });
+      // Asignar eventos a los iconos
+      document.querySelectorAll('.icon-btn').forEach(btn => {
+        if (btn.dataset.action === 'edit') {
+          btn.onclick = () => editarContacto(parseInt(btn.dataset.idx));
+        } else if (btn.dataset.action === 'delete') {
+          btn.onclick = () => borrarContacto(parseInt(btn.dataset.idx));
+        }
+      });
+    }
+
+    document.getElementById("buscador").addEventListener("input", e => {
+      renderCards(e.target.value);
+    });
+
+    // Iconos y estilos
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .card-actions {
+        float: right;
+        display: flex;
+        gap: 8px;
+      }
+      .icon-btn {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 50%;
+        transition: background 0.2s;
+      }
+      .icon-btn:hover {
+        background: #e5e9ec;
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.getElementById("agregarBtn").addEventListener("click", () => {
+      document.getElementById("modalBg").style.display = "flex";
+      document.getElementById("formAgregar").reset();
+      document.getElementById("nombreInput").focus();
+    });
+    document.getElementById("cancelarBtn").addEventListener("click", () => {
+      document.getElementById("modalBg").style.display = "none";
+    });
+    // Función para borrar
+    function borrarContacto(idx) {
+      contactos.splice(idx, 1);
+      renderCards(document.getElementById("buscador").value);
+    }
+    // Función para editar
+    let editandoIdx = null;
+    function editarContacto(idx) {
+      editandoIdx = idx;
+      const c = contactos[idx];
+      document.getElementById("nombreInput").value = c.nombre;
+      document.getElementById("telInput").value = c.tel;
+      document.getElementById("emailInput").value = c.email;
+      document.getElementById("modalBg").style.display = "flex";
+      document.getElementById("nombreInput").focus();
+    }
+    // Modificar submit para editar o agregar
+    document.getElementById("formAgregar").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const nombre = document.getElementById("nombreInput").value.trim();
+      const tel = document.getElementById("telInput").value.trim();
+      const email = document.getElementById("emailInput").value.trim();
+      if (!nombre || !tel || !email) return;
+      if (editandoIdx !== null) {
+        contactos[editandoIdx] = { nombre, tel, email };
+        editandoIdx = null;
+      } else {
+        contactos.push({ nombre, tel, email });
+      }
+      renderCards(document.getElementById("buscador").value);
+      document.getElementById("modalBg").style.display = "none";
+    });
+    // Al abrir modal para agregar, limpiar editandoIdx
+    document.getElementById("agregarBtn").addEventListener("click", () => {
+      editandoIdx = null;
+      document.getElementById("modalBg").style.display = "flex";
+      document.getElementById("formAgregar").reset();
+      document.getElementById("nombreInput").focus();
+    });
+
+    // Inicializar
+    renderCards();
+  </script>
+</body>
+</html>
