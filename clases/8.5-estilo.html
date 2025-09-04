@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Green Flow – Demo</title>
+<style>
+:root{
+  --gfg-bg:#e9f7f0; --gfg-surface:#fff; --gfg-surface-alt:#f6fbf8;
+  --gfg-primary-500:#17c58a; --gfg-primary-600:#0fb07c; --gfg-primary-700:#0a946b; --gfg-primary-ghost:#d7f3e8;
+  --gfg-text-strong:#212529; --gfg-text:#3b444b; --gfg-text-muted:#7b8b93;
+  --gfg-success:#16c47f; --gfg-success-bg:#e9fbf3; --gfg-border:#e7ecef;
+  --gfg-shadow-1:0 6px 20px rgba(0,0,0,.06); --gfg-shadow-2:0 10px 28px rgba(0,0,0,.10);
+  --gfg-font: ui-sans-serif,system-ui,-apple-system,"SF Pro Text",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --fs-xl:28px; --fs-lg:20px; --fs-md:16px; --fs-sm:14px; --lh-tight:1.15; --lh:1.45;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-7:32px; --sp-8:40px;
+  --r-sm:10px; --r-md:16px; --r-lg:24px; --r-pill:9999px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:var(--gfg-font); background:var(--gfg-bg); color:var(--gfg-text)}
+.app{max-width:420px; margin:0 auto; padding:var(--sp-6)}
+.h1{font-size:var(--fs-xl); line-height:var(--lh-tight); color:var(--gfg-text-strong); font-weight:800; margin:0 0 var(--sp-4)}
+.h2{font-size:var(--fs-lg); line-height:var(--lh-tight); font-weight:700; margin:0 0 var(--sp-3)}
+.muted{color:var(--gfg-text-muted)}
+.card{background:var(--gfg-surface); border-radius:var(--r-lg); box-shadow:var(--gfg-shadow-1); padding:var(--sp-7) var(--sp-6)}
+.card + .card{margin-top:var(--sp-6)}
+.card__footer{background:var(--gfg-surface-alt); border-radius:0 0 var(--r-lg) var(--r-lg); padding:var(--sp-5) var(--sp-6)}
+
+/* Stepper */
+.stepper{display:flex; align-items:center; gap:12px; margin-bottom:var(--sp-5)}
+.step{height:8px; width:8px; border-radius:50%; background:#dfeee6; position:relative}
+.step::after{content:""; position:absolute; top:50%; left:8px; right:-12px; height:2px; background:#dfeee6; transform:translateY(-50%)}
+.step:last-child::after{display:none}
+.step--done{background:var(--gfg-primary-600)}
+.step--done::after{background:var(--gfg-primary-600)}
+.step--current{background:var(--gfg-primary-500); box-shadow:0 0 0 4px var(--gfg-primary-ghost)}
+
+/* Fields */
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-5)}
+.label{font-size:var(--fs-sm); color:var(--gfg-text-muted); margin-bottom:6px}
+.input{width:100%; font-size:40px; font-weight:700; letter-spacing:.06em; border:0; border-bottom:2px solid var(--gfg-border); padding:6px 2px 8px; background:transparent; color:var(--gfg-text-strong)}
+.input:focus{outline:none; border-color:var(--gfg-primary-600); box-shadow:0 6px 14px rgba(23,197,138,.15)}
+.unit{align-self:center; color:var(--gfg-text-muted); margin-left:8px}
+.field{display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end}
+.help{font-size:12px; color:var(--gfg-text-muted)}
+
+/* Buttons */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 20px; border-radius:var(--r-pill); border:0; cursor:pointer; font-weight:700; color:#fff; background:linear-gradient(90deg,var(--gfg-primary-600),var(--gfg-primary-500)); box-shadow:0 10px 20px rgba(23,197,138,.35); transition:transform .12s ease, filter .12s ease}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(1px)}
+.btn--ghost{background:var(--gfg-primary-ghost); color:var(--gfg-primary-700); box-shadow:none}
+
+.footer-actions{display:flex; justify-content:space-between; align-items:center}
+
+/* Provider card */
+.list{display:grid; gap:var(--sp-4)}
+.provider{display:flex; align-items:center; gap:12px; background:var(--gfg-surface); border-radius:var(--r-md); padding:14px 16px; box-shadow:var(--gfg-shadow-1)}
+.logo{height:40px; width:40px; border-radius:50%; background:#0001; object-fit:cover}
+.title{font-weight:700; color:var(--gfg-text-strong)}
+.meta{font-size:12px; color:var(--gfg-text-muted)}
+.chip{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:var(--r-pill); font-weight:600; background:var(--gfg-success-bg); color:var(--gfg-primary-700); margin-top:8px}
+.chip i{height:18px; width:18px; border-radius:50%; background:var(--gfg-primary-600); display:inline-block}
+
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+</style>
+</head>
+<body>
+  <main class="app">
+    <!-- Header Stepper -->
+    <nav class="stepper" aria-label="Progreso">
+      <span class="step step--done"></span>
+      <span class="step step--done"></span>
+      <span class="step step--current"></span>
+      <span class="step"></span>
+      <span class="step"></span>
+    </nav>
+
+    <!-- Card: Brewing capacity -->
+    <section class="card">
+      <p class="muted">step 4 of 6</p>
+      <h1 class="h1">Brewing capacity</h1>
+
+      <div class="field" style="margin-top:var(--sp-5)">
+        <div>
+          <label class="label">Annual production capacity</label>
+          <input class="input" inputmode="numeric" placeholder="000" aria-label="Capacity">
+          <p class="help">Enter a whole number</p>
+        </div>
+        <span class="unit">HL</span>
+      </div>
+
+      <div class="grid-2" style="margin-top:var(--sp-6)">
+        <div class="field">
+          <div>
+            <label class="label">Min brew length</label>
+            <input class="input" inputmode="numeric" placeholder="000">
+          </div>
+          <span class="unit">L</span>
+        </div>
+        <div class="field">
+          <div>
+            <label class="label">Max brew length</label>
+            <input class="input" inputmode="numeric" placeholder="000">
+          </div>
+          <span class="unit">L</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card__footer footer-actions">
+      <button class="btn btn--ghost">‹ Back</button>
+      <button class="btn">Next ›</button>
+    </section>
+
+    <!-- Card: Confirm suppliers -->
+    <section class="card">
+      <p class="muted">step 6 of 6</p>
+      <h2 class="h2">Confirm suppliers</h2>
+      <p class="muted" style="margin:var(--sp-3) 0">Direct matches</p>
+
+      <div class="list">
+        <article class="provider">
+          <img class="logo" alt="Harbour Brewing" src="https://dummyimage.com/80x80/222/fff.png&text=HB" />
+          <div>
+            <div class="title">Harbour Brewing</div>
+            <div class="meta">North Cornwall</div>
+            <div class="chip"><i></i> Direct match – meets all the requirements</div>
+          </div>
+        </article>
+
+        <article class="provider">
+          <img class="logo" alt="71 Brewing" src="https://dummyimage.com/80x80/222/fff.png&text=71" />
+          <div>
+            <div class="title">71 Brewing</div>
+            <div class="meta">East London</div>
+            <div class="chip"><i></i> Direct match – meets all the requirements</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="card card__footer footer-actions">
+      <span class="muted">23 suppliers selected</span>
+      <button class="btn">Next ›</button>
+    </section>
+  </main>
+</body>
+</html>

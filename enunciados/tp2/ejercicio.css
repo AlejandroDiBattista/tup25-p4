@@ -1,0 +1,98 @@
+/* Layout general */
+header.container { margin-top: 1.5rem; }
+
+/* Grid de tarjetas responsivo */
+#cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px; /* Separación de 10px horizontal y vertical */
+}
+
+/* Tarjeta */
+#cards article {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* aspect-ratio: 4 / 3; Relación de aspecto 4:3 (ancho/alto) */
+}
+#cards article header {
+  border-bottom: 1px solid var(--muted-border-color, rgba(0, 0, 0, 0.08));
+  padding-bottom: 0.25rem;
+  flex-shrink: 0; /* No se comprime */
+}
+#cards article strong {
+  line-height: 1.2;
+}
+
+/* Footer de la tarjeta con iconos */
+#cards article footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 10px; /* 10px de separación desde la línea superior */
+  border-top: 1px solid var(--muted-border-color, rgba(0, 0, 0, 0.08));
+  flex-shrink: 0; /* No se comprime */
+}
+
+/* Meta info con flex para aprovechar el espacio restante */
+#cards article .meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* Botón de icono compacto */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 9999px;
+}
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.icon-row {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+/* Meta info */
+.meta small {
+  display: block;
+  word-break: break-word;
+  color: var(--muted-color);
+}
+
+/* Estado vacío */
+#emptyState {
+  text-align: center;
+  color: var(--muted-color);
+  margin-top: 2rem;
+}
+
+/* Buscador ancho razonable */
+input[type='search']#search {
+  width: clamp(200px, 32vw, 360px);
+}
+
+/* Footer del formulario en el diálogo: botones alineados a la izquierda y ancho mínimo */
+dialog article footer.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+dialog article footer.btn-row button {
+  width: auto;
+  inline-size: auto;
+  flex: 0 0 auto;
+}
+

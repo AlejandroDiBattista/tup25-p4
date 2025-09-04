@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda de Contactos</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <link rel="stylesheet" href="./ejercicio.css" />
+    <script type="module" src="./ejercicio.js"></script>
+  </head>
+  <body>
+    <header class="container">
+      <nav>
+        <ul>
+          <li><h3>Agenda</h3></li>
+        </ul>
+        <ul>
+          <li>
+            <input
+              id="search"
+              name="search"
+              type="search"
+              placeholder="Buscar contactos..."
+              aria-label="Buscar contactos"
+            />
+          </li>
+          <li>
+            <button id="addContactBtn" class="contrast">Agregar</button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section id="cards" aria-live="polite" aria-busy="false"></section>
+      <p id="emptyState" hidden>No hay contactos para mostrar.</p>
+    </main>
+
+    <!-- Formulario de edición definido directamente en HTML (inicialmente oculto) -->
+    <dialog id="contactDialog">
+      <article>
+        <header>
+          <h3 id="dialogTitle">Nuevo contacto</h3>
+        </header>
+        <form id="contactForm">
+          <div class="grid">
+            <label>
+              Nombre
+              <input type="text" id="nombre" name="nombre" required />
+            </label>
+            <label>
+              Apellido
+              <input type="text" id="apellido" name="apellido" required />
+            </label>
+          </div>
+          <div class="grid">
+            <label>
+              Teléfono
+              <input type="tel" id="telefono" name="telefono" required />
+            </label>
+            <label>
+              Email
+              <input type="email" id="email" name="email" required />
+            </label>
+          </div>
+          <footer class="btn-row">
+            <button type="submit" id="saveBtn">Guardar</button>
+            <button type="button" class="secondary" id="cancelBtn">
+              Cancelar
+            </button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </body>
+  </html>
+

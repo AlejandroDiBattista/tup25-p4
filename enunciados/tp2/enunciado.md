@@ -80,9 +80,9 @@ Desarrollar una "Agenda de contactos" como aplicación web usando JavaScript pur
 
 ## Como se verá la aplicación
 #### Lista de contactos
-![Lista de contactos](./enunciados/tp2/agenda1.png)
+![Lista de contactos](./agenda1.png)
 #### Diálogo de contacto (alta/edición)
-![Diálogo de contacto](./enunciados/tp2/agenda2.png)
+![Diálogo de contacto](./agenda2.png)
 
 ## Cómo presentar el trabajo
 1. Volver a `main` y actualizar el repo local (fetch/pull).
