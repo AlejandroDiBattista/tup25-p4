@@ -1,15 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
-
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <link rel="stylesheet" href="ejercicio.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Agenda</h1>
+    <header class="header-bar">
+      <input type="search" id="buscador" placeholder="🔍 Buscar contactos...">
+      <button id="btnAgregar">Agregar</button>
+    </header>
+    <section id="listaContactos" class="grid"></section>
+  </main>
+  <dialog id="modalContacto">
+    <article>
+      <header>
+        <h3 id="modalTitulo">Nuevo contacto</h3>
+      </header>
+      <form id="formContacto">
+        <div class="grid">
+          <input type="text" id="nombre" placeholder="Nombre" required>
+          <input type="text" id="apellido" placeholder="Apellido" required>
+        </div>
+        <input type="tel" id="telefono" placeholder="Teléfono" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <footer>
+          <button type="submit">Guardar</button>
+          <button type="button" class="secondary" id="btnCancelar">Cancelar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+  <script src="ejercicio.js"></script>
+</body>
+</html>
