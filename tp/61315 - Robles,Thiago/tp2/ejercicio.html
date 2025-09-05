@@ -9,8 +9,6 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body> 
-
-
     <!-- Parte superior -->
      <!-- SEARCH && BOTON AGREGAR -->
     <nav>
@@ -27,7 +25,7 @@
         />
       </li>
       <li>
-         <button class="outline">AGREGAR CONTACTO</button>
+         <button id="btn-agregar" class="outline">AGREGAR CONTACTO</button>
       </li>
 
       </ul>
@@ -37,7 +35,6 @@
      <div class="grid">
       <!-- Insertar los datos de los contactos en forma de CARD -->
        <!-- Implementar botones de editar y eliminar -->
-
        <article>
         <header>
           <h2>CONTACTO</h2>
@@ -49,6 +46,32 @@
 
         </footer>
        </article>
+
+
+       <!-- MODALES -->
+
+  <dialog id="modal-agregar">
+  <article>
+
+    <form method="dialog">
+      
+    <h2>AGREGAR CONTACTO</h2>
+
+    <input type="text" name="text" placeholder="Ingrese nombre" aria-label="Text">
+
+    <input type="email" name="email" placeholder="Ingrese apellido" aria-label="Email" autocomplete="email">
+
+    <input type="number" name="number" placeholder="Ingrese teléfono" aria-label="Number">
+
+    <input type="password" name="password" placeholder="Ingrese email" aria-label="Password">
+
+    <button>AGREGAR</button>
+    <button class="outline">CANCELAR</button>
+
+    </form>
+
+  </article>
+</dialog>
 
 
       
