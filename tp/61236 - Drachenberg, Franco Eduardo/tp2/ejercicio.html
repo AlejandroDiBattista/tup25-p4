@@ -4,12 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
     <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <main class="container">
+      <header>
+        <hgroup>
+          <h1>Agenda</h1>
+          <h2></h2>
+        </hgroup>
+        <div class="grid">
+          <input
+            type="search"
+            id="buscador"
+            name="search"
+            placeholder="Buscar contactos..."
+          />
+          <button id="btn-agregar">Agregar Contacto</button>
+        </div>
+      </header>
+      <div id="lista-contactos"></div>
+    </main>
+    <dialog id="dialogo-contacto">
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev"></button>
+          <p>
+            <strong>Agregar/Editar Contacto</strong>
+          </p>
+        </header>
+        <form id="form-contacto">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="nombre" required />
+          <label for="apellido">Apellido</label>
+          <input type="text" id="apellido" name="apellido" required />
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" name="telefono" required />
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </form>
+        <footer>
+          <button type="button" id="btn-cancelar">Cancelar</button>
+          <button type="submit" form="form-contacto">Guardar</button>
+        </footer>
+      </article>
+    </dialog>
   </body>
-  </html>
-
+</html>
