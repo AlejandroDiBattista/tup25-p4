@@ -37,7 +37,8 @@
        <!-- Implementar botones de editar y eliminar -->
        <article>
         <header>
-          <h2>CONTACTO</h2>
+          <div id="contactos">
+          </div>
 
         </header>
         <!-- Cuerpo -->
@@ -51,21 +52,22 @@
        <!-- MODALES -->
 
   <dialog id="modal-agregar">
-  <article>
 
-    <form method="dialog">
-      
+    <article>
+
+    <form id="form-agregar" method="dialog">
+    
     <h2>AGREGAR CONTACTO</h2>
 
-    <input type="text" name="text" placeholder="Ingrese nombre" aria-label="Text">
+    <input type="text" name="nombre" placeholder="Ingrese nombre" aria-label="Nombre">
 
-    <input type="email" name="email" placeholder="Ingrese apellido" aria-label="Email" autocomplete="email">
+    <input type="text" name="apellido" placeholder="Ingrese apellido" aria-label="apellido">
 
-    <input type="number" name="number" placeholder="Ingrese teléfono" aria-label="Number">
+    <input type="text" name="telefono" placeholder="Ingrese teléfono" aria-label="telefono" autocomplete="tel">
 
-    <input type="password" name="password" placeholder="Ingrese email" aria-label="Password">
+    <input type="email" name="email" placeholder="Ingrese email" aria-label="email" autocomplete="email">
 
-    <button>AGREGAR</button>
+    <button id="btn-form-agregar">AGREGAR</button>
     <button class="outline">CANCELAR</button>
 
     </form>
