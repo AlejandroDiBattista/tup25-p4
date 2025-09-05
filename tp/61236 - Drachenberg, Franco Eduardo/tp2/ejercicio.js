@@ -156,10 +156,17 @@ class Agenda {
     };
 
     const busqueda = normalizar(termino);
+    const terminosBusqueda = busqueda.split(" ").filter((t) => t.length > 0);
+
+    if (terminosBusqueda.length === 0) {
+      return this.#contactos;
+    }
 
     return this.#contactos.filter((c) => {
       const valores = [c.nombre, c.apellido, c.telefono, c.email];
-      return normalizar(JSON.stringify(valores)).includes(busqueda);
+      return terminosBusqueda.every((term) =>
+        normalizar(JSON.stringify(valores)).includes(term)
+      );
     });
   }
 }
