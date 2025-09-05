@@ -73,17 +73,23 @@ class Agenda {
   }
 
   guardarEnLocalStorage() {
-    localStorage.setItem('agenda', JSON.stringify(this.#contactos));
-    localStorage.setItem('proximoId', this.#proximoId);
+    localStorage.setItem("agenda", JSON.stringify(this.#contactos));
+    localStorage.setItem("proximoId", this.#proximoId);
   }
 
   cargarDeLocalStorage() {
-    const contactosGuardados = localStorage.getItem('agenda');
-    const proximoIdGuardado = localStorage.getItem('proximoId');
+    const contactosGuardados = localStorage.getItem("agenda");
+    const proximoIdGuardado = localStorage.getItem("proximoId");
     if (contactosGuardados) {
       const contactosSimples = JSON.parse(contactosGuardados);
-      this.#contactos = contactosSimples.map(c => new Contacto(c.id, c.nombre, c.apellido, c.telefono, c.email));
-      this.#proximoId = proximoIdGuardado ? Number(proximoIdGuardado) : (this.#contactos.length ? Math.max(...this.#contactos.map(c => c.id)) + 1 : 1);
+      this.#contactos = contactosSimples.map(
+        (c) => new Contacto(c.id, c.nombre, c.apellido, c.telefono, c.email)
+      );
+      this.#proximoId = proximoIdGuardado
+        ? Number(proximoIdGuardado)
+        : this.#contactos.length
+        ? Math.max(...this.#contactos.map((c) => c.id)) + 1
+        : 1;
     }
   }
 
@@ -108,8 +114,8 @@ class Agenda {
   editar(id, nuevosDatos) {
     const contacto = this.buscarPorId(id);
     if (contacto) {
-        contacto.actualizar(nuevosDatos);
-        this.guardarEnLocalStorage();
+      contacto.actualizar(nuevosDatos);
+      this.guardarEnLocalStorage();
     }
     return !!contacto;
   }
@@ -143,25 +149,75 @@ class Agenda {
 
 function datosTest() {
   const datos = [
-    { nombre: 'Juan', apellido: 'Perez', telefono: '123456789', email: 'juan.perez@example.com' },
-    { nombre: 'Maria', apellido: 'Gomez', telefono: '987654321', email: 'maria.gomez@example.com' },
-    { nombre: 'Carlos', apellido: 'Rodriguez', telefono: '555555555', email: 'carlos.rodriguez@example.com' },
-    { nombre: 'Ana', apellido: 'Lopez', telefono: '111222333', email: 'ana.lopez@example.com' },
-    { nombre: 'Pedro', apellido: 'Martinez', telefono: '444555666', email: 'pedro.martinez@example.com' },
-    { nombre: 'Laura', apellido: 'Sanchez', telefono: '777888999', email: 'laura.sanchez@example.com' },
-    { nombre: 'Javier', apellido: 'Fernandez', telefono: '666555444', email: 'javier.fernandez@example.com' },
-    { nombre: 'Sofia', apellido: 'Diaz', telefono: '333222111', email: 'sofia.diaz@example.com' },
-    { nombre: 'Martin', apellido: 'Alvarez', telefono: '888999000', email: 'martin.alvarez@example.com' },
-    { nombre: 'Lucia', apellido: 'Moreno', telefono: '222333444', email: 'lucia.moreno@example.com' }
+    {
+      nombre: "Juan",
+      apellido: "Perez",
+      telefono: "123456789",
+      email: "juan.perez@example.com",
+    },
+    {
+      nombre: "Maria",
+      apellido: "Gomez",
+      telefono: "987654321",
+      email: "maria.gomez@example.com",
+    },
+    {
+      nombre: "Carlos",
+      apellido: "Rodriguez",
+      telefono: "555555555",
+      email: "carlos.rodriguez@example.com",
+    },
+    {
+      nombre: "Ana",
+      apellido: "Lopez",
+      telefono: "111222333",
+      email: "ana.lopez@example.com",
+    },
+    {
+      nombre: "Pedro",
+      apellido: "Martinez",
+      telefono: "444555666",
+      email: "pedro.martinez@example.com",
+    },
+    {
+      nombre: "Laura",
+      apellido: "Sanchez",
+      telefono: "777888999",
+      email: "laura.sanchez@example.com",
+    },
+    {
+      nombre: "Javier",
+      apellido: "Fernandez",
+      telefono: "666555444",
+      email: "javier.fernandez@example.com",
+    },
+    {
+      nombre: "Sofia",
+      apellido: "Diaz",
+      telefono: "333222111",
+      email: "sofia.diaz@example.com",
+    },
+    {
+      nombre: "Martin",
+      apellido: "Alvarez",
+      telefono: "888999000",
+      email: "martin.alvarez@example.com",
+    },
+    {
+      nombre: "Lucia",
+      apellido: "Moreno",
+      telefono: "222333444",
+      email: "lucia.moreno@example.com",
+    },
   ];
   return datos;
 }
 
 function renderizarContactos(contactos) {
-  const listaContactos = document.getElementById('lista-contactos');
-  listaContactos.innerHTML = '';
-  contactos.forEach(contacto => {
-    const article = document.createElement('article');
+  const listaContactos = document.getElementById("lista-contactos");
+  listaContactos.innerHTML = "";
+  contactos.forEach((contacto) => {
+    const article = document.createElement("article");
     article.dataset.id = contacto.id;
     article.innerHTML = `
       <header>
@@ -178,33 +234,33 @@ function renderizarContactos(contactos) {
   });
 }
 
-const btnAgregar = document.getElementById('btn-agregar');
-const dialogoContacto = document.getElementById('dialogo-contacto');
-const formContacto = document.getElementById('form-contacto');
-const btnCancelar = document.getElementById('btn-cancelar');
+const btnAgregar = document.getElementById("btn-agregar");
+const dialogoContacto = document.getElementById("dialogo-contacto");
+const formContacto = document.getElementById("form-contacto");
+const btnCancelar = document.getElementById("btn-cancelar");
 const closeButton = dialogoContacto.querySelector('[rel="prev"]');
 
-btnAgregar.addEventListener('click', () => {
+btnAgregar.addEventListener("click", () => {
   formContacto.reset();
   delete formContacto.dataset.id;
-  dialogoContacto.querySelector('strong').textContent = 'Agregar Contacto';
+  dialogoContacto.querySelector("strong").textContent = "Agregar Contacto";
   dialogoContacto.showModal();
 });
 
-btnCancelar.addEventListener('click', () => {
+btnCancelar.addEventListener("click", () => {
   dialogoContacto.close();
 });
 
-closeButton.addEventListener('click', () => {
-    dialogoContacto.close();
+closeButton.addEventListener("click", () => {
+  dialogoContacto.close();
 });
 
-formContacto.addEventListener('submit', event => {
+formContacto.addEventListener("submit", (event) => {
   event.preventDefault();
-  const nombre = document.getElementById('nombre').value;
-  const apellido = document.getElementById('apellido').value;
-  const telefono = document.getElementById('telefono').value;
-  const email = document.getElementById('email').value;
+  const nombre = document.getElementById("nombre").value;
+  const apellido = document.getElementById("apellido").value;
+  const telefono = document.getElementById("telefono").value;
+  const email = document.getElementById("email").value;
   const id = formContacto.dataset.id;
 
   if (id) {
@@ -212,33 +268,33 @@ formContacto.addEventListener('submit', event => {
   } else {
     agenda.agregar(nombre, apellido, telefono, email);
   }
-  
+
   delete formContacto.dataset.id;
   renderizarContactos(agenda.listar());
   dialogoContacto.close();
 });
 
-const listaContactos = document.getElementById('lista-contactos');
+const listaContactos = document.getElementById("lista-contactos");
 
-listaContactos.addEventListener('click', event => {
-  if (event.target.classList.contains('btn-borrar')) {
-    const article = event.target.closest('article');
+listaContactos.addEventListener("click", (event) => {
+  if (event.target.classList.contains("btn-borrar")) {
+    const article = event.target.closest("article");
     const id = Number(article.dataset.id);
     agenda.borrar(id);
     renderizarContactos(agenda.listar());
   }
 
-  if (event.target.classList.contains('btn-editar')) {
-    const article = event.target.closest('article');
+  if (event.target.classList.contains("btn-editar")) {
+    const article = event.target.closest("article");
     const id = Number(article.dataset.id);
     const contacto = agenda.buscarPorId(id);
     if (contacto) {
-      document.getElementById('nombre').value = contacto.nombre;
-      document.getElementById('apellido').value = contacto.apellido;
-      document.getElementById('telefono').value = contacto.telefono;
-      document.getElementById('email').value = contacto.email;
+      document.getElementById("nombre").value = contacto.nombre;
+      document.getElementById("apellido").value = contacto.apellido;
+      document.getElementById("telefono").value = contacto.telefono;
+      document.getElementById("email").value = contacto.email;
       formContacto.dataset.id = contacto.id;
-      dialogoContacto.querySelector('strong').textContent = 'Editar Contacto';
+      dialogoContacto.querySelector("strong").textContent = "Editar Contacto";
       dialogoContacto.showModal();
     }
   }
@@ -246,7 +302,9 @@ listaContactos.addEventListener('click', event => {
 
 const agenda = new Agenda();
 if (agenda.listar().length === 0) {
-    const datosIniciales = datosTest();
-    datosIniciales.forEach(dato => agenda.agregar(dato.nombre, dato.apellido, dato.telefono, dato.email));
+  const datosIniciales = datosTest();
+  datosIniciales.forEach((dato) =>
+    agenda.agregar(dato.nombre, dato.apellido, dato.telefono, dato.email)
+  );
 }
 renderizarContactos(agenda.listar());
