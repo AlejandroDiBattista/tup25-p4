@@ -30,3 +30,9 @@ dialog article footer {
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+.error-message {
+  color: var(--pico-form-element-invalid-border-color);
+  font-size: 0.8em;
+  height: 1em;
+}

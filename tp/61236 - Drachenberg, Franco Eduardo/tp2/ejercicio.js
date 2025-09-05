@@ -234,6 +234,17 @@ function renderizarContactos(contactos) {
   });
 }
 
+function setErrorMessage(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  const errorElement = field.nextElementSibling;
+  errorElement.innerText = message;
+}
+
+function clearErrorMessages() {
+  const errorMessages = document.querySelectorAll(".error-message");
+  errorMessages.forEach((el) => (el.innerText = ""));
+}
+
 const btnAgregar = document.getElementById("btn-agregar");
 const dialogoContacto = document.getElementById("dialogo-contacto");
 const formContacto = document.getElementById("form-contacto");
@@ -241,6 +252,7 @@ const btnCancelar = document.getElementById("btn-cancelar");
 const closeButton = dialogoContacto.querySelector('[rel="prev"]');
 
 btnAgregar.addEventListener("click", () => {
+  clearErrorMessages();
   formContacto.reset();
   delete formContacto.dataset.id;
   dialogoContacto.querySelector("strong").textContent = "Agregar Contacto";
@@ -257,10 +269,38 @@ closeButton.addEventListener("click", () => {
 
 formContacto.addEventListener("submit", (event) => {
   event.preventDefault();
+  clearErrorMessages();
+  let isValid = true;
+
   const nombre = document.getElementById("nombre").value;
   const apellido = document.getElementById("apellido").value;
   const telefono = document.getElementById("telefono").value;
   const email = document.getElementById("email").value;
+
+  if (!validarTextoNoVacio(nombre)) {
+    setErrorMessage("nombre", "Nombre is required.");
+    isValid = false;
+  }
+
+  if (!validarTextoNoVacio(apellido)) {
+    setErrorMessage("apellido", "Apellido is required.");
+    isValid = false;
+  }
+
+  if (!validarTelefono(telefono)) {
+    setErrorMessage("telefono", "Please enter a valid phone number.");
+    isValid = false;
+  }
+
+  if (!validarEmail(email)) {
+    setErrorMessage("email", "Please enter a valid email address.");
+    isValid = false;
+  }
+
+  if (!isValid) {
+    return;
+  }
+
   const id = formContacto.dataset.id;
 
   if (id) {
@@ -285,6 +325,7 @@ listaContactos.addEventListener("click", (event) => {
   }
 
   if (event.target.classList.contains("btn-editar")) {
+    clearErrorMessages();
     const article = event.target.closest("article");
     const id = Number(article.dataset.id);
     const contacto = agenda.buscarPorId(id);
