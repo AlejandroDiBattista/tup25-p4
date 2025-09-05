@@ -1,6 +1,7 @@
 'use strict';
 
-//Clases
+
+// === CLASES ===
 
 class Agenda {
 
@@ -56,26 +57,59 @@ class Contacto {
         this.email = email;
     }
 
-    guardarContactos(){
-
-        Agenda.contactos.push(this.id, this.nombre, this.apellido, this.telefono, this.email);
-
-    }
 
 }
 
+// ===========================
 
-// DOM
+// === DOM ===
 
-
-//Modales
 const modalAgregar = document.getElementById('modal-agregar');
+const formAgregar  = document.getElementById('form-agregar');
+const btnAgregar   = document.getElementById('btn-agregar');
+const divContactos = document.getElementById('contactos');
 
-// Formulario Agregar contacto
-const formAgregar = document.getElementById('form-agregar');
-const btnformAgregar = document.getElementById('btn-form-agregar'); 
+
+// === INPUTS ===
+// const inputBuscar = document.getElementById('input-buscar');
+
+// === SPANS / PARRAFOS / TITULOS ===
+const btnEditar = document.getElementById('btn-editar');
+const numeroContacto = document.getElementById('numero-contacto');
+const nombreContacto = document.getElementById('nombre-contacto');
+const apellidoContacto = document.getElementById('apellido-contacto');
+const telefonoContacto = document.getElementById('telefono-contacto');
+const emailContacto = document.getElementById('email-contacto');
+// ===========================
+
+// === INSTANCIA PRINCIPAL ===
+
+const agenda = new Agenda();
+
+// ===========================
 
 
+
+// === DATOS DE PRUEBA ===
+
+const contacto1 = new Contacto('Juan', 'Pérez', '123456789', 'juan@example.com');
+const contacto2 = new Contacto('Ana', 'Gómez', '987654321', 'ana@example.com');
+const contacto3 = new Contacto('Luis', 'Martínez', '555666777', 'luis@example.com');
+const contacto4 = new Contacto('María', 'Rodríguez', '444555666', 'maria@example.com');
+const contacto5 = new Contacto('Carlos', 'López', '222333444', 'carlos@example.com');
+agenda.agregarContacto(contacto1);
+agenda.agregarContacto(contacto2);
+agenda.agregarContacto(contacto3);
+agenda.agregarContacto(contacto4);
+agenda.agregarContacto(contacto5);
+
+mostrarContactos(agenda.contactos);
+
+// ===========================
+
+
+// ===== Eventos =====
+// Al enviar el formulario de agregar contacto
 formAgregar.addEventListener('submit', (e) => {
 
     e.preventDefault();
@@ -97,27 +131,35 @@ formAgregar.addEventListener('submit', (e) => {
 });
 
 
+// ===================
 
+// === BOTONES ===
+const btnformAgregar = document.getElementById('btn-form-agregar'); 
 
-//Botones
-const btnAgregar = document.getElementById('btn-agregar');
+// ===========================
 
-// Funciones generales
+// === EVENTOS ===
 
 // Al hacer click en "Agregar contacto", se abre el modal
 btnAgregar.addEventListener('click', () => {    
     modalAgregar.showModal();
 });
 
+// Al hacer click en "Editar contacto", se abre el modal
+// btnEditar.addEventListener('click', () => {
+//     modalEditar.showModal();
+// });
 
-//  Mostrar Contactos
 
-const agenda = new Agenda();
+
+// === FUNCIONES ===
+// Mostrar contactos en el DOM
+
+
 const contactos= agenda.contactos;
-const divContactos = document.getElementById('contactos');
-
 
 const mostrarContactos = (contactos) => {
+    divContactos.innerHTML = '';
     contactos.forEach(contacto => {
         divContactos.innerHTML += `
             <h3>${contacto.nombre} ${contacto.apellido}</h3>

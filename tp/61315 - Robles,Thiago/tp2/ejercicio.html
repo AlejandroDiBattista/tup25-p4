@@ -8,76 +8,52 @@
     <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
-  <body> 
+  <body>
     <!-- Parte superior -->
-     <!-- SEARCH && BOTON AGREGAR -->
+    <!-- SEARCH && BOTON AGREGAR -->
     <nav>
       <ul>
-        <li><strong><h1>AGENDA DE CONTACTOS</h1></strong></li>
+        <li>
+          <strong>
+            <h1>AGENDA DE CONTACTOS</h1>
+          </strong>
+        </li>
       </ul>
       <ul>
-         <li>
-        <input
-          type="search"
-          name="buscar-contacto"
-          placeholder="Buscar contacto"
-          aria-label="Search"
-        />
-      </li>
-      <li>
-         <button id="btn-agregar" class="outline">AGREGAR CONTACTO</button>
-      </li>
-
+        <li>
+          <input
+            id="input-buscar"
+            type="search"
+            name="buscar-contacto"
+            placeholder="Buscar contacto"
+            aria-label="Search"
+          />
+        </li>
+        <li>
+          <button id="btn-agregar" class="outline">AGREGAR CONTACTO</button>
+        </li>
       </ul>
-     
-  </nav>
+    </nav>
     <!-- LISTA DE CONTACTOS -->
-     <div class="grid">
-      <!-- Insertar los datos de los contactos en forma de CARD -->
-       <!-- Implementar botones de editar y eliminar -->
-       <article>
-        <header>
-          <div id="contactos">
-          </div>
+     <main class="container">
+      <div class="grid"></div>
+    <div id="contactos" >
 
-        </header>
-        <!-- Cuerpo -->
-         
-        <footer>
-
-        </footer>
-       </article>
-
-
-       <!-- MODALES -->
-
-  <dialog id="modal-agregar">
-
-    <article>
-
-    <form id="form-agregar" method="dialog">
-    
-    <h2>AGREGAR CONTACTO</h2>
-
-    <input type="text" name="nombre" placeholder="Ingrese nombre" aria-label="Nombre">
-
-    <input type="text" name="apellido" placeholder="Ingrese apellido" aria-label="apellido">
-
-    <input type="text" name="telefono" placeholder="Ingrese teléfono" aria-label="telefono" autocomplete="tel">
-
-    <input type="email" name="email" placeholder="Ingrese email" aria-label="email" autocomplete="email">
-
-    <button id="btn-form-agregar">AGREGAR</button>
-    <button class="outline">CANCELAR</button>
-
-    </form>
-
-  </article>
-</dialog>
-
-
-      
-   
+    </div>
+    </main>
+    <!-- MODALES -->
+    <dialog id="modal-agregar">
+      <article>
+        <form id="form-agregar" method="dialog">
+          <h2>AGREGAR CONTACTO</h2>
+          <input type="text" name="nombre" placeholder="Ingrese nombre" aria-label="Nombre" />
+          <input type="text" name="apellido" placeholder="Ingrese apellido" aria-label="apellido" />
+          <input type="text" name="telefono" placeholder="Ingrese teléfono" aria-label="telefono" autocomplete="tel" />
+          <input type="email" name="email" placeholder="Ingrese email" aria-label="email" autocomplete="email" />
+          <button id="btn-form-agregar">AGREGAR</button>
+          <button class="outline">CANCELAR</button>
+        </form>
+      </article>
+    </dialog>
   </body>
-  </html>
-
+</html>
