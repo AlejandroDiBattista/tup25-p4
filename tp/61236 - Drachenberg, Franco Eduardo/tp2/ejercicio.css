@@ -1,1 +1,32 @@
 /* Estilos generales */
+
+.btn-editar,
+.btn-borrar {
+  border: none;
+  cursor: pointer;
+  padding: 0.5em 1em;
+  color: white;
+  border-radius: 5px;
+}
+
+.btn-editar {
+  background-color: var(--pico-primary);
+}
+
+.btn-editar:hover {
+  background-color: var(--pico-primary-hover);
+}
+
+.btn-borrar {
+  background-color: var(--pico-secondary);
+}
+
+.btn-borrar:hover {
+  background-color: var(--pico-secondary-hover);
+}
+
+dialog article footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
