@@ -1,12 +1,28 @@
 /* Estilos generales */
 
+dialog article footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.error-message {
+  color: var(--pico-form-element-invalid-border-color);
+  font-size: 0.8em;
+  height: 1em;
+}
+
 .btn-editar,
 .btn-borrar {
+  background-color: var(--pico-primary);
   border: none;
   cursor: pointer;
   padding: 0.5em 1em;
   color: white;
   border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-editar {
@@ -25,14 +41,14 @@
   background-color: var(--pico-secondary-hover);
 }
 
-dialog article footer {
+#btn-agregar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.error-message {
-  color: var(--pico-form-element-invalid-border-color);
-  font-size: 0.8em;
-  height: 1em;
+article footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
