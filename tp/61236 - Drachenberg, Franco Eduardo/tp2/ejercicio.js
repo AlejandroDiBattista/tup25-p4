@@ -148,10 +148,18 @@ class Agenda {
   }
 
   buscar(termino) {
-    const busqueda = termino.toLowerCase();
+    const normalizar = (str) => {
+      return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    };
+
+    const busqueda = normalizar(termino);
+
     return this.#contactos.filter((c) => {
       const valores = [c.nombre, c.apellido, c.telefono, c.email];
-      return JSON.stringify(valores).toLowerCase().includes(busqueda);
+      return normalizar(JSON.stringify(valores)).includes(busqueda);
     });
   }
 }
