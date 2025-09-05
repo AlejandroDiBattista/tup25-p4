@@ -300,6 +300,18 @@ listaContactos.addEventListener("click", (event) => {
   }
 });
 
+const buscador = document.getElementById("buscador");
+
+buscador.addEventListener("input", () => {
+  const termino = buscador.value;
+  if (termino.length > 0) {
+    const resultados = agenda.buscar(termino);
+    renderizarContactos(resultados);
+  } else {
+    renderizarContactos(agenda.listar());
+  }
+});
+
 const agenda = new Agenda();
 if (agenda.listar().length === 0) {
   const datosIniciales = datosTest();
