@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        i { color: blue; }
+    </style>
+</head>
+<body style="color:red">
+    <h1>Agenda de <i>Contactos</i></h1>
+
+    <div id="formulario"></div>
+    <button id="btnAceptar">Aceptar</button>
+    <script>
+
+        function input(nombre, valor){
+            return `
+            <div>
+                <label for="${nombre}">${nombre}</label><br>
+                <input type="text" name="${nombre}" class="${nombre}" placeholder="${nombre}" value="${valor}">
+            </div>
+            `;
+        }
+        function generar(){
+            let campos = [
+                {nombre: 'nombre', valor: 'Alejandro'},
+                {nombre: 'apellido', valor: 'Di Battista'},
+                {nombre: 'telefono', valor: '123456789'},
+                {nombre: 'email', valor: 'alejandro@example.com'},
+                {nombre: 'direccion', valor: 'Calle Falsa 123'},
+            ]
+            const f = document.getElementById('formulario');
+
+            let html = '<h3>Editando</h3>';
+            for(let c of campos){
+                html += input(c.nombre, c.valor);
+            }
+            f.innerHTML = html;
+        }
+
+        const b = document.getElementById('btnAceptar');
+        b.onclick = generar;
+
+    </script>
+</body>
+</html>
