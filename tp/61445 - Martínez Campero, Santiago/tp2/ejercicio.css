@@ -1,1 +1,20 @@
-/* Estilos generales */
+/* Estilos generales, me ayudo aca la ia para acomodar las cards */
+
+:root{
+  --gap: 1.2rem;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--gap);
+}
+
+.cards article.card{
+  padding: 0.75rem 0.9rem;
+}
+
+.cards header h3{ margin: 0; }
+
+/* Ensancha el input de búsqueda dentro de la navbar-centro */
+#buscar{ width: 100%; }
