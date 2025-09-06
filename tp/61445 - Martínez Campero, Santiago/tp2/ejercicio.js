@@ -54,13 +54,17 @@ function renderizarContactos(lista){
         <span style="display:inline-flex;align-items:center;gap:.35rem;"><i data-lucide="phone"></i> ${contacto.telefono || '—'}</span><br>
         <span style="display:inline-flex;align-items:center;gap:.35rem;"><i data-lucide="mail"></i> ${contacto.email || '—'}</span>
       </p>
+      <footer style="display:flex;gap:.5rem;">
+        <button data-action="editar" data-id="${contacto.id}" class="contrast">Editar</button>
+        <button data-action="borrar" data-id="${contacto.id}" class="secondary">Borrar</button>
+      </footer>
     </article>
   `).join('');
   contenedorTarjetas.innerHTML = html;
   if (window.lucide?.createIcons) window.lucide.createIcons();
 }
 
-const estado = { contactos: obtenerContactosIniciales() };
+const estado = { contactos: obtenerContactosIniciales(), editandoId: null };
 renderizarContactos(estado.contactos);
 
 inputBusqueda.addEventListener('input', () => {
@@ -78,12 +82,16 @@ const inputEmail = document.getElementById('Email');
 const botonCancelar = document.getElementById('btnCancelar');
 
 botonAgregar.addEventListener('click', () => {
+  estado.editandoId = null;
   tituloDialogo.textContent = 'Nuevo contacto';
   formulario.reset();
   dialogo.showModal();
 });
 
-botonCancelar.addEventListener('click', () => dialogo.close());
+botonCancelar.addEventListener('click', () => {
+  estado.editandoId = null;
+  dialogo.close();
+});
 
 formulario.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -92,10 +100,36 @@ formulario.addEventListener('submit', (e) => {
   const telefono = inputTelefono.value.trim();
   const email = inputEmail.value.trim();
   if(!nombre || !apellido) return;
-  const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
-  estado.contactos.push({ id, nombre, apellido, telefono, email });
+  if(estado.editandoId){
+    estado.contactos = estado.contactos.map(c => c.id === estado.editandoId ? { ...c, nombre, apellido, telefono, email } : c);
+  } else {
+    const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    estado.contactos.push({ id, nombre, apellido, telefono, email });
+  }
+  estado.editandoId = null;
   dialogo.close();
   renderizarContactos(filtrarContactosPorTexto(estado.contactos, inputBusqueda.value));
+});
+
+contenedorTarjetas.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  if(btn.dataset.action === 'borrar'){
+    estado.contactos = estado.contactos.filter(c => c.id !== id);
+    renderizarContactos(filtrarContactosPorTexto(estado.contactos, inputBusqueda.value));
+  }
+  if(btn.dataset.action === 'editar'){
+    const c = estado.contactos.find(x => x.id === id);
+    if(!c) return;
+    estado.editandoId = id;
+    tituloDialogo.textContent = 'Editar contacto';
+    inputNombre.value = c.nombre || '';
+    inputApellido.value = c.apellido || '';
+    inputTelefono.value = c.telefono || '';
+    inputEmail.value = c.email || '';
+    dialogo.showModal();
+  }
 });
 
 botonLogin?.addEventListener('click', () => {
