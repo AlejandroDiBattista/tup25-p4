@@ -68,8 +68,34 @@ inputBusqueda.addEventListener('input', () => {
   renderizarContactos(filtrados);
 });
 
+const dialogo = document.getElementById('contactDialog');
+const formulario = document.getElementById('contactForm');
+const tituloDialogo = document.getElementById('dialogTitle');
+const inputNombre = document.getElementById('Nombre');
+const inputApellido = document.getElementById('Apellido');
+const inputTelefono = document.getElementById('Telefono');
+const inputEmail = document.getElementById('Email');
+const botonCancelar = document.getElementById('btnCancelar');
+
 botonAgregar.addEventListener('click', () => {
-  alert('Agregar contacto: lo implementamos en el siguiente paso.');
+  tituloDialogo.textContent = 'Nuevo contacto';
+  formulario.reset();
+  dialogo.showModal();
+});
+
+botonCancelar.addEventListener('click', () => dialogo.close());
+
+formulario.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const nombre = inputNombre.value.trim();
+  const apellido = inputApellido.value.trim();
+  const telefono = inputTelefono.value.trim();
+  const email = inputEmail.value.trim();
+  if(!nombre || !apellido) return;
+  const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  estado.contactos.push({ id, nombre, apellido, telefono, email });
+  dialogo.close();
+  renderizarContactos(filtrarContactosPorTexto(estado.contactos, inputBusqueda.value));
 });
 
 botonLogin?.addEventListener('click', () => {
