@@ -1,1 +1,36 @@
 /* Estilos generales */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.navigation h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.section-contacts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.form-contact {
+    padding: 3rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}

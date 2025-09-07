@@ -1,15 +1,103 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="./ejercicio.css" />
+  <script type="module" src="./ejercicio.js"></script>
+</head>
+
+<body>
+  <dialog id="agregarContactoForm">
+    <div class="form-contact">
+
+      <form class="container form-contact">
+        <article>
+          <header>Agregar contacto</header>
+          <fieldset class="grid">
+            <label for="name">Nombre:
+              <input type="text" id="name" name="name" required />
+            </label>
+
+            <label for="surname">Apellido:
+              <input type="text" id="surname" name="surname" required />
+            </label>
+          </fieldset>
+          <fieldset class="grid">
+            <label for="phone">Teléfono:
+              <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}" />
+            </label>
+            <label for="email">Email:
+              <input type="email" id="email" name="email" required />
+            </label>
+          </fieldset>
+          <fieldset>
+            <div class="form-actions">
+              <button type="submit">Guardar</button>
+              <button type="button" class="secondary" id="btnCancelar">Cancelar</button>
+            </div>
+          </fieldset>
+        </article>
+      </form>
+    </div>
+  </dialog>
+
+  <header class="container">
+    <nav class="navigation">
+      <ul>
+        <li>
+          <h1>Agenda de Contactos</h1>
+        </li>
+        <li>
+          <input type="search" name="search" placeholder="Search" aria-label="Search" />
+        </li>
+        <li>
+          <button type="button" id="btnAgregarContacto">Agregar Contacto</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="contactsSection" class="grid section-contacts">
+      <article>
+        <header>
+          <h2>Contacto 1</h2>
+        </header>
+        <p>Tel: 1234567890</p>
+        <p>Email: contacto1@example.com</p>
+        <footer>
+          <button type="button" class="outline contrast">Editar</button>
+          <button type="button" class="outline contrast">Eliminar</button>
+        </footer>
+      </article>
+      <article>
+        <header>
+          <h2>Contacto 1</h2>
+        </header>
+        <p>Tel: 1234567890</p>
+        <p>Email: contacto1@example.com</p>
+        <footer>
+          <button type="button" class="edit-button">Editar</button>
+          <button type="button" class="delete-button">Eliminar</button>
+        </footer>
+      </article>
+      <article>
+        <header>
+          <h2>Contacto 1</h2>
+        </header>
+        <p>Tel: 1234567890</p>
+        <p>Email: contacto1@example.com</p>
+        <footer>
+          <button type="button" class="edit-button">Editar</button>
+          <button type="button" class="delete-button">Eliminar</button>
+        </footer>
+      </article>
+    </section>
+  </main>
+</body>
+
+</html>
