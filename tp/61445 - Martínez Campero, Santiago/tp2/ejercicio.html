@@ -6,16 +6,13 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <!-- Lucide (CDN) para íconos -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
-    <script type="module" src="./ejercicio.js"></script>
+  <script type="module" src="./ejercicio.js"></script>
     
   </head>
   <body>
     <main class="container">
       <h1>Agenda</h1>
 
-      <!-- Navbar con búsqueda centrada, Agregar a la izquierda e Iniciar sesión a la derecha -->
       <div class="navbar">
         <div class="navbar-izquierda">
           <button id="btnAgregar" type="button" class="contrast">Agregar</button>
@@ -23,17 +20,12 @@
         <div class="navbar-centro">
           <input type="search" id="buscar" placeholder="Buscar contactos..." aria-label="Buscar contactos" />
         </div>
-        <div class="navbar-derecha">
-          <button id="btnLogin" type="button" class="secondary">Iniciar sesión</button>
-        </div>
       </div>
 
-      <!-- Contenedor dinámico de tarjetas -->
       <section id="cards" class="grid cards"></section>
     </main>
 
-    <!-- Diálogo de alta/edición -->
-    <dialog id="contactDialog">
+  <dialog id="contactDialog" aria-labelledby="dialogTitle">
       <article>
         <header>
           <h2 id="dialogTitle">Nuevo contacto</h2>
@@ -42,21 +34,21 @@
           <div class="grid two-cols">
             <label>
               <span>Nombre</span>
-              <input id="Nombre" name="nombre" required />
+        <input id="Nombre" name="nombre" type="text" autocomplete="given-name" autocapitalize="words" required />
             </label>
             <label>
               <span>Apellido</span>
-              <input id="Apellido" name="apellido" required />
+        <input id="Apellido" name="apellido" type="text" autocomplete="family-name" autocapitalize="words" required />
             </label>
           </div>
           <div class="grid two-cols">
             <label>
               <span>Teléfono</span>
-              <input id="Telefono" name="telefono" />
+        <input id="Telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" pattern="[0-9()+\-\s]{6,}" title="Usa solo números, espacios, +, -, ( )" />
             </label>
             <label>
               <span>Email</span>
-              <input id="Email" name="email" type="email" />
+        <input id="Email" name="email" type="email" autocomplete="email" />
             </label>
           </div>
           <footer class="dialog-actions">

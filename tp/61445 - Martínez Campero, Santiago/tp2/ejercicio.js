@@ -3,7 +3,7 @@
 const contenedorTarjetas = document.getElementById('cards');
 const inputBusqueda = document.getElementById('buscar');
 const botonAgregar = document.getElementById('btnAgregar');
-const botonLogin = document.getElementById('btnLogin');
+
 
 function normalizarTexto(texto){
   return (texto || '')
@@ -66,21 +66,19 @@ function renderizarContactos(lista){
   const html = lista.map((contacto)=> `
     <article class="card">
       <header style="display:flex;align-items:center;gap:.5rem;">
-        <i data-lucide="contact"></i>
         <h3>${contacto.nombre} ${contacto.apellido}</h3>
       </header>
       <p>
-        <span style="display:inline-flex;align-items:center;gap:.35rem;"><i data-lucide="phone"></i> ${contacto.telefono || '—'}</span><br>
-        <span style="display:inline-flex;align-items:center;gap:.35rem;"><i data-lucide="mail"></i> ${contacto.email || '—'}</span>
+        <span style="display:inline-flex;align-items:center;gap:.35rem;">📞 ${contacto.telefono || '—'}</span><br>
+        <span style="display:inline-flex;align-items:center;gap:.35rem;">✉️ ${contacto.email || '—'}</span>
       </p>
       <footer style="display:flex;gap:.5rem;">
-        <button data-action="editar" data-id="${contacto.id}" class="btn-icon contrast" aria-label="Editar ${contacto.nombre} ${contacto.apellido}"><i data-lucide="pencil"></i><span>Editar</span></button>
-        <button data-action="borrar" data-id="${contacto.id}" class="btn-icon secondary" aria-label="Borrar ${contacto.nombre} ${contacto.apellido}"><i data-lucide="trash-2"></i><span>Borrar</span></button>
+        <button data-action="editar" data-id="${contacto.id}" class="btn-icon contrast" aria-label="Editar ${contacto.nombre} ${contacto.apellido}">✏️ <span>Editar</span></button>
+        <button data-action="borrar" data-id="${contacto.id}" class="btn-icon secondary" aria-label="Borrar ${contacto.nombre} ${contacto.apellido}">🗑️ <span>Borrar</span></button>
       </footer>
     </article>
   `).join('');
   contenedorTarjetas.innerHTML = html;
-  if (window.lucide?.createIcons) window.lucide.createIcons();
 }
 
 const agenda = new Agenda(obtenerContactosIniciales());
@@ -105,6 +103,7 @@ botonAgregar.addEventListener('click', () => {
   tituloDialogo.textContent = 'Nuevo contacto';
   formulario.reset();
   dialogo.showModal();
+  setTimeout(() => inputNombre.focus(), 0);
 });
 
 botonCancelar.addEventListener('click', () => {
@@ -114,11 +113,11 @@ botonCancelar.addEventListener('click', () => {
 
 formulario.addEventListener('submit', (e) => {
   e.preventDefault();
+  if(!formulario.reportValidity()) return;
   const nombre = inputNombre.value.trim();
   const apellido = inputApellido.value.trim();
   const telefono = inputTelefono.value.trim();
   const email = inputEmail.value.trim();
-  if(!nombre || !apellido) return;
   if(editandoId){
     agenda.actualizar(editandoId, { nombre, apellido, telefono, email });
   } else {
@@ -146,11 +145,10 @@ contenedorTarjetas.addEventListener('click', (e) => {
     inputApellido.value = c.apellido || '';
     inputTelefono.value = c.telefono || '';
     inputEmail.value = c.email || '';
-    dialogo.showModal();
+  dialogo.showModal();
+  setTimeout(() => inputNombre.focus(), 0);
   }
 });
 
-botonLogin?.addEventListener('click', () => {
-  alert('Login no implementado (placeholder).');
-});
+
 

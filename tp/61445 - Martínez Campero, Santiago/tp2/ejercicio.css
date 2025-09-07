@@ -1,5 +1,3 @@
-/* Estilos generales, me ayudo aca la ia para acomodar las cards */
-
 :root{
   --gap: 1.2rem;
 }
@@ -16,5 +14,26 @@
 
 .cards header h3{ margin: 0; }
 
-/* Ensancha el input de búsqueda dentro de la navbar-centro */
 #buscar{ width: 100%; }
+
+.btn-icon{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  white-space:nowrap;
+}
+.btn-icon svg{ width: 18px; height: 18px; }
+
+.empty{
+  padding: 1.25rem;
+  text-align:center;
+  color: var(--muted-color, #6b7280);
+  border: 1px dashed var(--muted-border-color, #d1d5db);
+  border-radius: .5rem;
+}
+
+.dialog-actions{
+  display:flex;
+  gap:.5rem;
+  justify-content:flex-end;
+}
