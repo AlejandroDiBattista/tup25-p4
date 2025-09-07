@@ -1,6 +1,9 @@
 'use strict';
 
 
+
+let mensajeError = document.getElementById('mensaje-error');
+
 // === CLASES ===
 
 class Agenda {
@@ -10,6 +13,23 @@ class Agenda {
     }
 
     agregarContacto(contacto){
+
+        // Validaciones
+        if(!contacto.nombre || !contacto.apellido || !contacto.telefono || !contacto.email){
+            mensajeError.textContent = 'Todos los campos son obligatorios.';
+            return;
+        }
+
+        if(this.contactos.some(c => c.email === contacto.email)){
+            mensajeError.textContent = 'El email ya está en uso.';
+            return;
+        }
+
+        if(this.contactos.some(c => c.telefono === contacto.telefono)){
+            mensajeError.textContent = 'El teléfono ya está en uso.';
+            return;
+        }
+
         this.contactos.push(contacto);
     }
 
@@ -47,7 +67,7 @@ class Agenda {
 
 class Contacto {
 
-    static idAutoincrementable = 0;
+    static idAutoincrementable = 1;
 
     constructor(nombre, apellido, telefono, email){
         this.id = Contacto.idAutoincrementable++;
@@ -62,13 +82,6 @@ class Contacto {
 
 // ===========================
 
-// === DOM ===
-
-const modalAgregar = document.getElementById('modal-agregar');
-const formAgregar  = document.getElementById('form-agregar');
-const btnAgregar   = document.getElementById('btn-agregar');
-const divContactos = document.getElementById('contactos');
-
 
 // === INPUTS ===
 // const inputBuscar = document.getElementById('input-buscar');
@@ -80,15 +93,45 @@ const nombreContacto = document.getElementById('nombre-contacto');
 const apellidoContacto = document.getElementById('apellido-contacto');
 const telefonoContacto = document.getElementById('telefono-contacto');
 const emailContacto = document.getElementById('email-contacto');
+
 // ===========================
 
 // === INSTANCIA PRINCIPAL ===
 
 const agenda = new Agenda();
 
+// === DOM ===
+
+const modalAgregar = document.getElementById('modal-agregar');
+const formAgregar  = document.getElementById('form-agregar');
+const btnAgregar   = document.getElementById('btn-agregar');
+const divContactos = document.getElementById('contactos');
+
 // ===========================
 
 
+// === FUNCIONES ===
+
+// Mostrar contactos en el DOM
+const contactos= agenda.contactos;
+
+const mostrarContactos = (contactos) => {
+    divContactos.innerHTML = '';
+    contactos.forEach(contacto => {
+        divContactos.innerHTML += `
+        <article>
+            <h2> Contacto ${contacto.id} </h2>
+            <h3>${contacto.nombre} ${contacto.apellido}</h3>
+            <p>Teléfono: ${contacto.telefono}</p>
+            <p>Email: ${contacto.email}</p>
+            <button class="btn-editar" data-id="${contacto.id}">✏️</button>
+            <button class="btn-eliminar" data-id="${contacto.id}">🗑️</button>
+        </article>
+        `;
+    });
+};
+
+// ===========================
 
 // === DATOS DE PRUEBA ===
 
@@ -130,7 +173,6 @@ formAgregar.addEventListener('submit', (e) => {
     console.log(nuevoContacto);
 });
 
-
 // ===================
 
 // === BOTONES ===
@@ -152,24 +194,6 @@ btnAgregar.addEventListener('click', () => {
 
 
 
-// === FUNCIONES ===
-// Mostrar contactos en el DOM
 
-
-const contactos= agenda.contactos;
-
-const mostrarContactos = (contactos) => {
-    divContactos.innerHTML = '';
-    contactos.forEach(contacto => {
-        divContactos.innerHTML += `
-            <h3>${contacto.nombre} ${contacto.apellido}</h3>
-            <p>Teléfono: ${contacto.telefono}</p>
-            <p>Email: ${contacto.email}</p>
-            <button class="btn-editar" data-id="${contacto.id}">Editar</button>
-            <button class="btn-eliminar" data-id="${contacto.id}">Eliminar</button>
-        `;
-    });
-};
-
-       
+ 
 
