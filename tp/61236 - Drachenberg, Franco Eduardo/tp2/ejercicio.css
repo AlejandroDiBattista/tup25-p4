@@ -14,31 +14,25 @@ dialog article footer {
 
 .btn-editar,
 .btn-borrar {
-  background-color: var(--pico-primary);
-  border: none;
+  background-color: transparent;
+  border: 1px solid var(--pico-form-element-invalid-border-color);
+  color: var(--pico-form-element-invalid-border-color);
   cursor: pointer;
-  padding: 0.5em 1em;
-  color: white;
-  border-radius: 5px;
-  display: flex;
+  padding: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-.btn-editar {
-  background-color: var(--pico-primary);
-}
-
-.btn-editar:hover {
-  background-color: var(--pico-primary-hover);
-}
-
-.btn-borrar {
-  background-color: var(--pico-secondary);
-}
-
+.btn-editar:hover,
 .btn-borrar:hover {
-  background-color: var(--pico-secondary-hover);
+  background-color: var(--pico-form-element-invalid-border-color);
+  color: var(--pico-primary-inverse);
 }
 
 #btn-agregar {
@@ -49,7 +43,7 @@ dialog article footer {
 
 article footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 0.5rem;
 }
 
@@ -61,16 +55,31 @@ article footer {
 }
 
 article {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
   padding: 1rem;
   border: 1px solid var(--pico-border-color);
   border-radius: var(--pico-border-radius);
 }
 
 article header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.15em;
 }
 
 article p {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--pico-secondary-foreground);
+}
+
+article svg {
+  width: 1rem;
+  height: 1rem;
+  stroke: currentColor;
+}
+
+article p svg {
+  stroke: var(--pico-secondary);
 }

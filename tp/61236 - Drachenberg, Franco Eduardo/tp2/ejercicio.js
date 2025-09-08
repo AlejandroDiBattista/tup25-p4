@@ -1,12 +1,14 @@
 "use strict";
 
 const iconCommon =
-  '<svg xmlns="http: //www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide ';
+  '<svg xmlns="http: //www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide ';
 const ICONS = {
   add: `${iconCommon}lucide-user-plus-icon lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6m3-3h-6"/></svg>`,
   delete: `${iconCommon}lucide-trash2-icon lucide-trash-2"><path d="M10 11v6m4-6v6m5-11v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
   edit: `${iconCommon}lucide-pencil-icon lucide-pencil"><path d="M21 7a1 1 0 0 0-4-4L4 16a2 2 0 0 0-1 1l-1 4a1 1 0 0 0 1 1l4-1a2 2 0 0 0 1-1zm-6-2 4 4"/></svg>`,
   save: `${iconCommon}lucide-save-icon lucide-save"><path d="M15 3a2 2 0 0 1 2 1l3 3a2 2 0 0 1 1 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7M7 3v4a1 1 0 0 0 1 1h7"/></svg>`,
+  phone: `${iconCommon}lucide-phone-icon lucide-phone"><path d="M14 17a1 1 0 0 0 1-1h0a2 2 0 0 1 2-1h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-1 2h0a1 1 0 0 0-1 1 14 14 0 0 0 7 7"/></svg>`,
+  email: `${iconCommon}lucide-mail"><path d="m22 7-9 6a2 2 0 0 1-2 0L2 7"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>`,
 };
 
 function validarEmail(email) {
@@ -247,11 +249,11 @@ function renderizarContactos(contactos) {
       <header>
         <strong>${contacto.nombre} ${contacto.apellido}</strong>
       </header>
-      <p>Teléfono: ${contacto.telefono}</p>
-      <p>Email: ${contacto.email}</p>
+      <p>${ICONS.phone} ${contacto.telefono}</p>
+      <p>${ICONS.email} ${contacto.email}</p>
       <footer>
-        <button class="btn-editar">${ICONS.edit} Editar</button>
-        <button class="btn-borrar">${ICONS.delete} Borrar</button>
+        <button class="btn-editar" title="Editar contacto">${ICONS.edit}</button>
+        <button class="btn-borrar" title="Borrar contacto">${ICONS.delete}</button>
       </footer>
     `;
     listaContactos.appendChild(article);
@@ -273,8 +275,7 @@ const btnAgregar = document.getElementById("btn-agregar");
 const dialogoContacto = document.getElementById("dialogo-contacto");
 const formContacto = document.getElementById("form-contacto");
 const btnCancelar = document.getElementById("btn-cancelar");
-const btnGuardar =
-  formContacto.nextElementSibling.querySelector('[type="submit"]');
+const btnGuardar = formContacto.parentElement.querySelector('[type="submit"]');
 const closeButton = dialogoContacto.querySelector('[rel="prev"]');
 
 btnAgregar.innerHTML = ICONS.add + " Agregar Contacto";
@@ -307,22 +308,25 @@ formContacto.addEventListener("submit", (event) => {
   const email = document.getElementById("email").value;
 
   if (!validarTextoNoVacio(nombre)) {
-    setErrorMessage("nombre", "Nombre is required.");
+    setErrorMessage("nombre", "El nombre es obligatorio.");
     isValid = false;
   }
 
   if (!validarTextoNoVacio(apellido)) {
-    setErrorMessage("apellido", "Apellido is required.");
+    setErrorMessage("apellido", "El apellido es obligatorio.");
     isValid = false;
   }
 
   if (!validarTelefono(telefono)) {
-    setErrorMessage("telefono", "Please enter a valid phone number.");
+    setErrorMessage(
+      "telefono",
+      "Por favor, ingrese un número de teléfono válido."
+    );
     isValid = false;
   }
 
   if (!validarEmail(email)) {
-    setErrorMessage("email", "Please enter a valid email address.");
+    setErrorMessage("email", "Por favor, ingrese un email válido.");
     isValid = false;
   }
 

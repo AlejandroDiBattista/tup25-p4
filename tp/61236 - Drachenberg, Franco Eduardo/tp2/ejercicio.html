@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -39,21 +39,35 @@
           </p>
         </header>
         <form id="form-contacto">
-          <label for="nombre">Nombre</label>
-          <input type="text" id="nombre" name="nombre" required />
-          <small class="error-message"></small>
-          <label for="apellido">Apellido</label>
-          <input type="text" id="apellido" name="apellido" required />
-          <small class="error-message"></small>
-          <label for="telefono">Teléfono</label>
-          <input type="tel" id="telefono" name="telefono" required />
-          <small class="error-message"></small>
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required />
-          <small class="error-message"></small>
+          <div class="grid">
+            <div>
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre" name="nombre" required />
+              <small class="error-message"></small>
+            </div>
+            <div>
+              <label for="apellido">Apellido</label>
+              <input type="text" id="apellido" name="apellido" required />
+              <small class="error-message"></small>
+            </div>
+          </div>
+          <div class="grid">
+            <div>
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" required />
+              <small class="error-message"></small>
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+              <small class="error-message"></small>
+            </div>
+          </div>
         </form>
         <footer>
-          <button type="button" id="btn-cancelar">Cancelar</button>
+          <button type="button" id="btn-cancelar" class="secondary">
+            Cancelar
+          </button>
           <button type="submit" form="form-contacto">Guardar</button>
         </footer>
       </article>
