@@ -34,4 +34,11 @@ class Agenda {
   buscar(texto) {
     texto = normalizar(texto);
     return this.contactos.filter(c =>
-    
+    normalizar(c.nombre).includes(texto) ||
+      normalizar(c.apellido).includes(texto) ||
+      normalizar(c.telefono).includes(texto) ||
+      normalizar(c.email).includes(texto)
+    );
+  }
+
+  
