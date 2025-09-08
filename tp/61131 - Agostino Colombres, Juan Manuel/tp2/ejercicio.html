@@ -1,15 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="./ejercicio.css" />
+  <script type="module" src="./ejercicio.js"></script>
+</head>
+
+<body>
+  <div class="container center-form">
+    <h1>Agenda</h1>
+    <input type="text" id="search" placeholder="Buscar contacto..." onchange="buscarContacto()"/>
+    <button id="btnAgregar">Agregar</button>
+    <div id="formulario" style="display:none; margin-top:1em;">
+      <form id="formContacto">
+        <input type="text" id="nombre" placeholder="Nombre" required><br>
+        <input type="text" id="apellido" placeholder="Apellido" required><br>
+        <input type="number" id="edad" placeholder="Edad" required><br>
+        <input type="text" id="telefono" placeholder="Teléfono" required><br>
+        <input type="email" id="mail" placeholder="Mail" required><br>
+        <button type="submit">Agregar</button>
+        <button type="button" id="btnCancelar">Cancelar</button>
+      </form>
+      <div id="resultado"></div>
+    </div>
+  </div>
+  <div class="contact-list-full">
+    <h2>Lista de Contactos</h2>
+    <div id="listaContactos" class="contactos-flex"></div>
+  </div>
+  <div id="modal-bg" class="modal-bg" style="display:none;"></div>
+  <div id="formularioAgregar" class="modal-form" style="display:none;">
+    <form id="formContactoAgregar">
+      <h2>Agregar Contacto</h2>
+      <input type="text" id="nombreAgregar" placeholder="Nombre" required><br>
+      <input type="text" id="apellidoAgregar" placeholder="Apellido" required><br>
+      <input type="number" id="edadAgregar" placeholder="Edad" required><br>
+      <input type="text" id="telefonoAgregar" placeholder="Teléfono" required><br>
+      <input type="email" id="mailAgregar" placeholder="Mail" required><br>
+      <button type="submit">Agregar</button>
+      <button type="button" id="btnCancelarAgregar">Cancelar</button>
+      <div id="resultadoAgregar"></div>
+    </form>
+  </div>
+  <div id="formularioEditar" class="modal-form" style="display:none;">
+    <form id="formContactoEditar">
+      <h2>Editar Contacto</h2>
+      <input type="text" id="nombreEditar" placeholder="Nombre" required><br>
+      <input type="text" id="apellidoEditar" placeholder="Apellido" required><br>
+      <input type="number" id="edadEditar" placeholder="Edad" required><br>
+      <input type="text" id="telefonoEditar" placeholder="Teléfono" required><br>
+      <input type="email" id="mailEditar" placeholder="Mail" required><br>
+      <button type="submit">Guardar</button>
+      <button type="button" id="btnCancelarEditar">Cancelar</button>
+      <div id="resultadoEditar"></div>
+    </form>
+  </div>
+</body>
+
+</html>

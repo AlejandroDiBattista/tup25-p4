@@ -1,1 +1,177 @@
-/* Estilos generales */
+/*Estilos generales*/
+body {
+  font-family: Arial, sans-serif;
+}
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: #f9f9f9;
+  padding: 2em;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+h1 {
+  text-align: center;
+  color: #333;
+}
+input, button {
+  width: 100%;
+  margin: 0.2em 0;
+  padding: 0.4em;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+button:hover {
+  background: #0056b3;
+}
+#formulario {
+  margin-top: 1em;
+}
+#resultado {
+  margin-top: 1em;
+  color: green;
+  font-weight: bold;
+}
+.contact-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  padding: 1em;
+  margin-bottom: 1em;
+  max-width: 400px;
+}
+.contact-card button {
+  margin: 0.3em 0.5em 0.3em 0;
+  padding: 0.4em 1em;
+  border-radius: 5px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.contact-card p{
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    color: #000000;
+}
+
+.contactListContainer {
+  margin-top: 2em;
+}
+
+.contact-card button:last-child {
+  background: #dc3545;
+}
+.contact-card button:hover {
+  opacity: 0.85;
+}
+.flex-container {
+  display: flex;
+  gap: 2em;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.container {
+  flex: 1 1 350px;
+  max-width: 500px;
+}
+.center-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2em;
+}
+.contact-list {
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+.contact-list h2 {
+  text-align: center;
+  color: #333;
+}
+
+.contact-card p {
+  margin: 0.3em 0;
+    color: #000000;
+}
+
+.contact-list-full {
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  padding: 2em 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: auto;
+  min-height: 0;
+}
+.contact-list-full h2 {
+  margin-left: 2em;
+}
+.contactos-flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 1em 2em;
+  box-sizing: border-box;
+  height: auto;
+  min-height: 0;
+}
+.contact-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  padding: 1em;
+  min-width: 250px;
+  max-width: 300px;
+  flex: 0 0 auto;
+}
+.modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+}
+.modal-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  padding: 2em 2em 1em 2em;
+  z-index: 101;
+  min-width: 320px;
+  max-width: 90vw;
+}
+.modal-form h2 {
+  margin-top: 0;
+  text-align: center;
+}
+.modal-form input, .modal-form button {
+  width: 100%;
+  margin: 0.4em 0;
+}
