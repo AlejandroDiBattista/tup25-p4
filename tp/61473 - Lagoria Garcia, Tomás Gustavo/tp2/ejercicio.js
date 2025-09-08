@@ -91,10 +91,10 @@ function borrar(id) {
 function getContactos(cont) {
     return `<article>
         <header>${cont.apellido}, ${cont.nombre}</header>
-        <p>Teléfono: ${cont.telefono}</p>
-        <p>Email: ${cont.email}</p>
-        <button onclick="Editar(${cont.id})">Editar</button>
-        <button onclick="borrar(${cont.id})">Borrar</button>
+        <p><i class="fas fa-phone"></i>Teléfono: ${cont.telefono}</p>
+        <p><i class="fas fa-envelope"></i>Email: ${cont.email}</p>
+        <button id="AC" onclick="Editar(${cont.id})"><i class="fas fa-edit"></i> Editar</button>
+        <button id="DE" onclick="borrar(${cont.id})"><i class="fas fa-trash"></i>Borrar</button>
     </article>`;
 }
 

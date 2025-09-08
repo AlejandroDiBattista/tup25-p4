@@ -1,1 +1,37 @@
 /* Estilos generales */
+.fa-phone, .fa-envelope {
+    margin-right: 8px;
+    color: #1095c1;
+}
+
+.fa-edit {
+    color: #ffffff;
+}
+
+.fa-trash {
+    color: #ffffff;
+}
+/* Estilos para los botones */
+button {
+    display: inline-flex;
+    align-items: center;
+    background-color: #1095c1;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+}
+button#AC:hover {
+    background-color: #0ea324;
+    color: #ffffff;
+}
+button#DE:hover {
+    background-color: #c10e0e;
+    color: #ffffff;
+}
+button i {
+    margin-right: 5px;
+}
