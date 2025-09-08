@@ -4,12 +4,98 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+    <header class="container--fluid header-bar">
+      <div class="header-inner">
+        <h1 class="site-title">Agenda</h1>
+        <div class="search-area">
+          <div class="search-input-wrap">
+            <span class="search-icon" aria-hidden="true">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M21 21l-4.35-4.35"
+                  stroke="#8A94A6"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="6"
+                  stroke="#8A94A6"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </span>
+            <input
+              id="search"
+              type="search"
+              placeholder="Buscar contactos..."
+            />
+          </div>
+          <button id="btnAgregar" class="btn-agregar">Agregar</button>
+        </div>
+      </div>
+    </header>
 
+    <main class="container">
+      <section id="listado" class="cards" aria-live="polite"></section>
+    </main>
+
+    <dialog id="dialogContacto">
+      <h3 id="dialogTitle">Agregar contacto</h3>
+      <div class="dialog-divider" role="presentation"></div>
+      <form method="dialog" id="formContacto">
+        <div class="form-grid">
+          <div class="col">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" required />
+          </div>
+          <div class="col">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" name="apellido" required />
+          </div>
+          <div class="col">
+            <label for="telefono">Teléfono</label>
+            <input id="telefono" name="telefono" />
+          </div>
+          <div class="col">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" />
+          </div>
+        </div>
+        <menu class="dialog-menu">
+          <button id="btnGuardar" class="btn-guardar">Guardar</button>
+          <button id="btnCancelar" type="button" class="btn-cancelar">
+            Cancelar
+          </button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script type="module" src="./ejercicio.js"></script>
+  </body>
+</html>
