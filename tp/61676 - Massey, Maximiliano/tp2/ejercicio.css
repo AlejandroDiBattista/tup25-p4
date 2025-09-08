@@ -1,1 +1,26 @@
-/* Estilos generales */
+.contactos {
+    max-width: 2000px;
+    padding: 20px;
+    margin: 2% auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+#btnGuardar {
+    width: auto;
+}
+.contactos .card, .contactos article {
+    flex: 1 1 250px;
+    max-width: 300px;
+    min-width: 220px;
+    box-sizing: border-box;
+}
+#buscador{
+    width: 500px;
+    margin-left: 500px;
+}
+#btnAgregar {
+    width: auto;
+    margin-right: auto;
+}
