@@ -1,15 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda de Contactos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Pico.css CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="./ejercicio.css">
+</head>
+<body>
+  <main class="container">
+    <header style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+      <input id="buscador" type="search" placeholder="Buscar contacto..." aria-label="Buscar contacto" style="flex: 1;">
+      <button id="btnAgregar" type="button">Agregar</button>
+    </header>
+    <section id="listadoContactos" class="grid"></section>
+  </main>
 
+  <!-- Diálogo de alta/edición -->
+  <dialog id="dialogoContacto">
+    <form id="formContacto" method="dialog">
+      <h3 id="tituloDialogo">Agregar contacto</h3>
+      <input type="hidden" id="contactoId">
+      <label>
+        Nombre
+        <input id="nombre" name="nombre" required autocomplete="off" maxlength="30">
+      </label>
+      <label>
+        Apellido
+        <input id="apellido" name="apellido" required autocomplete="off" maxlength="30">
+      </label>
+      <label>
+        Teléfono
+        <input id="telefono" name="telefono" required autocomplete="off" maxlength="20">
+      </label>
+      <label>
+        Email
+        <input id="email" name="email" type="email" required autocomplete="off" maxlength="40">
+      </label>
+      <footer style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button type="submit" id="btnGuardar">Guardar</button>
+        <button type="button" id="btnCancelar">Cancelar</button>
+      </footer>
+    </form>
+  </dialog>
+  <script type="module" src="./ejercicio.js"></script>
+</body>
+</html>
