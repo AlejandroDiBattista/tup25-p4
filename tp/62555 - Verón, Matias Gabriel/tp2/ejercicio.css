@@ -1,1 +1,178 @@
-/* Estilos generales */
+
+nav {
+  margin-bottom: 1rem;
+}
+
+nav h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+
+#buscador {
+  border-radius: 2rem;
+  padding-left: 2.2rem;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 24 24'%3E%3Cpath d='M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z'/%3E%3C/svg%3E")
+    no-repeat 0.8rem center;
+  background-size: 1rem;
+  border: 1px solid #ddd;
+}
+
+
+#btn-agregar {
+  background-color: #111;
+  color: #fff;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  font-weight: 500;
+}
+
+#btn-agregar:hover {
+  background-color: #333;
+}
+
+
+#lista-contactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+#lista-contactos article {
+  background: #fff;
+  border-radius: 0.8rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#lista-contactos h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: .5rem;
+  color: #222;
+}
+
+
+#lista-contactos p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+
+#lista-contactos footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+
+#lista-contactos footer button {
+  border-radius: 50%;
+  padding: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  background-color: transparent;
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+#lista-contactos footer button:hover {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+dialog {
+  max-width: 500px;
+  border: none;
+  border-radius: 0.8rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  padding: 0;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+
+dialog article {
+  padding: 1.5rem;
+}
+
+
+#dlg-titulo {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+
+#form-contacto {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+}
+
+#form-contacto label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+
+#form-contacto input {
+  margin-top: 0.3rem;
+}
+
+
+#form-contacto footer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+#form-contacto footer button {
+  flex: 0 0 120px; 
+  text-align: center;
+  padding: 0.6rem 0;
+  border-radius: 0.4rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+
+#btn-guardar {
+  background-color: #0d6efd;
+  color: white;
+}
+
+#btn-guardar:hover {
+  background-color: #0b5ed7;
+}
+
+
+#btn-cancelar {
+  background-color: #6c757d;
+  color: white;
+}
+
+#btn-cancelar:hover {
+  background-color: #5a6268;
+}
