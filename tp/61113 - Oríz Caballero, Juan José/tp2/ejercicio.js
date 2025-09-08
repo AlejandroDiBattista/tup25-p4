@@ -119,8 +119,8 @@ function renderizarContactos(lista) {
             <p>📞 ${contacto.telefono}</p>
             <p>✉️ ${contacto.email}</p>
             <footer>
-                <button class="editar-btn" data-id="${contacto.id}" title="Editar">✏️</button>
-                <button class="borrar-btn" data-id="${contacto.id}" title="Borrar">🗑️</button>
+                <button class="editar-btn" data-id="${contacto.id}" title="Editar">Edición</button>
+                <button class="borrar-btn" data-id="${contacto.id}" title="Borrar">Eliminar</button>
             </footer>
         `;
         contenedor.appendChild(card);
