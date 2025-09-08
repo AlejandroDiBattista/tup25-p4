@@ -58,6 +58,93 @@ return lista;
       ];
     let miAgenda= new Agenda();
     datos.forEach(d=>miAgenda.agregarContacto(new Contacto(d)));
+
+
+// Funciones auxiliares
+const $ = (selector) => document.querySelector(selector);
+
+// Elementos del DOM
+const dialogo = $("#dialogo");
+const botonAgregar = $("#agregar");
+const botonCancelar = $("#cancelar");
+const form = $("form");
+const buscar = $("#buscar");
+
+// Funciones
+function Editar(id) {
+    const c = miAgenda.traerContacto(+id);
+    if(!c) return;
+    form.elements["id"].value = c.id;
+    form.elements["nombre"].value = c.nombre;
+    form.elements["apellido"].value = c.apellido;
+    form.elements["telefono"].value = c.telefono;
+    form.elements["email"].value = c.email;
+    dialogo.showModal();
+}
+
+function borrar(id) {
+    miAgenda.eliminarContacto(+id);
+    GenerarAgenda();
+}
+
+function getContactos(cont) {
+    return `<article>
+        <header>${cont.apellido}, ${cont.nombre}</header>
+        <p>Teléfono: ${cont.telefono}</p>
+        <p>Email: ${cont.email}</p>
+        <button onclick="Editar(${cont.id})">Editar</button>
+        <button onclick="borrar(${cont.id})">Borrar</button>
+    </article>`;
+}
+
+function GenerarAgenda() {
+    const filtro = buscar?.value ?? "";
+    let html = miAgenda.traerTodosSegun(filtro).map(c => getContactos(c)).join("");
+    $("#ListaCont").innerHTML = html;
+}
+
+// Event Listeners
+form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const data = {
+        id: form.elements["id"].value,
+        nombre: form.elements["nombre"].value,
+        apellido: form.elements["apellido"].value,
+        telefono: form.elements["telefono"].value,
+        email: form.elements["email"].value
+    };
+
+    const idNum = Number(data.id) || 0;
+
+    if (idNum > 0) {
+        miAgenda.actualizarContacto(new Contacto(data));
+    } else {
+        miAgenda.agregarContacto(new Contacto(data));
+    }
+
+    dialogo.close();
+    form.reset();
+    GenerarAgenda();
+});
+
+botonAgregar.addEventListener("click", () => {
+    form.reset();
+    form.elements["id"].value = "";
+    dialogo.showModal();
+});
+
+botonCancelar.addEventListener("click", () => {
+    dialogo.close();
+});
+
+if (buscar) buscar.addEventListener("input", GenerarAgenda);
+
+// Inicialización
+window.addEventListener("DOMContentLoaded", GenerarAgenda);
+
+// Exportar al scope global
 window.Editar = Editar;
 window.borrar = borrar;
-window.agenda = miAgenda; 
+window.agenda = miAgenda;
+window.GenerarAgenda = GenerarAgenda;
