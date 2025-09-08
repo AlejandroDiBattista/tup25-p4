@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "name": "ForestWelcomeUI",
+    "version": "1.0.0",
+    "description": "Design tokens para pantalla de registro con ilustración forestal y formulario en verde."
+  },
+
+  "palette": {
+    "bg/deck": "#E9EEF0",
+    "bg/card": "#1E7B6D",
+    "bg/cardAlt": "#196D60",
+    "surface/field": "rgba(255,255,255,0.02)",
+    "ink/primary": "#E8FFF6",
+    "ink/secondary": "#CFEDE3",
+    "ink/muted": "#A9D7CA",
+    "ink/placeholder": "#A6D3C6",
+    "border/soft": "#97D4C5",
+    "border/strong": "#76BEAD",
+    "accent/brand": "#A7E7BE",
+    "accent/brandStrong": "#6FD3A8",
+    "accent/google": "#D1F0E3",
+    "accent/facebook": "#2E8B57",
+    "accent/twitter": "#2DA7C7",
+    "error": "#E86161",
+    "focus": "#B9F1C9"
+  },
+
+  "gradients": {
+    "cta": { "from": "#BDEEC7", "to": "#93DBB2", "angle": 0 },
+    "heroSky": { "from": "#EBFFF5", "to": "#CDEDDC", "angle": 90 }
+  },
+
+  "radii": {
+    "xs": 6,
+    "sm": 10,
+    "md": 16,
+    "lg": 20,
+    "xl": 24,
+    "2xl": 28,
+    "pill": 999
+  },
+
+  "spacing": {
+    "0": 0,
+    "1": 4,
+    "2": 8,
+    "3": 12,
+    "4": 16,
+    "5": 20,
+    "6": 24,
+    "7": 28,
+    "8": 32,
+    "10": 40,
+    "12": 48,
+    "16": 64
+  },
+
+  "sizes": {
+    "input/height": 44,
+    "button/height": 44,
+    "button/lgHeight": 48,
+    "card/maxWidth": 920,
+    "card/paddingX": 40,
+    "card/paddingY": 32,
+    "icon": 20,
+    "shadow/spread": 24
+  },
+
+  "typography": {
+    "family/base": "'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+    "weight/regular": 400,
+    "weight/medium": 500,
+    "weight/semibold": 600,
+    "size/caption": 12,
+    "size/body": 14,
+    "size/label": 15,
+    "size/heading": 26,
+    "line/base": 1.35,
+    "letter/heading": 0.2
+  },
+
+  "shadows": {
+    "soft/lg": "0 20px 50px rgba(0,0,0,0.10)",
+    "soft/md": "0 8px 24px rgba(0,0,0,0.12)",
+    "focus": "0 0 0 3px rgba(185, 241, 201, 0.9)"
+  },
+
+  "effects": {
+    "divider": "1px solid rgba(255,255,255,0.25)",
+    "outline": "1px solid #97D4C5",
+    "blur/hero": 0
+  },
+
+  "layout": {
+    "page/background": "{palette.bg/deck}",
+    "card/background": "{palette.bg/card}",
+    "card/radius": "{radii.2xl}",
+    "card/shadow": "{shadows.soft/lg}",
+    "split/curveWidth": 54,
+    "split/illustrationSide": "left",
+    "split/columnGap": 48,
+    "split/ratio": "48%|52%"
+  },
+
+  "components": {
+    "heading/welcome": {
+      "color": "{palette.ink/primary}",
+      "fontSize": "{typography.size.heading}",
+      "fontWeight": "{typography.weight.semibold}",
+      "lineHeight": "{typography.line/base}"
+    },
+
+    "text/body": {
+      "color": "{palette.ink/secondary}",
+      "fontSize": "{typography.size.body}",
+      "fontWeight": "{typography.weight.regular}"
+    },
+
+    "divider": {
+      "style": "{effects.divider}",
+      "labelColor": "{palette.ink/muted}"
+    },
+
+    "button/base": {
+      "height": "{sizes.button/height}",
+      "radius": "{radii.pill}",
+      "paddingX": 18,
+      "fontSize": "{typography.size.label}",
+      "fontWeight": "{typography.weight.medium}",
+      "textColor": "{palette.bg/card}",
+      "gap": 10
+    },
+
+    "button/primary": {
+      "extends": "button/base",
+      "bgGradient": "{gradients.cta}",
+      "textColor": "{palette.bg/card}",
+      "shadow": "{shadows.soft/md}",
+      "hover": { "lift": 2, "opacity": 0.98 }
+    },
+
+    "button/ghost": {
+      "extends": "button/base",
+      "background": "transparent",
+      "textColor": "{palette.ink/primary}",
+      "border": "{effects.outline}",
+      "hover": { "background": "rgba(255,255,255,0.06)" }
+    },
+
+    "button/google": {
+      "extends": "button/base",
+      "background": "{palette.accent/google}",
+      "textColor": "#214D40",
+      "iconColor": "#4285F4",
+      "hover": { "opacity": 0.95 }
+    },
+
+    "button/facebook": {
+      "extends": "button/ghost",
+      "textColor": "{palette.ink/primary}",
+      "iconColor": "{palette.accent/facebook}"
+    },
+
+    "button/twitter": {
+      "extends": "button/ghost",
+      "textColor": "{palette.ink/primary}",
+      "iconColor": "{palette.accent/twitter}"
+    },
+
+    "input/text": {
+      "height": "{sizes.input/height}",
+      "radius": "{radii.pill}",
+      "background": "{palette.surface/field}",
+      "textColor": "{palette.ink/primary}",
+      "placeholderColor": "{palette.ink/placeholder}",
+      "border": "{effects.outline}",
+      "paddingX": 18,
+      "fontSize": "{typography.size.body}",
+      "focusShadow": "{shadows.focus}"
+    },
+
+    "input/password": {
+      "extends": "input/text",
+      "obscure": true
+    },
+
+    "checkbox/base": {
+      "size": 18,
+      "radius": "{radii.xs}",
+      "border": "{effects.outline}",
+      "checkedBg": "{palette.accent/brandStrong}",
+      "checkColor": "{palette.bg/card}",
+      "labelColor": "{palette.ink/secondary}",
+      "focusShadow": "{shadows.focus}"
+    },
+
+    "link/inline": {
+      "color": "{palette.accent/brand}",
+      "hoverColor": "{palette.accent/brandStrong}",
+      "underline": true
+    },
+
+    "card/container": {
+      "background": "{palette.bg/card}",
+      "radius": "{radii.2xl}",
+      "shadow": "{shadows.soft/lg}",
+      "paddingX": "{sizes.card/paddingX}",
+      "paddingY": "{sizes.card/paddingY}"
+    }
+  },
+
+  "illustration": {
+    "style": "flat-minimal",
+    "palette": {
+      "forestDeep": "#0B4B43",
+      "forestMid": "#126457",
+      "forestLight": "#1E7B6D",
+      "hillLight": "#CFEDE3",
+      "hillPale": "#E7FFF4",
+      "roofRed": "#E06464",
+      "house": "#FFFFFF"
+    },
+    "text/welcome": {
+      "content": "WELCOME",
+      "color": "#7AB8A6",
+      "tracking": 6
+    }
+  }
+}

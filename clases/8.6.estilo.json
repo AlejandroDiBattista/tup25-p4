@@ -1,0 +1,85 @@
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "metadata": {
+    "name": "TealFlow Mobile UI",
+    "version": "1.0.0",
+    "description": "Design tokens para interfaces móviles estilo calendario y cards (verde + blanco)."
+  },
+  "tokens": {
+    "colors": {
+      "background": { "value": "#00b894" },
+      "surface": { "value": "#ffffff" },
+      "surfaceAlt": { "value": "#f5f9f7" },
+      "primary": {
+        "500": { "value": "#00b894" },
+        "600": { "value": "#00a383" },
+        "700": { "value": "#008f70" }
+      },
+      "text": {
+        "strong": { "value": "#212529" },
+        "default": { "value": "#333333" },
+        "muted": { "value": "#7d8890" }
+      },
+      "border": { "value": "#e5e9ec" },
+      "urgent": { "value": "#ff4d6d" },
+      "running": { "value": "#4d8dff" },
+      "done": { "value": "#34c759" }
+    },
+    "typography": {
+      "fontFamily": { "value": "ui-sans-serif, system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial" },
+      "h1": { "fontSize": { "value": "28px" }, "fontWeight": { "value": "800" }, "lineHeight": { "value": "1.2" } },
+      "h2": { "fontSize": { "value": "20px" }, "fontWeight": { "value": "700" }, "lineHeight": { "value": "1.3" } },
+      "body": { "fontSize": { "value": "16px" }, "lineHeight": { "value": "1.45" } },
+      "small": { "fontSize": { "value": "14px" }, "lineHeight": { "value": "1.4" } }
+    },
+    "spacing": {
+      "xs": { "value": "4px" },
+      "sm": { "value": "8px" },
+      "md": { "value": "16px" },
+      "lg": { "value": "24px" },
+      "xl": { "value": "32px" }
+    },
+    "radius": {
+      "sm": { "value": "8px" },
+      "md": { "value": "16px" },
+      "lg": { "value": "24px" },
+      "pill": { "value": "9999px" }
+    },
+    "shadows": {
+      "card": { "value": "0 6px 20px rgba(0,0,0,.06)" },
+      "cardElevated": { "value": "0 10px 28px rgba(0,0,0,.1)" }
+    },
+    "components": {
+      "buttonPrimary": {
+        "background": { "value": "{colors.primary.500.value}" },
+        "textColor": { "value": "#ffffff" },
+        "radius": { "value": "{radius.pill.value}" },
+        "padding": { "value": "12px 20px" },
+        "shadow": { "value": "0 8px 16px rgba(0,184,148,.25)" }
+      },
+      "buttonGhost": {
+        "background": { "value": "#d7f3e8" },
+        "textColor": { "value": "{colors.primary.700.value}" },
+        "radius": { "value": "{radius.pill.value}" }
+      },
+      "card": {
+        "background": { "value": "{colors.surface.value}" },
+        "radius": { "value": "{radius.lg.value}" },
+        "shadow": { "value": "{shadows.card.value}" },
+        "padding": { "value": "24px 20px" }
+      },
+      "tab": {
+        "backgroundActive": { "value": "{colors.primary.500.value}" },
+        "textActive": { "value": "#ffffff" },
+        "backgroundDefault": { "value": "{colors.surfaceAlt.value}" },
+        "textDefault": { "value": "{colors.text.default.value}" },
+        "radius": { "value": "{radius.pill.value}" }
+      },
+      "badge": {
+        "urgent": { "background": { "value": "#ffe9ef" }, "textColor": { "value": "{colors.urgent.value}" } },
+        "running": { "background": { "value": "#e9f0ff" }, "textColor": { "value": "{colors.running.value}" } },
+        "done": { "background": { "value": "#e9fbef" }, "textColor": { "value": "{colors.done.value}" } }
+      }
+    }
+  }
+}

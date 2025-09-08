@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .form-container {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #0fb9b1;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-button:hover {
+            opacity: 0.7;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0fb9b1;
+            text-align: center;
+            margin-bottom: 2rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-bottom: 2px solid #0fb9b1;
+            background: transparent;
+            font-size: 1rem;
+            font-family: sans-serif;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-bottom-color: #0072ff;
+        }
+
+        .form-input::placeholder {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #0fb9b1;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            margin: 1.5rem 0;
+            gap: 0.5rem;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            margin-top: 2px;
+            accent-color: #0fb9b1;
+        }
+
+        .checkbox-text {
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        .form-button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(90deg, #00c6ff 0%, #00f2fe 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: filter 0.3s ease, transform 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .form-button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .form-button:active {
+            transform: translateY(0);
+        }
+
+        .signin-link {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .signin-link a {
+            color: #0fb9b1;
+            text-decoration: none;
+        }
+
+        .signin-link a:hover {
+            text-decoration: underline;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message {
+            background: #ef4444;
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 1.5rem;
+                margin: 1rem;
+                max-width: 350px;
+            }
+            
+            .form-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <button class="close-button" onclick="closeForm()">×</button>
+        <h1 class="form-title">Registration Form</h1>
+        
+        <form id="registrationForm" novalidate>
+            <div class="form-group">
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-input" 
+                    required
+                    placeholder="Name"
+                >
+            </div>
+
+            <div class="form-group">
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    required
+                    placeholder="Email address"
+                >
+            </div>
+
+            <div class="form-group">
+                <input 
+                    type="text" 
+                    id="country" 
+                    name="country" 
+                    class="form-input" 
+                    required
+                    placeholder="Country"
+                >
+            </div>
+
+            <div class="form-group">
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="form-input" 
+                    required
+                    placeholder="Phone"
+                >
+            </div>
+
+            <div class="form-group password-container">
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    required
+                    placeholder="Password"
+                >
+                <button type="button" class="password-toggle" onclick="togglePassword()">👁</button>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="terms" name="terms" class="checkbox" required>
+                <label for="terms" class="checkbox-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam 
+                    nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat.
+                </label>
+            </div>
+
+            <button type="submit" class="form-button">
+                Create Account
+            </button>
+        </form>
+
+        <div class="signin-link">
+            Already have an account? <a href="#" onclick="signIn()">Sign in</a>
+        </div>
+
+        <div id="successMessage" class="success-message">
+            ¡Cuenta creada exitosamente! Gracias por registrarte.
+        </div>
+
+        <div id="errorMessage" class="error-message">
+            Por favor complete todos los campos requeridos correctamente.
+        </div>
+    </div>
+
+    <script>
+        function closeForm() {
+            console.log('Cerrando formulario...');
+            // Aquí podrías agregar lógica para cerrar el modal
+            alert('Formulario cerrado');
+        }
+
+        function signIn() {
+            console.log('Redirigiendo a Sign In...');
+            // Aquí podrías agregar lógica para redirigir al login
+            alert('Redirigiendo a página de inicio de sesión');
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.textContent = '👁';
+            }
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Ocultar mensajes previos
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // Validar todos los campos
+            const name = formData.get('name').trim();
+            const email = formData.get('email').trim();
+            const country = formData.get('country').trim();
+            const phone = formData.get('phone').trim();
+            const password = formData.get('password').trim();
+            const terms = formData.get('terms');
+            
+            // Validaciones básicas
+            if (!name || !email || !country || !phone || !password) {
+                errorMessage.textContent = 'Por favor complete todos los campos requeridos.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            if (!terms) {
+                errorMessage.textContent = 'Debe aceptar los términos y condiciones.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorMessage.textContent = 'Por favor ingrese un email válido.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Validar longitud de contraseña
+            if (password.length < 6) {
+                errorMessage.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Simular registro exitoso
+            console.log('Datos del registro:', {
+                name: name,
+                email: email,
+                country: country,
+                phone: phone,
+                password: password,
+                terms: terms
+            });
+            
+            // Mostrar mensaje de éxito
+            successMessage.style.display = 'block';
+            
+            // Limpiar formulario
+            form.reset();
+        });
+
+        // Validación en tiempo real
+        const inputs = document.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            input.addEventListener('input', function() {
+                // Limpiar estilos de error mientras el usuario escribe
+                this.style.borderBottomColor = '#0fb9b1';
+            });
+        });
+
+        function validateField(field) {
+            const value = field.value.trim();
+            
+            if (field.hasAttribute('required') && !value) {
+                field.style.borderBottomColor = '#ff6b6b';
+                return false;
+            }
+            
+            if (field.type === 'email' && value) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) {
+                    field.style.borderBottomColor = '#ff6b6b';
+                    return false;
+                }
+            }
+            
+            if (field.name === 'password' && value && value.length < 6) {
+                field.style.borderBottomColor = '#ff6b6b';
+                return false;
+            }
+            
+            field.style.borderBottomColor = '#0fb9b1';
+            return true;
+        }
+    </script>
+</body>
+</html>

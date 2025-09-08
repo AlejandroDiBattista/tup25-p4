@@ -1,4 +1,8 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    "python-envs.pythonProjects": [],
+    "markdown.preview.markEditorSelection": false,
+    "markdown.preview.scrollEditorWithPreview": false,
+    "markdown.preview.scrollPreviewWithEditor": false,
+    "liveServer.settings.port": 5502
 }

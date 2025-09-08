@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Contactos</title>
+    <style>
+        /* Reset y configuración base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #00b894;
+            min-height: 100vh;
+            padding: 16px;
+            line-height: 1.45;
+        }
+
+        /* Contenedor principal */
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: 24px 20px;
+            background: #f5f9f7;
+            border-bottom: 1px solid #e5e9ec;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #212529;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Campo de búsqueda */
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e5e9ec;
+            border-radius: 9999px;
+            background: #ffffff;
+            font-size: 16px;
+            color: #333333;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #00b894;
+        }
+
+        .search-input::placeholder {
+            color: #7d8890;
+        }
+
+        /* Botón primario */
+        .btn-primary {
+            background: #00b894;
+            color: #ffffff;
+            border: none;
+            border-radius: 9999px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0,184,148,.25);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background: #00a383;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Contenedor de contactos */
+        .contacts-container {
+            padding: 24px 20px;
+            min-height: 400px;
+        }
+
+        .contacts-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        /* Tarjetas de contacto */
+        .contact-card {
+            background: #ffffff;
+            border: 1px solid #e5e9ec;
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0,0,0,.1);
+        }
+
+        .contact-info h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .contact-info p {
+            font-size: 16px;
+            color: #7d8890;
+            margin-bottom: 4px;
+            line-height: 1.45;
+        }
+
+        .contact-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .edit-btn {
+            background: #e9f0ff;
+            color: #4d8dff;
+        }
+
+        .edit-btn:hover {
+            background: #4d8dff;
+            color: #ffffff;
+        }
+
+        .delete-btn {
+            background: #ffe9ef;
+            color: #ff4d6d;
+        }
+
+        .delete-btn:hover {
+            background: #ff4d6d;
+            color: #ffffff;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 28px rgba(0,0,0,.1);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 24px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e9ec;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333333;
+            outline: none;
+            transition: border-color 0.2s;
+            line-height: 1.45;
+        }
+
+        .form-input:focus {
+            border-color: #00b894;
+        }
+
+        .form-input.error {
+            border-color: #ff4d6d;
+        }
+
+        .error-message {
+            color: #ff4d6d;
+            font-size: 14px;
+            margin-top: 4px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #d7f3e8;
+            color: #008f70;
+            border: none;
+            border-radius: 9999px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e9ec;
+        }
+
+        .btn-primary.full {
+            flex: 1;
+        }
+
+        /* Estado vacío */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7d8890;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333333;
+            line-height: 1.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header-controls {
+                flex-direction: column;
+            }
+
+            .search-input {
+                margin-bottom: 12px;
+            }
+
+            .modal-content {
+                padding: 24px;
+                margin: 16px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📞 Agenda de Contactos</h1>
+            <div class="header-controls">
+                <input type="text" 
+                       class="search-input" 
+                       id="searchInput" 
+                       placeholder="Buscar por nombre, teléfono o email...">
+                <button class="btn-primary" onclick="openModal()">
+                    ➕ Agregar
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenedor de contactos -->
+        <div class="contacts-container">
+            <div class="contacts-grid" id="contactsGrid">
+                <!-- Los contactos se generan dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para formulario -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Agregar Contacto</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label class="form-label" for="name">Nombre *</label>
+                    <input type="text" 
+                           class="form-input" 
+                           id="name" 
+                           required>
+                    <div class="error-message" id="nameError">El nombre es obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="phone">Teléfono *</label>
+                    <input type="tel" 
+                           class="form-input" 
+                           id="phone" 
+                           required>
+                    <div class="error-message" id="phoneError">El teléfono es obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email *</label>
+                    <input type="email" 
+                           class="form-input" 
+                           id="email" 
+                           required>
+                    <div class="error-message" id="emailError">El email es obligatorio y debe ser válido</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary full">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let $ = $;
+        // Datos de contactos (en memoria)
+        let contacts = [
+            {
+                id: 1,
+                name: "María González",
+                phone: "+54 11 2345-6789",
+                email: "maria.gonzalez@email.com"
+            },
+            {
+                id: 2,
+                name: "Juan Carlos Pérez",
+                phone: "+54 11 3456-7890",
+                email: "juan.perez@email.com"
+            },
+            {
+                id: 3,
+                name: "Ana Rodríguez",
+                phone: "+54 11 4567-8901",
+                email: "ana.rodriguez@email.com"
+            },
+            {
+                id: 4,
+                name: "Carlos López",
+                phone: "+54 11 5678-9012",
+                email: "carlos.lopez@email.com"
+            },
+            {
+                id: 5,
+                name: "Laura Martínez",
+                phone: "+54 11 6789-0123",
+                email: "laura.martinez@email.com"
+            }
+        ];
+
+        let editingContactId = null;
+        let filteredContacts = [...contacts];
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            renderContacts();
+            setupSearch();
+            setupForm();
+        });
+
+        // Renderizar contactos
+        function renderContacts(contactsToRender = filteredContacts) {
+            const grid = $('contactsGrid');
+            
+            if (contactsToRender.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No hay contactos</h3>
+                        <p>Agrega tu primer contacto usando el botón "Agregar"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = contactsToRender.map(contact => `
+                <div class="contact-card">
+                    <div class="contact-actions">
+                        <button class="action-btn edit-btn" onclick="editContact(${contact.id})" title="Editar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen-icon lucide-pen"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteContact(${contact.id})" title="Eliminar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eraser-icon lucide-eraser"><path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21"/><path d="m5.082 11.09 8.828 8.828"/></svg>
+                        </button>
+                    </div>
+                    <div class="contact-info">
+                        <h3>${escapeHtml(contact.name)}</h3>
+                        <p>📞 ${escapeHtml(contact.phone)}</p>
+                        <p>✉️ ${escapeHtml(contact.email)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Configurar búsqueda en tiempo real
+        function setupSearch() {
+            const searchInput = $('searchInput');
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase().trim();
+                
+                if (query === '') {
+                    filteredContacts = [...contacts];
+                } else {
+                    filteredContacts = contacts.filter(contact => 
+                        contact.name.toLowerCase().includes(query) ||
+                        contact.phone.toLowerCase().includes(query) ||
+                        contact.email.toLowerCase().includes(query)
+                    );
+                }
+                
+                renderContacts();
+            });
+        }
+
+        // Configurar formulario
+        function setupForm() {
+            const form = $('contactForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm()) {
+                    if (editingContactId) {
+                        updateContact();
+                    } else {
+                        addContact();
+                    }
+                    closeModal();
+                }
+            });
+        }
+
+        // Validar formulario
+        function validateForm() {
+            const name  = $('name').value.trim();
+            const phone = $('phone').value.trim();
+            const email = $('email').value.trim();
+            
+            let isValid = true;
+
+            // Validar nombre
+            if (!name) {
+                showError('name', 'nameError');
+                isValid = false;
+            } else {
+                hideError('name', 'nameError');
+            }
+
+            // Validar teléfono
+            if (!phone) {
+                showError('phone', 'phoneError');
+                isValid = false;
+            } else {
+                hideError('phone', 'phoneError');
+            }
+
+            // Validar email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                showError('email', 'emailError');
+                isValid = false;
+            } else {
+                hideError('email', 'emailError');
+            }
+
+            return isValid;
+        }
+
+        function showError(inputId, errorId) {
+            $(inputId).classList.add('error');
+            $(errorId).style.display = 'block';
+        }
+
+        function hideError(inputId, errorId) {
+            $(inputId).classList.remove('error');
+            $(errorId).style.display = 'none';
+        }
+
+        // Agregar contacto
+        function addContact() {
+            const name = $('name').value.trim();
+            const phone = $('phone').value.trim();
+            const email = $('email').value.trim();
+
+            const newContact = {
+                id: Date.now(), // Usar timestamp como ID único
+                name,
+                phone,
+                email
+            };
+
+            contacts.push(newContact);
+            updateFilteredContacts();
+            renderContacts();
+        }
+
+        // Editar contacto
+        function editContact(id) {
+            const contact = contacts.find(c => c.id === id);
+            if (!contact) return;
+
+            editingContactId = id;
+            
+            $('modalTitle').textContent = 'Editar Contacto';
+            $('name').value = contact.name;
+            $('phone').value = contact.phone;
+            $('email').value = contact.email;
+            
+            openModal();
+        }
+
+        // Actualizar contacto
+        function updateContact() {
+            const name = $('name').value.trim();
+            const phone = $('phone').value.trim();
+            const email = $('email').value.trim();
+
+            const contactIndex = contacts.findIndex(c => c.id === editingContactId);
+            if (contactIndex !== -1) {
+                contacts[contactIndex] = {
+                    ...contacts[contactIndex],
+                    name,
+                    phone,
+                    email
+                };
+            }
+
+            editingContactId = null;
+            updateFilteredContacts();
+            renderContacts();
+        }
+
+        // Eliminar contacto
+        function deleteContact(id) {
+            contacts = contacts.filter(c => c.id !== id);
+            updateFilteredContacts();
+            renderContacts();
+        }
+
+        // Actualizar contactos filtrados después de cambios
+        function updateFilteredContacts() {
+            const searchQuery = $('searchInput').value.toLowerCase().trim();
+            
+            if (searchQuery === '') {
+                filteredContacts = [...contacts];
+            } else {
+                filteredContacts = contacts.filter(contact => 
+                    contact.name.toLowerCase().includes(searchQuery) ||
+                    contact.phone.toLowerCase().includes(searchQuery) ||
+                    contact.email.toLowerCase().includes(searchQuery)
+                );
+            }
+        }
+
+        // Abrir modal
+        function openModal() {
+            $('contactModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Enfocar el primer campo
+            setTimeout(() => {
+                $('name').focus();
+            }, 100);
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            $('contactModal').classList.remove('show');
+            document.body.style.overflow = '';
+            
+            // Limpiar formulario
+            $('contactForm').reset();
+            editingContactId = null;
+            $('modalTitle').textContent = 'Agregar Contacto';
+            
+            // Limpiar errores
+            ['name', 'phone', 'email'].forEach(field => {
+                hideError(field, field + 'Error');
+            });
+        }
+
+        // Cerrar modal al hacer clic fuera
+        $('contactModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Manejar tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Escapar HTML para prevenir XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
