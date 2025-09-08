@@ -1,7 +1,7 @@
 "use strict";
 
 const iconCommon =
-  '<svg xmlns="http: //www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide ';
+  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide ';
 const ICONS = {
   add: `${iconCommon}lucide-user-plus-icon lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6m3-3h-6"/></svg>`,
   delete: `${iconCommon}lucide-trash2-icon lucide-trash-2"><path d="M10 11v6m4-6v6m5-11v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
@@ -79,30 +79,30 @@ class Agenda {
   #contactos = [];
   #proximoId = 1;
 
-  constructor() {
-    this.cargarDeLocalStorage();
-  }
+  // constructor() {
+  //   this.cargarDeLocalStorage();
+  // }
 
-  guardarEnLocalStorage() {
-    localStorage.setItem("agenda", JSON.stringify(this.#contactos));
-    localStorage.setItem("proximoId", this.#proximoId);
-  }
+  // guardarEnLocalStorage() {
+  //   localStorage.setItem("agenda", JSON.stringify(this.#contactos));
+  //   localStorage.setItem("proximoId", this.#proximoId);
+  // }
 
-  cargarDeLocalStorage() {
-    const contactosGuardados = localStorage.getItem("agenda");
-    const proximoIdGuardado = localStorage.getItem("proximoId");
-    if (contactosGuardados) {
-      const contactosSimples = JSON.parse(contactosGuardados);
-      this.#contactos = contactosSimples.map(
-        (c) => new Contacto(c.id, c.nombre, c.apellido, c.telefono, c.email)
-      );
-      this.#proximoId = proximoIdGuardado
-        ? Number(proximoIdGuardado)
-        : this.#contactos.length
-        ? Math.max(...this.#contactos.map((c) => c.id)) + 1
-        : 1;
-    }
-  }
+  // cargarDeLocalStorage() {
+  //   const contactosGuardados = localStorage.getItem("agenda");
+  //   const proximoIdGuardado = localStorage.getItem("proximoId");
+  //   if (contactosGuardados) {
+  //     const contactosSimples = JSON.parse(contactosGuardados);
+  //     this.#contactos = contactosSimples.map(
+  //       (c) => new Contacto(c.id, c.nombre, c.apellido, c.telefono, c.email)
+  //     );
+  //     this.#proximoId = proximoIdGuardado
+  //       ? Number(proximoIdGuardado)
+  //       : this.#contactos.length
+  //       ? Math.max(...this.#contactos.map((c) => c.id)) + 1
+  //       : 1;
+  //   }
+  // }
 
   agregar(nombre, apellido, telefono, email) {
     const nuevoContacto = new Contacto(
@@ -114,7 +114,7 @@ class Agenda {
     );
     this.#contactos.push(nuevoContacto);
     this.#proximoId++;
-    this.guardarEnLocalStorage();
+    // this.guardarEnLocalStorage();
     return nuevoContacto;
   }
 
@@ -126,7 +126,7 @@ class Agenda {
     const contacto = this.buscarPorId(id);
     if (contacto) {
       contacto.actualizar(nuevosDatos);
-      this.guardarEnLocalStorage();
+      // this.guardarEnLocalStorage();
     }
     return !!contacto;
   }
@@ -135,7 +135,7 @@ class Agenda {
     const index = this.#contactos.findIndex((contacto) => contacto.id === id);
     if (index !== -1) {
       this.#contactos.splice(index, 1);
-      this.guardarEnLocalStorage();
+      // this.guardarEnLocalStorage();
       return true;
     }
     return false;
