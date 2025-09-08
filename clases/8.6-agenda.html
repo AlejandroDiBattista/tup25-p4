@@ -1,321 +1,696 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Agenda de Contactos</title>
-  <style>
-    /* Design tokens (inspirados en 8.6.estilo.json) */
-    :root{
-      --color-bg: #f3f6f8;
-      --card-bg: #ffffff;
-      --primary: #16a34a; /* verde */
-      --muted: #6b7280;
-      --accent: #06b6d4;
-      --danger: #ef4444;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --shadow: 0 6px 18px rgba(2,6,23,0.08);
-      --font-sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-      --max-width: 920px;
-      --gap: 12px;
-      --glass: rgba(255,255,255,0.6);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Contactos</title>
+    <style>
+        /* Reset y configuración base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    html,body{height:100%;}
-    body{
-      margin:0;
-      font-family:var(--font-sans);
-      background: linear-gradient(180deg,var(--color-bg),#e9f3f0 60%);
-      display:flex;
-      align-items:flex-start; /* alineado en la parte superior */
-      justify-content:center;
-      padding:20px 28px; /* menos padding vertical para quedar más arriba */
-      -webkit-font-smoothing:antialiased;
-    }
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #00b894;
+            min-height: 100vh;
+            padding: 16px;
+            line-height: 1.45;
+        }
 
-    .container{
-      width:100%;
-      max-width:var(--max-width);
-      background:var(--card-bg);
-      border-radius:calc(var(--radius) + 4px);
-      box-shadow:var(--shadow);
-      padding:20px;
-    }
+        /* Contenedor principal */
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
 
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-    h1{font-size:1.25rem;margin:0}
-    p.lead{margin:0;color:var(--muted);font-size:0.9rem}
+        /* Header */
+        .header {
+            padding: 24px 20px;
+            background: #f5f9f7;
+            border-bottom: 1px solid #e5e9ec;
+        }
 
-    .controls{display:flex;gap:12px;align-items:center}
-    .search{
-      display:flex;align-items:center;gap:8px;background:#f8fafb;padding:8px 12px;border-radius:999px;border:1px solid #eef2f7;min-width:180px;
-    }
-    .search input{border:0;background:transparent;outline:none;font-size:0.95rem}
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #212529;
+            margin-bottom: 24px;
+            text-align: center;
+        }
 
-    .btn{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:0;background:var(--primary);color:white;font-weight:600;cursor:pointer;
-      box-shadow:0 6px 14px rgba(16,185,129,0.12);
-    }
-    .btn.ghost{background:transparent;color:var(--muted);border:1px solid #eef2f7;padding:8px 10px;border-radius:8px;box-shadow:none}
+        .header-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--gap);}
+        /* Campo de búsqueda */
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e5e9ec;
+            border-radius: 9999px;
+            background: #ffffff;
+            font-size: 16px;
+            color: #333333;
+            outline: none;
+            transition: border-color 0.2s;
+        }
 
-    .card{
-      background:var(--card-bg);
-      border-radius:var(--radius-sm);
-      padding:14px;
-      box-shadow:0 8px 20px rgba(8,20,50,0.04);
-      display:flex;flex-direction:column;gap:8px;min-height:110px;
-    }
-    .card .row{display:flex;justify-content:space-between;align-items:center}
-    .name{font-weight:700}
-    .meta{color:var(--muted);font-size:0.9rem}
+        .search-input:focus {
+            border-color: #00b894;
+        }
 
-    .actions{display:flex;gap:8px}
-    .icon-btn{background:transparent;border:0;padding:6px;border-radius:8px;cursor:pointer;color:var(--muted)}
-    .icon-btn:hover{background:#f3f7f6;color:var(--accent)}
+        .search-input::placeholder {
+            color: #7d8890;
+        }
 
-    /* Modal */
-    .overlay{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
-    .overlay.show{display:flex}
-    .modal{width:100%;max-width:520px;background:var(--card-bg);border-radius:12px;padding:18px;box-shadow:0 20px 60px rgba(2,6,23,0.2)}
-    .modal h2{margin:0 0 8px 0}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-    .field label{font-size:0.85rem;color:var(--muted)}
-    .field input{padding:10px;border-radius:8px;border:1px solid #e6eef0;outline:none}
-    .field input:invalid{border-color:var(--danger)}
+        /* Botón primario */
+        .btn-primary {
+            background: #00b894;
+            color: #ffffff;
+            border: none;
+            border-radius: 9999px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0,184,148,.25);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
 
-    .footer{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+        .btn-primary:hover {
+            background: #00a383;
+            transform: translateY(-2px);
+        }
 
-    /* Empty state */
-    .empty{padding:26px;text-align:center;color:var(--muted);border-radius:8px;background:linear-gradient(180deg,#fbfcfd,#ffffff);border:1px dashed #e6eef0}
+        .btn-primary:active {
+            transform: translateY(0);
+        }
 
-    /* Responsive tweaks */
-    @media (max-width:520px){
-      .form-row{grid-template-columns:1fr}
-      header{flex-direction:column;align-items:stretch;gap:12px}
-      .controls{justify-content:space-between}
-    }
+        /* Contenedor de contactos */
+        .contacts-container {
+            padding: 24px 20px;
+            min-height: 400px;
+        }
 
-    /* small helpers */
-    .muted{color:var(--muted);font-size:0.9rem}
+        .contacts-grid {
+            display: grid;
+            gap: 16px;
+        }
 
-  </style>
+        /* Tarjetas de contacto */
+        .contact-card {
+            background: #ffffff;
+            border: 1px solid #e5e9ec;
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0,0,0,.1);
+        }
+
+        .contact-info h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .contact-info p {
+            font-size: 16px;
+            color: #7d8890;
+            margin-bottom: 4px;
+            line-height: 1.45;
+        }
+
+        .contact-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .edit-btn {
+            background: #e9f0ff;
+            color: #4d8dff;
+        }
+
+        .edit-btn:hover {
+            background: #4d8dff;
+            color: #ffffff;
+        }
+
+        .delete-btn {
+            background: #ffe9ef;
+            color: #ff4d6d;
+        }
+
+        .delete-btn:hover {
+            background: #ff4d6d;
+            color: #ffffff;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 28px rgba(0,0,0,.1);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 24px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e9ec;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333333;
+            outline: none;
+            transition: border-color 0.2s;
+            line-height: 1.45;
+        }
+
+        .form-input:focus {
+            border-color: #00b894;
+        }
+
+        .form-input.error {
+            border-color: #ff4d6d;
+        }
+
+        .error-message {
+            color: #ff4d6d;
+            font-size: 14px;
+            margin-top: 4px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #d7f3e8;
+            color: #008f70;
+            border: none;
+            border-radius: 9999px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e9ec;
+        }
+
+        .btn-primary.full {
+            flex: 1;
+        }
+
+        /* Estado vacío */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7d8890;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333333;
+            line-height: 1.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header-controls {
+                flex-direction: column;
+            }
+
+            .search-input {
+                margin-bottom: 12px;
+            }
+
+            .modal-content {
+                padding: 24px;
+                margin: 16px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container" role="application" aria-labelledby="title">
-    <header>
-      <div>
-        <h1 id="title">Agenda de Contactos</h1>
-        <p class="lead">Gestiona tus contactos fácilmente — prueba la búsqueda, editar y agregar.</p>
-      </div>
-      <div class="controls">
-        <div class="search" aria-hidden="false">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="#94a3b8" stroke-width="1.6"></circle></svg>
-          <input id="q" type="search" placeholder="Buscar por nombre, teléfono o email" aria-label="Buscar contactos">
-        </div>
-        <button id="addBtn" class="btn" aria-haspopup="dialog">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          Agregar
-        </button>
-      </div>
-    </header>
-
-    <main>
-      <section id="list" class="grid" aria-live="polite"></section>
-      <div id="empty" class="empty" style="display:none;margin-top:12px">No hay contactos. Presiona "Agregar" para crear uno nuevo.</div>
-    </main>
-  </div>
-
-  <!-- Modal -->
-  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal" role="document">
-      <h2 id="modalTitle">Agregar contacto</h2>
-      <form id="form">
-        <div class="form-row">
-          <div class="field">
-            <label for="name">Nombre</label>
-            <input id="name" name="name" type="text" required minlength="2" placeholder="Ej: Juan Pérez">
-          </div>
-          <div class="field">
-            <label for="phone">Teléfono</label>
-            <input id="phone" name="phone" type="tel" pattern="[0-9()+\-\s]{6,20}" placeholder="Ej: +54 11 1234 5678">
-          </div>
-        </div>
-        <div class="field">
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" placeholder="ejemplo@correo.com">
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📞 Agenda de Contactos</h1>
+            <div class="header-controls">
+                <input type="text" 
+                       class="search-input" 
+                       id="searchInput" 
+                       placeholder="Buscar por nombre, teléfono o email...">
+                <button class="btn-primary" onclick="openModal()">
+                    ➕ Agregar
+                </button>
+            </div>
         </div>
 
-        <div class="footer">
-          <button type="button" id="cancel" class="btn ghost">Cancelar</button>
-          <button type="submit" class="btn">Guardar</button>
+        <!-- Contenedor de contactos -->
+        <div class="contacts-container">
+            <div class="contacts-grid" id="contactsGrid">
+                <!-- Los contactos se generan dinámicamente -->
+            </div>
         </div>
-      </form>
     </div>
-  </div>
 
-  <script>
-    (function(){
-      // Datos de ejemplo
-      const exampleContacts = [
-        {id: cryptoRandomId(), name: 'María López', phone: '+54 9 11 4321-0000', email: 'maria.lopez@example.com'},
-        {id: cryptoRandomId(), name: 'Carlos García', phone: '+54 11 5555 1234', email: 'carlos.g@example.net'},
-        {id: cryptoRandomId(), name: 'Lucía Fernández', phone: '+54 11 9876 5432', email: 'lucia.f@example.org'},
-        {id: cryptoRandomId(), name: 'Andrés Gómez', phone: '', email: 'andres.g@example.com'},
-      ];
+    <!-- Modal para formulario -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Agregar Contacto</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label class="form-label" for="name">Nombre *</label>
+                    <input type="text" 
+                           class="form-input" 
+                           id="name" 
+                           required>
+                    <div class="error-message" id="nameError">El nombre es obligatorio</div>
+                </div>
 
-      // State
-      let contacts = [...exampleContacts];
-      let editId = null;
+                <div class="form-group">
+                    <label class="form-label" for="phone">Teléfono *</label>
+                    <input type="tel" 
+                           class="form-input" 
+                           id="phone" 
+                           required>
+                    <div class="error-message" id="phoneError">El teléfono es obligatorio</div>
+                </div>
 
-      // Elements
-      const listEl = document.getElementById('list');
-      const q = document.getElementById('q');
-      const addBtn = document.getElementById('addBtn');
-      const overlay = document.getElementById('overlay');
-      const form = document.getElementById('form');
-      const modalTitle = document.getElementById('modalTitle');
-      const cancel = document.getElementById('cancel');
-      const empty = document.getElementById('empty');
+                <div class="form-group">
+                    <label class="form-label" for="email">Email *</label>
+                    <input type="email" 
+                           class="form-input" 
+                           id="email" 
+                           required>
+                    <div class="error-message" id="emailError">El email es obligatorio y debe ser válido</div>
+                </div>
 
-      // Helpers
-      function cryptoRandomId(){
-        return 'id-' + Math.random().toString(36).slice(2,9);
-      }
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary full">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-      function formatPhone(p){
-        if(!p) return '';
-        return p;
-      }
+    <script>
+        let $ = $;
+        // Datos de contactos (en memoria)
+        let contacts = [
+            {
+                id: 1,
+                name: "María González",
+                phone: "+54 11 2345-6789",
+                email: "maria.gonzalez@email.com"
+            },
+            {
+                id: 2,
+                name: "Juan Carlos Pérez",
+                phone: "+54 11 3456-7890",
+                email: "juan.perez@email.com"
+            },
+            {
+                id: 3,
+                name: "Ana Rodríguez",
+                phone: "+54 11 4567-8901",
+                email: "ana.rodriguez@email.com"
+            },
+            {
+                id: 4,
+                name: "Carlos López",
+                phone: "+54 11 5678-9012",
+                email: "carlos.lopez@email.com"
+            },
+            {
+                id: 5,
+                name: "Laura Martínez",
+                phone: "+54 11 6789-0123",
+                email: "laura.martinez@email.com"
+            }
+        ];
 
-      function render(){
-        const term = q.value.trim().toLowerCase();
-        const filtered = contacts.filter(c=>{
-          if(!term) return true;
-          return (c.name && c.name.toLowerCase().includes(term)) ||
-                 (c.phone && c.phone.toLowerCase().includes(term)) ||
-                 (c.email && c.email.toLowerCase().includes(term));
+        let editingContactId = null;
+        let filteredContacts = [...contacts];
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            renderContacts();
+            setupSearch();
+            setupForm();
         });
 
-        listEl.innerHTML = '';
-        if(filtered.length===0){
-          empty.style.display='block';
-        } else { empty.style.display='none'; }
+        // Renderizar contactos
+        function renderContacts(contactsToRender = filteredContacts) {
+            const grid = $('contactsGrid');
+            
+            if (contactsToRender.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No hay contactos</h3>
+                        <p>Agrega tu primer contacto usando el botón "Agregar"</p>
+                    </div>
+                `;
+                return;
+            }
 
-        filtered.forEach(c=>{
-          const card = document.createElement('article');
-          card.className='card';
+            grid.innerHTML = contactsToRender.map(contact => `
+                <div class="contact-card">
+                    <div class="contact-actions">
+                        <button class="action-btn edit-btn" onclick="editContact(${contact.id})" title="Editar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen-icon lucide-pen"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteContact(${contact.id})" title="Eliminar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eraser-icon lucide-eraser"><path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21"/><path d="m5.082 11.09 8.828 8.828"/></svg>
+                        </button>
+                    </div>
+                    <div class="contact-info">
+                        <h3>${escapeHtml(contact.name)}</h3>
+                        <p>📞 ${escapeHtml(contact.phone)}</p>
+                        <p>✉️ ${escapeHtml(contact.email)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-          const row = document.createElement('div'); row.className='row';
-          const left = document.createElement('div');
-          const name = document.createElement('div'); name.className='name'; name.textContent = c.name || '—';
-          const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML = [c.phone?'<div>'+formatPhone(c.phone)+'</div>':'', c.email?'<div>'+c.email+'</div>':''].join('');
+        // Configurar búsqueda en tiempo real
+        function setupSearch() {
+            const searchInput = $('searchInput');
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase().trim();
+                
+                if (query === '') {
+                    filteredContacts = [...contacts];
+                } else {
+                    filteredContacts = contacts.filter(contact => 
+                        contact.name.toLowerCase().includes(query) ||
+                        contact.phone.toLowerCase().includes(query) ||
+                        contact.email.toLowerCase().includes(query)
+                    );
+                }
+                
+                renderContacts();
+            });
+        }
 
-          left.appendChild(name); left.appendChild(meta);
+        // Configurar formulario
+        function setupForm() {
+            const form = $('contactForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm()) {
+                    if (editingContactId) {
+                        updateContact();
+                    } else {
+                        addContact();
+                    }
+                    closeModal();
+                }
+            });
+        }
 
-          const actions = document.createElement('div'); actions.className='actions';
+        // Validar formulario
+        function validateForm() {
+            const name  = $('name').value.trim();
+            const phone = $('phone').value.trim();
+            const email = $('email').value.trim();
+            
+            let isValid = true;
 
-          const editBtn = document.createElement('button'); editBtn.className='icon-btn'; editBtn.title='Editar'; editBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 21l3-1 11-11 2 2L8 22 3 21zM20.7 7.3a1 1 0 0 0 0-1.4l-2.6-2.6a1 1 0 0 0-1.4 0L14 4.6l4 4 2.7-1.3z" fill="currentColor"/></svg>';
-          editBtn.addEventListener('click',()=>openEdit(c.id));
+            // Validar nombre
+            if (!name) {
+                showError('name', 'nameError');
+                isValid = false;
+            } else {
+                hideError('name', 'nameError');
+            }
 
-          const delBtn = document.createElement('button'); delBtn.className='icon-btn'; delBtn.title='Eliminar'; delBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6M10 6V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-          delBtn.addEventListener('click',()=>deleteContact(c.id));
+            // Validar teléfono
+            if (!phone) {
+                showError('phone', 'phoneError');
+                isValid = false;
+            } else {
+                hideError('phone', 'phoneError');
+            }
 
-          actions.appendChild(editBtn); actions.appendChild(delBtn);
+            // Validar email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                showError('email', 'emailError');
+                isValid = false;
+            } else {
+                hideError('email', 'emailError');
+            }
 
-          row.appendChild(left); row.appendChild(actions);
+            return isValid;
+        }
 
-          card.appendChild(row);
-          listEl.appendChild(card);
+        function showError(inputId, errorId) {
+            $(inputId).classList.add('error');
+            $(errorId).style.display = 'block';
+        }
+
+        function hideError(inputId, errorId) {
+            $(inputId).classList.remove('error');
+            $(errorId).style.display = 'none';
+        }
+
+        // Agregar contacto
+        function addContact() {
+            const name = $('name').value.trim();
+            const phone = $('phone').value.trim();
+            const email = $('email').value.trim();
+
+            const newContact = {
+                id: Date.now(), // Usar timestamp como ID único
+                name,
+                phone,
+                email
+            };
+
+            contacts.push(newContact);
+            updateFilteredContacts();
+            renderContacts();
+        }
+
+        // Editar contacto
+        function editContact(id) {
+            const contact = contacts.find(c => c.id === id);
+            if (!contact) return;
+
+            editingContactId = id;
+            
+            $('modalTitle').textContent = 'Editar Contacto';
+            $('name').value = contact.name;
+            $('phone').value = contact.phone;
+            $('email').value = contact.email;
+            
+            openModal();
+        }
+
+        // Actualizar contacto
+        function updateContact() {
+            const name = $('name').value.trim();
+            const phone = $('phone').value.trim();
+            const email = $('email').value.trim();
+
+            const contactIndex = contacts.findIndex(c => c.id === editingContactId);
+            if (contactIndex !== -1) {
+                contacts[contactIndex] = {
+                    ...contacts[contactIndex],
+                    name,
+                    phone,
+                    email
+                };
+            }
+
+            editingContactId = null;
+            updateFilteredContacts();
+            renderContacts();
+        }
+
+        // Eliminar contacto
+        function deleteContact(id) {
+            contacts = contacts.filter(c => c.id !== id);
+            updateFilteredContacts();
+            renderContacts();
+        }
+
+        // Actualizar contactos filtrados después de cambios
+        function updateFilteredContacts() {
+            const searchQuery = $('searchInput').value.toLowerCase().trim();
+            
+            if (searchQuery === '') {
+                filteredContacts = [...contacts];
+            } else {
+                filteredContacts = contacts.filter(contact => 
+                    contact.name.toLowerCase().includes(searchQuery) ||
+                    contact.phone.toLowerCase().includes(searchQuery) ||
+                    contact.email.toLowerCase().includes(searchQuery)
+                );
+            }
+        }
+
+        // Abrir modal
+        function openModal() {
+            $('contactModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Enfocar el primer campo
+            setTimeout(() => {
+                $('name').focus();
+            }, 100);
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            $('contactModal').classList.remove('show');
+            document.body.style.overflow = '';
+            
+            // Limpiar formulario
+            $('contactForm').reset();
+            editingContactId = null;
+            $('modalTitle').textContent = 'Agregar Contacto';
+            
+            // Limpiar errores
+            ['name', 'phone', 'email'].forEach(field => {
+                hideError(field, field + 'Error');
+            });
+        }
+
+        // Cerrar modal al hacer clic fuera
+        $('contactModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
         });
-      }
 
-      function openForm(){
-        editId = null;
-        modalTitle.textContent = 'Agregar contacto';
-        form.reset();
-        overlay.classList.add('show');
-        overlay.setAttribute('aria-hidden','false');
-        // focus first input
-        setTimeout(()=>document.getElementById('name').focus(),120);
-      }
+        // Manejar tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
 
-      function openEdit(id){
-        const c = contacts.find(x=>x.id===id);
-        if(!c) return;
-        editId = id;
-        modalTitle.textContent = 'Editar contacto';
-        document.getElementById('name').value = c.name || '';
-        document.getElementById('phone').value = c.phone || '';
-        document.getElementById('email').value = c.email || '';
-        overlay.classList.add('show');
-        overlay.setAttribute('aria-hidden','false');
-        setTimeout(()=>document.getElementById('name').focus(),120);
-      }
-
-      function closeForm(){
-        overlay.classList.remove('show');
-        overlay.setAttribute('aria-hidden','true');
-        editId = null;
-      }
-
-      function deleteContact(id){
-        contacts = contacts.filter(c=>c.id!==id);
-        render();
-      }
-
-      form.addEventListener('submit',function(e){
-        e.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const email = document.getElementById('email').value.trim();
-
-        if(!name || name.length<2){
-          alert('El nombre es obligatorio y debe tener al menos 2 caracteres.');
-          return;
+        // Escapar HTML para prevenir XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
-
-        if(editId){
-          contacts = contacts.map(c=> c.id===editId ? {...c,name,phone,email} : c);
-        } else {
-          contacts.unshift({id: cryptoRandomId(), name, phone, email});
-        }
-
-        closeForm();
-        render();
-      });
-
-      addBtn.addEventListener('click',openForm);
-      cancel.addEventListener('click',closeForm);
-
-      // close on overlay click (but not when clicking modal)
-      overlay.addEventListener('click',function(e){ if(e.target===overlay) closeForm(); });
-
-      // keyboard accessibility
-      document.addEventListener('keydown',function(e){
-        if(e.key==='Escape' && overlay.classList.contains('show')){ closeForm(); }
-      });
-
-      // search
-      q.addEventListener('input',render);
-
-      // initial render
-      render();
-
-      // expose some functions for debugging
-      window._agenda = {get contacts(){return contacts}, add(contact){contacts.unshift(contact);render()}, render};
-
-      // small polyfill: if crypto is available, use it for ids
-      function cryptoRandomId(){
-        try{ if(window.crypto && crypto.getRandomValues){ const arr=new Uint32Array(2); crypto.getRandomValues(arr); return 'id-'+Array.from(arr).map(n=>n.toString(36)).join('').slice(0,9);} }
-        catch(e){}
-        return 'id-'+Math.random().toString(36).slice(2,9);
-      }
-
-    })();
-  </script>
+    </script>
 </body>
 </html>

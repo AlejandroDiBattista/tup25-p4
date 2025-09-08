@@ -1,0 +1,78 @@
+{
+  "designLanguage": {
+    "layout": {
+      "alignment": "centered",
+      "cardStyle": "modal",
+      "padding": "2rem",
+      "borderRadius": "12px",
+      "shadow": "soft"
+    },
+    "typography": {
+      "fontFamily": "sans-serif",
+      "title": {
+        "size": "1.5rem",
+        "weight": "600",
+        "color": "#0fb9b1",
+        "alignment": "center"
+      },
+      "labels": {
+        "size": "0.9rem",
+        "weight": "400",
+        "color": "#333"
+      },
+      "links": {
+        "size": "0.8rem",
+        "color": "#0fb9b1",
+        "hoverEffect": "underline"
+      }
+    },
+    "colors": {
+      "background": {
+        "type": "gradient",
+        "direction": "diagonal",
+        "colors": ["#00c6ff", "#0072ff"]
+      },
+      "cardBackground": "#ffffff",
+      "inputBorder": "#00c6ff",
+      "button": {
+        "background": {
+          "type": "gradient",
+          "direction": "horizontal",
+          "colors": ["#00c6ff", "#00f2fe"]
+        },
+        "textColor": "#ffffff"
+      },
+      "checkbox": "#00c6ff"
+    },
+    "inputs": {
+      "borderStyle": "solid",
+      "borderWidth": "1px",
+      "borderColor": "#00c6ff",
+      "borderRadius": "4px",
+      "padding": "0.5rem",
+      "focusEffect": {
+        "borderColor": "#0072ff",
+        "shadow": "0 0 4px rgba(0, 114, 255, 0.4)"
+      }
+    },
+    "button": {
+      "borderRadius": "6px",
+      "padding": "0.75rem 1.5rem",
+      "textTransform": "uppercase",
+      "fontWeight": "600",
+      "hoverEffect": {
+        "brightness": 1.1
+      }
+    },
+    "icons": {
+      "passwordToggle": {
+        "type": "eye",
+        "color": "#00c6ff"
+      },
+      "closeButton": {
+        "position": "top-right",
+        "color": "#00c6ff"
+      }
+    }
+  }
+}
