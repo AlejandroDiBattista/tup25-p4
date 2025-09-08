@@ -1,1 +1,77 @@
 /* Estilos generales */
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.busqueda-agregar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.busqueda-agregar button,
+#formularioContacto button {
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 2px 8px #0001;
+}
+
+.busqueda-agregar button:hover,
+#formularioContacto button:hover {
+  background: #444;
+  transform: translateY(-2px) scale(1.04);
+}
+
+#listaContactos {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.tarjeta {
+  padding: 1rem;
+  border: 1px solid #e0c3fc;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fceabb 0%, #e0c3fc 100%);
+  box-shadow: 0 2px 8px #e0c3fc33;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px #a084e833;
+}
+
+.tarjeta h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.tarjeta .acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tarjeta .acciones button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: crimson;
+}
