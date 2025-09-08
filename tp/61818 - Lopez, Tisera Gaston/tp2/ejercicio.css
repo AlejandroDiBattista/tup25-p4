@@ -1,1 +1,50 @@
 /* Estilos generales */
+.toolbar { margin-block: 1rem; }
+.actions-end { display: flex; justify-content: end; align-items: center; }
+
+.cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 1rem;
+}
+
+.contact-card {
+	border-radius: .75rem;
+	border: 1px solid hsl(210 10% 25% / .5);
+	background: hsl(210 15% 14%);
+	box-shadow: 0 2px 8px hsl(0 0% 0% / .25);
+	overflow: hidden;
+}
+
+.contact-card__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: .75rem 1rem;
+	background: hsl(210 15% 18%);
+}
+
+.contact-info { display: flex; align-items: center; gap: .75rem; }
+.avatar {
+	width: 36px; height: 36px;
+	border-radius: 50%;
+	display: grid; place-items: center;
+	font-weight: 700; font-size: .9rem;
+	color: white; background: linear-gradient(135deg, #2563eb, #06b6d4);
+}
+.fullname { font-weight: 700; }
+
+.contact-actions { display: flex; gap: .25rem; }
+.icon-btn {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: hsl(210 10% 85%);
+	padding: .25rem;
+	border-radius: .5rem;
+}
+.icon-btn:hover { background: hsl(210 10% 25% / .5); color: white; }
+
+.contact-card__body { padding: .75rem 1rem 1rem 1rem; display: grid; gap: .5rem; }
+.contact-field { display: flex; align-items: center; gap: .5rem; color: hsl(210 10% 85%); }
+.contact-field svg { color: hsl(210 10% 70%); }
