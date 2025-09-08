@@ -12,11 +12,12 @@ class Contacto {
     return `${this.apellido} ${this.nombre}`;
   }
   incluyeTexto(texto) {
-    const textoMinuscula = texto.toLowerCase();
-    return this.nombre.toLowerCase().includes(textoMinuscula) ||
-           this.apellido.toLowerCase().includes(textoMinuscula) ||
-           this.telefono.toLowerCase().includes(textoMinuscula) ||
-           this.email.toLowerCase().includes(textoMinuscula);
+    const normalizar = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const textoNormalizado = normalizar(texto);
+    return normalizar(this.nombre).includes(textoNormalizado) ||
+           normalizar(this.apellido).includes(textoNormalizado) ||
+           normalizar(this.telefono).includes(textoNormalizado) ||
+           normalizar(this.email).includes(textoNormalizado);
   }
 }
 class Agenda {
