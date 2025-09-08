@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Contactos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .agenda {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+    .name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 5px;
+    }
+    .role {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+    .info {
+      font-size: 14px;
+      color: #444;
+    }
+  </style>
+  <script>
+      function generar(id,nombre,apellido,telefono,email){
+        return `<div class="card">
+          <img src="https://mockmind-api.uifaces.co/content/human/${id}.jpg" alt="Foto de ${nombre}" class="avatar">
+          <div class="name">${nombre} ${apellido}</div>
+          <div class="role">Desarrollador Web</div>
+          <div class="info">
+            📞 ${telefono} <br>
+            📧 ${email}
+          </div>
+        </div>`;
+      }
+  </script>
+</head>
+<body>
+  <h1>📒 Agenda de Contactos</h1>
+
+  <div class="agenda">
+
+      <script>
+        document.write(generar(221,"Juan","Pérez","+54 11 1234-5678","juan.perez@email.com"));
+        document.write(generar(222,"María","González","+54 9 11 8765-4321","maria.gonzalez@email.com"));
+        document.write(generar(220,"Carlos","López","+54 341 555-1212","carlos.lopez@email.com"));
+
+        document.write(generar(222,"María","González","+54 9 11 8765-4321","maria.gonzalez@email.com"));
+        document.write(generar(220,"Carlos","López","+54 341 555-1212","carlos.lopez@email.com"));
+        document.write(generar(221,"Juan","Pérez","+54 11 1234-5678","juan.perez@email.com"));
+        
+        document.write(generar(220,"Carlos","López","+54 341 555-1212","carlos.lopez@email.com"));
+        document.write(generar(221,"Juan","Pérez","+54 11 1234-5678","juan.perez@email.com"));
+        document.write(generar(222,"María","González","+54 9 11 8765-4321","maria.gonzalez@email.com"));
+      </script>
+
+  </div>
+</body>
+</html>

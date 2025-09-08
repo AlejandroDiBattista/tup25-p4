@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        let contador = 0;
+        let contactos = [
+            {nombre: 'Alejandro', apellido: 'Di Battista',  telefono: '(381) 234-5789'},
+            {nombre: 'Carlos',    apellido: 'Sánchez',      telefono: '(381) 789-4561'},
+            {nombre: 'Juan',      apellido: 'Pérez',        telefono: '(381) 987-6543'},
+            {nombre: 'Lucía',     apellido: 'Martínez',     telefono: '(381) 321-6549'},
+            {nombre: 'María',     apellido: 'González',     telefono: '(381) 456-1234'},
+        ];
+        contactos.sort( (a,b) => a.apellido.localeCompare(b.apellido) );
+
+        function Contacto({nombre, apellido, telefono}){
+            return `
+                <li>
+                    <h2><i>${nombre}</i>   <b>${apellido}</b></h2>
+                    📱 ${telefono}
+                </li>
+            `;
+        }
+
+        function mostrar(e){
+            lista.innerHTML = `${contactos.map(c=>Contacto(c)).join('')}`;
+            console.log('Mostrando', ++contador);
+            console.log(`${e?.target} x: ${e?.x}, y: ${e?.y}`); // Optional Chaining
+        }
+
+</script>
+</head>
+<body  id="caja">
+    <h1>Agenda Contacto</h1>
+    <ul id="lista"></ul>
+    <div style="text-align: center;padding: 10px; border: 1px solid red;">
+        <button id="boton">Mostrar</button>
+
+    </div>
+    <script>
+        // mostrar();
+        let x = document.getElementById('caja');
+        x.onclick = mostrar;
+    </script>
+</body>
+</html>
