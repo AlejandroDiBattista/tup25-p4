@@ -6,12 +6,60 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
->
     <script type="module" src="./ejercicio.js"></script>
   </head>
-  <body>
-    
-  </body>
-  </html>
+<body>
+  <main class="container">
 
+    <!-- Cabecera -->
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+      <h1 style="margin: 0;">Agenda</h1>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <input type="search" id="buscador" placeholder="Buscar contactos..." />
+        <button id="btnAgregar">Agregar</button>
+      </div>
+    </header>
+
+    <!-- Listado de contactos -->
+    <section id="lista-contactos" class="grid" style="grid-template-columns: repeat(3, 1fr);">
+      <!-- Aquí se insertarán las tarjetas dinámicamente desde JS -->
+    </section>
+
+    <!-- Diálogo para alta/edición -->
+    <dialog id="dialogoContacto">
+      <article>
+        <h3 id="dialogoTitulo">Agregar contacto</h3>
+        <form id="formContacto" method="dialog">
+          <input type="hidden" id="contactoId" />
+
+          <label>
+            Nombre
+            <input type="text" id="nombre" required>
+          </label>
+
+          <label>
+            Apellido
+            <input type="text" id="apellido" required>
+          </label>
+
+          <label>
+            Teléfono
+            <input type="tel" id="telefono" required>
+          </label>
+
+          <label>
+            Email
+            <input type="email" id="email" required>
+          </label>
+
+          <footer>
+            <button type="submit" id="guardarBtn">Guardar</button>
+            <button type="reset" id="cancelarBtn">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
+  </main>
+</body>
+</html>
