@@ -41,4 +41,11 @@ class Agenda {
     );
   }
 
-  
+  ordenar() {
+    this.contactos.sort((a, b) => {
+      const apA = normalizar(a.apellido), apB = normalizar(b.apellido);
+      if (apA === apB) return normalizar(a.nombre).localeCompare(normalizar(b.nombre));
+      return apA.localeCompare(apB);
+    });
+  }
+}
