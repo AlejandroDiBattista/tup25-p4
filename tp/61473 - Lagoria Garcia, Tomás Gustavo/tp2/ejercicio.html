@@ -6,10 +6,127 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
+  <nav>
+  <ul>
+    <li><strong>Agenda</strong></li>
+  </ul>
+  <ul>
+    <li><input  id="buscar" type="search" placeholder="Ingrese texto a buscar"></li>
+    <li><button id="agregar">Agregar</button></li>
+  </ul>
+</nav>
+<dialog id="dialogo">
+<article>
+  <header>Agregar Contacto</header>
+<form action="">
+  <input type="hidden" id="id" name="id" />
+  <fieldset class="grid" style="grid-template-columns: repeat(2, 1fr) ">
+
+    <label for="nombre">Nombre:
+      <input type="text" id="nombre" name="nombre" required placeholder="ingrese su Nombre" />
+    </label>
+    
+    <label for="apellido">Apellido:
+      <input type="text" id="apellido" name="apellido" required placeholder="ingrese su Apellido" />
+    </label>
+    
+    <label for="telefono">Teléfono:
+      <input type="tel" id="telefono" name="telefono" required placeholder="ingrese su Telefono" />
+    </label>
+    
+    <label for="email">Email:
+      <input type="email" id="email" name="email" required placeholder="ingrese su Email" />
+    </label>
+    
+  </fieldset>
+  <fieldset class="grid" style="grid-template-columns: repeat(2, 1fr) ">
+    <button id="aceptar" type="submit">Aceptar</button>
+    <button id="cancelar" type="reset">Cancelar</button>
+  </fieldset>
+</form>
+</article>
+</dialog>
+<main id="ListaCont" class="grid" style="grid-template-columns: repeat(3, 1fr) ">
+  <!-- Aquí se agregarán los contactos dinámicamente -->
+</main>
+<script type="module" src="./ejercicio.js"></script>
+<script>
+  let $= (selector) => document.querySelector(selector);
+  let dialogo = $("#dialogo");
+  let botonAgregar = $("#agregar");
+  let botonCancelar = $("#cancelar");
+  let form= $("form");
+  let buscar= $("#buscar");
+  form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const data = { 
+    id: form.elements["id"].value,
+    nombre: form.elements["nombre"].value,
+    apellido: form.elements["apellido"].value,
+    telefono: form.elements["telefono"].value,
+    email: form.elements["email"].value
+  };
+
+  const idNum = Number(data.id) || 0;
+
+  if (idNum > 0) {
+    agenda.actualizarContacto(new Contacto(data));
+  } else {
+    agenda.agregarContacto(new Contacto(data));
+  }
+
+  dialogo.close();
+  form.reset();
+  GenerarAgenda();
+});
+
+  botonAgregar.addEventListener("click", () => {
+    form.reset();
+    form.elements["id"].value="";
+    dialogo.showModal();
+  });
+  botonCancelar.addEventListener("click", () => {
+    dialogo.close();
+  });
+
+  function Editar(id){
+    const c=agenda.traerContacto(+id);
+    if(!c) return ;
+    console.log('Editar',id);
+    form.elements["id"].value= c.id;
+    form.elements["nombre"].value= c.nombre;
+    form.elements["apellido"].value= c.apellido;
+    form.elements["telefono"].value= c.telefono;
+    form.elements["email"].value= c.email;
+    dialogo.showModal();
+  }
+  function getContactos(cont){
+    return `<article>
+      <header>${cont.apellido}, ${cont.nombre}</header>
+      <p>Teléfono: ${cont.telefono}</p>
+      <p>Email: ${cont.email}</p>
+      <button onclick="Editar(${cont.id})">Editar</button>
+      <button onclick="borrar(${cont.id})">Borrar</button>
+     </article>
+      `;}
+      function borrar(id){
+          
+          agenda.eliminarContacto(+id);
+          GenerarAgenda();
+        
+      }
+     
+      function GenerarAgenda(){
+        const filtro= buscar?.value??"";
+        let html=agenda.traerTodosSegun(filtro).map(c=>getContactos(c)).join("");
+        $("#ListaCont").innerHTML= html;
+      }   
+if (buscar) buscar.addEventListener("input", GenerarAgenda);
+window.addEventListener("DOMContentLoaded", GenerarAgenda);
+</script>
+</body>
   </html>
 
