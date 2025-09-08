@@ -1,1 +1,84 @@
-/* Estilos generales */
+
+/* ===============================
+	 Estilos generales y estructura
+	 =============================== */
+main.container {
+	max-width: 1100px;
+	margin: 0 auto;
+}
+
+/* ===============================
+	 Tarjetas de contacto
+	 =============================== */
+.card {
+	background: var(--pico-background);
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+	padding: 1.2rem 1rem 1rem 1rem;
+	min-height: 140px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+/* Encabezado de cada tarjeta: nombre y apellido destacados */
+.card header {
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-bottom: 0.5em;
+}
+
+/* Datos de contacto: teléfono y email */
+.card p {
+	margin: 0.5em 0 1em 0;
+	font-size: 1em;
+}
+
+/* Pie de la tarjeta: botones de editar y borrar */
+.card footer {
+	margin-top: 0.5em;
+}
+
+/* ===============================
+	 Botones de acción
+	 =============================== */
+button.btn-editar, button.btn-borrar {
+	cursor: pointer;
+	transition: background 0.2s;
+	border-radius: 50%;
+	padding: 0.3em 0.5em;
+}
+button.btn-editar:hover,
+button.btn-borrar:hover {
+	background: #ffe5e5;
+}
+
+/* ===============================
+	 Diálogo de alta/edición
+	 =============================== */
+#dialogo[open] {
+	border-radius: 10px;
+	box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+	padding: 2rem 2.5rem;
+}
+
+/* Etiquetas del formulario de contacto */
+#formContacto label {
+	font-weight: 500;
+}
+
+/* Inputs del formulario de contacto */
+#formContacto input {
+	margin-bottom: 0.5em;
+}
+
+/* ===============================
+	 Botones del formulario
+	 =============================== */
+#btnGuardar {
+	background: var(--pico-primary);
+	color: #fff;
+}
+#btnCancelar {
+	background: var(--pico-muted);
+}
