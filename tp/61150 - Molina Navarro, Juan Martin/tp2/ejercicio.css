@@ -1,1 +1,141 @@
-/* Estilos generales */
+/* Reset y base ligera */
+:root {
+  --bg: #f6f7fb;
+  --card-bg: #ffffff;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --border-strong: #e2e8f0;
+  --shadow: 0 4px 18px rgba(17, 24, 39, 0.08);
+  --primary: #0f172a;
+  --danger: #e11d48;
+}
+
+html, body { background: var(--bg); }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: .5rem 0;
+}
+.header h1 { margin: 0.5rem 0 0; }
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Buscador + botón agregar */
+#buscador {
+  min-width: 280px;
+  height: 44px;
+  padding: 0 1rem 0 2.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>') no-repeat 12px 50%;
+}
+
+#btn-agregar {
+  height: 44px;
+  padding: 0 .95rem;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Grid de tarjetas */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+/* Tarjeta */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  padding-bottom: 60px; /* espacio para acciones absolutas */
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: .85rem 1rem;
+  border-bottom: 1px solid var(--border-strong);
+  background: #fafafa;
+}
+.card-header strong { font-weight: 700; }
+
+.card-body {
+  list-style: none;
+  padding: .75rem 1rem 1rem 1rem;
+  margin: 0;
+}
+.card-body li { display: flex; align-items: center; gap: .5rem; margin: .35rem 0; color: #111827; }
+.card-body small { color: #111827; }
+
+/* Iconos de la lista usando pseudo-elementos */
+.card-body li:first-child::before {
+  content: '📞';
+  font-size: 1rem;
+}
+.card-body li:nth-child(2)::before {
+  content: '✉️';
+  font-size: 1rem;
+}
+
+/* Acciones en la parte inferior izquierda de la tarjeta */
+.acciones {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  gap: .5rem;
+}
+
+button.icono {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid grey;
+  background: transparent;
+  display: inline-grid;
+  place-items: center;
+  color: orangered;
+  padding: 0;
+}
+button.icono:hover { background: rgba(225, 29, 72, 0.06); }
+button.icono:active { transform: translateY(1px); }
+
+/* Reemplazar el texto por iconos accesibles */
+button.icono::before { font-size: 16px; line-height: 1; }
+button.editar::before { content: '✎'; }
+button.borrar::before { content: '🗑'; }
+button.icono { text-indent: -9999px; }
+button.icono::before { text-indent: 0; }
+
+/* Diálogo */
+dialog::backdrop { background: rgba(15, 23, 42, 0.45); }
+dialog article {
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+dialog article header h2 { margin: 0; }
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .75rem;
+}
