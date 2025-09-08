@@ -23,7 +23,7 @@ article {
   padding: 1rem;
   border-radius: 8px;
   background: var(--pico-background);
-  box-shadow: 0 2px 8px #0001;
+  box-shadow: 0 2px 8px black;
   min-height: 120px;
   position: relative;
   display: flex;
@@ -53,9 +53,9 @@ article nav {
   border: none;
   cursor: pointer;
   font-size: 1.2em;
-  color: #d00;
+  color: red;
   transition: color .2s;
 }
 .icon-btn:hover {
-  color: #333;
+  color: black;
 }
