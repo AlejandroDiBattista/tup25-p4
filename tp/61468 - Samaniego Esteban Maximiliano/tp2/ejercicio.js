@@ -196,7 +196,37 @@ class Agenda {
 
 // Listener del formulario del modal para guardar cambios
 
+  buscarContacto() {
+    const inputBusqueda = document.getElementById("busqueda");
 
+    inputBusqueda.addEventListener("input", function () {
+      const termino = this.value.toLowerCase();
+
+      // Filtramos los contactos
+      const filtrados = contactos.filter(
+        (c) =>
+          c.nombre.toLowerCase().includes(termino) ||
+          c.apellido.toLowerCase().includes(termino) ||
+          c.telefono.includes(termino) ||
+          c.email.toLowerCase().includes(termino)
+      );
+
+      // Mostramos solo los filtrados
+      const lista = document.getElementById("lista-contactos");
+      lista.innerHTML = filtrados
+        .map(
+          (c, i) => `
+    <article>
+      <h3>${c.apellido} ${c.nombre}</h3>
+      <p>📞 ${c.telefono}<br>📧 ${c.email}</p>
+      <button onclick="agenda.abrirEditar(${c.id})">Editar</button>
+      <button onclick="eliminarContacto(${i})">Borrar</button>
+    </article>
+  `
+        )
+        .join("");
+    });
+  }
 
   cargarContactos() {
     try {
