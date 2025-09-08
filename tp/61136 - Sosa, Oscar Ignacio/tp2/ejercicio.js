@@ -49,3 +49,7 @@ class Agenda {
     });
   }
 }
+
+function normalizar(txt) {
+  return txt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
