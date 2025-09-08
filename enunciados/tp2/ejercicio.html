@@ -5,11 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
+    <link rel="stylesheet" href="./ejercicios.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <main class="container">
+      <!-- Cabecera con buscador y botón agregar -->
+      <header class="header">
+        <div class="search-container">
+          <input 
+            type="search" 
+            id="searchInput" 
+            placeholder="Buscar por nombre, apellido, teléfono o email..." 
+            class="search-input"
+          />
+        </div>
+        <button id="addContactBtn" class="add-btn">+ Agregar Contacto</button>
+      </header>
+
+      <!-- Listado de contactos -->
+      <section id="contactsList" class="contacts-list">
+        <!-- Las tarjetas se generarán dinámicamente -->
+      </section>
+    </main>
+
+    <!-- Diálogo para agregar/editar contactos -->
+    <dialog id="contactDialog" class="contact-dialog">
+      <form id="contactForm" class="contact-form">
+        <h2 id="dialogTitle">Agregar Contacto</h2>
+        
+        <div class="form-group">
+          <label for="firstName">Nombre:</label>
+          <input type="text" id="firstName" name="firstName" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Apellido:</label>
+          <input type="text" id="lastName" name="lastName" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Teléfono:</label>
+          <input type="tel" id="phone" name="phone" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" id="cancelBtn" class="btn-secondary">Cancelar</button>
+          <button type="submit" id="saveBtn" class="btn-primary">Guardar</button>
+        </div>
+      </form>
+    </dialog>
   </body>
   </html>
 
