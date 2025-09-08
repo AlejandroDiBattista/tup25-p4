@@ -251,6 +251,7 @@ class Agenda {
   }
 }
 
+
 const agenda = new Agenda(contactosEjemplo);
 
 const contactos = agenda.verContactos;
