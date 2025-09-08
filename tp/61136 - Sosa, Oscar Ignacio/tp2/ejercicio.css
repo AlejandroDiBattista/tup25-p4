@@ -1,1 +1,13 @@
-/* Estilos generales */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+article {
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--pico-background);
+  box-shadow: 0 2px 8px #0001;
+  min-height: 120px;
+  position: relative;
+}
