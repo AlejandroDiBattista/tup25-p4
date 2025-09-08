@@ -52,3 +52,25 @@ article footer {
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+#lista-contactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+article {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--pico-border-color);
+  border-radius: var(--pico-border-radius);
+}
+
+article header {
+  margin-bottom: 0.5rem;
+}
+
+article p {
+  margin-bottom: 0.25rem;
+}
