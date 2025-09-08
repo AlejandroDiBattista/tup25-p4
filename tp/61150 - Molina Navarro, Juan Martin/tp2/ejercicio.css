@@ -64,7 +64,7 @@ html, body { background: var(--bg); }
   border-radius: 12px;
   box-shadow: var(--shadow);
   overflow: hidden;
-  padding-bottom: 60px; /* espacio para acciones absolutas */
+  padding-bottom: 60px; 
 }
 
 .card-header {
@@ -86,7 +86,6 @@ html, body { background: var(--bg); }
 .card-body li { display: flex; align-items: center; gap: .5rem; margin: .35rem 0; color: #111827; }
 .card-body small { color: #111827; }
 
-/* Iconos de la lista usando pseudo-elementos */
 .card-body li:first-child::before {
   content: '📞';
   font-size: 1rem;
@@ -96,7 +95,6 @@ html, body { background: var(--bg); }
   font-size: 1rem;
 }
 
-/* Acciones en la parte inferior izquierda de la tarjeta */
 .acciones {
   position: absolute;
   left: 12px;
