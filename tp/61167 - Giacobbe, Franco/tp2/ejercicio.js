@@ -10,7 +10,7 @@ class Contacto {
   }
 
   get nombreCompleto() {
-    return `${this.nombre} ${this.apellido}`;
+    return `${this.apellido} ${this.nombre}`;
   }
 
   includes(texto) {
@@ -85,6 +85,42 @@ let contactosIniciales = [
     telefono: "4445556666",
     email: "luis.martinez@example.com",
   },
+  {
+    nombre: "Solana",
+    apellido: "García",
+    telefono: "7778889999",
+    email: "solana.garcia@example.com",
+  },
+  {
+    nombre: "Martín",
+    apellido: "López",
+    telefono: "2223334444",
+    email: "martin.lopez@example.com",
+  },
+  {
+    nombre: "Valentina",
+    apellido: "Martínez",
+    telefono: "3334445555",
+    email: "valentina.martinez@example.com",
+  },
+  {
+    nombre: "Gonzalo",
+    apellido: "Ramírez",
+    telefono: "4445556666",
+    email: "gonzalo.ramirez@example.com",
+  },
+  {
+    nombre: "Sofía",
+    apellido: "Torres",
+    telefono: "5556667777",
+    email: "sofia.torres@example.com",
+  },
+  {
+    nombre: "Noelia",
+    apellido: "Fernández",
+    telefono: "6667778888",
+    email: "noelia.fernandez@example.com",
+  }
 ];
 
 let agenda = new Agenda();
@@ -146,6 +182,14 @@ const editarContacto = (id) => {
   };
 };
 
+const inputBusqueda = document.querySelector('input[type="search"][name="search"]');
+if (inputBusqueda) {
+  inputBusqueda.addEventListener("input", (e) => {
+    const filtro = e.target.value;
+    generarAgenda(agenda.traerTodos(filtro));
+  });
+}
+
 const generarAgenda = (datos) => {
   let seccionContactos = $("#contactsSection");
   seccionContactos.innerHTML = "";
@@ -153,7 +197,7 @@ const generarAgenda = (datos) => {
     let articulo = document.createElement("article");
     articulo.innerHTML = `
             <header>
-                <h2>${contacto.nombre} ${contacto.apellido}</h2>
+                <h2>${contacto.nombreCompleto}</h2>
             </header>
             <p>Tel: ${contacto.telefono}</p>
             <p>Email: ${contacto.email}</p>
