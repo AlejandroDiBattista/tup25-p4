@@ -9,7 +9,45 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+   
+     <main class="container">
+    <h1>Agenda de Contactos</h1>
+
+    <header class="grid">
+      <input type="search" id="busqueda" placeholder="Buscar por nombre, apellido, teléfono o email">
+      <button id="btnAgregar">Agregar</button>
+    </header>
+
+   
+    <section id="listaContactos" class="grid"></section>
+
+ 
+    <dialog id="dialogoContacto">
+      <article>
+        <h3 id="dialogoTitulo">Nuevo contacto</h3>
+        <form id="formContacto">
+          <input type="hidden" id="contactoId">
+          <label>Nombre
+            <input type="text" id="nombre" required>
+          </label>
+          <label>Apellido
+            <input type="text" id="apellido" required>
+          </label>
+          <label>Teléfono
+            <input type="tel" id="telefono" required>
+          </label>
+          <label>Email
+            <input type="email" id="email" required>
+          </label>
+          <footer>
+            <button type="submit">Guardar</button>
+            <button type="button" id="btnCancelar">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </main>
+
   </body>
   </html>
 
