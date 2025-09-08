@@ -1,15 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="./ejercicio.css" />
+</head>
+<body>
+  <main class="container">
+    <!-- Cabecera -->
+    <header class="top-bar">
+      <input type="search" id="buscador" placeholder="Buscar contactos..." />
+      <button id="btnAgregar">Agregar</button>
+    </header>
 
+    <!-- Listado de contactos -->
+    <section id="lista-contactos">
+      <!-- Aquí se renderizan las tarjetas de contactos -->
+    </section>
+  </main>
+
+  <!-- Diálogo para alta/edición de contacto -->
+  <dialog id="contactoDialog">
+    <article>
+      <h3 id="dialogTitle">Agregar contacto</h3>
+      <form method="dialog" id="contactoForm">
+        <input type="hidden" id="contactoId" />
+
+        <label for="nombre">
+          Nombre
+          <input type="text" id="nombre" name="nombre" required />
+        </label>
+
+        <label for="apellido">
+          Apellido
+          <input type="text" id="apellido" name="apellido" required />
+        </label>
+
+        <label for="telefono">
+          Teléfono
+          <input type="tel" id="telefono" name="telefono" required />
+        </label>
+
+        <label for="email">
+          Email
+          <input type="email" id="email" name="email" required />
+        </label>
+
+        <footer>
+          <button type="submit" id="btnGuardar">Guardar</button>
+          <button type="reset" id="btnCancelar">Cancelar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+  <script type="module" src="./ejercicio.js"></script>
+</body>
+</html>
