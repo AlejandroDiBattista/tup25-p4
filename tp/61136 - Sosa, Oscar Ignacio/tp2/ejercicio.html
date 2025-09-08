@@ -6,17 +6,30 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-   <main class="container">
-    <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
-      <h1>Agenda</h1>
-      <div style="display:flex;gap:1rem;align-items:center;">
-        <input type="search" id="buscador" placeholder="Buscar contactos..." style="min-width:220px;">
-        <button id="btnAgregar" class="contrast">Agregar</button>
-      </div>
-    </header>
+    <main class="container">
+      <header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+        <h1>Agenda</h1>
+        <div style="display:flex;gap:1rem;align-items:center;">
+          <input type="search" id="buscador" placeholder="Buscar contactos..." style="min-width:220px;">
+          <button id="btnAgregar" class="contrast">Agregar</button>
+        </div>
+      </header>
+      <section id="listado" class="grid"></section>
+    </main>
+    <dialog id="dialogo">
+      <form id="formulario" method="dialog">
+        <input type="hidden" id="id">
+        <label>Nombre <input id="nombre" required></label>
+        <label>Apellido <input id="apellido" required></label>
+        <label>Teléfono <input id="telefono" required></label>
+        <label>Email <input id="email" type="email" required></label>
+        <button type="submit">Guardar</button>
+        <button type="button" id="cancelar">Cancelar</button>
+      </form>
+    </dialog>
+    <script type="module" src="./ejercicio.js"></script>
   </body>
   </html>
 
