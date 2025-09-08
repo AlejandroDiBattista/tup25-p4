@@ -95,6 +95,7 @@ const buscarInp = q('#buscar');
 const btnAgregar = q('#btnAgregar');
 const dlg = q('#dlgContacto');
 const frm = q('#frmContacto');
+const dlgTitle = q('#dlgTitle');
 const fId = q('#id');
 const fNombre = q('#nombre');
 const fApellido = q('#apellido');
@@ -109,12 +110,6 @@ const svg = {
 	mail: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.5"/><path d="m22 6-10 7L2 6" stroke="currentColor" stroke-width="1.5"/></svg>',
 };
 
-function initials(c) {
-	const a = (c.apellido || '').trim()[0] || '';
-	const n = (c.nombre || '').trim()[0] || '';
-	return (a + n).toUpperCase();
-}
-
 function fieldRow(icon, text) {
 	if (!text) return '';
 	return `<div class="contact-field">${icon}<span>${text}</span></div>`;
@@ -124,20 +119,17 @@ function cardTemplate(c) {
 	return `
 		<article class="contact-card" data-id="${c.id}">
 			<header class="contact-card__header">
-				<div class="contact-info">
-					<div class="avatar" aria-hidden="true">${initials(c)}</div>
-					<div class="name">
-						<div class="fullname">${c.apellido}, ${c.nombre}</div>
-					</div>
+				<div class="name">
+					<div class="fullname">${c.nombre} ${c.apellido}</div>
 				</div>
-				<nav class="contact-actions">
-					<button class="icon-btn editar" title="Editar" aria-label="Editar" data-id="${c.id}">${svg.edit}</button>
-					<button class="icon-btn borrar" title="Borrar" aria-label="Borrar" data-id="${c.id}">${svg.trash}</button>
-				</nav>
 			</header>
 			<div class="contact-card__body">
 				${fieldRow(svg.phone, c.telefono)}
 				${fieldRow(svg.mail, c.email)}
+				<nav class="contact-actions">
+					<button class="icon-btn editar" title="Editar" aria-label="Editar" data-id="${c.id}">${svg.edit}</button>
+					<button class="icon-btn borrar" title="Borrar" aria-label="Borrar" data-id="${c.id}">${svg.trash}</button>
+				</nav>
 			</div>
 		</article>
 	`;
@@ -154,12 +146,14 @@ function render(lista) {
 
 function abrirDialogo(modo, contacto = null) {
 	if (modo === 'editar' && contacto) {
+	dlgTitle.textContent = 'Editar contacto';
 		fId.value = contacto.id;
 		fNombre.value = contacto.nombre;
 		fApellido.value = contacto.apellido;
 		fTelefono.value = contacto.telefono || '';
 		fEmail.value = contacto.email || '';
 	} else {
+	dlgTitle.textContent = 'Agregar contacto';
 		fId.value = '';
 		frm.reset();
 	}
