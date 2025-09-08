@@ -21,3 +21,17 @@ class Agenda {
     });
     this.contactos.push(contacto);
   }
+
+  actualizar(id, datos) {
+    const c = this.contactos.find(c => c.id === id);
+    if (c) Object.assign(c, datos);
+  }
+
+  borrar(id) {
+    this.contactos = this.contactos.filter(c => c.id !== id);
+  }
+
+  buscar(texto) {
+    texto = normalizar(texto);
+    return this.contactos.filter(c =>
+    
