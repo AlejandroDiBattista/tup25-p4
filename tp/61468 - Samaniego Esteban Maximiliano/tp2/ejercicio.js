@@ -250,7 +250,7 @@ class Agenda {
     }
   }
 }
-
+console.log("Contactos en memoria:", contactosEjemplo);
 
 const agenda = new Agenda(contactosEjemplo);
 
