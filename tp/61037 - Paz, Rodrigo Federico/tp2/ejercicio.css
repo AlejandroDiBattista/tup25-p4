@@ -1,1 +1,49 @@
-/* Estilos generales */
+body {
+  background: #f5f6fa;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+#buscador {
+  flex: 1;
+  margin-right: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+
+#listaContactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+  display: flex;
+  flex-direction: column;   
+  justify-content: space-between; 
+}
+
+.card footer {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+form {
+  background: white;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
