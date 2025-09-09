@@ -1,1 +1,111 @@
-/* Estilos generales */
+/* Fondo general celeste pastel */
+body {
+  background: #e3f6fc !important;
+}
+
+/* Header (barra de búsqueda y botón agregar) */
+main > header {
+  background: #2196f3;
+  padding: 1.2em 1em;
+  border-radius: 1em;
+  margin-bottom: 2em !important;
+  box-shadow: 0 2px 8px #0002;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#buscador {
+  background: #fff;
+  color: #222;
+  border: none;
+  border-radius: 0.5em;
+  padding: 0.7em 1em;
+  font-size: 1em;
+  flex: 1;
+}
+
+#btnAgregar {
+  background: #b3e5fc;
+  color: #01579b;
+  border: none;
+  border-radius: 0.5em;
+  padding: 0.7em 1.5em;
+  font-weight: bold;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+#btnAgregar:hover {
+  background: #4fc3f7;
+  color: #01579b;
+}
+
+/* Tarjetas de contacto */
+.contacto-card {
+  min-width: 250px;
+  max-width: 350px;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px #0001;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: #fff;
+}
+.contacto-card header {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.contacto-card header span {
+  display: flex;
+  flex-direction: row;
+  gap: 0.3em;
+  align-items: center;
+}
+.contacto-card button {
+  background: #b3e5fc;
+  border: none;
+  padding: 0.3em 0.7em;
+  border-radius: 0.4em;
+  cursor: pointer;
+  color: #01579b;
+  transition: background 0.2s, color 0.2s;
+  margin-left: 0.3em;
+}
+.contacto-card button:hover {
+  background: #4fc3f7;
+  color: #01579b;
+}
+#listadoContactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Diálogo */
+dialog[open] {
+  animation: fadeIn 0.2s;
+  background: #e3f6fc;
+  border-radius: 1em;
+  border: 2px solid #4fc3f7;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98);}
+  to { opacity: 1; transform: scale(1);}
+}
+
+/* Botones del diálogo */
+#formContacto button {
+  background: #b3e5fc;
+  color: #01579b;
+  border: none;
+  border-radius: 0.5em;
+  padding: 0.6em 1.2em;
+  font-weight: bold;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+#formContacto button:hover {
+  background: #4fc3f7;
+  color: #01579b;
+}
