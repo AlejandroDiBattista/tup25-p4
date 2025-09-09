@@ -527,19 +527,21 @@ El formulario se envía automáticamente cuando hay un `input` del tipo submit o
 En los sistemas modernos, la función de enviar se controla mediante `JavaScript`.
 
 El formato de la url es
-```url
+
+```text
 https://www.google.com/search?q=programar%20java
 
-https -> protocolo
-www.google.com -> dominio
-/search -> camino
-?q=programar%20java
+- https -> protocolo
+- www.google.com -> dominio
+- /search -> camino
+- ?q=programar%20java
     q -> variable
     programar%20java -> valor 
     %20 -> ' ' (escapado)
 ```
 
 Cuando se hacea un POST la informacion se guarda en el cuerpo
+
 ```http
 POST /submit HTTP/1.1
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7

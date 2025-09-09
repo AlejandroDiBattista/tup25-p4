@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo de Renderizado Web</title>
+  <style id="dynamic-style">
+    /* ===== Estilos base ===== */
+    :root { --brand: #0a84ff; --bg: #0b1220; --card: #151b2b; --fg: #e6e9f2; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #17213a 0, transparent 70%), var(--bg);
+      color: var(--fg);
+    }
+    .wrap { max-width: 980px; margin: 48px auto; padding: 0 16px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    p.lead { margin: 0 0 20px; opacity: .85; }
+
+    .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1.4fr .8fr; } }
+
+    .card { background: var(--card); border: 1px solid #252b40; border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    button {
+      appearance: none; border: 1px solid #2b3350; background: #0f1629; color: var(--fg);
+      padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 600;
+      transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.3); }
+    button.primary { background: var(--brand); border-color: #0a7aff; color: #fff; }
+
+    code.badge { background:#0f1629; border:1px solid #2b3350; padding:3px 6px; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    /* Panel visual sobre el que actuaremos */
+    .stage { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+    .panel {
+      background: linear-gradient(180deg, #1a2340, #131a2c); border:1px solid #273056; border-radius: 14px; min-height: 160px;
+      display:flex; align-items:center; justify-content:center; position: relative; overflow: hidden;
+      transition: background-color .2s ease, color .2s ease, width .2s ease, height .2s ease;
+      will-change: transform; /* útil para composite */
+    }
+    .panel .chip { position:absolute; top:10px; left:10px; font-size:12px; opacity:.8; }
+
+    /* Caja animable (usada para composite/paint/layout) */
+    .box {
+      width: 140px; height: 80px; background: #3a7afe; border-radius: 12px; border:1px solid #7aa2ff;
+      box-shadow: 0 20px 40px rgba(0,0,0,.35);
+      display:flex; align-items:center; justify-content:center; font-weight:700;
+      color: #0b1220; text-shadow: 0 1px 0 rgba(255,255,255,.25);
+      transition: transform .5s ease, opacity .5s ease;
+    }
+
+    /* Cambios que disparan LAYOUT (reflow) */
+    .layout-big { width: 240px; height: 120px; }
+
+    /* Cambios que disparan sólo PAINT (sin layout si el tamaño no cambia) */
+    .paint-alt { background: #ff8a3d; border-color: #ffc49a; color:#23150b; }
+
+    /* Contenedor con altura fija para aislar reflow fuera del panel */
+    .scrollbox { height: 160px; overflow:auto; border:1px dashed #2b3350; border-radius:10px; padding:8px; background:#0e1526; }
+    ul { margin:0; padding-left: 18px; }
+
+    .log { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; white-space: pre-wrap; }
+    .ok { color:#6fe3a9; }
+    .warn { color:#ffd66e; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Demo: DOM → CSSOM → Render Tree → Layout → Paint → Composite</h1>
+    <p class="lead">Usá los botones para provocar cambios concretos y observar qué etapa del pipeline se ve afectada. Los comentarios en el código explican cada caso.</p>
+
+    <div class="grid">
+      <section class="card">
+        <h2 style="margin-top:4px">Controles</h2>
+        <div class="controls" style="margin:10px 0 6px">
+          <button id="btn-dom">Cambiar <code class="badge">DOM</code> (agregar ítem)</button>
+          <button id="btn-cssom">Cambiar <code class="badge">CSSOM</code> (editar regla)</button>
+          <button id="btn-layout">Forzar <code class="badge">Layout</code> (tamaño)</button>
+          <button id="btn-paint">Sólo <code class="badge">Paint</code> (color)</button>
+          <button id="btn-composite" class="primary">Sólo <code class="badge">Composite</code> (transform)</button>
+          <button id="btn-thrash">Anti-patrón: <code class="badge">Layout Thrashing</code></button>
+          <button id="btn-reset">Reset</button>
+        </div>
+
+        <div class="stage">
+          <div class="panel" id="panelA">
+            <span class="chip">Panel A</span>
+            <div class="box" id="box">BOX</div>
+          </div>
+          <div class="panel" id="panelB">
+            <span class="chip">Lista (DOM)</span>
+            <div class="scrollbox">
+              <ul id="list">
+                <li>Elemento 1</li>
+                <li>Elemento 2</li>
+                <li>Elemento 3</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h3 style="margin-top:4px">Eventos y tiempos</h3>
+        <div class="log" id="log">Listo.
+</div>
+        <p style="opacity:.7;margin-top:10px">Tip: abrí DevTools → <em>Performance</em> y grabá mientras tocás los botones para ver <strong>Recalculate Style</strong>, <strong>Layout</strong>, <strong>Paint</strong> y <strong>Composite Layers</strong>.</p>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Utilidades de log + medición simple
+    const $ = (sel) => document.querySelector(sel);
+    const log = (msg, cls = "") => {
+      const el = $("#log");
+      el.textContent += "\n" + msg;
+      el.scrollTop = el.scrollHeight;
+      if (cls) el.lastChild?.classList?.add?.(cls);
+    };
+
+    const time = async (label, fn) => {
+      const t0 = performance.now();
+      await fn();
+      // Esperamos al próximo frame para cubrir compositing/paint asíncronos
+      await new Promise(requestAnimationFrame);
+      const t1 = performance.now();
+      log(`${label} → ${(t1 - t0).toFixed(2)}ms`, "ok");
+    };
+
+    // Elementos principales
+    const box = $("#box");
+    const list = $("#list");
+    const dynamicStyle = $("#dynamic-style");
+
+    // 1) DOM: agregamos un <li> dentro de un contenedor con altura fija
+    $("#btn-dom").addEventListener("click", () => time("DOM: append <li> (puede causar layout dentro del scrollbox)", () => {
+      const li = document.createElement("li");
+      li.textContent = `Item ${list.children.length + 1}`;
+      list.appendChild(li);
+    }));
+
+    // 2) CSSOM: modificamos la hoja de estilos (regla global)
+    // Cambiar el border-radius de .box NO cambia su tamaño → debería ser paint-only
+    $("#btn-cssom").addEventListener("click", () => time("CSSOM: editar regla (.box border-radius → paint)", () => {
+      const current = dynamicStyle.textContent;
+      const hasAlt = /\.box\s*\{[\s\S]*border-radius: 24px/.test(current);
+      dynamicStyle.textContent = current.replace(/(\.box[^}]*border-radius:)\s*\d+px/, `$1 ${hasAlt ? 12 : 24}px`);
+    }));
+
+    // 3) LAYOUT: cambiar tamaño dispara reflow
+    let big = false;
+    $("#btn-layout").addEventListener("click", () => time("LAYOUT: toggle tamaño (reflow)", () => {
+      big = !big;
+      box.classList.toggle("layout-big", big);
+    }));
+
+    // 4) PAINT: cambiar color sin cambiar tamaño
+    let paintAlt = false;
+    $("#btn-paint").addEventListener("click", () => time("PAINT: toggle color de fondo", () => {
+      paintAlt = !paintAlt;
+      box.classList.toggle("paint-alt", paintAlt);
+    }));
+
+    // 5) COMPOSITE: transformar usando la GPU (no requiere repintar la caja)
+    let shifted = false;
+    $("#btn-composite").addEventListener("click", () => time("COMPOSITE: transform translateX", async () => {
+      shifted = !shifted;
+      box.style.transform = shifted ? "translateX(160px)" : "translateX(0)";
+      // también podríamos animar opacity (otro caso compositable)
+    }));
+
+    // 6) Anti-patrón: Layout Thrashing
+    $("#btn-thrash").addEventListener("click", () => time("THRASH: escrituras/lecturas alternadas (peor rendimiento)", () => {
+      // Alternamos width y forzamos lectura que obliga a recalcular layout cada vez
+      for (let i = 0; i < 120; i++) {
+        box.style.width = (140 + (i % 2)) + "px"; // WRITE
+        void box.offsetHeight; // READ forzada → fuerza layout sincronamente
+      }
+      // Restauramos ancho original
+      box.style.width = "";
+    }));
+
+    // Reset visual
+    $("#btn-reset").addEventListener("click", () => time("Reset del estado visual", () => {
+      box.classList.remove("layout-big", "paint-alt");
+      box.style.transform = "translateX(0)";
+      // restaurar regla de CSSOM (border-radius 12px)
+      dynamicStyle.textContent = dynamicStyle.textContent.replace(/(\.box[^}]*border-radius:)\s*\d+px/, `$1 12px`);
+      // limpiar lista a tres elementos
+      while (list.children.length > 3) list.removeChild(list.lastChild);
+    }));
+
+    log("Tip: probá cada botón y observá el impacto en DevTools > Performance.");
+  </script>
+</body>
+</html>

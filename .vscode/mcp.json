@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"rojas": {
+			"url": "https://mcp.agentdb.dev/RMrgPX-rTU",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

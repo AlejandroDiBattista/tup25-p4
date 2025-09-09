@@ -31,8 +31,8 @@
 - 61033  Quiroga, Jose Maria                       (11) 2399-7675  a
 - 62175  Quiroga, Marcela Noemi Quiroga            (381) 593-8430  a
 - 61084  Ramirez, Leonardo                         (381) 348-9132  a
-- 61315  Robles,Thiago                             (381) 567-4692  a
-- 61468  Samaniego Esteban Maximiliano             (381) 679-6586  a
+- 61315  Robles, Thiago                            (381) 567-4692  a
+- 61468  Samaniego, Esteban Maximiliano            (381) 679-6586  a
 - 61240  Timo, Hector Gabriel                      (381) 343-0992  a
 - 61725  Villagra, Jorge Sebastián                 (381) 594-1635  l
 ```

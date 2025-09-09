@@ -1,13 +1,11 @@
 # JavaScript en HTML: Haciendo tu página web interactiva
 
-
 ## ¿Qué es JavaScript en una página web?
 
 JavaScript (JS) es el lenguaje de programación del navegador.
 Se usa para que una página no sea estática (solo texto y estilos), sino interactiva y dinámica.
 
-Si el HTML define la estructura (qué aparece) y el CSS define el estilo (cómo se ve), el JavaScript define el comportamiento (qué pasa cuando el usuario interactúa).
-
+Si el HTML define la estructura (qué aparece) y el CSS define el estilo (cómo se ve), JavaScript define el comportamiento (qué pasa cuando el usuario interactúa).
 
 ### ⚡ Usos principales de JavaScript en una web
 
@@ -54,8 +52,7 @@ fetch("https://api.example.com/data")
   .then(data => console.log(data));
 ```
 
-
-#### 5. Aplicaciones completas en el navegador
+#### 4. Aplicaciones completas en el navegador
 
 Con frameworks modernos (React, Angular, Vue), JS se usa para construir Single Page Applications (SPA) que funcionan casi como apps de escritorio o móviles.
 
@@ -109,7 +106,7 @@ Se escribe directamente en la etiqueta.
 
 **👉 Ejemplo inline (atributo HTML):**
 ```html
-<button onclick="alert('Hola!')">Haz clic</button>
+<button onclick="alert('¡Hola!')">Haz clic</button>
 ```
 
 📌 Simple, pero poco recomendable en proyectos grandes porque mezcla HTML con lógica.
@@ -153,20 +150,19 @@ Permite añadir múltiples funciones al mismo evento y quitarlas si hace falta.
 </script>
 ``` 
 
-
 📌 Esta es la mejor práctica moderna: limpio, flexible y desacoplado del HTML.
 
 #### 🔹 3. Flujo de los eventos: Event Bubbling y Capturing
 
 Cuando ocurre un evento, no solo afecta al elemento directo. Se propaga por el árbol del DOM:
-- Capturing (fase de captura): el evento sube desde document hasta el elemento.
+- Capturing (fase de captura): el evento baja desde document hasta el elemento.
 - Target: llega al elemento exacto.
 - Bubbling (fase de burbujeo): el evento vuelve a subir hacia document.
 
 **👉 Ejemplo de bubbling:**
 ```html
 <div id="contenedor">
-  <button id="btn">Click aquí</button>
+  <button id="btn">Haz clic aquí</button>
 </div>
 <script>
   document.getElementById("contenedor")
@@ -177,7 +173,7 @@ Cuando ocurre un evento, no solo afecta al elemento directo. Se propaga por el �
 </script>
 ```
 
-Si clicas el botón, primero se ejecuta el del botón y luego el del contenedor.
+Si haces clic en el botón, primero se ejecuta el del botón y luego el del contenedor.
 
 #### 🔹 4. Objeto event
 
@@ -197,13 +193,11 @@ btn.addEventListener("click", (event) => {
 - Los eventos se propagan en el DOM (captura → target → burbuja).
 - El objeto event da contexto sobre lo ocurrido.
 
-
 ### Construyendo el DOM con funciones vs innerHTML
 
-Cuando usamos innerHTML, estamos metiendo un bloque de texto HTML directamente dentro de un elemento. Es rápido pero tiene limitaciones y riesgos (ejemplo: inyección de código si no se controla el contenido).
+Cuando usamos innerHTML, estamos insertando un bloque de texto HTML directamente dentro de un elemento. Es rápido, pero tiene limitaciones y riesgos (por ejemplo: inyección de código si no se controla el contenido).
 
 En cambio, construir el DOM con funciones significa usar las APIs nativas de JavaScript para crear y conectar nodos uno por uno. Esto es más seguro, más flexible y da control total sobre cada nodo.
-
 
 **👉 Ejemplo con innerHTML**
 
@@ -250,7 +244,7 @@ En cambio, construir el DOM con funciones significa usar las APIs nativas de Jav
 </script>
 ```
 Esto parece más verboso, pero es mucho más seguro y flexible.
-Con una pequeña función podés se hacer mas facil crear los componentes
+Con una pequeña función podés hacer más fácil crear los componentes:
 
 ```js
 function tag(tipo, props = {}, ...hijos) {
@@ -272,15 +266,15 @@ function tag(tipo, props = {}, ...hijos) {
   return elem;
 }
 
-
 function agregar(padre, ...hijos) {
   hijos.forEach(hijo => padre.appendChild(hijo));
   return padre;
 }
 
 let $ = document.getElementById;
+```
 
-Ahora con esta funcion se puede escribir el mismo formulario de forma mas sencilla
+Ahora con esta función se puede escribir el mismo formulario de forma más sencilla:
 
 ```js
 const contenedor = $("contenedor");
@@ -292,7 +286,7 @@ const boton  = tag("button", { onClick: () => alert("Nombre: " + input.value) },
 agregar(contenedor, titulo, input, boton);
 ```
 
-O incluso mas compacto si aprovechas llamadas de funciones dentro de funciones
+O incluso más compacto si aprovechas llamadas de funciones dentro de funciones:
 
 ```js
 agregar($("contenedor"), 
@@ -302,7 +296,7 @@ agregar($("contenedor"),
 );
 ```
 
-Incluso se puende ahora componente mas complejos
+Incluso se pueden crear ahora componentes más complejos:
 
 ```html
 <form onSubmit="handleSubmit(event)">
@@ -321,10 +315,9 @@ Incluso se puende ahora componente mas complejos
 </form>
 ```
 
-Se puede traducir a 
+Se puede traducir a:
 ```js
-
-// Traduccion directa
+// Traducción directa
 //     <button     onClick =      "alert('Formulario enviado!')">  Enviar</button>
 // tag("button", { onClick : () => alert('Formulario enviado!')}, "Enviar")
 
@@ -344,10 +337,9 @@ tag("form", { onSubmit: handleSubmit },
 );
 ```
 
-Y con un poquito de ayuda podemos crear 'componentes' reutilizables
+Y con un poco de ayuda podemos crear 'componentes' reutilizables:
 
 ```js
-
 function Input(type, placeholder, name) {
     let label = name.charAt(0).toUpperCase() + name.slice(1) + ": ";
     return tag("label", {}, 
@@ -372,9 +364,9 @@ agregar($("contenedor"),
 );
 ```
 
-### Edicion de un formulario completo
+### Edición de un formulario completo
 
-Si tenemos este formulario en HTML
+Si tenemos este formulario en HTML:
 ```html
 <form id="miFormulario" onSubmit="handleSubmit(event)">
   <h2>Formulario</h2>
@@ -391,7 +383,7 @@ Si tenemos este formulario en HTML
 </form>
 ```
 
-Podemos cargar el formulario desde un JSON
+Podemos cargar el formulario desde un JSON:
 ```js
 const datos = {
   nombre: "Juan",
@@ -406,7 +398,7 @@ formulario.nombre.value   = datos.nombre;
 formulario.apellido.value = datos.apellido;
 formulario.email.value    = datos.email;
 
-// o para leer los datos
+// O para leer los datos
 datos = {
   nombre:   formulario.nombre.value,
   apellido: formulario.apellido.value,
@@ -414,7 +406,7 @@ datos = {
 };
 ```   
 
-O lo generalizamos con estas funciones
+O lo generalizamos con estas funciones:
 
 ```js
 function ponerDatos(form, datos){
@@ -430,6 +422,15 @@ function sacarDatos(form){
   }
   return datos;
 }
+
+// Y ahora el uso es simple
+ponerDatos(formulario, datos);
+datos = sacarDatos(formulario);
+
+```
+**👉 En resumen:**
+	•	innerHTML es como pegar un bloque de texto HTML “ya cocinado”.
+	•	document.createElement + appendChild es como armar el HTML “pieza por pieza” en tiempo real.
 
 // y ahora el uso es simple
 ponerDatos(formulario, datos);
