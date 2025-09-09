@@ -1,15 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda de Contactos</title>
+    <!-- Pico.css por CDN para estilos base -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <!-- Estilos propios -->
     <link rel="stylesheet" href="./ejercicio.css" />
+    <!-- Lógica principal -->
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <!-- Contenedor principal de la agenda -->
+    <main class="container">
+      <!-- Cabecera con buscador y botón Agregar -->
+      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1>Agenda</h1>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <input type="search" id="buscador" placeholder="Buscar contactos..." autocomplete="off" aria-label="Buscar contactos" />
+          <button id="btnAgregar">Agregar</button>
+        </div>
+      </header>
+      <!-- Listado dinámico de tarjetas de contactos -->
+      <section id="listado" class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;"></section>
+    </main>
+    <!-- Diálogo nativo para alta/edición de contacto -->
+    <dialog id="dialogo">
+      <form id="formContacto" method="dialog">
+        <h2 id="tituloDialogo">Nuevo contacto</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" required />
+          </div>
+          <div>
+            <label for="apellido">Apellido</label>
+            <input type="text" id="apellido" name="apellido" required />
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label for="telefono">Teléfono</label>
+            <input type="text" id="telefono" name="telefono" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+        </div>
+        <footer style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+          <button type="submit" id="btnGuardar">Guardar</button>
+          <button type="button" id="btnCancelar">Cancelar</button>
+        </footer>
+      </form>
+    </dialog>
   </body>
-  </html>
+</html>
 

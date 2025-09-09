@@ -1,15 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="ejercicio.css">
   </head>
+  
   <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+  <!-- Contenido principal de la agenda -->
+    <nav>
+        <ul><li><strong>Agenda</strong></li></ul>
+        <ul>
+            <li>
+                <input id="buscar" type="search" name="buscar" placeholder="Buscar contacto...">
+            </li>
+            <li>
+                <button id="agregar" class="secondary">Agregar</button>
+            </li>
+        </ul>
+    </nav>
 
+    <dialog id="dialogo">
+        <form id="formulario">
+            <article>
+                <header>Agregar Contacto</header>
+                <input type="hidden" name="id" />
+                <fieldset class="grid">
+                    <label> Nombre:
+                        <input name="nombre" placeholder="Ingrese el nombre" required />
+                    </label>
+                    <label> Apellido:
+                        <input name="apellido" placeholder="Ingrese el apellido" required />
+                    </label>
+                </fieldset>
+                <fieldset class="grid">
+                    <label> Teléfono:
+                        <input name="telefono" placeholder="Ingrese el teléfono" required />
+                    </label>
+                    <label> Email:
+                        <input type="email" name="email" placeholder="Ingrese el email" required />
+                    </label>
+                </fieldset>
+                <footer class="grid">
+                  <button id="aceptar" type="submit">Aceptar</button>
+                  <button id="cancelar" type="reset" class="secondary">Cancelar</button>
+                </footer>
+              </article>
+            </form> 
+          </dialog>
+          
+          <main id="agenda" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));"></main>
+          
+        </body>
+        <script src="ejercicio.js"></script>
+        </html>
+        
+        

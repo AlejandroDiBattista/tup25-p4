@@ -9,7 +9,77 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+    <!-- Parte superior -->
+    <!-- SEARCH && BOTON AGREGAR -->
+    <nav>
+      <ul>
+        <li>
+          <strong>
+            <h1>AGENDA DE CONTACTOS</h1>
+          </strong>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <input
+            id="input-buscar"
+            type="search"
+            name="buscar-contacto"
+            placeholder="Buscar contacto"
+            aria-label="Search"
+          />
+        </li>
+        <li>
+          <button id="btn-agregar" class="outline">AGREGAR CONTACTO</button>
+        </li>
+      </ul>
+    </nav>
+    <!-- LISTA DE CONTACTOS -->
+        <div class="grid" id="contactos" style="grid-template-columns: repeat(3, 1fr);"></div>
+      </div>
+    <!-- MODALES -->
 
+    <!-- MODAL AGREGAR -->
+    <dialog id="modal-agregar">
+      <article>
+        <form id="form-agregar" method="dialog">
+          <h2>AGREGAR CONTACTO</h2>
+          <input type="text" name="nombre" placeholder="Ingrese nombre" aria-label="Nombre" />
+          <input type="text" name="apellido" placeholder="Ingrese apellido" aria-label="apellido" />
+          <input type="text" name="telefono" placeholder="Ingrese teléfono" aria-label="telefono" autocomplete="tel" />
+          <input type="email" name="email" placeholder="Ingrese email" aria-label="email" autocomplete="email" />
+          <div class="grid">
+            <div>
+              <button type="submit" id="btn-guardar">GUARDAR</button>
+            </div>
+           <div>
+            <button type="button" id="btn-salir">CANCELAR</button>
+           </div>
+          </div>
+        </form>
+        <span id="mensaje-error" style="color: red;"></span>
+      </article>
+    </dialog>
+
+    <!-- MODAL EDITAR -->
+     <dialog id="modal-editar">
+      <article>
+        <form id="form-editar" method="dialog">
+          <h2>EDITAR CONTACTO</h2>
+          <input type="text" name="nombre" placeholder="Ingrese nombre" aria-label="Nombre" />
+          <input type="text" name="apellido" placeholder="Ingrese apellido" aria-label="apellido" />
+          <input type="text" name="telefono" placeholder="Ingrese teléfono" aria-label="telefono" autocomplete="tel" />
+          <input type="email" name="email" placeholder="Ingrese email" aria-label="email" autocomplete="email" />
+          <div class="grid">
+            <div>
+              <button type="submit" id="btn-guardar">GUARDAR</button>
+            </div>
+           <div>
+            <button type="button" id="btn-salir-ed">CANCELAR</button>
+           </div>
+          </div>
+        </form>
+        <span id="mensaje-error-editar" style="color: red;"></span>
+      </article>
+  </body>
+</html>

@@ -3,13 +3,68 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
+    <title>Agenda de contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <main class="container">
+      <header class="app-header">
+        <h1>Agenda</h1>
+        <div class="actions">
+          <div class="search">
+            <span class="search-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m21 21-4.34-4.34"></path>
+                <circle cx="11" cy="11" r="8"></circle>
+              </svg>
+            </span>
+            <input id="txtBuscar" type="search" placeholder="Buscar contactos..." autocomplete="off" />
+          </div>
+          <button id="btnAgregar" class="contrast">Agregar</button>
+        </div>
+      </header>
+
+      <section id="lista" class="cards-grid" aria-live="polite"></section>
+    </main>
+    
+    <dialog id="dlgContacto">
+      <article>
+        <header>
+          <h3 id="dlgTitulo">Agregar contacto</h3>
+        </header>
+        <form id="frmContacto">
+          <div class="grid form-grid">
+            <div>
+              <label>Nombre
+                <input id="inpNombre" name="nombre" placeholder="Nombre" required />
+              </label>
+            </div>
+            <div>
+              <label>Apellido
+                <input id="inpApellido" name="apellido" placeholder="Apellido" required />
+              </label>
+            </div>
+            <div>
+              <label>Teléfono
+                <input id="inpTelefono" name="telefono" placeholder="11-5555-0000" />
+              </label>
+            </div>
+            <div>
+              <label>Email
+                <input id="inpEmail" type="email" name="email" placeholder="alguien@example.com" />
+              </label>
+            </div>
+          </div>
+
+          <footer class="dialog-actions">
+            <button id="btnGuardar" class="primary" type="submit">Guardar</button>
+            <button id="btnCancelar" type="button" class="secondary">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
   </body>
   </html>
 

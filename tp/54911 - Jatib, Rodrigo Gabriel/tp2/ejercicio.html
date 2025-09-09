@@ -1,15 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="ejercicio.css">
+    <link rel="icon" href="data:,">
+
+</head>
+<body>
+    <main class="container">
+        <header>
+        <h1>Agenda</h1>
+        <div class="grid">
+            <input type="text" id="buscador" name="search" placeholder="Buscar contactos...">
+            <button id="btn-agregar">Agregar</button>
+            <button id="btn-tema" aria-label="Cambiar tema">🌙</button>
+        </div>
+        </header>
+
+
+        <section id="lista-contactos" class="grid"></section>
+
+        <dialog id="dialogo-contacto">
+            <article>
+                <header>
+                    <a href="#" aria-label="Close" class="close" id="btn-cerrar-dialogo"></a>
+                    <h3 id="dialogo-titulo">Agregar Contacto</h3>
+                </header>
+                <form id="form-contacto">
+                    <input type="hidden" id="contacto-id">
+                    <div class="grid">
+                        <label for="nombre">
+                            Nombre
+                            <input type="text" id="nombre" name="nombre" required>
+                        </label>
+                        <label for="apellido">
+                            Apellido
+                            <input type="text" id="apellido" name="apellido" required>
+                        </label>
+                    </div>
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                    <footer>
+                        <button type="button" class="secondary" id="btn-cancelar">Cancelar</button>
+                        <button type="submit" id="btn-guardar">Guardar</button>
+                    </footer>
+                </form>
+            </article>
+        </dialog>
+    </main>
+
+    <script src="ejercicio.js" type="module"></script>
+</body>
+</html>
 

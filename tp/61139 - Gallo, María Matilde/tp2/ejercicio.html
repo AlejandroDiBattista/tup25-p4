@@ -1,15 +1,107 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="es" data-theme="light"></html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agenda de contactos</title>
+
+  <!-- Pico.css - dependencia externa permitida -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
+  />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="./ejercicio.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="stack-lg" aria-label="Cabecera de agenda">
+      <h1 class="title">Agenda</h1>
+
+      <div class="header-controls">
+        <form role="search" class="search-form" onsubmit="return false">
+          <label for="q" class="sr-only">Buscar contactos</label>
+          <input
+            id="q"
+            type="search"
+            name="q"
+            placeholder="Buscar contactos..."
+            autocomplete="off"
+            aria-describedby="searchHelp"
+          />
+        </form>
+
+        <button id="btnAgregar" class="contrast">
+          Agregar
+        </button>
+      </div>
+    </header>
+
+    <section aria-live="polite" aria-busy="false">
+      <div id="cards" class="cards-grid"></div>
+    </section>
+  </main>
+
+  <!-- Diálogo de edición -->
+  <dialog id="dlgContacto" aria-labelledby="dlgTitulo">
+    <article>
+      <header>
+        <h2 id="dlgTitulo">Editar contacto</h2>
+      </header>
+
+      <form id="frmContacto">
+        <input type="hidden" id="contactoId" name="id" />
+
+        <div class="grid">
+          <div>
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" required />
+          </div>
+          <div>
+            <label for="apellido">Apellido</label>
+            <input id="apellido" name="apellido" type="text" required />
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              name="telefono"
+              type="tel"
+              inputmode="tel"
+              placeholder="11-5555-5050"
+              required
+            />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="nombre.apellido@example.com"
+              required
+            />
+          </div>
+        </div>
+
+        <footer class="dialog-footer">
+          <button type="submit" id="btnGuardar">Guardar</button>
+          <button type="button" class="secondary" id="btnCancelar">
+            Cancelar
+          </button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  <!-- Lógica -->
+  <script src="./ejercicio.js"></script>
+</body>
+</html>
+
 

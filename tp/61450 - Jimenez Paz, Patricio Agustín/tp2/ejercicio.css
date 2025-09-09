@@ -1,1 +1,147 @@
-/* Estilos generales */
+/* Estilos para la Agenda - objetivo: aspecto tipo tarjetas con diálogo limpio */
+:root {
+    --bg: #f6f8fa;
+    --card-bg: #ffffff;
+    --muted: #3e4149;
+    --accent: #2563eb;
+    --radius: 10px;
+    font-size: 18px;
+}
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    background: linear-gradient(180deg, #f8fafc 0%, var(--bg) 100%);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color: #111827;
+    padding: 1.25rem;
+}
+
+/* Cabecera */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.grid {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+}
+h1 {
+    margin: 0;
+}
+#buscar {
+  margin-bottom: 0;
+}
+#btnAgregar {
+    padding: 0.5rem 0.9rem;
+}
+
+/* Lista de tarjetas */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.card {
+    background: var(--card-bg);
+    display: block;
+    padding: 0.85rem;
+    border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(15, 23, 42, 0.04);
+    position: relative;
+    overflow: hidden;
+}
+
+/* encabezado de tarjeta: avatar + nombre */
+.card h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #000;
+}
+
+.card .meta {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  color: var(--muted);
+}
+.icon-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: inherit;
+}
+.icon-btn:hover {
+    background: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.04);
+}
+.icon-btn[title="Borrar"] {
+    color: #dc2626;
+}
+
+/* Dialog */
+#dialogoContacto::backdrop {
+    background: rgba(15, 23, 42, 0.35);
+}
+#dialogoContacto {
+    border: none;
+    border-radius: 10px;
+    padding: 0;
+}
+#dialogoContacto form {
+    display: grid;
+    gap: 0.6rem;
+    padding: 1rem 1.25rem;
+    max-width: 420px;
+}
+#dialogoContacto h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.05rem;
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+#dialogoContacto input,
+#dialogoContacto select {
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: 1px solid #e6eef8;
+}
+#dialogoContacto menu {
+    margin: 0;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+#dialogoContacto button {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+    margin: 0;
+}
+#dialogoContacto button.primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+}
+/* Tablet and up */
+@media (min-width: 561px) {
+  #dialogoContacto form {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* restore desktop form width */
+  #dialogoContacto form {
+    max-width: 720px;
+  }
+}

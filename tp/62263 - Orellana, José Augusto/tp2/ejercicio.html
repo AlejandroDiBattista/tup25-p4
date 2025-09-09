@@ -9,7 +9,61 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <header class="container">
+      <h1>
+        Agenda de Contactos
+      </h1>
+      <nav>
+        <input type="search" id="buscar" placeholder="Buscar contacto...">
+        <button id="btnAgregar">
+          Agregar Contacto
+        </button>
+      </nav>
+    </header>
+
+    <!-- Contenedor de tarjetas -->
+    <main class="container">
+      <div id="listarContactos" class="grid"></div>
+    </main>
+
+    <!-- Dialogo de alta -->
+    <dialog id="dialogoContacto">
+      <article>
+        <header id="dialogoHeader">
+          <h2 id="tituloDialogo">
+            Nuevo contacto
+          </h2>
+        </header>
+        <form id="formContacto">
+          <input type="hidden" id="contactoId">
+          <label for="nombre">
+            Nombre:
+            <input type="text" id="nombre" required>
+          </label>
+          <label for="apellido">
+            Apellido:
+            <input type="text" id="apellido" required>
+          </label>
+          <label for="telefono">
+            Teléfono:
+            <input type="tel" id="telefono" required>
+          </label>
+          <label for="email">
+            Email:
+            <input type="email" id="email" required>
+          </label>
+          <footer>
+            <button type="submit" id="btnGuardar">
+              Guardar
+            </button>
+            <button type="button" id="btnCancelar">
+              Cancelar
+            </button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
   </body>
   </html>
 

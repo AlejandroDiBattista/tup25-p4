@@ -4,12 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
     <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+    <main class="container">
+      <header class="encabezado">
+        <h1>Agenda</h1>
+        <div class="busqueda-agregar">
+          <input
+            type="search"
+            id="entradaBusqueda"
+            placeholder="Buscar contactos..."
+          />
+          <button id="btnAgregar">Agregar</button>
+        </div>
+      </header>
 
+      <section id="listaContactos" class="grid"></section>
+    </main>
+
+
+
+    <dialog id="dialogoContacto">
+      <form method="dialog" id="formularioContacto">
+        <h3 id="tituloDialogo">Agregar contacto</h3>
+        <input type="hidden" id="idContacto" />
+        <label>
+          Nombre
+          <input type="text" id="nombre" required />
+        </label>
+        <label>
+          Apellido
+          <input type="text" id="apellido" required />
+        </label>
+        <label>
+          Teléfono
+          <input type="text" id="telefono" required />
+        </label>
+        <label>
+          Correo electrónico
+          <input type="email" id="correo" required />
+        </label>
+        <menu>
+          <button id="btnGuardar" value="default">Guardar</button>
+          <button id="btnCancelar" value="cancel">Cancelar</button>
+        </menu>
+      </form>
+    </dialog>
+  </body>
+</html>

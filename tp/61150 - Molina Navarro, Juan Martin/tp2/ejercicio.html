@@ -6,10 +6,70 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
+    <script src="https://kit.fontawesome.com/53cfe84f4b.js" crossorigin="anonymous"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <main class="container">
+      <header class="header">
+        <h1>Agenda de Contactos</h1>
+        <div class="controls">
+          <input id="buscador" type="search" placeholder="Buscar por nombre, apellido, teléfono o email" aria-label="Buscar contactos" />
+          <button id="btn-agregar" class="contrast">Agregar</button>
+        </div>
+      </header>
+
+      <section id="listado" class="grid-cards" aria-live="polite"></section>
+
+      <!-- Template de tarjeta con botones definidos en HTML -->
+      <template id="card-template">
+        <article class="card">
+          <header class="card-header">
+            <strong class="card-title"></strong>
+            <span class="acciones">
+              <button class="icono editar" data-accion="editar" title="Editar contacto" aria-label="Editar">Editar</button>
+              <button class="icono borrar" data-accion="borrar" title="Borrar contacto" aria-label="Borrar">Eliminar</button>
+            </span>
+          </header>
+          <ul class="card-body"></ul>
+        </article>
+      </template>
+    </main>
+
+    <dialog id="dialogo-contacto">
+      <article>
+        <header>
+          <h2 id="dialogo-titulo">Nuevo contacto</h2>
+        </header>
+        <form id="form-contacto">
+          <input type="hidden" id="contacto-id" />
+          <div class="grid">
+            <label>
+              <span>Nombre</span>
+              <input id="contacto-nombre" name="nombre" type="text" required />
+            </label>
+            <label>
+              <span>Apellido</span>
+              <input id="contacto-apellido" name="apellido" type="text" required />
+            </label>
+          </div>
+          <div class="grid">
+            <label>
+              <span>Teléfono</span>
+              <input id="contacto-telefono" name="telefono" type="tel" />
+            </label>
+            <label>
+              <span>Email</span>
+              <input id="contacto-email" name="email" type="email" />
+            </label>
+          </div>
+          <footer class="dialog-actions">
+            <button type="button" id="btn-cancelar" class="secondary">Cancelar</button>
+            <button type="submit" id="btn-guardar" class="contrast">Guardar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
+    <script src="./ejercicio.js"></script>
   </body>
   </html>
-

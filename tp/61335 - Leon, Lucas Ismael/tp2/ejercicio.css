@@ -1,1 +1,53 @@
 /* Estilos generales */
+/* Layout */
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+#busqueda {
+  flex: 1;
+}
+
+#contactos.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* Tarjetas */
+.card {
+  padding: 1rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+}
+
+.card h4 {
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+}
+
+/* Iconos */
+.card .acciones {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.card .acciones button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.card .acciones button:hover {
+  color: var(--pico-primary);
+}
