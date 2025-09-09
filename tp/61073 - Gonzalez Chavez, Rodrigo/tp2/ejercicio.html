@@ -1,15 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="ejercicio.css">
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <h2>Agenda</h2>
+      <ul>
+        <li>
+          <input type="search" id="buscador" placeholder="Buscar contacto...">
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <button id="btn-agregar">➕ Agregar</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
 
+  <main class="container">
+    <div id="lista-contactos" class="grid"></div>
+  </main>
+
+  <dialog id="dialogo-contacto">
+    <article>
+      <header>
+        <h3 id="titulo-dialogo">Nuevo contacto</h3>
+      </header>
+      <form id="form-contacto">
+        <input type="hidden" id="contacto-id">
+
+        <label>
+          Nombre
+          <input type="text" id="nombre" required>
+        </label>
+
+        <label>
+          Apellido
+          <input type="text" id="apellido" required>
+        </label>
+
+        <label>
+          Teléfono
+          <input type="tel" id="telefono" required>
+        </label>
+
+        <label>
+          Email
+          <input type="email" id="email" required>
+        </label>
+
+        <footer>
+          <button type="submit" class="primary">Guardar</button>
+          <button type="reset" id="btn-cancelar">Cancelar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  <script type="module" src="ejercicio.js"></script>
+</body>
+</html>
