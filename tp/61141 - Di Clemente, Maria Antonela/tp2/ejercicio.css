@@ -1,1 +1,222 @@
 /* Estilos generales */
+:root {
+  --text-color: #000;
+  --divider: #e5e5e5;
+  --blue: #0b66c3;
+}
+
+/* ===== BASE ===== */
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #f0f0f0;
+  color: var(--text-color);
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== HEADER ===== */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+}
+
+.titulo-agenda {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.search-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+#buscador {
+  border: 1px solid var(--divider);
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+  padding: 0.5rem 0.8rem;
+  width: 220px;
+  background: #fff;
+}
+
+#btnAgregar {
+  font-size: 14px;
+  padding: 0.4rem 1rem;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ===== TARJETAS CONTACTOS ===== */
+#listaContactos.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+#listaContactos article {
+  background: white;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  padding: 0;
+}
+
+#listaContactos h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  background: #f7f7f7;
+  color: var(--text-color);
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--divider);
+}
+
+#listaContactos p {
+  margin: 0.4rem 1rem;
+  color: #555;
+  font-size: 13px;
+}
+
+/* ===== FOOTER BOTONES TARJETA ===== */
+#listaContactos footer {
+  display: flex;
+  gap: 0.3rem;
+  margin: 0.5rem 0.5rem 0.8rem 1rem;
+  background: transparent;
+  border-top: none;
+  padding-top: 0.5rem;
+}
+
+#listaContactos footer button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+#listaContactos footer button:hover {
+  background: #f5f5f5;
+}
+
+/* ===== MODAL EDITAR CONTACTO ===== */
+dialog#dialogoContacto {
+  border: none;
+  border-radius: 12px;
+  width: min(500px, 90%);
+  background: #fff;
+  padding: 0;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+  z-index: 9999;
+}
+
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+
+dialog#dialogoContacto article {
+  border: none !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+dialog article > header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--divider);
+  background: #fff;
+}
+
+#tituloDialogo {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #000;
+}
+
+
+#formContacto {
+  padding: 1rem 1.25rem 1.25rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+
+#formContacto label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #000;
+}
+
+
+#formContacto input[type="text"],
+#formContacto input[type="tel"],
+#formContacto input[type="email"] {
+  margin-top: 0.3rem;
+  padding: 0.5rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: #000;
+  box-shadow: none;
+}
+
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+#formContacto footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  background: #fff;
+  border-top: none;
+  padding-top: 0.5rem;
+}
+
+
+#formContacto button {
+  padding: 0.3rem 0.7rem;
+  font-size: 12px;        
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  width: 80px;           
+  text-align: center;
+}
+
+#formContacto .btn-guardar {
+  background: #3756b3;
+  color: #fff;
+}
+
+#btnCancelar {
+  background: #9798c8;
+  color: #fff;
+}

@@ -10,6 +10,49 @@
   </head>
   <body>
     <!-- Contenido principal de la agenda -->
+      <header class="container header-bar">
+    <h1 class="titulo-agenda">Agenda</h1>
+    <div class="search-actions">
+      <input id="buscador" type="search" placeholder="Buscar contactos..." />
+      <button id="btnAgregar">Agregar</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="listaContactos" class="grid">
+    </section>
+  </main>
+
+  <dialog id="dialogoContacto">
+    <article>
+      <header>
+        <h3 id="tituloDialogo">Editar contacto</h3>
+      </header>
+      <form id="formContacto" method="dialog">
+        <input type="hidden" id="contactoId" />
+        <div class="input-row">
+          <label>Nombre
+            <input type="text" id="nombre" required />
+          </label>
+          <label>Apellido
+            <input type="text" id="apellido" required />
+          </label>
+        </div>
+        <div class="input-row">
+          <label>Teléfono
+            <input type="tel" id="telefono" required />
+          </label>
+          <label>Email
+            <input type="email" id="email" required />
+          </label>
+        </div>
+        <footer>
+          <button type="submit" class="btn-guardar">Guardar</button>
+          <button type="button" id="btnCancelar">Cancelar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
   </body>
   </html>
 
