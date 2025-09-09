@@ -1,1 +1,135 @@
-/* Estilos generales */
+/* ejercicio.css: Estilos propios adicionales */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* extremos */
+  gap: 1rem;
+}
+
+header h2 {
+  margin: 0;
+}
+
+header input {
+  flex: 1;             /* ocupa espacio central */
+  max-width: 400px;    /* opcional */
+  text-align: center;  /* texto centrado */
+}
+
+header button {
+  flex-shrink: 0;      /* que no se achique */
+}
+
+.contact-card {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+.contact-card h3 {
+  margin: 0;
+}
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* Estilos propios adicionales */
+
+#contactList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.contact-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.contact-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.contact-card p {
+  margin: 0.2rem 0;
+  color: #555;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.actions button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e74c3c;
+  background: transparent;
+  color: #e74c3c;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.actions button:hover {
+  background: #fdecea;
+}
+
+/* Estilos del diálogo */
+#contactDialog form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+#contactDialog h3 {
+  grid-column: span 2;
+  margin-bottom: 0.5rem;
+}
+
+#contactDialog label {
+  font-weight: 500;
+}
+
+#contactDialog input {
+  width: 100%;
+}
+
+#contactDialog .form-actions {
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+#contactDialog .form-actions button[type="submit"] {
+  background: #2d6cdf;
+  color: #fff;
+  border: none;
+}
+#contactDialog .form-actions button[type="button"] {
+  background: #555;
+  color: #fff;
+  border: none;
+}
+
+#addBtn {
+  background: #000000;
+}
