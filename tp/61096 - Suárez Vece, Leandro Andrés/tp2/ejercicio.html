@@ -1,15 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="./ejercicio.css" />
+  <script type="module" src="./ejercicio.js" defer></script>
+</head>
+
+<body>
+  <main class="container">
+    <header>
+      <h1 style="text-align: center;">Agenda de Contactos</h1>
+      <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; margin-top: 1rem;">
+        <input type="search" id="busqueda" placeholder="Buscar contacto..." autocomplete="off">
+        <button id="btnAgregar">Agregar</button>
+      </div>
+    </header>
+
+    <!-- Listado de tarjetas -->
+    <section id="listadoContactos" style="margin-top: 2rem;"></section>
+  </main>
+
+  <dialog id="dialogoContacto">
+    <form id="formContacto" method="dialog">
+
+      <div class="form-grid">
+        <input type="hidden" id="contactoId">
+        <label>Nombre
+          <input type="text" id="nombre" required>
+        </label>
+        <label>Apellido
+          <input type="text" id="apellido" required>
+        </label>
+        <label>Teléfono
+          <input type="tel" id="telefono" required pattern="[0-9\-\\s]+">
+        </label>
+        <label>Email
+          <input type="email" id="email" required>
+        </label>
+      </div>
+
+      <menu class="menu-botones">
+        <button type="submit" class="btn-guardar">Guardar</button>
+        <button type="button" id="btnCancelar" class="btn-cancelar">Cancelar</button>
+      </menu>
+    </form>
+  </dialog>
+
+</body>
+
+</html>
