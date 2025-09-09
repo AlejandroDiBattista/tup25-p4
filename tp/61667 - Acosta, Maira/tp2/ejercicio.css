@@ -1,1 +1,134 @@
-/* Estilos generales */
+
+body {
+  background: #fff;
+  color: #000;
+  font-family: Arial, sans-serif;
+}
+
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+}
+
+header h1 {
+  color: #000;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative; 
+}
+
+#buscador {
+  width: 300px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  padding: 10px 10px 10px 40px; 
+  font-size: 12px;
+  color: #fff; 
+  background-color: #000; 
+}
+
+#buscador::placeholder {
+  color: #bbb; 
+}
+
+.search-container .search-icon {
+  position: absolute;
+  left: 15px; 
+  color: #fff; 
+  font-size: 16px;
+  pointer-events: none; 
+}
+
+
+#btnAgregar {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#btnAgregar:hover {
+  background: #333;
+  transform: scale(1.05);
+}
+
+#listadoContactos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+#listadoContactos article {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(223, 218, 218, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#listadoContactos article:hover {
+   transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+#listadoContactos strong {
+  font-size: 16px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10px;
+  color: #f1eded;
+}
+
+#listadoContactos p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #333;
+}
+#listadoContactos footer {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#listadoContactos footer button {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+#listadoContactos .editar {
+  background: #000;
+  color: #fff;
+}
+
+#listadoContactos .editar:hover {
+  background: #f0ebeb;
+  transform: scale(1.05);
+}
+
+#listadoContactos .borrar {
+  background: #080000;
+  color: #000;
+}
+
+#listadoContactos .borrar:hover {
+  background: #ddd;
+  transform: scale(1.05);
+}
