@@ -9,7 +9,66 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    
+      <main class="container">
+    <header class="app-header">
+      <h1>Agenda</h1>
+
+      <div class="toolbar">
+        <label class="search-wrapper">
+          <input type="search" id="buscador" placeholder="Buscar contactos..." aria-label="Buscar contactos">
+        </label>
+
+        <button id="btnAgregar" class="contrast" aria-label="Agregar contacto">Agregar</button>
+      </div>
+    </header>
+
+    <section aria-label="Lista de contactos">
+      <div id="lista" class="cards-grid"></div>
+    </section>
+  </main>
+
+  
+  <dialog id="dlgContacto">
+    <article>
+      <header>
+        <h3 id="dlgTitulo">Nuevo contacto</h3>
+      </header>
+
+      <form id="frmContacto">
+        <input type="hidden" name="id" id="id">
+
+        <div class="grid">
+          <label>Nombre
+            <input type="text" name="nombre" id="nombre" placeholder="Ana" required>
+          </label>
+
+          <label>Apellido
+            <input type="text" name="apellido" id="apellido" placeholder="López" required>
+          </label>
+        </div>
+
+        <div class="grid">
+          <label>Teléfono
+            <input type="tel" name="telefono" id="telefono" placeholder="11-5555-5050" required>
+          </label>
+
+          <label>Email
+            <input type="email" name="email" id="email" placeholder="ana@example.com" required>
+          </label>
+        </div>
+
+        <footer class="dlg-actions">
+          <button type="submit" id="btnGuardar" class="primary">Guardar</button>
+          <button type="button" id="btnCancelar" class="secondary">Cancelar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  
+  
+</body>
   </body>
   </html>
 
