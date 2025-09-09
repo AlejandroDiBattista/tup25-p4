@@ -5,11 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/fontawesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/solid.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <header class="container">
+      <div class="grid">
+        <div>
+          <h1>Agenda</h1>
+        </div>
+        <div>
+          <input id="buscar" type="search" placeholder="Buscar contactos..." aria-label="Buscar contactos" />
+        </div>
+        <div style="align-self:center;">
+          <button id="btnAgregar" class="contrast">Agregar</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="lista" class="cards"></section>
+    </main>
+
+    <dialog id="dialogoContacto">
+      <article>
+        <header>
+          <h2 id="dialogTitulo">Nuevo contacto</h2>
+        </header>
+        <form method="dialog" id="formContacto">
+          <input type="hidden" id="contactoId" />
+          <label for="nombre">Nombre
+            <input id="nombre" name="nombre" required />
+          </label>
+          <label for="apellido">Apellido
+            <input id="apellido" name="apellido" required />
+          </label>
+          <label for="telefono">Teléfono
+            <input id="telefono" name="telefono" required />
+          </label>
+          <label for="email">Email
+            <input id="email" name="email" type="email" />
+          </label>
+        </form>
+        <footer>
+          <menu>
+            <button id="btnGuardar" class="primary">Guardar</button>
+            <button id="btnCancelar" type="button">Cancelar</button>
+        </menu>
+        </footer>
+    </article>
+    </dialog>
   </body>
   </html>
 
