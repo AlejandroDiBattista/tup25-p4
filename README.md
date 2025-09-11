@@ -63,4 +63,4 @@ Recuerde
 1. Pasar a la rama main de repositorio, actualizar el contenido.
 2. Crear su propia rama resolver y publicar la solución.
 3. Realizar un Pull Request a la rama main del repositorio original.
-Nota: Recuerde que el titulo del PR debe ser: "TP3 - <Legajo> - <Apellido, Nombre>"
+> Nota: Recuerde que el titulo del PR debe ser: "TP3 - \<Legajo> - \<Apellido, Nombre>"
