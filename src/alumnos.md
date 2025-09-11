@@ -32,7 +32,6 @@
 - 61993  Medina, Juan Ignacio                      (381) 517-1937  🔴🔴                      
 - 62171  Ballespin, Cristián                       (381) 604-5734  🔴🔴                      
 - 62175  Quiroga, Marcela Noemí                    (381) 593-8430  🟢🟢  @Marce-Quiroga      
-- 62263  Orellana, José Augusto                    (381) 339-2050  🟢🟢  @Jaodem             
 - 62318  Quiroga Castro, Lisandro                  (381) 390-9133  🟢🔴  @Lisandro-18        
 - 99001  Branda, César                             (381) 212-6932  🔴🔴                      
 ```
@@ -85,9 +84,9 @@
 - 61862  Zerda, Thomas                             (381) 333-0962  🔴🔴                      
 - 61956  Leglisé, Laureano                         (261) 468-9809  🔴🔴                      
 - 62053  Herrera Palomino, Iván Agustín            (381) 697-0643  🟢🟢  @ivanagustinherrera 
-- 62055  Aumada, Aiquen Osvaldo                    (381) 419-9202  🟢🟢  @aiquen7            
+- 62055  Ahumada, Aiquen Osvaldo                   (381) 419-9202  🟢🟢  @aiquen7            
 - 62093  Frías Silva, Juan Segundo                 (381) 415-8753  🟢🟢  @juansefriass       
 - 62172  Salcedo, Mariana Aylén                    (381) 466-9695  🟢🔴  @marianasalcedo22   
-- 62263  Orellana, José Augusto                    (386) 534-2925  🔴🔴                      
+- 62263  Orellana, José Augusto                    (381) 339-2050  🟢🟢  @Jaodem             
 - 62555  Verón, Matías Gabriel                     (381) 519-6654  🟢🟢  @MatiasVeron12503   
 ```
