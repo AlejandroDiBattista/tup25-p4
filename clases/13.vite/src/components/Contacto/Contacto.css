@@ -1,0 +1,8 @@
+.card-contacto {
+    border: 0.1px solid black;
+    border-radius: 10px;
+    min-width: 250px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    /* padding: 10px; */
+    aspect-ratio: 4 / 2;
+}
