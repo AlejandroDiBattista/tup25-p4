@@ -78,10 +78,10 @@ function ContactCard({ alumno, onToggleFavorito }) {
         aria-label="Favorito"
         className={alumno.favorito ? "contrast" : "outline"}
         style={{
-          fontSize: 32,
+          fontSize: 50,
           borderRadius: "50%",
-          width: 48,
-          height: 48,
+          width: 70,
+          height: 70,
           border: 0,
           background: alumno.favorito ? "#fffbe6" : "#222",
           color: alumno.favorito ? "#f5b301" : "#fff",
@@ -166,7 +166,7 @@ function App() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", background: "linear-gradient(135deg, #111 0%, #222 100%)" }}>
+    <main style={{ minHeight: "100vh"}}>
       <Topbar value={busqueda} onChange={setBusqueda} />
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "0 1.2rem" }}>
         {filtrados.length === 0 ? (
