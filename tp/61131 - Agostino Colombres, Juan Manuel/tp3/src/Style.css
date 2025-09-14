@@ -48,20 +48,20 @@
   border: 1px solid #e0e0e0;
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   width: 220px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .contact-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .contact-avatar {
   width: 6em;
   height: 6em;
-  border-radius: 8px; 
+  border-radius: 8px;
   background: #f2f2f2;
   margin-bottom: 1rem;
   object-fit: cover;
