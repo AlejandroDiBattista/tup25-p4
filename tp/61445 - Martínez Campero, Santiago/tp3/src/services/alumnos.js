@@ -1,63 +1,106 @@
 import alumnosVcf from '../../public/alumnos.vcf?raw';
 
-export function parseVcf(vcfText) {
-  const alumnos = [];
-  const lineas = vcfText.split('\n');
-  let alumnoActual = null;
-  for (let i = 0; i < lineas.length; i++) {
-    const linea = lineas[i].trim();
+function extraerLegajo(nota) {
+  if (!nota) return 0;
+  
+  const match = nota.match(/Legajo:\s*(\d+)/i);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+function extraerGitHub(nota) {
+  if (!nota) return '';
+  
+  const match = nota.match(/Github:\s*([a-zA-Z0-9-_]+)/i);
+  return match ? match[1].trim() : '';
+}
+
+function procesarTarjeta(lineasTarjeta) {
+  const alumno = {
+    nombre: '',
+    telefono: '',
+    legajo: 0,
+    github: '',
+    favorito: false
+  };
+  
+  for (let linea of lineasTarjeta) {
+    linea = linea.trim();
     
-    if (linea === 'BEGIN:VCARD') {
-      alumnoActual = {
-        nombre: '',
-        telefono: '',
-        legajo: 0,
-        github: '',
-        favorito: false
-      };
+    if (linea.startsWith('FN:')) {
+      alumno.nombre = linea.substring(3).trim();
     }
     
-    if (linea === 'END:VCARD' && alumnoActual) {
-      if (alumnoActual.nombre) {
-        alumnos.push(alumnoActual);
+    else if (linea.startsWith('TEL')) {
+      const colonIndex = linea.indexOf(':');
+      if (colonIndex !== -1) {
+        alumno.telefono = linea.substring(colonIndex + 1).trim();
       }
-      alumnoActual = null;
     }
     
-    if (alumnoActual) {
-      if (linea.startsWith('FN:')) {
-        alumnoActual.nombre = linea.replace('FN:', '').trim();
-      }
-      
-      if (linea.startsWith('TEL')) {
-        const partes = linea.split(':');
-        if (partes.length > 1) {
-          alumnoActual.telefono = partes[1].trim();
-        }
-      }
-      
-      if (linea.startsWith('NOTE:')) {
-        const note = linea.replace('NOTE:', '').trim();
-        
-        if (note.includes('Legajo:')) {
-          const partes = note.split('Legajo:')[1];
-          const numero = partes.split('-')[0].trim();
-          alumnoActual.legajo = parseInt(numero);
-        }
-        
-        if (note.includes('Github:')) {
-          const partes = note.split('Github:')[1];
-          alumnoActual.github = partes.trim();
-        }
-      }
+    else if (linea.startsWith('NOTE:')) {
+      const nota = linea.substring(5).trim();
+      alumno.legajo = extraerLegajo(nota);
+      alumno.github = extraerGitHub(nota);
     }
   }
   
+  if (!alumno.nombre || alumno.legajo === 0) {
+    return null;
+  }
+  
+  alumno.id = alumno.legajo;
+  
+  return alumno;
+}
+
+export function parseVcf(textoVcf) {
+  if (!textoVcf) {
+    console.warn('Archivo VCF vacío o no encontrado');
+    return [];
+  }
+  
+  const alumnos = [];
+  const lineas = textoVcf.split('\n').map(l => l.trim());
+  
+  let dentroTarjeta = false;
+  let lineasTarjetaActual = [];
+  
+  for (let i = 0; i < lineas.length; i++) {
+    const linea = lineas[i];
+    
+    if (linea === 'BEGIN:VCARD') {
+      dentroTarjeta = true;
+      lineasTarjetaActual = [];
+    }
+    else if (linea === 'END:VCARD') {
+      if (dentroTarjeta && lineasTarjetaActual.length > 0) {
+        const alumno = procesarTarjeta(lineasTarjetaActual);
+        if (alumno) {
+          alumnos.push(alumno);
+        }
+      }
+      dentroTarjeta = false;
+      lineasTarjetaActual = [];
+    }
+    else if (dentroTarjeta) {
+      lineasTarjetaActual.push(linea);
+    }
+  }
+  
+  console.log(`✅ Parser VCF: Se cargaron ${alumnos.length} alumnos correctamente`);
   return alumnos;
 }
 
 export function loadAlumnos() {
-  const alumnos = parseVcf(alumnosVcf);
-  console.log(`Cargados ${alumnos.length} alumnos`);
-  return alumnos;
+  try {
+    const alumnos = parseVcf(alumnosVcf);
+    
+    const conGitHub = alumnos.filter(a => a.github).length;
+    console.log(`📊 Estadísticas: ${alumnos.length} alumnos, ${conGitHub} con GitHub`);
+    
+    return alumnos;
+  } catch (error) {
+    console.error('❌ Error cargando alumnos:', error);
+    return [];
+  }
 }
