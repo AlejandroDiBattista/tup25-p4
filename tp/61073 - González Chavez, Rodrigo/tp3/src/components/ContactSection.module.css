@@ -1,0 +1,20 @@
+.section {
+  margin: 2rem 0;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.empty {
+  color: #777;
+  font-style: italic;
+}
