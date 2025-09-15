@@ -22,7 +22,6 @@ export function parseVcf(vcf) {
     .filter(Boolean);
 }
 
-// CAMBIO: cargar el archivo usando fetch desde public
 export async function loadAlumnos() {
   const resp = await fetch('/alumnos.vcf');
   const vcf = await resp.text();
