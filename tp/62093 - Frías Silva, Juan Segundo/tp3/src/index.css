@@ -1,0 +1,123 @@
+body {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    background: #f9fafb;
+    color: #111827;
+  }
+  
+  .app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  /* Topbar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .topbar h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  
+  .topbar input {
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+    outline: none;
+    width: 280px;
+  }
+  
+  .topbar input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+  }
+  
+  /* Secciones */
+  .contact-section h2 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .contact-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  
+  /* Tarjetas */
+  .contact-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    transition: transform 0.15s ease;
+  }
+  
+  .contact-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .avatar-alt {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .info h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .info p {
+    margin: 0.1rem 0;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+  
+  /* Botón favorito */
+  .fav-btn {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: #9ca3af;
+  }
+  
+  .fav-btn.active {
+    color: #fbbf24;
+  }
+  
+  .empty {
+    font-style: italic;
+    color: #6b7280;
+  }
+  
