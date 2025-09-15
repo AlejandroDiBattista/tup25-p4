@@ -1,4 +1,4 @@
-import alumnosVcf from '../../public/alumnos.vcf?raw';
+import alumnosVcf from '../alumnos.vcf?raw';
 
 function extraerLegajo(nota) {
   if (!nota) return 0;

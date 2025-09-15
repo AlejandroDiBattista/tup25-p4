@@ -2,17 +2,15 @@ import { getIniciales } from '../utils/text.js';
 
 const ContactCard = ({ alumno, onToggleFavorito }) => {
   return (
-    <div 
-      style={{ 
-        border: alumno.esFavorito ? '2px solid #ffd700' : '1px solid #ddd',
-        padding: '15px', 
-        borderRadius: '8px',
-        backgroundColor: alumno.esFavorito ? '#fffacd' : '#f9f9f9',
-        position: 'relative'
-      }}
-    >
+    <div style={{
+      backgroundColor: alumno.esFavorito ? '#fff3cd' : 'white',
+      border: alumno.esFavorito ? '2px solid #f59e0b' : '1px solid #ddd',
+      borderRadius: '8px',
+      padding: '15px',
+      position: 'relative',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    }}>
       <button
-        onClick={() => onToggleFavorito(alumno.legajo)}
         style={{
           position: 'absolute',
           top: '10px',
@@ -20,27 +18,25 @@ const ContactCard = ({ alumno, onToggleFavorito }) => {
           background: 'none',
           border: 'none',
           fontSize: '20px',
-          cursor: 'pointer',
-          padding: '5px'
+          cursor: 'pointer'
         }}
+        onClick={() => onToggleFavorito(alumno.legajo)}
         title={alumno.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
       >
         {alumno.esFavorito ? '⭐' : '☆'}
       </button>
       
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{
           width: '50px',
           height: '50px',
           borderRadius: '50%',
-          backgroundColor: alumno.github ? 'transparent' : '#e0e0e0',
+          backgroundColor: '#007bff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '16px',
+          color: 'white',
           fontWeight: 'bold',
-          color: '#666',
-          flexShrink: 0,
           overflow: 'hidden'
         }}>
           {alumno.github ? (
@@ -59,18 +55,25 @@ const ContactCard = ({ alumno, onToggleFavorito }) => {
         </div>
         
         <div style={{ flex: 1 }}>
-          <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
+          <h3 style={{ margin: '0 0 8px 0', color: '#333' }}>
             {alumno.nombre}
           </h3>
-          <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}>
-            📞 Teléfono: {alumno.telefono}
+          <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
+            📞 {alumno.telefono}
           </p>
-          <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}>
+          <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
             🎓 Legajo: {alumno.legajo}
           </p>
           {alumno.github && (
-            <p style={{ margin: '5px 0', fontSize: '14px', color: '#0066cc' }}>
-              💻 GitHub: <a href={`https://github.com/${alumno.github}`} target="_blank" rel="noopener noreferrer">{alumno.github}</a>
+            <p style={{ margin: '4px 0', fontSize: '14px' }}>
+              💻 <a 
+                href={`https://github.com/${alumno.github}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ color: '#007bff', textDecoration: 'none' }}
+              >
+                {alumno.github}
+              </a>
             </p>
           )}
         </div>

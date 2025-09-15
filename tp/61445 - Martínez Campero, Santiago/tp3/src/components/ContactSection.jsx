@@ -1,37 +1,25 @@
 import ContactCard from './ContactCard.jsx';
 
-const ContactSection = ({ titulo, alumnos, onToggleFavorito, mostrarVacio = false, mensajeVacio }) => {
-  if (alumnos.length === 0 && !mostrarVacio) {
+const ContactSection = ({ titulo, alumnos, onToggleFavorito, esFavoritos = false }) => {
+  if (alumnos.length === 0) {
     return null;
-  }
-
-  if (alumnos.length === 0 && mostrarVacio) {
-    return (
-      <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-        <p>{mensajeVacio}</p>
-      </div>
-    );
   }
 
   return (
     <section style={{ marginBottom: '30px' }}>
       {titulo && (
-        <h2 style={{ 
-          fontSize: '18px', 
-          color: '#333', 
+        <h2 style={{
+          fontSize: '1.4rem',
+          color: esFavoritos ? '#f59e0b' : '#333',
           marginBottom: '15px',
-          borderBottom: '2px solid #ddd',
-          paddingBottom: '5px'
+          paddingBottom: '8px',
+          borderBottom: `2px solid ${esFavoritos ? '#f59e0b' : '#007bff'}`
         }}>
           {titulo} ({alumnos.length})
         </h2>
       )}
       
-      <div style={{ 
-        display: 'grid', 
-        gap: '10px',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
-      }}>
+      <div className="contacts-grid">
         {alumnos.map(alumno => (
           <ContactCard 
             key={alumno.legajo}

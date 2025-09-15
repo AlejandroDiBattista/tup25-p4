@@ -3,6 +3,7 @@ import { loadAlumnos } from './services/alumnos.js';
 import { includesContacto, cmpNombre } from './utils/text.js';
 import SearchBar from './components/SearchBar.jsx';
 import ContactSection from './components/ContactSection.jsx';
+
 function App() {
   const [alumnos, setAlumnos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -10,6 +11,22 @@ function App() {
   const [busqueda, setBusqueda] = useState('');
   const [alumnosFiltrados, setAlumnosFiltrados] = useState([]);
   const [favoritos, setFavoritos] = useState(new Set());
+
+  // Estilos simples y directos
+  const headerStyles = {
+    textAlign: 'center',
+    marginBottom: '30px',
+    padding: '20px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  };
+
+  const titleStyles = {
+    fontSize: '2rem',
+    color: '#333',
+    marginBottom: '10px'
+  };
 
   useEffect(() => {
     try {
@@ -57,20 +74,25 @@ function App() {
     });
   };
 
+  // Estados simples
   if (cargando) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>Directorio de Alumnos</h1>
-        <p>Cargando datos...</p>
+      <div className="app-container">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <h1>📚 Directorio de Alumnos</h1>
+          <p>Cargando...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>Directorio de Alumnos</h1>
-        <p style={{ color: 'red' }}>Error: {error}</p>
+      <div className="app-container">
+        <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
+          <h1>❌ Error</h1>
+          <p>{error}</p>
+        </div>
       </div>
     );
   }
@@ -79,10 +101,12 @@ function App() {
   const noFavoritosArray = alumnosFiltrados.filter(a => !a.esFavorito);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '30px', textAlign: 'center' }}>
-        <h1>📚 Directorio de Alumnos</h1>
-        <p>Total de alumnos: <strong>{alumnos.length}</strong></p>
+    <div className="app-container">
+      <header style={headerStyles}>
+        <h1 style={titleStyles}>📚 Directorio de Alumnos</h1>
+        <p style={{ color: '#666', fontSize: '1.1rem' }}>
+          Total: <strong>{alumnos.length}</strong> alumnos
+        </p>
         
         <SearchBar 
           totalAlumnos={alumnos.length}
@@ -93,15 +117,16 @@ function App() {
       
       <main>
         {alumnosFiltrados.length === 0 && busqueda.trim() ? (
-          <ContactSection 
-            mostrarVacio={true}
-            mensajeVacio={
-              <>
-                <p>No se encontraron alumnos que coincidan con "{busqueda}"</p>
-                <p>Intenta con otro término de búsqueda</p>
-              </>
-            }
-          />
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px', 
+            backgroundColor: '#fff3cd', 
+            borderRadius: '8px',
+            color: '#856404'
+          }}>
+            <h3>🔍 No se encontraron resultados</h3>
+            <p>No hay alumnos que coincidan con "{busqueda}"</p>
+          </div>
         ) : (
           <>
             {favoritosArray.length > 0 && (
@@ -109,6 +134,7 @@ function App() {
                 titulo="⭐ Favoritos"
                 alumnos={favoritosArray}
                 onToggleFavorito={toggleFavorito}
+                esFavoritos={true}
               />
             )}
             
@@ -116,18 +142,11 @@ function App() {
               titulo={favoritosArray.length > 0 ? "👥 Todos los demás" : null}
               alumnos={noFavoritosArray}
               onToggleFavorito={toggleFavorito}
+              esFavoritos={false}
             />
           </>
         )}
       </main>
-      
-      <footer style={{ marginTop: '30px', textAlign: 'center', fontSize: '12px', color: '#999' }}>
-        <p>Alumnos con GitHub: {alumnosFiltrados.filter(a => a.github).length}</p>
-        <p>Favoritos: {favoritos.size}</p>
-        {busqueda.trim() && (
-          <p>Búsqueda activa: "{busqueda}"</p>
-        )}
-      </footer>
     </div>
   );
 }
