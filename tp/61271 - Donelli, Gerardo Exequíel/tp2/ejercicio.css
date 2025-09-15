@@ -1,0 +1,127 @@
+/* =========================================
+   Contenedor de todas las tarjetas
+   ========================================= */
+#listadoContactos {
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+  gap: 1.5rem; 
+  margin-top: 2rem;
+  background-color: #ffffff; /* fondo blanco */
+  min-height: 150px; /* evita que colapse si no hay contactos */
+  padding: 1rem; /* espacio interno */
+}
+
+/* Mensaje cuando no hay contactos */
+#listadoContactos p {
+  text-align: center;
+  font-style: italic;
+  color: #555;
+  margin: 2rem 0;
+  background: transparent;
+}
+
+/* =========================================
+   Estilos generales del body y título
+   ========================================= */
+body {
+  background-color: #ffffff; /* fondo blanco de toda la página */
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  color: #333333;
+  text-align: center; /* centra el título */
+  margin-bottom: 1rem;
+}
+
+/* =========================================
+   Tarjeta individual de contacto
+   ========================================= */
+.card-contacto {
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem; /* más espacio arriba para los botones */
+  border-radius: 1rem; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+  background: #ffffff; /* fondo blanco */
+  display: flex;
+  flex-direction: column; 
+  gap: 0.5rem; 
+  position: relative; 
+  transition: background 0.3s ease, transform 0.2s ease; 
+}
+
+/* Efecto hover: cambia el fondo y eleva la tarjeta */
+.card-contacto:hover {
+  background: #c5bfbf; /* color suave al pasar el cursor */
+  transform: translateY(-3px); 
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12); 
+}
+
+/* Nombre y apellido */
+.card-contacto h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #222;
+}
+
+/* Teléfono y email */
+.card-contacto div {
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.3;
+}
+
+/* Contenedor de los botones Editar/Borrar */
+.card-contacto .acciones {
+  position: absolute;
+  top: 0.1rem; /* ajustado para no tapar el contenido */
+  right: 0.8rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10; /* fuerza que los botones floten sobre el contenido */
+}
+
+/* Estilo de los botones de acción */
+.card-contacto .acciones button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--pico-primary);
+  transition: transform 0.15s ease;
+}
+
+
+/* Animación al pasar el cursor sobre el botón */
+.card-contacto .acciones button:hover {
+  transform: scale(1.3); /* efecto de zoom al pasar el mouse */
+}
+
+/* =========================================
+   Estilos del buscador
+   ========================================= */
+#busqueda {
+  color: #333; /* color del texto */
+  background-color: #fff; /* fondo blanco */
+  border: 1px solid #ccc; /* borde gris claro */
+  padding: 0.5rem;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
+  
+}
+#busqueda:disabled {
+  background-color: #000000; /* fondo gris claro cuando está deshabilitado */
+  cursor: not-allowed; /* cursor de no permitido */}
+
+
+#busqueda::placeholder {
+  color: #888; /* color del texto del placeholder */
+  opacity: 1; /* asegura visibilidad en todos los navegadores */
+}
+#busqueda:focus {
+  border-color: var(--pico-primary); /* cambia el borde al enfocar */
+  box-shadow: 0 0 5px rgba(100, 150, 250, 0.5); /* sombra suave */
+  outline: none; /* elimina el outline por defecto */
+}

@@ -1,1 +1,61 @@
-/* Estilos generales */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.agenda-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+.agenda-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+article {
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--pico-background);
+  box-shadow: 0 2px 8px black;
+  min-height: 120px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+article strong {
+  font-size: 1.1em;
+  display: block;
+  margin-bottom: .5em;
+}
+.contact-info {
+  margin-bottom: 1em;
+}
+.contact-info span {
+  display: flex;
+  align-items: center;
+  gap: .5em;
+  margin-bottom: .3em;
+}
+article nav {
+  display: flex;
+  gap: .5em;
+}
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  color: red;
+  transition: color .2s;
+}
+.icon-btn:hover {
+  color: black;
+}

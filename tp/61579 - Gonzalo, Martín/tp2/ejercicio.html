@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <link rel="stylesheet" href="ejercicio.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Agenda</h1>
+      <div class="header-actions">
+        <input type="search" id="search" placeholder="Buscar contactos...">
+        <button id="btnAgregar">Agregar</button>
+      </div>
+    </header>
+
+    <section id="listaContactos" class="grid"></section>
+
+    <!-- Diálogo de alta/edición -->
+    <dialog id="dialogo">
+      <article>
+        <h3 id="dialogoTitulo">Nuevo contacto</h3>
+        <form id="formContacto" method="dialog">
+          <input type="hidden" id="contactoId">
+          <label>Nombre
+            <input type="text" id="nombre" required>
+          </label>
+          <label>Apellido
+            <input type="text" id="apellido" required>
+          </label>
+          <label>Teléfono
+            <input type="text" id="telefono" required>
+          </label>
+          <label>Email
+            <input type="email" id="email" required>
+          </label>
+          <footer>
+            <button type="submit">Guardar</button>
+            <button type="reset" id="btnCancelar">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </main>
+
+  <script src="ejercicio.js"></script>
+</body>
+</html>

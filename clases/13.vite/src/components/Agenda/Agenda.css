@@ -1,0 +1,10 @@
+.agenda {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-left: 0;
+}
+
+.agenda li {
+    margin-bottom: 20px;
+}

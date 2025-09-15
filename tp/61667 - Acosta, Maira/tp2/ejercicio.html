@@ -1,15 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="ejercicio.css">
+</head>
+<body>
+  <header> 
+     <h1>Agenda</h1>
+      <br><br>
+     <div class="search-container">
+       <i class="fas fa-search search-icon"></i> <input type="text" id="buscador" placeholder="Buscar contacto">
+       <button id="btnAgregar">+ Agregar</button>
+      </div>
+   </header>
 
+  <main class="container" id="listadoContactos"></main>
+
+  <dialog id="dialogoContacto">
+    <article>
+      <header>
+        <h2 id="tituloDialogo">Nuevo Contacto</h2>
+      </header>
+      <form id="formContacto">
+        <input type="hidden" id="contactoId">
+        <label>
+          Nombre
+          <input type="text" id="nombre" required>
+        </label>
+        <label>
+          Apellido
+          <input type="text" id="apellido" required>
+        </label>
+        <label>
+          Teléfono
+          <input type="tel" id="telefono" required>
+        </label>
+        <label>
+          Email
+          <input type="email" id="email" required>
+        </label>
+        <footer>
+          <button type="submit">Guardar</button>
+          <button type="button" id="btnCancelar">Cancelar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  <script src="ejercicio.js"></script>
+</body>
+</html>

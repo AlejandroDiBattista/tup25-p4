@@ -1,15 +1,68 @@
+<!-- ejercicio.html -->
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+<head>
+  <meta charset="utf-8">
+  <title>Agenda de Contactos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Pico.css vía CDN (setup sin dependencias):contentReference[oaicite:17]{index=17} -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="ejercicio.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h2>Agenda de Contactos</h2>
+      <input type="search" id="search" placeholder="Buscar contacto...">
+      <button id="addBtn">Agregar</button>
+    </header>
+
+    <section id="contactList">
+      <!-- Aquí se renderizan dinámicamente las tarjetas -->
+    </section>
+  </main>
+
+  <!-- Diálogo modal para agregar/editar contactos -->
+  <dialog id="contactDialog">
+    <form id="contactForm">
+      <label for="nombre">Nombre</label>
+      <input type="text" id="nombre" name="nombre" required>
+      <label for="apellido">Apellido</label>
+      <input type="text" id="apellido" name="apellido" required>
+      <label for="telefono">Teléfono</label>
+      <input type="tel" id="telefono" name="telefono" required>
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+      <button type="submit">Guardar</button>
+      <button type="button" id="cancelBtn">Cancelar</button>
+    </form>
+  </dialog>
+
+  <!-- Script de la aplicación (sin dependencias externas) -->
+  <script type="module" src="ejercicio.js"></script>
+</body>
+</html>
+
+<dialog id="contactDialog">
+  <form id="contactForm">
+    <h3 id="dialogTitle">Agregar contacto</h3>
+
+    <label for="nombre">Nombre</label>
+    <input type="text" id="nombre" name="nombre" required>
+
+    <label for="apellido">Apellido</label>
+    <input type="text" id="apellido" name="apellido" required>
+
+    <label for="telefono">Teléfono</label>
+    <input type="tel" id="telefono" name="telefono" required>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+
+    <div class="form-actions">
+      <button type="submit">Guardar</button>
+      <button type="button" id="cancelBtn">Cancelar</button>
+    </div>
+  </form>
+</dialog>
 

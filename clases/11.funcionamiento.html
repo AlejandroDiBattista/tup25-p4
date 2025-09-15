@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- React + ReactDOM (UMD) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <!-- Babel para habilitar JSX en el navegador (solo para demos/desarrollo) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root" />
+
+  <script type="text/babel" data-presets="react">
+    const contactos = [
+      { id: 1, nombre: 'Ana Gómez',       telefono: '(381) 555-1001' },
+      { id: 2, nombre: 'Luis Martínez',   telefono: '(381) 555-1002' },
+      { id: 3, nombre: 'María Rodríguez', telefono: '(381) 555-1003' },
+      { id: 4, nombre: 'Juan Pérez',      telefono: '(381) 555-1004' },
+      { id: 5, nombre: 'Sofía López',     telefono: '(381) 555-1005' },
+    ];
+
+    // Componentes
+    function Contacto({ nombre, telefono = 'No disponible' }) {
+      return (
+        <div className="card">
+          <h3>{nombre}</h3>
+          <p>Tel: {telefono}</p>
+        </div>
+      );
+    }
+
+    function ListaContactos({ items }) {
+      return (
+        <div className="lista-contactos">
+          {items.map(Contacto)}
+        </div>
+      );
+    }
+
+    // Render automático al cargar
+    const container = document.getElementById('root'); 
+    const root = ReactDOM.createRoot(container);
+    root.render(<ListaContactos items={contactos} />);
+  </script>
+</body>
+</html>
+```

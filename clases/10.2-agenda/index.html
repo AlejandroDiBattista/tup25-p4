@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+        <script src="agenda.js"></script>
+        <title>Agenda</title>
+        <link rel="stylesheet" href="estilos.css">
+    </head>
+    <body>
+        <nav>
+            <ul><li><h2>Agenda</h2></li></ul>
+            <ul>
+                <li><input type="search" id="buscar" placeholder="Ingrese texto a buscar"></li>
+                <li><button id="agregar">Agregar</button></li>
+            </ul>
+        </nav>
+        <dialog id="dialogo">
+            <article>
+                <header>Agregar Contacto</header>
+                <form>
+                    <input type="hidden" name="id" />
+                    <fieldset class="grid">
+                        <label>
+                            Nombre:
+                            <input type="text" name="nombre" placeholder="Ingrese el Nombre"  required />
+                        </label>
+                        <label>
+                            Apellido:
+                            <input type="text" name="apellido" placeholder="Ingrese el Apellido" />
+                        </label>
+                    </fieldset>
+                    <fieldset class="grid">
+                        <label>
+                            telefono:
+                            <input type="tel"  name="telefono" placeholder="(123) 456-78901" />
+                        </label>
+                        <label>
+                            Email:
+                            <input type="email"  name="email" placeholder="Ingrese el Email" required />
+                        </label>
+                    </fieldset>
+                    <fieldset class="grid actions">
+                        <button type="submit" id="aceptar">Aceptar</button>
+                        <button type="reset" id="cancelar">Cancelar</button>
+                    </fieldset>
+                </form>
+            </article>
+        </dialog>
+
+        <main id="lista-contactos" class="grid"></main>
+
+        <script src="dinamica.js"></script>
+    </body>
+</html>

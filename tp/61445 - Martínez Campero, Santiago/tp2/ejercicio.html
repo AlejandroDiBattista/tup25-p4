@@ -6,10 +6,58 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
+  <script type="module" src="./ejercicio.js"></script>
+    
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <main class="container">
+      <h1>Agenda</h1>
+
+      <div class="navbar">
+        <div class="navbar-izquierda">
+          <button id="btnAgregar" type="button" class="contrast">Agregar</button>
+        </div>
+        <div class="navbar-centro">
+          <input type="search" id="buscar" placeholder="Buscar contactos..." aria-label="Buscar contactos" />
+        </div>
+      </div>
+
+      <section id="cards" class="grid cards"></section>
+    </main>
+
+  <dialog id="contactDialog" aria-labelledby="dialogTitle">
+      <article>
+        <header>
+          <h2 id="dialogTitle">Nuevo contacto</h2>
+        </header>
+        <form id="contactForm">
+          <div class="grid two-cols">
+            <label>
+              <span>Nombre</span>
+        <input id="Nombre" name="nombre" type="text" autocomplete="given-name" autocapitalize="words" required />
+            </label>
+            <label>
+              <span>Apellido</span>
+        <input id="Apellido" name="apellido" type="text" autocomplete="family-name" autocapitalize="words" required />
+            </label>
+          </div>
+          <div class="grid two-cols">
+            <label>
+              <span>Teléfono</span>
+        <input id="Telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" pattern="[0-9()+\-\s]{6,}" title="Usa solo números, espacios, +, -, ( )" />
+            </label>
+            <label>
+              <span>Email</span>
+        <input id="Email" name="email" type="email" autocomplete="email" />
+            </label>
+          </div>
+          <footer class="dialog-actions">
+            <button type="submit" class="primary">Guardar</button>
+            <button type="button" id="btnCancelar" class="secondary">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
   </body>
-  </html>
+</html>
 

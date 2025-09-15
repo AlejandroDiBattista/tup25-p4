@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda de Contactos</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <link rel="stylesheet" href="./ejercicio.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+  </head>
+  <body>
+    <br />
+    <main class="container">
+      <section>
+        <nav>
+          <h1>AGENDA DE CONTACTOS</h1>
+          
+            <input name="busqueda" type="text" id="busqueda" placeholder="Buscar contacto" />
+          <!-- Botón para abrir modal -->
+          <button
+            data-target="modal-contacto"
+            onclick="toggleModal('modal-contacto')"
+            class="btn-agregar"
+          >
+            Agregar contacto
+          </button>
+
+          <!-- Modal -->
+          <dialog id="modal-contacto">
+            <article>
+              <header>
+                <h3>Nuevo Contacto</h3>
+                <button
+                  class="close"
+                  aria-label="Cerrar"
+                  onclick="toggleModal('modal-contacto')"
+                ></button>
+              </header>
+              <form id="formulario-contacto">
+                <label>
+                  Nombre
+                  <input type="text" name="nombre" id="nombre" required />
+                </label>
+                <label>
+                  Apellido
+                  <input type="text" name="apellido" id="apellido" required />
+                </label>
+                <label>
+                  Teléfono
+                  <input type="tel" name="telefono" id="telefono" required />
+                </label>
+                <label>
+                  Email
+                  <input type="email" name="email" id="email" required />
+                </label>
+                <footer class="grid">
+                  <button
+                    type="button"
+                    class="secondary"
+                    onclick="toggleModal('modal-contacto')"
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" class="primary">Guardar</button>
+                </footer>
+              </form>
+            </article>
+          </dialog>
+        </nav>
+      </section>
+      <section class="grid lista" id="lista-contactos"></section>
+
+      <!-- Modal único para editar -->
+      <dialog id="modal-editar">
+        <article>
+          <h3>Editar contacto</h3>
+          <form id="form-editar">
+            <input type="hidden" name="index" />
+            <label>Nombre <input type="text" name="nombre" id="nombre" required /></label>
+            <label
+              >Apellido <input type="text" name="apellido" id="apellido" required
+            /></label>
+            <label
+              >Teléfono <input type="tel" name="telefono" id="telefono" required
+            /></label>
+            <label>Email <input type="email" name="email" id="email" required /></label>
+            <footer class="grid">
+              <button type="button" onclick="toggleModal('modal-editar')">
+                Cancelar
+              </button>
+                <button type="submit">Guardar</button>
+            </footer>
+          </form>
+        </article>
+      </dialog>
+
+      <div id="lista-contactos"></div>
+    </main>
+
+    <script>
+      function toggleModal(id, index) {
+        const modal = document.getElementById(id);
+        console.log("id del contacto: ", index)
+        if (modal.open) {
+          modal.close();
+        } else {
+          modal.showModal();
+        }
+      }
+    </script>
+
+    <script src="ejercicio.js"></script>
+  </body>
+</html>

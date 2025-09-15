@@ -1,1 +1,191 @@
-/* Estilos generales */
+/* ====== Estilos generales ====== */
+body {
+  background: #f9fafb;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+h1 {
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* ====== Header con buscador ====== */
+
+body {
+  background: #f6f8fa;
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  background: transparent;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header-bar input[type="search"] {
+  background: #fff;
+  border: 1px solid #e3e6ea;
+  border-radius: 24px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  min-width: 220px;
+  outline: none;
+}
+
+.header-bar button {
+  background: #222;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.header-bar button:hover {
+  background: #444;
+}
+
+#listaContactos.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.card-contacto {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 1.2rem 1.2rem 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 140px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card-contacto:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.13);
+  transform: translateY(-2px);
+}
+.card-nombre {
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-bottom: 0.2rem;
+  color: #222;
+}
+.card-info small {
+  color: #555;
+  font-size: 0.97rem;
+}
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.card-actions button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.35rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.card-actions button:hover {
+  background: #f2f4f7;
+}
+.card-actions button[title="Editar"] {
+  color: #0077cc;
+}
+.card-actions button[title="Borrar"] {
+  color: #cc0000;
+}
+
+/* MODAL */
+dialog {
+  border: none;
+  border-radius: 10px;
+  padding: 0;
+  max-width: 430px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+dialog article {
+  padding: 0;
+}
+dialog header {
+  background: #f4f6f8;
+  padding: 1.1rem 1.2rem;
+  border-bottom: 1px solid #e3e6ea;
+}
+dialog header h3 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: #222;
+}
+dialog form {
+  padding: 1.2rem;
+}
+dialog input {
+  margin-bottom: 0.9rem;
+  font-size: 1rem;
+  border-radius: 7px;
+  border: 1px solid #e3e6ea;
+  padding: 0.6rem 1rem;
+  background: #fff;
+}
+dialog input:focus {
+  border-color: #0077cc;
+  outline: none;
+}
+dialog .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  padding: 1.1rem 1.2rem;
+  border-top: 1px solid #e3e6ea;
+  background: #f9fafb;
+}
+dialog footer button {
+  padding: 0.55rem 1.2rem;
+  border-radius: 7px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+dialog footer button[type="submit"] {
+  background: #0077cc;
+  color: #fff;
+}
+dialog footer button[type="submit"]:hover {
+  background: #005fa3;
+}
+dialog footer button.secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+dialog footer button.secondary:hover {
+  background: #cfd8dc;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(2px);
+}
+ 

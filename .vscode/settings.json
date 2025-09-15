@@ -4,5 +4,7 @@
     "markdown.preview.markEditorSelection": false,
     "markdown.preview.scrollEditorWithPreview": false,
     "markdown.preview.scrollPreviewWithEditor": false,
-    "liveServer.settings.port": 5502
+    "liveServer.settings.port": 5503,
+    "workbench.colorTheme": "One Dark Pro Flat",
+    "workbench.preferredDarkColorTheme": "One Dark Pro Flat"
 }

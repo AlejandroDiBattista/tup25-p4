@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Contactos</title>
+  <!-- Pico.css -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <link rel="stylesheet" href="./ejercicio.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <input type="search" id="buscador" placeholder="Buscar contacto...">
+      <button id="btnAgregar">Agregar</button>
+    </header>
+
+    <section id="listaContactos"></section>
+
+    <!-- Diálogo para agregar/editar -->
+    <dialog id="dialogoContacto">
+      <article>
+        <header>
+          <h3 id="tituloDialogo">Nuevo Contacto</h3>
+        </header>
+        <form id="formContacto">
+          <input type="hidden" id="contactoId">
+
+          <label>
+            Nombre:
+            <input type="text" id="nombre" required>
+          </label>
+
+          <label>
+            Apellido:
+            <input type="text" id="apellido" required>
+          </label>
+
+          <label>
+            Teléfono:
+            <input type="tel" id="telefono" required>
+          </label>
+
+          <label>
+            Email:
+            <input type="email" id="email" required>
+          </label>
+
+          <footer>
+            <button type="submit">Guardar</button>
+            <button type="button" id="btnCancelar">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </main>
+
+<script src="./ejercicio.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="ejercicio.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Agenda de Contactos</h1>
+      <input type="search" id="buscador" placeholder="Buscar contacto...">
+      <button id="btnAgregar">Agregar</button>
+    </header>
+    <section id="listado"></section>
+  </main>
+
+  <dialog id="dialogoContacto">
+    <form method="dialog" id="formContacto">
+      <input type="hidden" id="contactoId">
+      <label>
+        Nombre
+        <input type="text" id="nombre" required>
+      </label>
+      <label>
+        Apellido
+        <input type="text" id="apellido" required>
+      </label>
+      <label>
+        Teléfono
+        <input type="tel" id="telefono" required>
+      </label>
+      <label>
+        Email
+        <input type="email" id="email" required>
+      </label>
+      <menu>
+        <button type="submit" id="guardar">Guardar</button>
+        <button type="reset" id="cancelar">Cancelar</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script type="module" src="ejercicio.js"></script>
+</body>
+</html>

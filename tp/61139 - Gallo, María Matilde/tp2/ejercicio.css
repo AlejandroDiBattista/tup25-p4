@@ -1,1 +1,90 @@
-/* Estilos generales */
+/* Utilidades de espaciado */
+.stack-lg { display: grid; gap: 0.75rem; }
+.muted { color: var(--muted-color); }
+
+/* Título */
+.title { margin-bottom: 0.25rem; }
+
+/* Cabecera: buscador y botón */
+.header-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+.search-form { width: 100%; }
+
+/* Grid de tarjetas */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1rem;
+}
+
+/* Tarjeta */
+.card {
+  border: 1px solid var(--muted-border-color);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  background: var(--card-background-color, var(--background-color));
+  box-shadow: var(--card-box-shadow);
+  display: grid;
+  gap: 0.5rem;
+}
+.card h3 {
+  margin: 0.25rem 0 0.5rem;
+}
+
+/* Datos (tel/email) */
+.info {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.975rem;
+}
+.info-row {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-template-columns: auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Botoneras de acciones */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Botones circulares con emojis */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border: 2px solid black;
+  color: red;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.1s, background-color 0.1s;
+}
+.icon-btn:hover {
+  transform: scale(1.1);
+  background-color: #f0f0f0;
+  color: red;
+}
+
+/* Accesibilidad: texto solo lectores de pantalla */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* Diálogo ancho cómodo */
+#dlgContacto article { max-width: 720px; }
+.dialog-footer { display: flex; gap: 0.5rem; justify-content: flex-end; }

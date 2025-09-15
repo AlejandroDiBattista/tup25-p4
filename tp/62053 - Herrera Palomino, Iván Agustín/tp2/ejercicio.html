@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Contactos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/picocss/1.5.7/pico.min.css">
+    <link rel="stylesheet" href="ejercicio.css">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Agenda de Contactos</h1>
+            <div class="search-container">
+                <input 
+                    type="search" 
+                    id="searchInput" 
+                    placeholder="Buscar por nombre, apellido, teléfono o email..."
+                    autocomplete="off"
+                >
+                <button id="addContactBtn" class="contrast">+ Agregar</button>
+            </div>
+        </header>
+
+        <section id="contactsList" class="contacts-grid">
+           
+        </section>
+        <dialog id="contactDialog">
+            <article>
+                <header>
+                    <button id="closeDialogBtn" aria-label="Cerrar" rel="prev" class="close-btn">×</button>
+                    <h3 id="dialogTitle">Agregar Contacto</h3>
+                </header>
+                <form id="contactForm">
+                    <label for="nombre">
+                        Nombre
+                        <input type="text" id="nombre" name="nombre" required>
+                    </label>
+                    <label for="apellido">
+                        Apellido
+                        <input type="text" id="apellido" name="apellido" required>
+                    </label>
+                    <label for="telefono">
+                        Teléfono
+                        <input type="tel" id="telefono" name="telefono" required>
+                    </label>
+                    <label for="email">
+                        Email
+                        <input type="email" id="email" name="email" required>
+                    </label>
+                </form>
+                <footer>
+                    <button id="cancelBtn" class="secondary">Cancelar</button>
+                    <button id="saveBtn" type="submit" form="contactForm">Guardar</button>
+                </footer>
+            </article>
+        </dialog>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <p>No se encontraron contactos</p>
+        </div>
+    </main>
+
+    <script src="ejercicio.js"></script>
+</body>
+</html>
+
