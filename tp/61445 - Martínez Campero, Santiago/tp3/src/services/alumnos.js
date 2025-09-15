@@ -1,5 +1,3 @@
-import alumnosVcf from '../alumnos.vcf?raw';
-
 function extraerLegajo(nota) {
   if (!nota) return 0;
   
@@ -91,8 +89,14 @@ export function parseVcf(textoVcf) {
   return alumnos;
 }
 
-export function loadAlumnos() {
+export async function loadAlumnos() {
   try {
+    const response = await fetch('/alumnos.vcf');
+    if (!response.ok) {
+      throw new Error(`Error cargando archivo VCF: ${response.status}`);
+    }
+    
+    const alumnosVcf = await response.text();
     const alumnos = parseVcf(alumnosVcf);
     
     const conGitHub = alumnos.filter(a => a.github).length;

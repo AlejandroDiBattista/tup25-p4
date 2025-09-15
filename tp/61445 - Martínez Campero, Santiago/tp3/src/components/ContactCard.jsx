@@ -1,3 +1,4 @@
+import React from 'react';
 import { getIniciales } from '../utils/text.js';
 
 const ContactCard = ({ alumno, onToggleFavorito }) => {

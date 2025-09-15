@@ -1,3 +1,4 @@
+import React from 'react';
 import ContactCard from './ContactCard.jsx';
 
 const ContactSection = ({ titulo, alumnos, onToggleFavorito, esFavoritos = false }) => {

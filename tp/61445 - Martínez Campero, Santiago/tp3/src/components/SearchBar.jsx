@@ -1,3 +1,4 @@
+import React from 'react';
 import { debounce } from '../utils/text.js';
 
 const SearchBar = ({ totalAlumnos, alumnosFiltrados, onBusqueda }) => {

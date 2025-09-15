@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { loadAlumnos } from './services/alumnos.js';
 import { includesContacto, cmpNombre } from './utils/text.js';
 import SearchBar from './components/SearchBar.jsx';
@@ -29,17 +29,21 @@ function App() {
   };
 
   useEffect(() => {
-    try {
-      setCargando(true);
-      const datosAlumnos = loadAlumnos();
-      setAlumnos(datosAlumnos);
-      setAlumnosFiltrados(datosAlumnos);
-      setError(null);
-    } catch (err) {
-      setError('No se pudieron cargar los datos de los alumnos');
-    } finally {
-      setCargando(false);
-    }
+    const cargarDatos = async () => {
+      try {
+        setCargando(true);
+        const datosAlumnos = await loadAlumnos();
+        setAlumnos(datosAlumnos);
+        setAlumnosFiltrados(datosAlumnos);
+        setError(null);
+      } catch (err) {
+        setError('No se pudieron cargar los datos de los alumnos');
+      } finally {
+        setCargando(false);
+      }
+    };
+    
+    cargarDatos();
   }, []);
 
   useEffect(() => {
