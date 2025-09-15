@@ -1,23 +1,42 @@
-// Servicio de datos para alumnos
-export function parseVcf(vcf) {
-	const tarjetas = vcf.split('BEGIN:VCARD').slice(1);
-	return tarjetas.map(card => {
-		const fn = card.match(/FN:(.+)/)?.[1]?.trim() || '';
-		const tel = card.match(/TEL;TYPE=CELL:(.+)/)?.[1]?.trim() || '';
-		const note = card.match(/NOTE:(.+)/)?.[1]?.trim() || '';
-		const legajo = note.match(/Legajo:\s*(\d+)/)?.[1] || '';
-		const github = note.match(/Github:\s*([\w-]+)/i)?.[1] || '';
-		return {
-			id: legajo,
-			nombre: fn,
-			telefono: tel,
-			legajo,
-			github,
-			favorito: false
-		};
-	});
-}
+// Importación del archivo VCF
+import alumnosVcfUrl from '../alumnos.vcf?raw';
 
-export function loadAlumnos(arr) {
-	return arr.filter(a => a.id && a.nombre);
-}
+// Lee el contenido del archivo VCF
+const alumnosVcf = alumnosVcfUrl;
+
+// Parsea una cadena VCF y devuelve un array de objetos de alumno
+export const parseVcf = (vcf) => {
+  if (!vcf || typeof vcf !== 'string') {
+    console.error('VCF inválido:', vcf);
+    return [];
+  }
+
+  console.log('Contenido VCF recibido:', vcf.substring(0, 100) + '...');
+  const cards = vcf.split('BEGIN:VCARD').slice(1);
+  
+  return cards.map(card => {
+    console.log('Procesando tarjeta:', card);
+    const getFN = card.match(/FN:(.+)/)?.[1] || '';
+    const getTEL = card.match(/TEL;TYPE=CELL:(.+)/)?.[1] || '';
+    const getNote = card.match(/NOTE:(.+)/)?.[1] || '';
+    
+    const legajo = getNote.match(/Legajo: (\d+)/)?.[1] || '';
+    const github = getNote.match(/Github: ([^\s]+)/)?.[1] || '';
+
+    const alumno = {
+      id: legajo,
+      nombre: getFN,
+      telefono: getTEL,
+      legajo,
+      github,
+      favorito: false
+    };
+    console.log('Alumno procesado:', alumno);
+    return alumno;
+  });
+};
+
+// Carga y parsea el archivo VCF
+export const loadAlumnos = () => {
+  return parseVcf(alumnosVcf);
+};
