@@ -17,6 +17,14 @@ function App() {
     setBusqueda(termino);
   };
 
+  const handleToggleFavorite = (id) => {
+    setAlumnos(
+      alumnos.map((alumno) =>
+        alumno.id === id ? { ...alumno, favorito: !alumno.favorito } : alumno
+      )
+    );
+  };
+
   const includesContacto = (contacto, busqueda) => {
     const busquedaNorm = normalizar(busqueda);
     const { nombre, legajo, telefono } = contacto;
@@ -28,15 +36,36 @@ function App() {
     );
   };
 
+  const cmpNombre = (a, b) => {
+    return normalizar(a.nombre).localeCompare(normalizar(b.nombre));
+  };
+
   const alumnosFiltrados = busqueda
     ? alumnos.filter((alumno) => includesContacto(alumno, busqueda))
     : alumnos;
+
+  const favoritos = alumnosFiltrados.filter((a) => a.favorito);
+  const resto = alumnosFiltrados.filter((a) => !a.favorito);
+
+  favoritos.sort(cmpNombre);
+  resto.sort(cmpNombre);
 
   return (
     <>
       <Topbar onSearch={handleSearch} />
       <main>
-        <ContactSection title="Contactos" contacts={alumnosFiltrados} />
+        {favoritos.length > 0 && (
+          <ContactSection
+            title="Favoritos"
+            contacts={favoritos}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        )}
+        <ContactSection
+          title="Contactos"
+          contacts={resto}
+          onToggleFavorite={handleToggleFavorite}
+        />
       </main>
     </>
   );

@@ -1,7 +1,11 @@
 import React from "react";
 import ContactCard from "./ContactCard";
 
-export default function ContactSection({ title, contacts = [] }) {
+export default function ContactSection({
+  title,
+  contacts = [],
+  onToggleFavorite,
+}) {
   return (
     <section>
       <h2>
@@ -9,7 +13,11 @@ export default function ContactSection({ title, contacts = [] }) {
       </h2>
       <div>
         {contacts.map((contact) => (
-          <ContactCard key={contact.id} contact={contact} />
+          <ContactCard
+            key={contact.id}
+            contact={contact}
+            onToggleFavorite={onToggleFavorite}
+          />
         ))}
       </div>
     </section>
