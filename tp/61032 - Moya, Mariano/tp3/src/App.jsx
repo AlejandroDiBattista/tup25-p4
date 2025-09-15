@@ -81,14 +81,15 @@ function App() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    try {
-      const data = loadAlumnos();
-      console.log('Alumnos cargados:', data);
-      setAlumnos(data || []);
-    } catch (error) {
-      console.error('Error al cargar alumnos:', error);
-      setAlumnos([]);
-    }
+    (async () => {
+      try {
+        const data = await loadAlumnos();
+        setAlumnos(data || []);
+      } catch (error) {
+        console.error('Error al cargar alumnos:', error);
+        setAlumnos([]);
+      }
+    })();
   }, []);
 
   const toggleFavorite = (id) => {
