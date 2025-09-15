@@ -1,5 +1,8 @@
 export function normalizar(text) {
-  return text.normalize("NFD").toLowerCase();
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 }
 
 export function cmpNombre(a, b) {
