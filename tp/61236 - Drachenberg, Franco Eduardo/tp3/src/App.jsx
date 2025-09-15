@@ -3,6 +3,7 @@ import Topbar from "./components/Topbar";
 import ContactSection from "./components/ContactSection";
 import { loadAlumnos } from "./services/alumnos";
 import { normalizar } from "./utils/text";
+import "./App.css";
 
 function App() {
   const [alumnos, setAlumnos] = useState([]);
@@ -53,9 +54,9 @@ function App() {
   const noResults = alumnosFiltrados.length === 0 && busqueda !== "";
 
   return (
-    <>
+    <div className="app-container">
       <Topbar onSearch={handleSearch} />
-      <main>
+      <main className="main-content">
         {noResults ? (
           <p>No se encontraron resultados para "{busqueda}"</p>
         ) : (
@@ -75,7 +76,7 @@ function App() {
           </>
         )}
       </main>
-    </>
+    </div>
   );
 }
 

@@ -1,4 +1,5 @@
 import React from "react";
+import "./ContactCard.css";
 
 const Avatar = ({ contact }) => {
   if (contact.github) {
@@ -23,19 +24,21 @@ const Avatar = ({ contact }) => {
 export default function ContactCard({ contact, onToggleFavorite }) {
   return (
     <article className="contact-card">
+      <button
+        className="favorite-btn"
+        onClick={() => onToggleFavorite(contact.id)}
+      >
+        {contact.favorito ? "★" : "☆"}
+      </button>
       <Avatar contact={contact} />
       <div className="contact-details">
-        <header>
-          <strong>{contact.nombre}</strong>
-          <button
-            className="favorite-btn"
-            onClick={() => onToggleFavorite(contact.id)}
-          >
-            {contact.favorito ? "★" : "☆"}
-          </button>
+        <header className="card-header">
+          <strong className="contact-name">{contact.nombre}</strong>
         </header>
-        <p>Tel: {contact.telefono}</p>
-        <p>Legajo: {contact.legajo}</p>
+        <div className="contact-info">
+          <p>Tel: {contact.telefono}</p>
+          <p>Legajo: {contact.legajo}</p>
+        </div>
       </div>
     </article>
   );
