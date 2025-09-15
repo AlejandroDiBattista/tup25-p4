@@ -1,7 +1,7 @@
 import React from 'react'
 
 function Initials({ nombre }) {
-  // saca iniciales simples de las primeras dos palabras
+
   const parts = nombre.split(' ').filter(Boolean)
   const i1 = parts[0] ? parts[0][0] : ''
   const i2 = parts[1] ? parts[1][0] : ''
