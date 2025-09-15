@@ -50,22 +50,30 @@ function App() {
   favoritos.sort(cmpNombre);
   resto.sort(cmpNombre);
 
+  const noResults = alumnosFiltrados.length === 0 && busqueda !== "";
+
   return (
     <>
       <Topbar onSearch={handleSearch} />
       <main>
-        {favoritos.length > 0 && (
-          <ContactSection
-            title="Favoritos"
-            contacts={favoritos}
-            onToggleFavorite={handleToggleFavorite}
-          />
+        {noResults ? (
+          <p>No se encontraron resultados para "{busqueda}"</p>
+        ) : (
+          <>
+            {favoritos.length > 0 && (
+              <ContactSection
+                title="Favoritos"
+                contacts={favoritos}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            )}
+            <ContactSection
+              title="Contactos"
+              contacts={resto}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          </>
         )}
-        <ContactSection
-          title="Contactos"
-          contacts={resto}
-          onToggleFavorite={handleToggleFavorite}
-        />
       </main>
     </>
   );
