@@ -7,7 +7,7 @@ function Topbar({ busqueda, setBusqueda }) {
       <input
         className="topbar__input"
         type="search"
-        placeholder="Buscar..."
+        placeholder="Buscar Por Nombre,Telefono o Legajo..."
         value={busqueda}
         onChange={e => setBusqueda(e.target.value)}
       />
