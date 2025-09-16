@@ -1,0 +1,183 @@
+
+body {
+  background: linear-gradient(135deg, #f6f7fa 60%, #e0e7ff 100%);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px #b5b8ff33;
+  padding: 36px 36px 28px 36px;
+  border: 2.5px solid #e0e7ff;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+header h1 {
+  font-size: 2.2rem;
+  color: #4f5d75;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #e0e7ff88;
+}
+
+header input[type="text"] {
+  width: 320px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #e1e4ea;
+  background: #f6f7fa;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+header input[type="text"]:focus {
+  border: 1.5px solid #4f5d75;
+}
+section {
+  margin-bottom: 40px;
+  padding: 18px 0 8px 0;
+  border-radius: 16px;
+}
+
+section:nth-of-type(1) {
+  background: linear-gradient(90deg, #fffbe6 60%, #ffe6fa 100%);
+  box-shadow: 0 2px 12px #ffe6fa55;
+  border: 1.5px solid #ffe6fa;
+}
+section:nth-of-type(2) {
+  background: linear-gradient(90deg, #e6f7ff 60%, #e6ffe6 100%);
+  box-shadow: 0 2px 12px #e6f7ff55;
+  border: 1.5px solid #e6f7ff;
+}
+section:nth-of-type(3) {
+  background: linear-gradient(90deg, #f7e6ff 60%, #e6eaff 100%);
+  box-shadow: 0 2px 12px #e6eaff55;
+  border: 1.5px solid #e6eaff;
+}
+section h2 {
+  color: #4f5d75;
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+}
+
+.section-count {
+  color: #b388ff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-bottom: 8px;
+}
+
+.contact-card {
+  background: linear-gradient(120deg, #fff 80%, #f3f0ff 100%);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #b5b8ff22;
+  padding: 26px 22px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 170px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border: 1.5px solid #e0e7ff;
+}
+.contact-card:hover {
+  box-shadow: 0 8px 32px #b5b8ff44;
+  transform: translateY(-2px) scale(1.015);
+  border-color: #b388ff;
+}
+
+.fav-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 1.7rem;
+  cursor: pointer;
+  color: #b5b8ff;
+  transition: color 0.2s, transform 0.2s;
+  z-index: 2;
+}
+.fav-btn.fav {
+  color: #ffb300;
+  text-shadow: 0 2px 8px #ffe08288;
+  transform: scale(1.15);
+}
+
+.contact-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0e7ff 60%, #fffbe6 100%);
+  color: #4f5d75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.6rem;
+  overflow: hidden;
+  margin-bottom: 14px;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px #b5b8ff33;
+}
+.contact-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+}
+
+.contact-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.contact-info .nombre {
+  font-weight: bold;
+  color: #4f5d75;
+  font-size: 1.12rem;
+  margin-bottom: 2px;
+  letter-spacing: 0.2px;
+}
+.contact-info .detalle {
+  font-size: 1.01rem;
+  color: #7b8794;
+  font-weight: 500;
+}
+.contact-info .github {
+  font-size: 0.95rem;
+  color: #b388ff;
+  font-weight: 600;
+}
+
+.empty-msg {
+  color: #b388ff;
+  text-align: center;
+  margin-top: 48px;
+  font-size: 1.13rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

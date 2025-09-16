@@ -1,0 +1,21 @@
+.contact-section {
+  margin-bottom: 32px;
+}
+
+.contact-section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 16px;
+}
+
+.contact-count {
+  font-weight: normal;
+  color: #888;
+}
+
+.contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}

@@ -1,0 +1,35 @@
+.topbar {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.2rem 2rem;
+  background: linear-gradient(90deg, #6366f1 60%, #818cf8 100%);
+  border-bottom: none;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 2px 12px rgba(99,102,241,0.08);
+}
+
+.topbar h1 {
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.topbar__input {
+  flex: 1;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.05rem;
+  background: #eef2ff;
+  color: #3730a3;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.06);
+  transition: box-shadow 0.2s;
+}
+
+.topbar__input:focus {
+  outline: none;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.16);
+}
