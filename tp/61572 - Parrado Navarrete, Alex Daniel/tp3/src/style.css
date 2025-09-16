@@ -1,0 +1,147 @@
+body {
+  background: #f5f6fa;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px #0001;
+  padding: 2.5rem 2rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.topbar h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #222c3a;
+}
+
+.topbar input {
+  width: 350px;
+  padding: 0.8rem 1.2rem;
+  border-radius: 2rem;
+  border: 1px solid #e2e8f0;
+  font-size: 1rem;
+  background: #f1f5f9;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.topbar input:focus {
+  border: 1.5px solid #7c3aed;
+}
+
+section {
+  margin-bottom: 2.5rem;
+}
+
+section h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #222c3a;
+  margin-bottom: 0.5rem;
+}
+
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.contact-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1.2rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  min-height: 140px;
+  transition: box-shadow 0.2s;
+}
+
+.contact-card:hover {
+  box-shadow: 0 4px 16px #0002;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 0.7rem;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px #0001;
+}
+
+.avatar-text {
+  background: #e0e7ef;
+}
+
+.info {
+  flex: 1;
+  width: 100%;
+}
+
+.nombre {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222c3a;
+  margin-bottom: 0.3rem;
+}
+
+.telefono, .legajo {
+  font-size: 0.98rem;
+  color: #3b4252;
+  margin-bottom: 0.1rem;
+}
+
+.favorito {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #eab308;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.favorito.activo {
+  color: #f59e42;
+  transform: scale(1.2);
+}
+
+.empty {
+  text-align: center;
+  color: #64748b;
+  margin: 2rem 0;
+  font-size: 1.1rem;
+}
+
+section h2 span {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 400;
+  margin-left: 0.5rem;
+}
