@@ -1,0 +1,322 @@
+body {
+  background-color: #f9f9f9;
+  height: 100vh;
+  width: 100vw;
+}
+
+#root {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.app {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  /* igualar padding horizontal con #root para alinear con el contenido inferior */
+  padding: 0.75rem 0;
+  backdrop-filter: blur(6px);
+  background: color-mix(in oklab, transparent 70%, Canvas);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    /* background: red; */
+    small {
+      font-size: 10px;
+      color: rgba(0,0,0,0.6);
+      font-weight: 200;
+      margin-left: 0.5rem;
+    }
+  }
+}
+section h2 small {
+      font-size: 20px;
+      color: gray;
+      font-weight: 200;
+}
+
+.search {
+  flex: 1 1 auto;
+  width: 100%;
+  
+  /* más espacio a la izquierda para que el placeholder no se solape con la lupa */
+  padding: 0.65rem 0.95rem 0.65rem 2.75rem;
+  border: 1px solid rgba(0,0,0,0.15);
+  /* completamente redondeado */
+  border-radius: 9999px;
+}
+
+.search-wrap {
+  position: relative;
+  margin-left: auto;      /* alinear a la derecha */
+  /* width: 100%;
+  max-width: 300px;       ancho máximo solicitado */
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.7;
+  pointer-events: none; /* no bloquear el focus del input */
+}
+
+/* Aumentar especificidad para que el borde redondeado no lo pise el estilo global de inputs */
+.topbar .search { border-radius: 9999px; }
+
+/* Forzar padding para no superponerse con la lupa, gana a input[type="text"] */
+.topbar input.search[type="text"] {
+  /* padding: 0.65rem 0.95rem 0.65rem 2.75rem; espacio para la lupa */
+    padding: 10px 0 10px 38px;
+    margin-left: 0px;
+    width: 280px;
+}
+
+.panel {
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(255,255,255,0.04);
+
+  h2 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+  }
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="email"] {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #213547;
+  /* Efecto hundido con sombra interna muy suave */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.secondary {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+.danger {
+  background: #8b1a1a;
+  color: #fff;
+}
+
+.error {
+  margin: 0.25rem 0 0;
+  color: #b00020;
+  font-size: 0.9rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.empty {
+  opacity: 0.8;
+}
+
+.card {
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 1rem 1rem 3rem;
+  background: rgba(255,255,255);
+  display: grid;
+  gap: 0.5rem;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 64px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  /* background: linear-gradient(135deg, #646cff33, #22d3ee33); */
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+  width: 58px;
+  height: 58px;
+  display: block;
+  border-radius: 32px;
+  margin: 3px;
+}
+
+.name {
+  margin: 0.25rem 0 0.25rem;
+  font-size: 20px;
+}
+
+.info {
+list-style: none;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0;
+    display: grid;
+    gap: 0.25rem;
+    font-size: 0.95rem;
+    margin-left: 80px;
+    margin-top: 20px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+}
+
+@media (max-width: 560px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Favoritos */
+.icon-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+
+  svg {
+    display: block;
+  }
+
+  &.danger {
+    color: #b91c1c;
+  }
+}
+
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.25rem;
+  opacity: 0.85;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &.fav {
+    color: #fbbf24; /* amber-400 */
+  }
+}
+
+/* Título con avatar y nombre en una fila */
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  /* Desenfoque del contenido que está detrás del overlay */
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+
+.modal {
+  width: min(560px, 92vw);
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.9);
+  color: #213547;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: rgba(30,30,30,0.98);
+    color: rgba(255,255,255,0.92);
+    border-color: rgba(255,255,255,0.08);
+  }
+
+  /* Inputs en dark mode: mantener contraste pero con leve hundido */
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="email"] {
+    background: #0f172a; /* slate-900 aprox */
+    color: rgba(255,255,255,0.92);
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+  }
+}
+
+/* Grid max 3 cols, responsive down to 2 and 1 */
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Evita el scroll del fondo cuando el modal está abierto */
+body.modal-open {
+  overflow: hidden;
+}
