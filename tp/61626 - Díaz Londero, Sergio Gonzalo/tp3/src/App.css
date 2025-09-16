@@ -1,0 +1,24 @@
+.app-container {
+  margin: 0 auto;
+  padding: 1rem;
+  max-width: 1200px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .app-container {
+    max-width: 95vw;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    max-width: 100vw;
+    padding: 0.2rem;
+  }
+}
