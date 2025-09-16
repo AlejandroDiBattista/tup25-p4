@@ -9,7 +9,46 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <main class="container-fluid">
+      <header>
+        <div class="agenda-container">
+          <div class="search-bar">
+            <h1 style="margin:0; flex:1; font-size:2rem; font-weight:700; color:#444;">Agenda</h1>
+            <input type="search" id="buscador" placeholder="Buscar contactos..." aria-label="Buscar contacto" />
+            <button type="button" id="btn-agregar">Agregar</button>
+          </div>
+        </div>
+      </header>
+      <section id="listado-contactos" aria-live="polite" class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+        <!-- Aquí se renderizan las tarjetas de contactos -->
+      </section>
+      <dialog open id="dialogo-contacto">
+        <div class="modal">
+          <div class="modal-content">
+            <h2 id="dialogo-titulo">Nuevo Contacto</h2>
+            <form method="dialog" id="form-contacto">
+              <input type="hidden" id="contacto-id" />
+              <label>Nombre
+                <input type="text" id="contacto-nombre" required />
+              </label>
+              <label>Apellido
+                <input type="text" id="contacto-apellido" required />
+              </label>
+              <label>Teléfono
+                <input type="tel" id="contacto-telefono" required />
+              </label>
+              <label>Email
+                <input type="email" id="contacto-email" required />
+              </label>
+              <div class="modal-actions">
+                <button type="submit" id="btn-guardar" class="save-btn">Guardar</button>
+                <button type="reset" id="btn-cancelar" class="cancel-btn">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </dialog>
+    </main>
   </body>
   </html>
 

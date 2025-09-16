@@ -1,1 +1,192 @@
-/* Estilos generales */
+
+body {
+	background: #f7f8fa;
+	font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+	margin: 0;
+	color: #444;
+}
+
+.agenda-container {
+	max-width: 1200px;
+	margin: 40px auto;
+	padding: 0 20px;
+}
+
+h1 {
+	font-size: 2.2rem;
+	font-weight: 700;
+	margin-bottom: 32px;
+	color: #444;
+}
+
+.search-bar {
+	display: flex;
+	gap: 12px;
+	margin-bottom: 32px;
+}
+
+.search-bar input {
+	flex: 1;
+	padding: 12px 18px;
+	border-radius: 24px;
+	border: 1px solid #d1d5db;
+	font-size: 1rem;
+	outline: none;
+	transition: border 0.2s;
+}
+.search-bar input:focus {
+	border-color: #3b82f6;
+}
+
+.search-bar button {
+	background: #222831;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 0 24px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.search-bar button:hover {
+	background: #393e46;
+}
+
+.contacts-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 24px;
+}
+
+.contact-card {
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+	padding: 24px 20px 16px 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-height: 140px;
+}
+
+.contact-card h2 {
+	font-size: 1.25rem;
+	font-weight: 700;
+	margin: 0 0 8px 0;
+	color: #444;
+}
+
+.contact-info {
+	font-size: 1rem;
+	color: #444;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.contact-info i {
+	margin-right: 8px;
+	color: #3b82f6;
+}
+
+.contact-actions {
+	display: flex;
+	gap: 16px;
+	margin-top: 8px;
+}
+.contact-actions button {
+	background: none;
+	border: 1.5px solid #e74c3c;
+	color: #e74c3c;
+	border-radius: 50%;
+	width: 36px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.1rem;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s;
+}
+.contact-actions button:hover {
+	background: #e74c3c;
+	color: #fff;
+}
+
+/* Modal styles */
+.modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(44, 62, 80, 0.15);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+.modal-content {
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+	padding: 32px 36px 24px 36px;
+	min-width: 340px;
+	max-width: 90vw;
+}
+.modal-content h2 {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin-bottom: 24px;
+}
+.modal-content form {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 18px 24px;
+}
+.modal-content label {
+	font-weight: 500;
+	margin-bottom: 6px;
+	display: block;
+}
+.modal-content input {
+	width: 100%;
+	padding: 10px 14px;
+	border-radius: 8px;
+	border: 1px solid #d1d5db;
+	font-size: 1rem;
+	margin-bottom: 8px;
+	outline: none;
+	transition: border 0.2s;
+}
+.modal-content input:focus {
+	border-color: #3b82f6;
+}
+.modal-actions {
+	grid-column: span 2;
+	display: flex;
+	gap: 16px;
+	justify-content: flex-end;
+	margin-top: 18px;
+}
+.modal-actions button {
+	padding: 10px 24px;
+	border-radius: 8px;
+	border: none;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.modal-actions .save-btn {
+	background: #0077b6;
+	color: #fff;
+}
+.modal-actions .save-btn:hover {
+	background: #023e8a;
+}
+.modal-actions .cancel-btn {
+	background: #6c757d;
+	color: #fff;
+}
+.modal-actions .cancel-btn:hover {
+	background: #495057;
+}
