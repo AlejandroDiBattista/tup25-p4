@@ -1,0 +1,211 @@
+/* Base y reset de estilos */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #F9FAFB;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 30px 20px;
+    box-sizing: border-box;
+}
+
+/* Contenedor principal de la aplicación */
+.app-container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Estilos para la barra superior (Topbar) */
+.topbar {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E0E0E0;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.topbar h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 300px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #9E9E9E;
+    font-size: 18px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    border: 1px solid #E0E0E0;
+    border-radius: 20px;
+    background-color: #F5F5F5;
+    color: #333;
+    font-size: 15px;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.search-input::placeholder {
+    color: #9E9E9E;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #BDBDBD;
+    background-color: #FFFFFF;
+}
+
+/* Estilos para las secciones de contactos */
+.contact-section {
+    padding: 20px 30px;
+}
+
+.contact-section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: baseline;
+}
+
+.contact-section h2 span {
+    font-size: 16px;
+    font-weight: 400;
+    color: #777;
+    margin-left: 8px;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.no-results-message {
+    text-align: center;
+    color: #777;
+    padding: 40px;
+    font-size: 18px;
+}
+
+/* Estilos para las tarjetas de contacto */
+.contact-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    min-height: 120px;
+}
+
+.contact-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.avatar-container {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #E0E0E0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    color: #FFF;
+    font-weight: 600;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info-container {
+    flex-grow: 1;
+}
+
+.info-container h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 5px;
+    line-height: 1.3;
+}
+
+.info-container p {
+    font-size: 14px;
+    color: #777;
+    margin: 0 0 3px;
+    line-height: 1.4;
+}
+
+.github-username {
+    font-style: italic;
+    color: #555;
+    font-size: 13px;
+}
+
+.fav-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+    color: #E0E0E0;
+    transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 0;
+}
+
+.fav-button:hover {
+    transform: scale(1.1);
+}
+
+.fav-button.is-favorite {
+    color: #FBC02D;
+}

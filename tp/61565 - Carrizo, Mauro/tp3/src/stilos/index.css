@@ -1,0 +1,124 @@
+/* src/index.css */
+
+/* Fuente y contenedor principal */
+body {
+  font-family: Inter, system-ui, sans-serif;
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+.app.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Navbar */
+.Navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.Navbar input {
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid #ccc;
+  width: 250px;
+}
+
+/* Secciones */
+section {
+  margin-bottom: 2rem;
+}
+
+section h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Grid de tarjetas */
+section > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/* Tarjeta de contacto */
+.card {
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  transition: transform 0.1s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Avatar */
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: #e2e8f0; /* gris claro */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Datos del alumno */
+.card div.flex-1 {
+  display: flex;
+  flex-direction: column;
+}
+
+.card div.flex-1 .font-semibold {
+  font-weight: 600;
+}
+
+.card div.flex-1 .text-sm {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.card div.flex-1 .text-xs {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+/* Botón favorito */
+.card button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: #facc15; /* amarillo */
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.card button[aria-pressed="false"] {
+  color: #ccc;
+}

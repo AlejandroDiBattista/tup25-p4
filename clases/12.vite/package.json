@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD:clases/12.vite/package.json
   "name": "12.vite",
   "private": true,
   "version": "0.0.0",
@@ -25,4 +26,16 @@
     "globals": "^16.3.0",
     "vite": "^7.1.2"
   }
+=======
+  "name": "src",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+>>>>>>> b28cc97c952f68178438de1c5f88b30f45aa8601:src/package.json
 }
