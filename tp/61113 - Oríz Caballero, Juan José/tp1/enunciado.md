@@ -62,7 +62,7 @@ Presione Enter para continuar...
 
 == Buscar contacto ==
 
-Buscar      :> pe
+Buscar      :> per
 
 ID Nombre Completo       Edad        Teléfono        Email
 01 Pérez, Juan             30        3815551234      jperez@gmail.com

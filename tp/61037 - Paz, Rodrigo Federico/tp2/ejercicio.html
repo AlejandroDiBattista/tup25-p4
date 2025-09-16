@@ -8,8 +8,51 @@
     <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
+<body>
+  <main class="container">
+    <header class="top-bar">
+      <input type="text" id="buscador" placeholder="🔍 Buscar contactos...">
+      <button id="btnMostrarAgregar" class="primary">➕ Agregar</button>
+    </header>
+
+
+    <form id="formAgregar" style="display:none;">
+      <h3>Nuevo contacto</h3>
+      <div class="grid">
+        <label>Nombre <input type="text" id="nuevoNombre" required></label>
+        <label>Apellido <input type="text" id="nuevoApellido" required></label>
+      </div>
+      <div class="grid">
+        <label>Teléfono <input type="text" id="nuevoTelefono" required></label>
+        <label>Email <input type="email" id="nuevoEmail" required></label>
+      </div>
+      <footer>
+        <button type="submit" class="primary">Guardar</button>
+        <button type="button" id="cancelarAgregar">Cancelar</button>
+      </footer>
+    </form>
+
+    
+    <section id="listaContactos"></section>
+
+   
+    <form id="formEditar" style="display:none;">
+      <h3>Editar contacto</h3>
+      <input type="hidden" id="editId">
+      <div class="grid">
+        <label>Nombre <input type="text" id="editNombre"></label>
+        <label>Apellido <input type="text" id="editApellido"></label>
+      </div>
+      <div class="grid">
+        <label>Teléfono <input type="text" id="editTelefono"></label>
+        <label>Email <input type="email" id="editEmail"></label>
+      </div>
+      <footer>
+        <button type="submit" class="primary">Actualizar</button>
+        <button type="button" id="cancelarEdicion">Cancelar</button>
+      </footer>
+    </form>
+  </main>
+</body>
   </html>
 

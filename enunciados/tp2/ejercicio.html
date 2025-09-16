@@ -8,58 +8,58 @@
     <link rel="stylesheet" href="./ejercicio.css" />
     <script type="module" src="./ejercicio.js"></script>
   </head>
-  <body>
-    <main class="container">
-      <!-- Cabecera con buscador y botón agregar -->
-      <header class="header">
-        <div class="search-container">
-          <input 
-            type="search" 
-            id="searchInput" 
-            placeholder="Buscar por nombre, apellido, teléfono o email..." 
-            class="search-input"
-          />
-        </div>
-        <button id="addContactBtn" class="add-btn">+ Agregar Contacto</button>
-      </header>
+<body>
+  <main class="container">
 
-      <!-- Listado de contactos -->
-      <section id="contactsList" class="contacts-list">
-        <!-- Las tarjetas se generarán dinámicamente -->
-      </section>
-    </main>
+    <!-- Cabecera -->
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+      <h1 style="margin: 0;">Agenda</h1>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <input type="search" id="buscador" placeholder="Buscar contactos..." />
+        <button id="btnAgregar">Agregar</button>
+      </div>
+    </header>
 
-    <!-- Diálogo para agregar/editar contactos -->
-    <dialog id="contactDialog" class="contact-dialog">
-      <form id="contactForm" class="contact-form">
-        <h2 id="dialogTitle">Agregar Contacto</h2>
-        
-        <div class="form-group">
-          <label for="firstName">Nombre:</label>
-          <input type="text" id="firstName" name="firstName" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="lastName">Apellido:</label>
-          <input type="text" id="lastName" name="lastName" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="phone">Teléfono:</label>
-          <input type="tel" id="phone" name="phone" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" id="email" name="email" required />
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" id="cancelBtn" class="btn-secondary">Cancelar</button>
-          <button type="submit" id="saveBtn" class="btn-primary">Guardar</button>
-        </div>
-      </form>
+    <!-- Listado de contactos -->
+    <section id="lista-contactos" class="grid" style="grid-template-columns: repeat(3, 1fr);">
+      <!-- Aquí se insertarán las tarjetas dinámicamente desde JS -->
+    </section>
+
+    <!-- Diálogo para alta/edición -->
+    <dialog id="dialogoContacto">
+      <article>
+        <h3 id="dialogoTitulo">Agregar contacto</h3>
+        <form id="formContacto" method="dialog">
+          <input type="hidden" id="contactoId" />
+
+          <label>
+            Nombre
+            <input type="text" id="nombre" required>
+          </label>
+
+          <label>
+            Apellido
+            <input type="text" id="apellido" required>
+          </label>
+
+          <label>
+            Teléfono
+            <input type="tel" id="telefono" required>
+          </label>
+
+          <label>
+            Email
+            <input type="email" id="email" required>
+          </label>
+
+          <footer>
+            <button type="submit" id="guardarBtn">Guardar</button>
+            <button type="reset" id="cancelarBtn">Cancelar</button>
+          </footer>
+        </form>
+      </article>
     </dialog>
-  </body>
-  </html>
 
+  </main>
+</body>
+</html>

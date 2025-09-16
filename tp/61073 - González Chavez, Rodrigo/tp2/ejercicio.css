@@ -1,0 +1,76 @@
+body {
+  background-color: var(--pico-background-color);
+  color: var(--pico-color);
+  margin: 0;
+  padding: 0;
+}
+
+header.container {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+#lista-contactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: .5rem;
+  background: var(--pico-card-background-color, #fff);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .5rem;
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.card p {
+  margin: .25rem 0;
+  font-size: 0.9rem;
+}
+
+.card footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.card footer button {
+  flex: 1;
+  font-size: 0.85rem;
+  padding: 0.5rem;
+}
+
+#form-contacto {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+#form-contacto label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+#form-contacto footer {
+  grid-column: 1 / span 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

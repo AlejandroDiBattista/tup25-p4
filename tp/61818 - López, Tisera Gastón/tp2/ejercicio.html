@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda de Contactos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="./ejercicio.css" />
+    <script type="module" src="./ejercicio.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <div class="page-header">
+        <h1>Agenda</h1>
+        <div class="header-actions">
+          <div class="searchbar">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="buscar" type="search" placeholder="Buscar contactos..." aria-label="Buscar" />
+          </div>
+          <button id="btnAgregar" class="contrast" aria-label="Agregar contacto">Agregar</button>
+        </div>
+      </div>
+
+      <section id="listado">
+        <div id="cards" class="cards"></div>
+      </section>
+    </main>
+
+    <dialog id="dlgContacto" aria-labelledby="dlgTitle">
+      <article>
+        <header>
+          <h3 id="dlgTitle">Contacto</h3>
+        </header>
+        <form id="frmContacto">
+          <input type="hidden" id="id" />
+          <div class="grid">
+            <label>
+              Nombre
+              <input id="nombre" name="nombre" required />
+            </label>
+            <label>
+              Apellido
+              <input id="apellido" name="apellido" required />
+            </label>
+          </div>
+          <div class="grid">
+            <label>
+              Teléfono
+              <input id="telefono" name="telefono" />
+            </label>
+            <label>
+              Email
+              <input id="email" name="email" type="email" />
+            </label>
+          </div>
+          <footer class="grid">
+            <button type="submit" id="btnGuardar" class="primary">Guardar</button>
+            <button type="button" id="btnCancelar" class="secondary">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+  </body>
+  </html>
+

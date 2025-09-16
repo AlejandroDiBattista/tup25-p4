@@ -6,10 +6,153 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
+    <script src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+    <nav>
+      <ul>
+        <h1 class="titulo-pagina">Agenda</h1>
+      </ul>
+      <ul>
+        <li>
+          <input id="buscar" type="search" name="buscar" placeholder="Buscar contacto" value=""/>
+        </li>
+        <li>
+          <button id="agregar" class="secondary">Agregar</button>
+        </li>
+      </ul>
+    </nav>
 
+    <dialog id="dialogo">
+      <form id="formulario">
+        <article>
+          <header>AGREGAR CONTACTO</header>
+          <input type="hidden" name="id" />
+          <fieldset class="grid">
+            <label> Nombre:
+              <input name="nombre" placeholder="Ingrese el nombre" required />
+            </label>
+            <label> Apellido:
+              <input name="apellido" placeholder="Ingrese el apellido" required />
+            </label>
+          </fieldset>
+          <fieldset class="grid">
+            <label>
+              Teléfono:
+              <input name="telefono" type="tel"
+                     placeholder="Ingrese el teléfono"
+                     pattern="^[0-9()+\-.\s]{6,}$"
+                     title="Usá números y separadores (mínimo 6 caracteres)"
+                     required />
+            </label>
+            <label>
+              Email:
+              <input name="email" type="email" placeholder="Ingrese el email" required />
+            </label>
+          </fieldset>
+          <fieldset class="grid">
+            <button id="aceptar" type="submit">Aceptar</button>
+            <button id="cancelar" type="reset">Cancelar</button>
+          </fieldset>
+        </article>
+      </form>
+    </dialog>
+
+    <main id="agenda" class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 1rem;"></main>
+
+    <script>
+      let $ = (selector) => document.querySelector(selector);
+
+      $("#agregar").onclick = () => {
+        $("#formulario").reset();
+        $("#formulario header").textContent = "AGREGAR CONTACTO";
+        $("#formulario").elements["id"].value = ""; 
+        $("#dialogo").showModal();
+      };
+
+      $("#formulario").addEventListener("submit", (ev) => {
+        ev.preventDefault();
+
+        const form = $("#formulario");
+        if (!form.reportValidity()) return;
+
+        let f = form;
+        let contacto = {
+          id: f.elements["id"].value ? Number(f.elements["id"].value) : 0,
+          nombre: f.elements["nombre"].value.trim(),
+          apellido: f.elements["apellido"].value.trim(),
+          telefono: f.elements["telefono"].value.trim(),
+          email: f.elements["email"].value.trim(),
+        };
+
+        agenda.actualizar(new Contacto(contacto));
+        $("#dialogo").close();
+        GenerarAgenda();
+      });
+
+      $("#cancelar").onclick = (e) => {
+        e.preventDefault();
+        $("#dialogo").close();
+      };
+
+      $("#buscar").oninput = GenerarAgenda;
+
+      function editar(id) {
+        let contacto = agenda.traer(+id);
+        if (!contacto) return;
+        let f = $("#formulario");
+        f.elements["id"].value = contacto.id;
+        f.elements["nombre"].value = contacto.nombre;
+        f.elements["apellido"].value = contacto.apellido;
+        f.elements["telefono"].value = contacto.telefono;
+        f.elements["email"].value = contacto.email;
+        $("#formulario header").textContent = "EDITAR CONTACTO";
+        $("#dialogo").showModal();
+      }
+
+      function eliminar(id) {
+        agenda.eliminar(+id);
+        GenerarAgenda();
+      }
+
+      function GenerarContacto({ id, nombre, apellido, telefono, email }) {
+        return `<article>
+          <header><strong>${nombre} ${apellido}</strong></header>
+          <p>
+            <ion-icon name="call-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>
+            Teléfono: ${telefono || "-"}
+          </p>
+          <p>
+            <ion-icon name="mail-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>
+            Email: ${email || "-"}
+          </p>
+          <footer style="display:flex; gap:.5rem">
+            <button class="secondary" onclick="editar(${id})" type="button" aria-label="Editar">
+              <ion-icon name="create-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>Editar
+            </button>
+            <button class="contrast" onclick="eliminar(${id})" type="button" aria-label="Eliminar">
+              <ion-icon name="trash-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>Eliminar
+            </button>
+          </footer>
+        </article>`;
+      }
+
+      function GenerarAgenda() {
+        let html = "";
+        let filtro = $("#buscar").value;
+        for (let contacto of agenda.traerTodos(filtro)) {
+          html += GenerarContacto(contacto);
+        }
+        $("#agenda").innerHTML = html || "<p>No hay resultados</p>";
+      }
+
+      GenerarAgenda();
+
+      window.editar = editar;
+      window.eliminar = eliminar;
+    </script>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  </body>
+</html>

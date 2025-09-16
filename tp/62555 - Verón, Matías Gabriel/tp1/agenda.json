@@ -1,0 +1,42 @@
+[
+  {
+    "id": 2,
+    "nombre": "José",
+    "apellido": "Gómez",
+    "edad": 25,
+    "telefono": "3815551235",
+    "email": "jgomez@gmail.com"
+  },
+  {
+    "id": 5,
+    "nombre": "Jose",
+    "apellido": "Perez",
+    "edad": "45",
+    "telefono": "23423424",
+    "email": "jose.pper@gmail.com"
+  },
+  {
+    "id": 1,
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "edad": 30,
+    "telefono": "3815551234",
+    "email": "jperez@gmail.com"
+  },
+  {
+    "id": 3,
+    "nombre": "Pedrito",
+    "apellido": "Sancho",
+    "edad": "19",
+    "telefono": "12381283",
+    "email": "jasodjjasd@jasd"
+  },
+  {
+    "id": 4,
+    "nombre": "Matias",
+    "apellido": "Veron",
+    "edad": "25",
+    "telefono": "3815196654",
+    "email": "matiasveron207@gmail.com"
+  }
+]

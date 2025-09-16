@@ -1,94 +1,66 @@
-# TP2: Agenda de contactos (Web)
+# TP3: Directorio Alumnos (React + Vite)
 
 ## Objetivo
+Construir una aplicación web para mostrar el directorio de alumnos (solo lectura) que:
+- Cargue los datos desde `alumnos.vcf` (vCard 3.0) incluido en el proyecto.
+- Muestre por alumno: nombre completo, teléfono, legajo y, si está disponible, usuario de GitHub con avatar.
+- Permita buscar por nombre, teléfono o legajo (ignorando mayúsculas/minúsculas y acentos).
+- Permita marcar/desmarcar favoritos.
+- Agrupe los resultados mostrando primero los favoritos y luego el resto; ambos grupos ordenados alfabéticamente por nombre normalizado.
 
-Desarrollar una "Agenda de contactos" como aplicación web usando JavaScript puro y Pico.css para la presentación.
+## Restricciones y Alcance
+- Sin CRUD: no se puede crear, editar ni eliminar alumnos.
+- Sin formularios ni modales.
+- Sin persistencia: el estado de favoritos no se guarda entre recargas.
 
-## Fecha de entrega
+## Requisitos Funcionales
+1. Carga de datos
+   - Importar `alumnos.vcf` como texto y parsearlo en el cliente.
+   - Asumir un patrón fijo por tarjeta con los campos: `FN`, `TEL;TYPE=CELL`, `NOTE` (contiene `Legajo: <número> ... Github: <usuario>`).
+   - Generar objetos: `{ id, nombre, telefono, legajo, github, favorito }` con `favorito: false` por defecto.
+   - `id`: usar `legajo` .
+   - `github`: usar el usuario de GitHub si está presente; si no, `""`.
 
+2. Búsqueda y orden
+   - Campo de búsqueda en la barra superior.
+   - Filtra por coincidencia en `nombre`, `telefono` o `legajo` (normalización sin acentos y sin distinción de mayúsculas/minúsculas).
+   - Orden alfabético por nombre normalizado dentro de cada grupo.
+
+3. Favoritos y agrupación
+   - Interacción para alternar la propiedad `favorito` de un alumno en memoria.
+   - Listar en dos grupos: favoritos y no favoritos; ambos ordenados.
+   - Si no hay resultados, mostrar un mensaje informativo de lista vacía.
+
+4. Avatar de GitHub
+   - Si `github` está presente, usar la imagen `https://github.com/<usuario>.png?size=100` como avatar del alumno; si no, proveer una alternativa textual (por ejemplo, iniciales).
+
+## Requisitos Técnicos
+- Stack: React + Vite.
+- Importar el VCF como texto (ej.: `import alumnosVcf from '../alumnos.vcf?raw'`).
+- Parseo del VCF con expresiones regulares asumiendo el formato fijo de las tarjetas.
+- Estado en memoria con `useState`.
+- Separación en módulos:
+  - Servicio de datos: `src/services/alumnos.js` con `parseVcf` y `loadAlumnos`.
+  - Utilidades de texto: `src/utils/text.js` con `norm`, `cmpNombre`, `includesContacto`.
+
+## Componentes sugeridos
+- `Topbar`: título y campo de búsqueda.
+- `ContactSection`: recibe `title` y `contacts` y renderiza la lista.
+- `ContactCard`: muestra nombre, teléfono, legajo y avatar (si hay GitHub), además de la interacción de favorito.
+
+
+## Referencia visual
+
+El diseño es libre, pero se sugiere una estructura similar a la siguiente:
+![alt text](./enunciado/tp3/imagen.png)
+
+## Entrega 
 > [!IMPORTANT]
-> El trabajo debe presentarse hasta el **Lunes 8 de septiembre a la 21hs**.
+> El trabajo se deben entregar hasta el **lunes 15 de septiembre a las 21:00 hs**.
 
-## Alcance y lineamientos
-
-- Implementación sin frameworks: solo **HTML**, **CSS (Pico.css)** y **JavaScript**.
-- La interfaz debe ser accesible.
-- Evitar dependencias externas (salvo Pico.css por CDN).
-- Mantener una estructura simple: un archivo HTML, un JS y un CSS.
-
-## Estructura de datos y modelo
-
-- Implementar dos clases: **Contacto** y **Agenda**.
-- Un **Contacto** contiene: `id`, `nombre`, `apellido`, `telefono`, `email`.
-- La **Agenda** es una colección de `Contacto` y administra las operaciones.
-
-## Requisitos funcionales
-
-1. Cabecera con:
-   - Campo de **búsqueda** (filtra por nombre, apellido, teléfono o email).
-   - Botón **Agregar** para abrir un diálogo de alta.
-2. Cuerpo con listado de **tarjetas** (cards) de contactos:
-   - Muestra todos los contactos o solo los que coinciden con el texto buscado.
-   - En cada tarjeta, el **nombre y apellido** deben destacarse.
-   - Cada tarjeta debe incluir **dos iconos**: **Editar** y **Borrar**.
-3. Agregar contacto:
-   - Al presionar "Agregar", se abre un **diálogo** con un formulario para cargar datos.
-4. Editar contacto:
-   - Al presionar el icono de **Editar**, se abre el mismo diálogo con los datos precargados.
-5. Borrar contacto:
-   - Al presionar el icono de **Borrar**, se elimina **directamente** el contacto (sin confirmación).
-6. Datos iniciales:
-   - Al cargar por primera vez, la aplicación debe mostrar **10 contactos de ejemplo**.
-
-## Requisitos técnicos
-
-- JS en **módulo único** o IIFE, sin dependencias.
-- Uso de **Pico.css** por CDN para estilos base.
-- El render del listado debe ser **dinámico** a partir de los datos actuales.
-- La búsqueda debe ser **insensible a mayúsculas y acentos** (normalización de texto).
-- Ordenamiento por **apellido** y luego **nombre**.
-- Sin persistencia: los datos viven solo en memoria.
-- El modelo y la lógica de negocio deben implementarse usando **clases** (`Agenda` y `Contacto`), con métodos para `agregar`, `actualizar` y `borrar`.
-
-## Criterios de aceptación
-
-- La UI incluye: buscador, botón Agregar, listado de tarjetas y diálogo de alta/edición.
-- Las tarjetas muestran nombre/apellido destacado y los datos de contacto (teléfono y email).
-- Los iconos de Editar/Borrar funcionan y el borrado no pide confirmación.
-- La búsqueda filtra en tiempo real, sin recargar la página.
-- No hay persistencia: al recargar la página, vuelven a aparecer los 10 contactos de ejemplo.
-- El código está organizado, legible y con nombres descriptivos.
-
-## Pistas y consideraciones
-
-- Usar un **array** en memoria para trabajar y sincronizarlo con `localStorage`.
-- Normalizar texto para el filtro con `String.prototype.normalize('NFD')` y remover diacríticos.
-- Para el diálogo, puede usarse `<dialog>` nativo de HTML.
-- Para ordenar, usar `localeCompare` sobre los campos normalizados.
-
-## Entregables
-
-- `./tp2/ejercicio.html`: página principal de la aplicación.
-- `./tp2/ejercicio.js`: lógica de la aplicación.
-- `./tp2/ejercicio.css`: estilos propios adicionales.
-
-## Cómo ejecutar
-
-- Abrir el archivo `./tp2/ejercicio.html` en un navegador moderno.
-- Opcionalmente, levantar un servidor HTTP local simple.
-
-
-## Como se verá la aplicación
-#### Lista de contactos
-![Lista de contactos](./enunciados/tp2/agenda1.png)
-#### Diálogo de contacto (alta/edición)
-![Diálogo de contacto](./enunciados/tp2/agenda2.png)
-
-## Cómo presentar el trabajo
-1. Volver a `main` y actualizar el repo local (fetch/pull).
-2. Actualizar el repositorio  (fetch/pull).
-3. Crear una rama (TP2-{Legajo}).
-4. Implementar la solución en la carpeta correspondiente (`enunciados/tp2/`).
-5. Confirmar los cambios realizados (commit).
-6. Publicar los cambios en GitHub (push).
-7. Realizar el pull request hacia `main` con el título: `TP2 - {Legajo} - {Nombre Apellido}`.
+## Como realizar el trabajo.
+Recuerde 
+1. Pasar a la rama main de repositorio, actualizar el contenido.
+2. Crear su propia rama resolver y publicar la solución.
+3. Realizar un Pull Request a la rama main del repositorio original.
+> Nota: Recuerde que el titulo del PR debe ser: "TP3 - \<Legajo> - \<Apellido, Nombre>"

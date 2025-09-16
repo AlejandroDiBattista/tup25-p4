@@ -1,1 +1,140 @@
-/* Estilos generales */
+body {
+  background: #f3f3f3;
+  font-size: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1.2rem;
+  background: #f3f3f3;
+}
+
+.header-title {
+  font-size: 1.1rem;
+  color: #1565c0;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#btnAgregar {
+  background: #1565c0;
+  color: #fff;
+  border-radius: 0.3rem;
+  font-weight: bold;
+  padding: 0.18rem 0.7rem;
+  font-size: 0.85rem;
+  min-width: 70px;
+}
+
+main {
+  padding: 1rem 1.2rem;
+}
+
+#listaContactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+  align-items: start;
+}
+
+.card-contacto {
+  width: 100%;
+  max-width: 320px;
+  min-width: 280px;
+  min-height: 70px;
+  margin: 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px #0001;
+  background: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.card-header {
+  background: #e0e0e0;
+  color: #1565c0;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.97rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  border-bottom: 1px solid #e3e3e3;
+}
+
+.card-datos {
+  padding: 0.35rem 0.7rem 0.4rem 0.7rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  min-height: 38px;
+}
+
+.card-datos span {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  font-size: 0.93rem;
+  word-break: break-all;    /* Permite cortar palabras largas */
+  white-space: normal;      /* Permite saltos de línea */
+  overflow-wrap: anywhere;  /* Permite cortar en cualquier lugar */
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.18rem;
+  margin-top: 0.3rem;
+}
+
+.btn-icono {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.08rem;
+  border-radius: 0.2rem;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.btn-icono:hover {
+  background: #e3f2fd;
+}
+
+.icono {
+  width: 0.95em;
+  height: 0.95em;
+  vertical-align: middle;
+  fill: #1565c0;
+}
+
+dialog::backdrop {
+  background: #0005;
+}
+
+/* Responsive para pantallas chicas */
+@media (max-width: 1200px) {
+  #listaContactos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 800px) {
+  #listaContactos {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  main {
+    padding: 0.5rem 0.2rem;
+  }
+}

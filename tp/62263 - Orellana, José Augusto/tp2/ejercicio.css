@@ -1,1 +1,180 @@
 /* Estilos generales */
+body {
+    background: #f8f9fb;
+    font-family: system-ui, sans-serif;
+    color: #333;
+}
+
+header.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #222;
+}
+
+header nav {
+    display: flex;
+    gap: 0.5rem;
+}
+
+header input[type="search"] {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 2rem;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    min-width: 250px;
+}
+
+header button {
+    background: #111827;
+    color: #fff;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+header button:hover {
+    background: #374151;
+}
+
+#listarContactos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+#listarContactos article {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#listarContactos article header {
+    background: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+#listarContactos p {
+    margin: 0.2rem 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+#listarContactos footer {
+    background: #fff;
+    margin-top: 0.8rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Botones de acción */
+#listarContactos button {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+}
+
+#listarContactos button:hover {
+    transform: scale(1.1);
+}
+
+#listarContactos button.editar {
+    color: #2563eb;
+    border-color: #2563eb;
+}
+
+#listarContactos button.borrar {
+    color: #dc2626;
+    border-color: #dc2626;
+}
+
+/* ====== Diálogo ====== */
+dialog article {
+    background: #fff;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 400px;
+}
+
+#dialogoHeader {
+    background: #fff;
+}
+
+dialog header h2 {
+    background: #fff;
+    margin: 0 0 1rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #222;
+}
+
+dialog form label {
+    color: #222;
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+dialog form input {
+    background: #fff;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 0.4rem;
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+    color: #222;
+}
+
+dialog footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+dialog button#btnGuardar {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+
+dialog button#btnGuardar:hover {
+    background: #1d4ed8;
+}
+
+dialog button#btnCancelar {
+    background: #e5e7eb;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    color: #333;
+}
+
+dialog button#btnCancelar:hover {
+    background: #d1d5db;
+}

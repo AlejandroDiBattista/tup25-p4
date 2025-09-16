@@ -1,0 +1,13 @@
+{
+  "contactos": [
+    {
+      "id": 1,
+      "nombre": "Mariana",
+      "apellido": "Salcedo",
+      "edad": "20",
+      "telefono": "381469695",
+      "email": "marianasalcedo04@icloud.com"
+    }
+  ],
+  "ultimoId": 2
+}

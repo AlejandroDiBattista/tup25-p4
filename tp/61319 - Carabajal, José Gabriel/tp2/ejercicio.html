@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,7 +9,66 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+
+    <header class="container">
+      <nav aria-label="Barra principal">
+        <ul>
+          <li><strong>Agenda</strong></li>
+        </ul>
+        
+        <ul>
+          <li>
+            <input id="buscador" type="search" placeholder="Buscar contacto" aria-label="Buscar">
+          </li>
+          <li>
+            <button id="btnAgregar" class="contrast" aria-label="Agregar contacto">Agregar</button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div id="listaContactos" class="grid" aria-live="polite"></div>
+    </main>
+
+    <dialog id="dialogoContacto" aria-label="Formulario de contacto">
+      <article>
+        <header>
+          <h2 id="dialogoTitulo">Nuevo contacto</h2>
+        </header>
+
+        <form id="formContacto" method="dialog">
+          <input type="hidden" id="contactoId">
+
+          <div class="grid">
+            <label>
+              Nombre
+              <input id="nombre" name="nombre" type="text" required>
+            </label>
+            <label>
+              Apellido
+              <input id="apellido" name="apellido" type="text" required>
+            </label>
+          </div>
+
+          <div class="grid">
+            <label>
+              Teléfono
+              <input id="telefono" name="telefono" type="tel" required>
+            </label>
+            <label>
+              Email
+              <input id="email" name="email" type="email" required>
+            </label>
+          </div>
+
+          <footer class="acciones">
+            <button type="submit" id="btnGuardar" class="primary">Guardar</button>
+            <button type="button" id="btnCancelar" class="secondary">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
   </body>
   </html>
 

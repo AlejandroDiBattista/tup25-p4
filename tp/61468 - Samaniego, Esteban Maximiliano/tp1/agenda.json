@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "apellido": "Samaniego",
+    "nombre": "Esteban",
+    "edad": "21",
+    "telefono": "3816796586",
+    "email": "max@gmail.com"
+  },
+  {
+    "id": 2,
+    "apellido": "Moreno",
+    "nombre": "Maria",
+    "edad": "57",
+    "telefono": "3817658475",
+    "email": "maria@gmail.com"
+  },
+  {
+    "id": 4,
+    "apellido": "Perez",
+    "nombre": "Pedro",
+    "edad": "49",
+    "telefono": "1883928",
+    "email": "pedro@gmail.com"
+  },
+  {
+    "id": 5,
+    "apellido": "mujica",
+    "nombre": "pepe",
+    "edad": "44",
+    "telefono": "381893",
+    "email": "pepe@gmial.com"
+  }
+]

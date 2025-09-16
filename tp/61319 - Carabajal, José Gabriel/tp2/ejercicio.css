@@ -1,1 +1,116 @@
-/* Estilos generales */
+#listaContactos {
+    margin-top: 1rem;
+}
+
+.card-contacto header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.card-contacto h3 {
+    margin: 0;
+}
+
+.acciones {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-start;
+}
+
+body {
+    background: #f6f7fb;
+}
+
+nav input[type="search"] {
+    min-width: 320px;
+}
+
+#listaContactos.grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.card-contacto {
+    border: 1px solid #e8eaf0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-contacto .acciones {
+    margin-top: auto;
+}
+
+.card-contacto p {
+    margin: 0.25rem 0;
+    color: #1f2937;
+}
+
+.btn-circ {
+    width: 52px;
+    height: 52px;
+    border-radius: 9999px;
+    border: 2px solid #f0d5d8;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+}
+
+.btn-circ svg {
+    width: 24px;
+    height: 24px;
+}
+
+.btn-edit svg {
+    stroke: #d32f2f;
+    fill: none;
+    stroke-width: 2;
+}
+
+.btn-del svg {
+    stroke: #d32f2f;
+    fill: none;
+    stroke-width: 2;
+}
+
+.btn-circ:hover {
+    background: #fff5f5;
+    border-color: #e9a8ae;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
+}
+
+.btn-circ:active {
+    transform: translateY(1px);
+}
+
+.btn-circ:focus-visible {
+    outline: 2px solid #d32f2f;
+    outline-offset: 2px;
+}
+
+dialog article {
+    min-width: 560px;
+}
+
+dialog h2 {
+    margin-bottom: 0.5rem;
+}
+
+header nav strong {
+    font-size: 1.75rem;
+    letter-spacing: 0.2px;
+}
+
+#btnAgregar {
+    padding: 0.65rem 1.1rem;
+    font-size: 1rem;
+}

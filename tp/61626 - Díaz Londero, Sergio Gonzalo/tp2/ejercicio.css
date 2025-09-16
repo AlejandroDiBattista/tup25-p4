@@ -1,0 +1,76 @@
+.menu-dialogo {
+  display: flex;
+  gap: 1rem;
+  justify-content: end;
+  margin-top: 1.5rem;
+}
+.menu-dialogo button {
+  flex: 1 1 0;
+  max-width: 140px;
+  max-height: 90px;
+  padding: 14px 0;
+  font-size: 1em;
+}
+
+.icono-editar,
+.icono-borrar {
+  font-size: 21px;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 5px 8px;
+  border: 2px solid #929292;
+  background: #fff;
+  color: #444;
+  transition: border 0.2s, color 0.2s;
+}
+
+#buscador::placeholder {
+  font-size: 17px;
+}
+
+#btn-agregar {
+  font-size: 19px;
+  border-radius: 7px;
+  max-width: 140px;
+  padding: 12px 0px;
+  border: none;
+  background-color: black;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#buscador {
+  max-width: 400px;
+  max-height: 50px;
+  padding: 2px 8px;
+  border-radius: 60px;
+  font-size: 13px;
+  padding: 0px 45px;
+}
+
+.fila-nombre-apellido,
+.fila-telefono-email {
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.fila-telefono-email {
+  margin-top: 1rem;
+}
+.menu-dialogo {
+  margin-top: 1.5rem;
+}
+#buscador-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-buttons .btn-cancelar {
+  background-color: #f3f3f3;
+  color: #333;
+}
+
+.modal-buttons .btn-cancelar:hover {
+  background-color: #e0e0e0;
+}

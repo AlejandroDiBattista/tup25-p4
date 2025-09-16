@@ -1,0 +1,183 @@
+/* ====== Estilos propios adicionales ====== */
+
+/* Grilla de contactos: siempre 3 columnas */
+#listaContactos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Fuerza 3 columnas */
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Tarjeta de contacto */
+#listaContactos article {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #ffe6f7 0%, #e6e6fa 100%);
+  color: #6d357a;
+  padding: 1rem;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+header h1 {
+  flex: 1;
+  font-size: 1.6rem;
+  color: #a4508b;
+  font-weight: bold;
+  text-shadow: 0 2px 8px #fff6fa;
+}
+
+header input {
+  flex: 2;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #e1bee7;
+  background: #fff0fa;
+}
+
+header button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background: #e573c7;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #f8bbd0aa;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+header button:hover {
+  background: #ba68c8;
+  box-shadow: 0 4px 12px #f8bbd0cc;
+}
+
+#listaContactos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#listaContactos article {
+  background: #fff0fa;
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 12px #e1bee7aa;
+  border: 1.5px solid #f8bbd0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#listaContactos article:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 6px 18px #e1bee7cc;
+}
+
+#listaContactos h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: #a4508b;
+}
+
+#listaContactos p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #7c4d79;
+}
+
+#listaContactos footer {
+  margin-top: 0.8rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+#listaContactos button {
+  font-size: 1.2rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 1rem;
+  border: none;
+  cursor: pointer;
+  background: #f8bbd0;
+  color: #6d357a;
+  transition: background 0.2s, color 0.2s;
+}
+#listaContactos button:hover {
+  background: #e1bee7;
+  color: #a4508b;
+}
+
+/* Diálogo */
+dialog {
+  border: none;
+  border-radius: 18px;
+  padding: 1.2rem;
+  width: 320px;
+  box-shadow: 0 4px 18px #e1bee7cc;
+  background: #fff0fa;
+}
+
+dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+dialog input {
+  padding: 0.5rem;
+  border: 1px solid #e1bee7;
+  border-radius: 8px;
+  background: #fff;
+}
+
+dialog menu {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+dialog button[type="submit"] {
+  background: #e573c7;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px #f8bbd0aa;
+}
+dialog button[type="submit"]:hover {
+  background: #ba68c8;
+}
+
+dialog #btnCancelar {
+  background: #f8bbd0;
+  color: #a4508b;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-weight: bold;
+}
+dialog #btnCancelar:hover {
+  background: #e1bee7;
+  color: #6d357a;
+}

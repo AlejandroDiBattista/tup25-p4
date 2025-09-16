@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "nombre": "Ignacio",
+    "apellido": "Diaz Valdez",
+    "edad": 22,
+    "telefono": "3816958566",
+    "email": "nachodiazvaldez@gmail.com"
+  },
+  {
+    "id": 3,
+    "nombre": "q",
+    "apellido": "q",
+    "edad": null,
+    "telefono": "q",
+    "email": "q"
+  }
+]

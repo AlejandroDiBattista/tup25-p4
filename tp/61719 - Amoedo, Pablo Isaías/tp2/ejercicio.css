@@ -1,0 +1,77 @@
+
+
+/* Header */
+.app-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-block: 2rem 1rem;
+}
+.toolbar {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+}
+.search-wrapper {
+  min-width: 260px;
+  width: clamp(260px, 40vw, 520px);
+}
+
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+
+.card {
+  padding: 1rem;
+  border-radius: var(--pico-border-radius);
+  border: 1px solid var(--pico-muted-border-color);
+  background: var(--pico-card-background-color);
+  box-shadow: var(--pico-card-box-shadow);
+}
+.card header {
+  font-weight: 600;
+  margin-bottom: .25rem;
+}
+.card .muted {
+  color: var(--pico-muted-color);
+  font-size: .95rem;
+}
+
+/* Botones de icono */
+.icon-btns {
+  display: flex;
+  gap: .25rem;
+  margin-top: .5rem;
+}
+.icon-btn {
+  border: none;
+  background: transparent;
+  padding: .25rem .5rem;
+  border-radius: .5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: color-mix(in oklab, var(--pico-primary), transparent 85%);
+}
+
+
+#dlgContacto article {
+  min-width: min(92vw, 560px);
+}
+.dlg-actions {
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+}
+
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 2px;
+}

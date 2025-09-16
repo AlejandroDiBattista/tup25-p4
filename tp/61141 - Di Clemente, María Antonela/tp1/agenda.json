@@ -1,0 +1,18 @@
+[
+  {
+    "id": 2,
+    "nombre": "sofia",
+    "apellido": "perez",
+    "edad": 23,
+    "telefono": "381986483",
+    "email": "sofip@gmail.com"
+  },
+  {
+    "id": 1,
+    "nombre": "Maria",
+    "apellido": "suarez",
+    "edad": 19,
+    "telefono": "3813976548",
+    "email": "mariasuarez@gmail.com"
+  }
+]

@@ -1,0 +1,36 @@
+/* Estilos generales */
+.page-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 1.5rem 0; }
+.page-header h1 { margin: 0; }
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+
+/* .searchbar { display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 2rem; background: #f9fafb; min-width: 280px; }
+.searchbar input { border: none; background: transparent; outline: none; min-width: 240px; padding: 0; font-size: .95rem;  }
+.searchbar input[type="search"] { -webkit-appearance: none; appearance: none; background: transparent !important; }
+.searchbar input[type="search"]::-webkit-search-decoration,
+.searchbar input[type="search"]::-webkit-search-cancel-button,
+.searchbar input[type="search"]::-webkit-search-results-button,
+.searchbar input[type="search"]::-webkit-search-results-decoration { display: none; }
+.search-icon { color: #9ca3af; } */
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+
+.contact-card { border-radius: .5rem; border: 1px solid #e5e7eb; background: white; box-shadow: 0 8px 24px rgba(0,0,0,.05); overflow: hidden; }
+
+.contact-card__header { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; background: #f7fafc; border-bottom: 1px solid #eef2f7; }
+
+.contact-info { display: flex; align-items: center; gap: .75rem; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .9rem; color: white; background: linear-gradient(135deg, #2563eb, #06b6d4); }
+.fullname { font-weight: 700; color: #111827; }
+
+.contact-actions { display: flex; gap: .5rem; }
+.icon-btn { background: white; border: 2px solid #e5e7eb; cursor: pointer; color: #ef4444; padding: .35rem; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; }
+.icon-btn:hover { background: #fff; border-color: #fecaca; }
+
+.contact-card__body { padding: 1rem; display: grid; gap: .5rem; }
+.contact-field { display: flex; align-items: center; gap: .5rem; color: #374151; }
+.contact-field svg { color: #6b7280; }
+
+/* Dialog ancho similar a la captura */
+dialog article { max-width: 720px; }
+
+

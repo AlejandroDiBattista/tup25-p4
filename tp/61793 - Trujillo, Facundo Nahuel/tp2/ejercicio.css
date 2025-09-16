@@ -1,1 +1,70 @@
-/* Estilos generales */
+
+#listaContactos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+#listaContactos article {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+
+#listaContactos article:hover {
+  transform: translateY(-3px);
+}
+
+
+#listaContactos h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+#listaContactos p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+
+#listaContactos footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+
+#listaContactos button {
+  font-size: 1.2rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  border: none;
+  cursor: pointer;
+  background: #f4f4f4;
+  transition: background 0.2s;
+}
+
+#listaContactos button:hover {
+  background: #ddd;
+}
+
+
+dialog article {
+  padding: 1.5rem;
+}
+
+dialog h3 {
+  margin-top: 0;
+}
+
+dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

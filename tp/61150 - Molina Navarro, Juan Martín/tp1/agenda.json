@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nombre": "Tita",
+    "apellido": "La Gata",
+    "edad": 8,
+    "telefono": "0",
+    "email": "titathecat@gmail.com"
+  },
+  {
+    "id": 2,
+    "nombre": "Mora",
+    "apellido": "La Gata",
+    "edad": 11,
+    "telefono": "3",
+    "email": "mora@mail.com"
+  },
+  {
+    "id": 3,
+    "nombre": "China",
+    "apellido": "Caniche",
+    "edad": 12,
+    "telefono": "9",
+    "email": "china@mail.com"
+  }
+]

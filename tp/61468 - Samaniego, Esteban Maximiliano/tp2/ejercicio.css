@@ -1,0 +1,22 @@
+h1 {
+    text-align: start;
+}
+
+.input-busqueda {
+    width: 30rem !important;
+}
+
+.btn-agregar {
+    height: 3.3rem;
+    width: 10rem;
+    background-color: black;
+    border: 1px solid white;
+}
+
+.lista {
+    width: 155vh;
+}
+
+.grid {
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)) !important;
+}

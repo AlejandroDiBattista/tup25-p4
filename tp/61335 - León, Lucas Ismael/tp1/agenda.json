@@ -1,0 +1,13 @@
+{
+  "ultimoId": 1,
+  "contactos": [
+    {
+      "id": 1,
+      "nombre": "Manuel",
+      "apellido": "Fernandez",
+      "edad": "23",
+      "telefono": "123123",
+      "email": "hola@hola"
+    }
+  ]
+}

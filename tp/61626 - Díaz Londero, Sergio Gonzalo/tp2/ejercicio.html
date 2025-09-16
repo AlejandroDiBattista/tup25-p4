@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda de Contactos</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <link rel="stylesheet" href="./ejercicio.css" />
+    <script type="module" src="./ejercicio.js"></script>
+  </head>
+
+  <body>
+    <main class="container-fluid">
+      <header>
+        <form id="buscador-form" role="search" autocomplete="off">
+          <h2>Agenda</h1>
+          <input class="input-buscador"
+            type="search"
+            id="buscador"
+            placeholder="Buscar contacto..."
+            aria-label="Buscar contacto"
+          />
+          <button type="button" id="btn-agregar" class="btn-pequeno">Agregar</button>
+        </form>
+      </header>
+      <section id="listado-contactos" aria-live="polite" class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+        <!-- Aquí se renderizan las tarjetas de contactos -->
+      </section>
+      <dialog open id="dialogo-contacto">
+        <form method="dialog" id="form-contacto" class="modal">
+          <h2 id="dialogo-titulo" class="titulo-modal">Nuevo Contacto</h2>
+          <input type="hidden" id="contacto-id" />
+          <div class="grid fila-nombre-apellido">
+            <label>Nombre
+              <input type="text" id="contacto-nombre" required />
+            </label>
+            <label>Apellido
+              <input type="text" id="contacto-apellido" required />
+            </label>
+          </div>
+          <div class="grid fila-telefono-email">
+            <label>Teléfono
+              <input type="tel" id="contacto-telefono" required />
+            </label>
+            <label>Email
+              <input type="email" id="contacto-email" required />
+            </label>
+          </div>
+          <menu class="menu-dialogo">
+            <button type="submit" id="btn-guardar">Guardar</button>
+            <button type="reset" id="btn-cancelar">Cancelar</button>
+          </menu>
+        </form>
+      </dialog>
+    </main>
+  </body>
+</html>
