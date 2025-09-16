@@ -1,5 +1,142 @@
-/__pycache__
-.DS_Store
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Virtual environments
 .env
-uv.lock
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+
 /interno
+
+# ---------------------------
+# Proyecto React (Vite)
+# ---------------------------
+
+# Dependencias
+node_modules/
+
+# Salidas de build
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Archivos de log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Coverage / pruebas
+coverage/
+.vitest/
+
+# Cachés de herramientas
+.eslintcache
+.stylelintcache
+.cache/
+
+# Variables de entorno (mantener .env.example si existe)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Sistemas operativos / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Storybook / documentación front
+storybook-static/
+.out/
+
+# Otros artefactos que no se versionan
+*.log
+*.tgz
+*.patch
+*.orig
+*.rej
+
