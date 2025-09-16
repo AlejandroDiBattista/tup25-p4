@@ -1,0 +1,95 @@
+.contact-card {
+  position: relative;
+  background: #dde0dd;
+  border-radius: 12px;
+  padding: 16px;
+  width: 250px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-card.favorite {
+  border: 1px solid #f1c40f;
+}
+
+
+
+.contact-avatar img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid black;
+}
+
+.contact-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ececec;
+}
+
+.contact-info {
+  flex: 1;
+}
+
+.contact-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.contact-detail {
+  margin: 4px 0;
+  padding: 10px;
+  font-size: 18px;
+  color: #555;
+}
+
+.contact-star {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #f1c40f;
+  font-size: 18px;
+}
+
+
+.favorite-btn {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.favorite-btn {
+  color: #ccc; /* estrella vacía gris */
+}
+
+.favorite-btn:focus {
+  outline: none;
+}
+
+.favorite-btn:has(> span.filled) {
+  color: gold; /* estrella llena */
+}
+
+
+
+.favorite-btn {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.favorite-btn {
+  color: gold; /* la estrella llena aparece amarilla */
+}
+
+.favorite-btn:disabled {
+  cursor: default;
+}

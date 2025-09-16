@@ -1,0 +1,23 @@
+.topbar-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.topbar-title {
+  font-size: 25px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.topbar-search-wrapper {
+  position: relative;
+}
+
+.topbar-search-input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #a7a2a2;
+  font-size: 14px;
+  width: 260px;
+}
