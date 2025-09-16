@@ -1,0 +1,31 @@
+.contact-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.avatar {
+  background: #e5e7eb; /* gris claro */
+}
+
+.contact-card button {
+  font-size: 20px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.contact-card button[aria-pressed="true"] {
+  color: gold;
+}
+
+.contact-card button[aria-pressed="false"] {
+  color: #aaa;
+}
