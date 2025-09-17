@@ -9,7 +9,60 @@
     <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+  <main class="container">
+    <header class="header">
+      <h1>Agenda de contactos</h1>
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Buscar por nombre, apellido, teléfono o email" aria-label="Buscar contactos" />
+        <button id="addBtn" class="contrast" aria-label="Agregar contacto">Agregar</button>
+      </div>
+    </header>
+
+    <section aria-live="polite" aria-busy="false">
+      <div id="cards" class="grid cards-grid"></div>
+      <p id="emptyMsg" class="empty" hidden>Sin resultados</p>
+    </section>
+  </main>
+
+  <!-- Diálogo de alta/edición -->
+  <dialog id="contactDialog" aria-labelledby="dialogTitle">
+    <article>
+      <header>
+        <h2 id="dialogTitle">Nuevo contacto</h2>
+      </header>
+
+      <form id="contactForm" method="dialog">
+        <div class="grid">
+          <div>
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" required>
+          </div>
+          <div>
+            <label for="apellido">Apellido</label>
+            <input id="apellido" name="apellido" type="text" required>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="telefono">Teléfono</label>
+            <input id="telefono" name="telefono" type="tel" required>
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required>
+          </div>
+        </div>
+
+        <footer class="dialog-footer">
+          <button type="button" id="cancelBtn" class="secondary">Cancelar</button>
+          <button type="submit" id="saveBtn">Guardar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  <script defer src="./ejercicio.js"></script>
   </body>
   </html>
 

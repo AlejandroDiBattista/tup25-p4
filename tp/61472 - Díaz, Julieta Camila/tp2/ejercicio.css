@@ -1,1 +1,101 @@
 /* Estilos generales */
+:root {
+  --card-gap: 1rem;
+}
+
+.header {
+  display: grid;
+  gap: 1rem;
+  margin-block: 2rem;
+}
+
+@media (min-width: 768px) {
+  .header {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .75rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--card-gap);
+}
+
+@media (min-width: 640px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  display: grid;
+  gap: .5rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid hsl(0, 0%, 4%);
+  background: hsl(0, 0%, 100%);
+  box-shadow: 0 1px 0 hsl(0 0% 100% / 0.04) inset, 0 20px 40px -20px hsl(240 4% 2% / 0.5);
+}
+
+.card header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.card .meta {
+  margin: 0;
+  opacity: .9;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: center;
+  height: center;
+  border-radius: 999px;
+  border: 1px solid hsl(0 0% 25%);
+  background: transparent;
+  cursor: pointer;
+}
+
+.icon-row {
+  display: flex;
+  gap: .5rem;
+}
+
+.empty {
+  text-align: center;
+  opacity: .75;
+  padding: 2rem 0;
+}
+
+dialog article {
+  min-width: min(620px, 92vw);
+}
+
+.dialog-footer {
+  display: flex;
+  gap: .75rem;
+  justify-content: end;
+  margin-top: 1rem;
+}
