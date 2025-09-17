@@ -3,12 +3,13 @@
 ## Comisión 1
 
 ```text
+- 61993  Medina, Juan Ignacio                      (381) 517-1937  🔴🔴🟢  @Soulmain1          
 - 61084  Ramírez, Leonardo                         (381) 348-9132  🔴🟢🟢  @Leoramirez777      
 - 61551  Díaz Valdez, Ignacio                      (381) 695-8566  🟢🔴🟢  @IgnacioDiazV       
-- 61472  Díaz, Julieta Camila                      (381) 652-9981  🟢🔴🔴  @juliidiiaz04       
 - 61120  Guerrero, Ana Sofía                       (381) 418-1564  🟢🔴🔴  @AnaSofi03          
 - 61805  Jerez, Tomás                              (381) 338-0186  🟢🔴🔴  @ElTommmy           
 - 62318  Quiroga Castro, Lisandro                  (381) 390-9133  🟢🔴🔴  @Lisandro-18        
+- 61472  Díaz, Julieta Camila                      (381) 652-9981  🟢🟢🔴  @juliidiiaz04       
 - 61131  Agostino Colombres, Juan Manuel           (381) 684-8399  🟢🟢🟢  @JuanmaAgostino     
 - 61565  Carrizo, Mauro                            (381) 610-8745  🟢🟢🟢  @DarkoDarkShadow    
 - 61236  Drachenberg, Franco Eduardo               (381) 670-8708  🟢🟢🟢  @FDrach             
@@ -34,7 +35,6 @@
 - 61337  Díaz, Christian Gabriel                   (381) 571-4797  🔴🔴🔴                      
 - 61813  Figueroa, Manuel                          (381) 544-2423  🔴🔴🔴                      
 - 61463  González, Vladimir                        (381) 419-4154  🔴🔴🔴                      
-- 61993  Medina, Juan Ignacio                      (381) 517-1937  🔴🔴🔴                      
 ```
 
 ## Comisión 3
@@ -43,8 +43,6 @@
 - 61624  Godoy, Alan                               (381) 574-4877  🔴🟢🔴  @AlanG46            
 - 62172  Salcedo, Mariana Aylén                    (381) 466-9695  🟢🔴🔴  @marianasalcedo22   
 - 61129  Tello, Abril María Agostina               (381) 447-2483  🟢🔴🟢  @abriltello         
-- 61450  Jiménez Paz, Patricio Agustín             (381) 388-2674  🟢🟢🔴  @patricio-jp        
-- 61676  Massey, Maximiliano                       (381) 359-9941  🟢🟢🔴  @EPILONgaga         
 - 61096  Suárez Vece, Leandro Andrés               (381) 512-6476  🟢🟢🔴  @leandroVece        
 - 61203  Acevedo Costello, Juan Ignacio            (381) 388-7804  🟢🟢🟢  @Ignacioacevedoo    
 - 61667  Acosta, Maira                             (381) 562-8162  🟢🟢🟢  @maira-acostaa      
@@ -60,11 +58,13 @@
 - 61200  Gauna Serrano, Martín Javier              (381) 389-2631  🟢🟢🟢  @MartinGS8          
 - 61579  Gonzalo, Martín                           (381) 418-6882  🟢🟢🟢  @Lived18            
 - 62053  Herrera Palomino, Iván Agustín            (381) 697-0643  🟢🟢🟢  @ivanagustinherrera 
+- 61450  Jiménez Paz, Patricio Agustín             (381) 388-2674  🟢🟢🟢  @patricio-jp        
 - 61627  Juárez Fernández, Lourdes Abril           (381) 647-9914  🟢🟢🟢  @LourdesFernandez1  
 - 61473  Lagoria García, Tomás Gustavo             (381) 357-7724  🟢🟢🟢  @tomaslago27        
 - 61794  Lobo Campero, Hernán Ignacio              (381) 590-6461  🟢🟢🟢  @lobohhernan        
 - 61818  López Tisera, Gastón                      (381) 523-5887  🟢🟢🟢  @gastonlopezt       
 - 61445  Martínez Campero, Santiago                (381) 646-6685  🟢🟢🟢  @SantiCampero       
+- 61676  Massey, Maximiliano                       (381) 359-9941  🟢🟢🟢  @EPILONgaga         
 - 61150  Molina Navarro, Juan Martín               (381) 644-3413  🟢🟢🟢  @JuanMolinaNavarro  
 - 61032  Moya, Mariano                             (381) 670-1164  🟢🟢🟢  @mariano-moya       
 - 61113  Oríz Caballero, Juan José                 (381) 631-7223  🟢🟢🟢  @JuanchoCab         
