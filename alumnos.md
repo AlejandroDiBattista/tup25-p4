@@ -22,7 +22,6 @@
 - 61335  León, Lucas Ismael                        (381) 609-7898  🟢🟢🟢  @LuquitasLeon       
 - 61911  Llanos, Luciano                           (381) 325-9224  🟢🟢🟢  @LucianoLlanos      
 - 61338  Morales, Juan Daniel                      (381) 665-5296  🟢🟢🟢  @JuanMo17           
-- 62263  Orellana, José Augusto                    (381) 339-2050  🟢🟢🟢  @Jaodem             
 - 61046  Ponce, Luz Micaela                        (381) 664-7165  🟢🟢🟢  @Mica8p             
 - 61033  Quiroga, José María                       (11) 2399-7675  🟢🟢🟢  @jose-qui           
 - 62175  Quiroga, Marcela Noemí                    (381) 593-8430  🟢🟢🟢  @Marce-Quiroga      
@@ -67,6 +66,7 @@
 - 61676  Massey, Maximiliano                       (381) 359-9941  🟢🟢🟢  @EPILONgaga         
 - 61150  Molina Navarro, Juan Martín               (381) 644-3413  🟢🟢🟢  @JuanMolinaNavarro  
 - 61032  Moya, Mariano                             (381) 670-1164  🟢🟢🟢  @mariano-moya       
+- 62263  Orellana, José Augusto                    (381) 339-2050  🟢🟢🟢  @Jaodem             
 - 61113  Oríz Caballero, Juan José                 (381) 631-7223  🟢🟢🟢  @JuanchoCab         
 - 61248  Palma Collado, Nahuel                     (381) 674-7012  🟢🟢🟢  @Nahu333            
 - 61572  Parrado Navarrete, Alex Daniel            (381) 409-5039  🟢🟢🟢  @AlexDaniel28       
@@ -87,7 +87,6 @@
 - 61956  Leglisé, Laureano                         (261) 468-9809  🔴🔴🔴                      
 - 61679  Lobo Barrera, María de los Ángeles        (381) 677-0639  🔴🔴🔴                      
 - 61581  Naim, Federico Paz                        (381) 353-0060  🔴🔴🔴                      
-- 62263  Orellana, José Augusto                    (386) 534-2925  🔴🔴🔴                      
 - 61059  Palavecino, Fabricio Gastón               (381) 666-6103  🔴🔴🔴                      
 - 61862  Zerda, Thomas                             (381) 333-0962  🔴🔴🔴                      
 ```
