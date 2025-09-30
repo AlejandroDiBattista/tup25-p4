@@ -1,66 +1,26 @@
-# TP3: Directorio Alumnos (React + Vite)
+# 1er Parcial 
 
-## Objetivo
-Construir una aplicación web para mostrar el directorio de alumnos (solo lectura) que:
-- Cargue los datos desde `alumnos.vcf` (vCard 3.0) incluido en el proyecto.
-- Muestre por alumno: nombre completo, teléfono, legajo y, si está disponible, usuario de GitHub con avatar.
-- Permita buscar por nombre, teléfono o legajo (ignorando mayúsculas/minúsculas y acentos).
-- Permita marcar/desmarcar favoritos.
-- Agrupe los resultados mostrando primero los favoritos y luego el resto; ambos grupos ordenados alfabéticamente por nombre normalizado.
+El 1er parcial sera el dia Jueves 2 de Octubre.
 
-## Restricciones y Alcance
-- Sin CRUD: no se puede crear, editar ni eliminar alumnos.
-- Sin formularios ni modales.
-- Sin persistencia: el estado de favoritos no se guarda entre recargas.
+Sera un examen multiples choice con 50 preguntas.
+Debera responder 45 para promocionar y 35 para aprobar.
+El examen sera de 2 horas de duracion.
 
-## Requisitos Funcionales
-1. Carga de datos
-   - Importar `alumnos.vcf` como texto y parsearlo en el cliente.
-   - Asumir un patrón fijo por tarjeta con los campos: `FN`, `TEL;TYPE=CELL`, `NOTE` (contiene `Legajo: <número> ... Github: <usuario>`).
-   - Generar objetos: `{ id, nombre, telefono, legajo, github, favorito }` con `favorito: false` por defecto.
-   - `id`: usar `legajo` .
-   - `github`: usar el usuario de GitHub si está presente; si no, `""`.
+El examen sera presencial en el aula de clases y se respondera desde la computadora o desde el celular.
 
-2. Búsqueda y orden
-   - Campo de búsqueda en la barra superior.
-   - Filtra por coincidencia en `nombre`, `telefono` o `legajo` (normalización sin acentos y sin distinción de mayúsculas/minúsculas).
-   - Orden alfabético por nombre normalizado dentro de cada grupo.
+El examen sera sobre los temas vistos en clase hasta la fecha del examen.
+El examen sera individual y no se permitira el uso de materiales de consulta.
 
-3. Favoritos y agrupación
-   - Interacción para alternar la propiedad `favorito` de un alumno en memoria.
-   - Listar en dos grupos: favoritos y no favoritos; ambos ordenados.
-   - Si no hay resultados, mostrar un mensaje informativo de lista vacía.
+Podran acumular hasta 25 creditos que se pueden usar para perdonar un error por credito.
 
-4. Avatar de GitHub
-   - Si `github` está presente, usar la imagen `https://github.com/<usuario>.png?size=100` como avatar del alumno; si no, proveer una alternativa textual (por ejemplo, iniciales).
+Para conseguir los creditos se pueden responder mini-examenes en linea.
+- https://examen-p1.netlify.app
 
-## Requisitos Técnicos
-- Stack: React + Vite.
-- Importar el VCF como texto (ej.: `import alumnosVcf from '../alumnos.vcf?raw'`).
-- Parseo del VCF con expresiones regulares asumiendo el formato fijo de las tarjetas.
-- Estado en memoria con `useState`.
-- Separación en módulos:
-  - Servicio de datos: `src/services/alumnos.js` con `parseVcf` y `loadAlumnos`.
-  - Utilidades de texto: `src/utils/text.js` con `norm`, `cmpNombre`, `includesContacto`.
+Si el examen (10 preguntas) se responde correctamente se obtiene 1 credito.
+Tendra 5 intentos por examen.
 
-## Componentes sugeridos
-- `Topbar`: título y campo de búsqueda.
-- `ContactSection`: recibe `title` y `contacts` y renderiza la lista.
-- `ContactCard`: muestra nombre, teléfono, legajo y avatar (si hay GitHub), además de la interacción de favorito.
+Debe guardarse los creditos para ser usado el dia del examen.
 
 
-## Referencia visual
 
-El diseño es libre, pero se sugiere una estructura similar a la siguiente:
-![alt text](./enunciado/tp3/imagen.png)
-
-## Entrega 
-> [!IMPORTANT]
-> El trabajo se deben entregar hasta el **lunes 15 de septiembre a las 21:00 hs**.
-
-## Como realizar el trabajo.
-Recuerde 
-1. Pasar a la rama main de repositorio, actualizar el contenido.
-2. Crear su propia rama resolver y publicar la solución.
-3. Realizar un Pull Request a la rama main del repositorio original.
-> Nota: Recuerde que el titulo del PR debe ser: "TP3 - \<Legajo> - \<Apellido, Nombre>"
+[Preguntas que se realizaran](preguntas.pdf)
