@@ -85,4 +85,4 @@ Nota:
 
 ## Entrega
 
-El programa debe ser entregado hasta el **lunes 13 de noviembre a las 20:59**
+El programa debe ser entregado hasta el **lunes 13 de octubre a las 20:59**
