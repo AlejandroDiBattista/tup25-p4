@@ -1,4 +1,4 @@
-# Ejercicio: Calculadora de Amortización (Sistema Francés)
+# TP4: Calculadora de Amortización (Sistema Francés)
 
 ## Objetivo
 Desarrollar un programa de consola en Python que calcule y muestre la tabla de amortización bajo el sistema francés.
