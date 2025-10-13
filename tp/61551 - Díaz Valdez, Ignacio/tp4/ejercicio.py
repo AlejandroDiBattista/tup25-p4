@@ -1,7 +1,4 @@
 # TP4: Calculadora de Amortización (Sistema Francés)
-# Cumple enunciado: pide monto, TNA (decimal), cuotas; imprime tabla con ancho 10 y 2 decimales.
-
-# Versión simple con un solo while para pedir las tres entradas
 
 while True:
     try:
