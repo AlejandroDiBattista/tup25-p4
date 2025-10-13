@@ -13,7 +13,7 @@ export function Agenda({contactos}){
             <ul className="agenda">
                 {contactos.map(c => (
                     <li key={c.legajo}>
-                        <Contacto  {...c} alSaludar={alSaludar} />
+                        <Contacto {...c} alSaludar={alSaludar} />
                     </li>
                 ))}
             </ul>

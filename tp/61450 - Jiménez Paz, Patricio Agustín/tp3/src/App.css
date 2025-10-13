@@ -1,0 +1,97 @@
+:root {
+    --bg: #f6f7fb;
+    --card: #fff;
+    --accent: #2b6cb0;
+}
+body {
+    font-family: Inter, Segoe UI, Arial;
+    background: var(--bg);
+    margin: 0 auto;
+}
+.app-container {
+    background: var(--bg);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--card);
+    border-radius: 0 0 0.5rem 0.5rem;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+.topbar h1 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+.topbar .search {
+    margin-left: auto;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid #ddd;
+    min-width: 220px;
+}
+.section {
+    padding: 1rem;
+}
+.list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+.card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--card);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.avatar.fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ddd;
+    color: #333;
+    font-weight: 600;
+}
+.meta {
+    flex: 1;
+}
+.meta p {
+    margin: 0.1rem 0;
+}
+.name {
+    font-weight: 600;
+}
+.phone,
+.legajo {
+    font-size: 0.85rem;
+    color: #555;
+}
+.phone span,
+.legajo span {
+    font-weight: 600;
+}
+.fav {
+    background: transparent;
+    border: 0;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.fav.on {
+    color: gold;
+}
+.empty {
+    color: #666;
+    padding: 0.5rem;
+}

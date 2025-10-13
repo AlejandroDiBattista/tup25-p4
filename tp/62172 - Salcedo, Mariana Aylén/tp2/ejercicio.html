@@ -6,10 +6,34 @@
     <title>Agenda de Contactos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <main class="container">
+      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <input type="search" id="buscador" placeholder="Buscar contacto..." aria-label="Buscar contacto" style="flex: 1; margin-right: 1rem;" />
+        <button id="btnAgregar" aria-label="Agregar contacto">➕ Agregar</button>
+      </header>
+      <section id="listadoContactos" class="grid"></section>
+      <dialog id="dialogoContacto">
+        <form method="dialog" id="formContacto">
+          <h3 id="tituloDialogo">Nuevo contacto</h3>
+          <input type="hidden" id="contactoId" />
+          <label>Nombre<input type="text" id="nombre" required /></label>
+          <label>Apellido<input type="text" id="apellido" required /></label>
+          <label>Teléfono<input type="tel" id="telefono" required /></label>
+          <label>Email<input type="email" id="email" required /></label>
+          <menu>
+            <button type="submit">Guardar</button>
+            <button type="reset" id="btnCancelar">Cancelar</button>
+          </menu>
+        </form>
+      </dialog>
+    </main>
+    <footer style="text-align:center; margin-top:2rem; color:#888; font-size:0.9em;">
+      <p>TP2 Agenda de Contactos - JavaScript + Pico.css</p>
+      <p>Sin persistencia, datos en memoria. Recarga para restablecer contactos de ejemplo.</p>
+    </footer>
+    <script type="module" src="./ejercicio.js"></script>
   </body>
-  </html>
+</html>
 

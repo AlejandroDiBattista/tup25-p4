@@ -1,0 +1,15 @@
+.seccion-contactos {
+  margin-bottom: 30px;
+}
+
+.seccion-contactos h2 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #192a56;
+}
+
+.grilla-contactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+}

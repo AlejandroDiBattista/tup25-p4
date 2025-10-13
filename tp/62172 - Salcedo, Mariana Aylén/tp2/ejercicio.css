@@ -1,1 +1,197 @@
-/* Estilos generales */
+body {
+  background: #f6f7fa;
+}
+
+main.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+
+header {
+  margin-bottom: 2.5rem;
+}
+
+header input[type="search"] {
+  border-radius: 2rem;
+  border: 1px solid #d1d5db;
+  padding: 0.7em 1.2em;
+  font-size: 1.1em;
+  background: #fff;
+  box-shadow: 0 1px 4px #0001;
+  outline: none;
+  transition: border 0.2s;
+}
+
+header input[type="search"]:focus {
+  border: 1.5px solid #2563eb;
+}
+
+header button {
+  background: #222c36;
+  color: #fff;
+  border-radius: 0.5em;
+  padding: 0.7em 1.5em;
+  font-size: 1.1em;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+header button:hover {
+  background: #2563eb;
+}
+
+#listadoContactos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.5rem;
+}
+
+.card-contacto {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.7rem;
+  box-shadow: 0 2px 12px #0001;
+  padding: 1.2rem 1.3rem 1rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-height: 150px;
+}
+
+.card-contacto .nombre {
+  font-weight: bold;
+  font-size: 1.18em;
+  color: #222c36;
+  margin-bottom: 0.2em;
+}
+
+.card-contacto .datos {
+  color: #444;
+  font-size: 1em;
+  margin-bottom: 0.2em;
+}
+
+.card-contacto .acciones {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: flex-start;
+  margin-top: 0.5em;
+}
+
+.card-contacto .acciones button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 0.3em 0.5em;
+  border-radius: 0.3em;
+  transition: background 0.2s;
+  color: #e11d48;
+  outline: none;
+}
+
+.card-contacto .acciones button.editar {
+  color: #2563eb;
+}
+
+.card-contacto .acciones button:hover {
+  background: #f1f5f9;
+}
+
+/* Diálogo */
+dialog#dialogoContacto {
+  min-width: 420px;
+  max-width: 480px;
+  border-radius: 0.7em;
+  border: none;
+  box-shadow: 0 8px 32px #0002;
+  padding: 0;
+}
+
+#formContacto {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2em 1em;
+  padding: 2.2em 2em 1.5em 2em;
+}
+
+#formContacto h3 {
+  grid-column: 1/3;
+  margin-bottom: 1em;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #222c36;
+}
+
+#formContacto label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #222c36;
+  font-size: 1em;
+  gap: 0.3em;
+}
+
+#formContacto input[type="text"],
+#formContacto input[type="tel"],
+#formContacto input[type="email"] {
+  border-radius: 0.4em;
+  border: 1px solid #d1d5db;
+  padding: 0.7em 1em;
+  font-size: 1.08em;
+  background: #f9fafb;
+  margin-top: 0.2em;
+  outline: none;
+  transition: border 0.2s;
+}
+
+#formContacto input:focus {
+  border: 1.5px solid #2563eb;
+}
+
+#formContacto menu {
+  grid-column: 1/3;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+  margin-top: 1.2em;
+}
+
+#formContacto button[type="submit"] {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.4em;
+  padding: 0.7em 2em;
+  font-size: 1.1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#formContacto button[type="submit"]:hover {
+  background: #1d4ed8;
+}
+
+#formContacto button[type="reset"] {
+  background: #64748b;
+  color: #fff;
+  border: none;
+  border-radius: 0.4em;
+  padding: 0.7em 2em;
+  font-size: 1.1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#formContacto button[type="reset"]:hover {
+  background: #334155;
+}
+
+footer {
+  margin-top: 2.5rem;
+  color: #888;
+  font-size: 0.95em;
+}
