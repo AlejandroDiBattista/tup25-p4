@@ -1,0 +1,213 @@
+:root {
+  /* Paleta mate (baja saturación) — ajústala a gusto */
+  --c1: hsl(205 25% 78%);
+  --c2: hsl( 40 24% 80%);
+  --c3: hsl(320 17% 82%);
+  --c4: hsl(160 20% 78%);
+  --base: hsl(220 10% 96%); /* color de base muy claro */
+}
+
+body::before {
+    content: "";
+    position: fixed;      /* cubre toda la pantalla aunque haya scroll */
+    inset: -20%;          /* se extiende más allá para que el blur no recorte bordes */
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(600px 600px at 10% 15%, var(--c1) 0 60%, transparent 60%),
+        radial-gradient(700px 700px at 85% 10%, var(--c2) 0 65%, transparent 65%),
+        radial-gradient(600px 600px at 15% 85%, var(--c3) 0 60%, transparent 60%),
+        radial-gradient(800px 800px at 90% 85%, var(--c4) 0 65%, transparent 65%);
+    filter: blur(70px);
+    opacity: 0.9;
+    transform: translateZ(0); /* ayuda a que sea más suave en algunos navegadores */
+}
+
+@keyframes fondo-lento {
+    0%   { transform: translateZ(0) translate(-2%, -2%) scale(1.04); }
+    50%  { transform: translateZ(0) translate( 2%,  1%) scale(1.04); }
+    100% { transform: translateZ(0) translate(-2%, -2%) scale(1.04); }
+}
+
+body {
+    font-family: system-ui, sans-serif;
+    line-height: 1.4;
+    margin: 0;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* Layout: espacio para barra fija */
+.page-container {
+    padding: 96px 24px 96px; /* espacio arriba por navbar y abajo por footer fijo */
+}
+
+/* Navbar fija arriba */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 24px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e5e5e5;
+    z-index: 1000;
+}
+
+.navbar-spacer {
+    flex: 1;
+}
+
+/* Footer fijo abajo con estilo similar al navbar */
+.page-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid #e5e5e5;
+    z-index: 1000;
+}
+
+.page-footer p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background: #00000008;
+}
+
+/* Activo: soporta NavLink (aria-current) y clase .active por compatibilidad */
+.nav-link[aria-current="page"],
+.nav-link.active {
+    color: #0a67ff;
+    background: #0a67ff14;
+    box-shadow: inset 0 0 0 1px #0a67ff33;
+}
+
+form {
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);    
+    border-radius: 20px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 400px;
+    margin: auto;
+    background-color: white;
+    /* background-color: rgb(216, 229, 232); */
+}
+
+form legend {
+    font-weight: 100;
+    font-size: 28px;
+}
+
+form input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+}
+
+form label {
+    /* font-weight: bold; */
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+fieldset {
+    margin-top: 20px;
+    border: none;
+    display: flex;
+    justify-content: end;
+    gap: 10px;
+    padding: 0px;
+
+    button {
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 100;
+        font-size: 20px;
+    }
+}
+
+button {
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background-color: white;
+    /* color: white; */
+    cursor: pointer;
+    font-weight: 100;
+    font-size: 20px;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+}
+    /* Utilidad: estilo de botón para enlaces */
+    .btn {
+        display: inline-block;
+        padding: 12px 20px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        background-color: white;
+        cursor: pointer;
+        font-weight: 100;
+        font-size: 30px;
+        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+        text-decoration: none; /* quitar subrayado en <a> */
+        color: inherit;       /* usar color del texto actual */
+    }
+
+    /* Variante pequeña: igual a los botones dentro de fieldset */
+    .btn--sm {
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 20px;
+    }
+
+.preview {
+    margin-top: 20px;
+    padding-top: 10px;
+    /* text-align: center; */
+    font-size: 18px;
+    color: #555;
+    background: linear-gradient(to bottom, white, #20F05044);
+    padding: 10px;
+    border-radius: 10px 0px 10px 10px;
+    
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}

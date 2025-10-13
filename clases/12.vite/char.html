@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chat Gemini • Archivo único</title>
+    <!-- React + ReactDOM desde CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel para permitir JSX en el navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0f172a;
+        --panel: #111827;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --accent: #6366f1;
+        --user: #1f2937;
+        --model: #0b3b2e;
+      }
+      * { box-sizing: border-box; }
+      html, body, #root { height: 100%; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .wrap {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        height: 100%;
+        max-width: 880px;
+        margin: 0 auto;
+      }
+      header {
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        background: var(--panel);
+        position: sticky; top: 0;
+      }
+      header h1 { font-size: 16px; margin: 0; }
+      header .tip { color: var(--muted); font-size: 12px; }
+
+      .messages { padding: 16px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+      .bubble { max-width: 85%; padding: 10px 12px; border-radius: 10px; line-height: 1.35; white-space: pre-wrap; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+      .bubble.user { align-self: flex-end; background: var(--user); }
+      .bubble.model { align-self: flex-start; background: var(--model); }
+      .composer { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px; border-top: 1px solid rgba(255,255,255,0.08); background: var(--panel); }
+      .composer input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--text); }
+      .composer button { padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent); color: white; cursor: pointer; }
+      .composer button:disabled { opacity: .6; cursor: default; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useEffect, useRef, useState } = React;
+
+      const MODEL_ID = 'gemini-1.5-flash';
+
+      function getApiKey() { return 'AIzaSyDZVniWRj3lZ1DEnrUEP_Bn1DfPou9IXls'; }
+
+      async function generateChat(messages) {
+        const apiKey = getApiKey();
+        if (!apiKey) throw new Error('Falta API key (definí window.GEMINI_API_KEY).');
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const contents = (messages || []).map(m => ({
+          role: m.role === 'model' ? 'model' : 'user',
+          parts: [{ text: String(m.text ?? '') }],
+        }));
+        const body = { contents, generationConfig: { temperature: 0.6 } };
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const detail = await res.text().catch(() => '');
+          throw new Error(`HTTP ${res.status} ${res.statusText}: ${detail}`);
+        }
+        const data = await res.json();
+        const text = (data?.candidates?.[0]?.content?.parts ?? [])
+          .map(p => p.text || '')
+          .join('')
+          .trim();
+        return text || '(sin respuesta)';
+      }
+
+      function App() {
+        const [messages, setMessages] = useState([
+          { role: 'model', text: 'Hola! Soy un bot con Gemini. ¿En qué te ayudo?' },
+        ]);
+        const [input, setInput] = useState('');
+        const [loading, setLoading] = useState(false);
+        // Sin ingreso/guardado de API key en la UI
+        const listRef = useRef(null);
+
+        useEffect(() => {
+          const el = listRef.current; if (el) el.scrollTop = el.scrollHeight;
+        }, [messages, loading]);
+
+        async function onSend(e) {
+          e.preventDefault();
+          const text = input.trim();
+          if (!text || loading) return;
+          const next = [...messages, { role: 'user', text }];
+          setMessages(next);
+          setInput('');
+          setLoading(true);
+          try {
+            const shortHistory = next.slice(-8);
+            const reply = await generateChat(shortHistory);
+            setMessages(prev => [...prev, { role: 'model', text: reply }]);
+          } catch (err) {
+            setMessages(prev => [...prev, { role: 'model', text: 'Error: ' + (err?.message || String(err)) }]);
+          } finally {
+            setLoading(false);
+          }
+        }
+
+        return (
+          <div className="wrap">
+            <header>
+              <h1>Chat Gemini • archivo único</h1>
+              <div className="tip">Definí window.GEMINI_API_KEY en un script antes de este.</div>
+            </header>
+
+            <div className="messages" ref={listRef}>
+              {messages.map((m, i) => (
+                <div key={i} className={`bubble ${m.role}`}>{m.text}</div>
+              ))}
+              {loading && <div className="bubble model">Escribiendo…</div>}
+            </div>
+
+            <form className="composer" onSubmit={onSend}>
+              <input
+                type="text"
+                placeholder="Escribe y presiona Enter"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                disabled={loading}
+                autoFocus
+              />
+              <button type="submit" disabled={loading || !input.trim()}>Enviar</button>
+            </form>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+  </html>

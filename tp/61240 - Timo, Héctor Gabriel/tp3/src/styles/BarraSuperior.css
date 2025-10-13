@@ -1,0 +1,23 @@
+.barra-superior {
+  background: #273c75;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.barra-superior h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.input-busqueda {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  width: 250px;
+  font-size: 1rem;
+}

@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react'
 
 import { Agenda, Contacto } from './components'
-import vcfContent from './assets/alumnos.vcf?raw'
+import alumnos from './assets/alumnos.vcf?raw'
 
 import './App.css'
 
-
-function parseVCF(vcfContent) {
-  const cards = vcfContent.split('BEGIN:VCARD').slice(1);
+function parseVCF(data) {
+  const cards = data.split('BEGIN:VCARD').slice(1);
   const alumnos = cards.map(card => {
     const lineas = card.split('\n');
     let nombre, telefono, legajo, comision;
@@ -30,17 +29,15 @@ function parseVCF(vcfContent) {
 function App() {
   let [contactos, setContactos] = useState([]);
   useEffect(() => {
-    const contactos = parseVCF(vcfContent);
+    const contactos = parseVCF(alumnos);
     setContactos(contactos);
   }, []);
 
-  
   return (
     <>
-      <pre style={{ textAlign: 'left' }}>{contactos.length > 0 ? JSON.stringify(contactos, null, 2) : 'No hay contactos'}</pre>
-      <Contacto {...contactos[0]} />
-      <hr/>
       <Agenda contactos={contactos}/>
     </>
   )
-}export default App
+}
+
+export default App

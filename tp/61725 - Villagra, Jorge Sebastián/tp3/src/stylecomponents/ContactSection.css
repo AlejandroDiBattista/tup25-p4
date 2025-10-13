@@ -1,0 +1,21 @@
+.contact-section {
+  padding: 2rem 1rem 1rem 1rem;
+  background: #f3f4f6;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(60, 60, 120, 0.04);
+}
+
+.contact-section h2 {
+  color: #3730a3;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+
+.contact-section__list {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
