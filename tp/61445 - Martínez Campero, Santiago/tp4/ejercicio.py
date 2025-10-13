@@ -22,6 +22,7 @@ print("\nCronograma de pagos:")
 print("   Mes        Pago     Capital    Interés     Saldo   ")
 print("---------- ---------- ---------- ---------- ----------")
 
+amortizacion = []
 saldo = capital
 total_pago = 0
 total_capital = 0
@@ -32,10 +33,13 @@ for mes in range(1, cuotas + 1):
     interes = saldo * tasa_periodica
     capital_amortizado = cuota_fija - interes
     saldo -= capital_amortizado
-    print(f"{mes:10} {cuota_fija:10.2f} {capital_amortizado:10.2f} {interes:10.2f} {saldo:10.2f}")
-    total_pago += cuota_fija
-    total_capital += capital_amortizado
-    total_interes += interes
+    amortizacion.append({
+        'mes': mes,
+        'pago': cuota_fija,
+        'capital': capital_amortizado,
+        'interes': interes,
+        'saldo': saldo
+    })
 
 print("\nTotales:")
 print(f"  Pago   : ${total_pago:,.2f}")
