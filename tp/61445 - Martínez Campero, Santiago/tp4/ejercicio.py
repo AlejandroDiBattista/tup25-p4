@@ -24,9 +24,6 @@ print("---------- ---------- ---------- ---------- ----------")
 
 amortizacion = []
 saldo = capital
-total_pago = 0
-total_capital = 0
-total_interes = 0
 
 
 for mes in range(1, cuotas + 1):
@@ -40,6 +37,13 @@ for mes in range(1, cuotas + 1):
         'interes': interes,
         'saldo': saldo
     })
+
+for registro in amortizacion:
+    print(f"{registro['mes']:10} {registro['pago']:10.2f} {registro['capital']:10.2f} {registro['interes']:10.2f} {registro['saldo']:10.2f}")
+
+total_pago = sum(registro['pago'] for registro in amortizacion)
+total_capital = sum(registro['capital'] for registro in amortizacion)
+total_interes = sum(registro['interes'] for registro in amortizacion)
 
 print("\nTotales:")
 print(f"  Pago   : ${total_pago:,.2f}")
