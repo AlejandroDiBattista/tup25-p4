@@ -1,23 +1,46 @@
-#TP4: Calculadora de prestamos - Sistema Francés
+def calcular_amortizacion_frances():
+    print("=== Ingresar datos del préstamo ===")
+    P = float(input("Monto inicial del préstamo  : ").strip())
+    TNA = float(input("Tasa Nominal Anual (TNA)    : ").strip())
+    n = int(input("Cantidad de cuotas mensuales: ").strip())
 
-print("Calculadora de Amortización - Sistema Francés")
+    i = TNA / 12
+    cuota = P * (i * (1 + i) ** n) / ((1 + i) ** n - 1) if i != 0 else P / n
+    TEA = (1 + i) ** 12 - 1
 
-capital = float(input("- Monto inicial: "))
-tasa    = float(input("- TNA: "))
-cuotas  = int( input("- Cantidad de cuotas: "))
+    print("\n=== Resultados ===")
+    print(f"Cuota fija (mensual)    : ${cuota:,.2f}")
+    print(f"Tasa periódica (TNA/12): {i*100:7.2f}%")
+    print(f"TEA (efectiva anual)   : {TEA*100:7.2f}%\n")
 
+    saldo = P
+    filas = []
+    total_pago = 0.0
+    total_capital = 0.0
+    total_interes = 0.0
 
-print("=== Ingresar datos del préstamo ===")
-capital = float(input("Monto inicial del préstamo  :"))
-tasa    = float(input("Tasa Nominal Anual (TNA)    :"))
-cuotas  = int( input("Cantidad de cuotas mensuales:"))
+    print("Cronograma de pagos:")
+    print(f"{'Mes':>10} {'Pago':>10} {'Capital':>10} {'Interés':>10} {'Saldo':>10}")
+    print(" ".join(["-"*10]*5))
 
-## === Realizar los calculos ===
+    for mes in range(1, n + 1):
+        interes = saldo * i
+        capital = cuota - interes
+        if mes == n:
+            capital = saldo
+            interes = max(cuota - capital, 0.0)
+        saldo = max(saldo - capital, 0.0)
 
-# Calcular las cuotas mensuales y la tasa periódica
-# Mostrar los resultados en el formato pedido
+        total_pago += (capital + interes)
+        total_capital += capital
+        total_interes += interes
 
-print("Totales:")
-print(f"  Pago   :  ${pago_total:,.2f}")
-print(f"  Capital:  ${capital_total:,.2f}")
-print(f"  Interés:  ${interes_total:,.2f}")
+        print(f"{mes:>10d} {capital+interes:>10.2f} {capital:>10.2f} {interes:>10.2f} {saldo:>10.2f}")
+
+    print("\nTotales:")
+    print(f"  Pago   : ${total_pago:,.2f}")
+    print(f"  Capital: ${total_capital:,.2f}")
+    print(f"  Interés: ${total_interes:,.2f}")
+
+if __name__ == "__main__":
+    calcular_amortizacion_frances()
