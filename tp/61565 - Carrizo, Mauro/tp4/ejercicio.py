@@ -1,23 +1,43 @@
 #TP4: Calculadora de prestamos - Sistema Francés
 
-print("Calculadora de Amortización - Sistema Francés")
+# Cuota, tasa periódica y TEA:
+tasaper = (tasa / 100) / 12
+cuota = capital * (tasaper * (1 + tasaper) ** cuotas) / ((1 + tasaper) ** cuotas - 1)
+tea = (1 + tasaper) ** 12 - 1
 
-capital = float(input("- Monto inicial: "))
-tasa    = float(input("- TNA: "))
-cuotas  = int( input("- Cantidad de cuotas: "))
+print("\n=== Resultados ===")
+print(f"Cuota fija (mensual)    : ${cuota:,.2f}")
+print(f"Tasa periódica (TNA/12): {tasaper * 100:8.2f}%")
+print(f"TEA (efectiva anual)   : {tea * 100:8.2f}%")
+print("\nCronograma de pagos:")
+print(f"{'Mes':>10} {'Pago':>10} {'Capital':>10} {'Interés':>10} {'Saldo':>10}")
+print("-" * 50)
 
+saldo = capital
+pago_total = 0
+capital_total = 0
+interes_total = 0
 
-print("=== Ingresar datos del préstamo ===")
-capital = float(input("Monto inicial del préstamo  :"))
-tasa    = float(input("Tasa Nominal Anual (TNA)    :"))
-cuotas  = int( input("Cantidad de cuotas mensuales:"))
+for mes in range(1, cuotas + 1):
+    interes = saldo * tasaper
+    amortizacion = cuota - interes
+    saldo -= amortizacion
 
-## === Realizar los calculos ===
+    if mes == cuotas:
+        saldo = 0.0
 
-# Calcular las cuotas mensuales y la tasa periódica
-# Mostrar los resultados en el formato pedido
+    pago_total += cuota
+    capital_total += amortizacion
+    interes_total += interes
 
-print("Totales:")
-print(f"  Pago   :  ${pago_total:,.2f}")
-print(f"  Capital:  ${capital_total:,.2f}")
-print(f"  Interés:  ${interes_total:,.2f}")
+    print(f"{mes:10d}{cuota:10.2f}{amortizacion:10.2f}{interes:10.2f}{saldo:10.2f}")
+
+#---------------------------------------------------------------------------------------
+
+# Resultados:
+print(" •   Totales:")
+print(f"    -   💵 Pago   :  ${pago_total:,.2f}")
+print(f"    -   💰 Capital:  ${capital_total:,.2f}")
+print(f"    -   📈 Interés:  ${interes_total:,.2f}")
+
+#---------------------------------------------------------------------------------------
