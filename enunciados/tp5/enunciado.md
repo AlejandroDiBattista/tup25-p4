@@ -95,7 +95,7 @@ El archivo CSV debe contener las siguientes columnas:
 
 El sistema se debe parecerse a la siguiente imagen:
 
-![Pantalla de sistema](enunciados/tp5/referencia.png)
+![Pantalla de sistema](referencia.png)
 
 <!-- Alternativa para controlar tamaño (descomentar si se prefiere):
 <img src="referencia.png" alt="ReadMe con instrucciones detalladas" width="600" />
