@@ -21,3 +21,4 @@ print("Totales:")
 print(f"  Pago   :  ${pago_total:,.2f}")
 print(f"  Capital:  ${capital_total:,.2f}")
 print(f"  Interés:  ${interes_total:,.2f}")
+
