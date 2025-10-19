@@ -29,4 +29,49 @@ if df_filtrado.empty:
     st.warning("El año seleccionado no tiene datos para mostrar.")
     st.stop()
 
+# Calcular métricas por producto
+metricas = df_filtrado.groupby('producto').agg(
+    cantidad_ventas=('cantidad', 'sum'),
+    precio_promedio=('ingreso', lambda x: x.sum() / df_filtrado.loc[x.index, 'cantidad'].sum()),
+    costo_promedio=('costo', lambda x: x.sum() / df_filtrado.loc[x.index, 'cantidad'].sum())
+).reset_index()
+
+# Ordenar alfabéticamente por producto
+metricas = metricas.sort_values('producto')
+
+# Mostrar productos
+for _, row in metricas.iterrows():
+    producto = row['producto']
+    cantidad = row['cantidad_ventas']
+    precio_prom = row['precio_promedio']
+    costo_prom = row['costo_promedio']
+    
+    with st.container(border=True):
+        st.markdown(f"## :red[{producto}]")
+        
+        col1, col2 = st.columns([0.3, 0.7])
+        
+        with col1:
+            st.metric("Cantidad de ventas", f"{cantidad:,}")
+            st.metric("Precio promedio", f"{precio_prom:.2f}")
+            st.metric("Costo promedio", f"{costo_prom:.2f}")
+        
+        with col2:
+            # Datos para el gráfico
+            df_prod = df_filtrado[df_filtrado['producto'] == producto]
+            mensual = df_prod.groupby('mes').agg(
+                precio_prom=('ingreso', lambda x: x.sum() / df_prod.loc[x.index, 'cantidad'].sum()),
+                costo_prom=('costo', lambda x: x.sum() / df_prod.loc[x.index, 'cantidad'].sum())
+            ).reset_index()
+            
+            fig, ax = plt.subplots(figsize=(8, 3))
+            ax.plot(mensual['mes'], mensual['precio_prom'], color='#1f77b4', marker='o', label='Precio promedio')
+            ax.plot(mensual['mes'], mensual['costo_prom'], color='#d62728', marker='o', label='Costo promedio')
+            ax.set_xlabel('Mes')
+            ax.set_ylabel('Monto')
+            ax.set_title('Evolución de precio y costo promedio')
+            ax.legend(loc='best')
+            ax.grid(True, linestyle='--', alpha=0.3)
+            st.pyplot(fig)
+
 st.write("Escribir aca la solucion del TP5")
