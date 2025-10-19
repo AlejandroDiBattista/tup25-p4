@@ -29,6 +29,10 @@ if df_filtrado.empty:
     st.warning("El año seleccionado no tiene datos para mostrar.")
     st.stop()
 
+# Encabezado principal
+st.title("Informe de Productos 📈")
+st.caption("Métricas resumidas y evolución de precios/costos por año y mes.")
+
 # Calcular métricas por producto
 metricas = df_filtrado.groupby('producto').agg(
     cantidad_ventas=('cantidad', 'sum'),
@@ -73,5 +77,4 @@ for _, row in metricas.iterrows():
             ax.legend(loc='best')
             ax.grid(True, linestyle='--', alpha=0.3)
             st.pyplot(fig)
-
-st.write("Escribir aca la solucion del TP5")
+            plt.close(fig)
