@@ -6,5 +6,7 @@
     "markdown.preview.scrollPreviewWithEditor": false,
     "liveServer.settings.port": 5504,
     "workbench.colorTheme": "GitHub Light",
-    "workbench.preferredDarkColorTheme": "One Dark Pro Flat"
+    "workbench.preferredDarkColorTheme": "One Dark Pro Flat",
+    "editor.fontSize": 14,
+    "dataWrangler.startInEditModeForNotebookEntrypoints": true
 }

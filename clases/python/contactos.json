@@ -1,0 +1,32 @@
+[
+  {
+    "nombre": "Alejandro Hugo",
+    "apellido": "Di Battista",
+    "telefono": "3815343458",
+    "email": "alejandrodibattista@gmail.com"
+  },
+  {
+    "nombre": "Juan",
+    "apellido": "Perez",
+    "telefono": "3815551234",
+    "email": "jperez@gmail.com"
+  },
+  {
+    "nombre": "alejandro",
+    "apellido": "di baatista",
+    "telefono": "",
+    "email": ""
+  },
+  {
+    "nombre": "alejandro",
+    "apellido": "Perez",
+    "telefono": "3815343458",
+    "email": "alejandrodibattista@gmail.com"
+  },
+  {
+    "nombre": "franco",
+    "apellido": "di battista",
+    "telefono": "3815232323",
+    "email": ""
+  }
+]
