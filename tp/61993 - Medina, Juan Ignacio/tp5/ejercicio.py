@@ -128,4 +128,4 @@ for producto in productos:
         st.pyplot(fig)
 
     st.markdown("</div>", unsafe_allow_html=True) 
-    #f
+
