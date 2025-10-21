@@ -140,3 +140,6 @@ storybook-static/
 *.orig
 *.rej
 
+/wapp
+*.lock
+*.lock

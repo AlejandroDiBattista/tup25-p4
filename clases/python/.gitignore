@@ -1,0 +1,6 @@
+# Archivo .gitignore
+.streamlit/secrets.toml
+*.pyc
+__pycache__/
+.env
+agenda_datos.json

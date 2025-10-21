@@ -5,9 +5,23 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "ipykernel>=7.0.1",
+    "jupyter>=1.1.1",
     "matplotlib>=3.10.7",
+    "notebook>=7.4.7",
     "numpy>=2.3.3",
     "pandas>=2.3.3",
+    "pillow>=11.3.0",
     "plotly>=6.3.1",
+    "psycopg2-binary>=2.9.11",
+    "python-dotenv>=1.1.1",
+    "sqlmodel>=0.0.27",
+    "st-gsheets-connection>=0.1.0",
     "streamlit>=1.50.0",
+    "supabase>=2.22.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "marimo",
 ]
