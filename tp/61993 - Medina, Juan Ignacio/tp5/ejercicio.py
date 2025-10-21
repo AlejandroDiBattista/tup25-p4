@@ -127,4 +127,5 @@ for producto in productos:
         plt.tight_layout()
         st.pyplot(fig)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True) 
+    #f
