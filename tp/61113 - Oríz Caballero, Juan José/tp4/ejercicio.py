@@ -1,74 +1,151 @@
-#TP4: Calculadora de prestamos - Sistema Francés
+# TP5 - Análisis de Datos con Streamlit
+# Requisitos: Python 3.x, streamlit, pandas, matplotlib
+# Ejecutar con: streamlit run tp5_streamlit_reporte_productos.py
 
-print("Calculadora de Amortización - Sistema Francés")
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
 
-capital = float(input("- Monto inicial: "))
-tasa    = float(input("- TNA: "))
-cuotas  = int( input("- Cantidad de cuotas: "))
+# -----------------------------
+# 1) Configuración de la página
+# -----------------------------
+st.set_page_config(page_title="Reporte de productos", layout="wide")
 
+# -----------------------------
+# Helpers de formateo
+# -----------------------------
+def formato_miles(x: float) -> str:
+    """Devuelve un entero con separador de miles usando punto."""
+    try:
+        return f"{int(round(x)):,}".replace(",", ".")
+    except Exception:
+        return str(x)
 
-print("=== Ingresar datos del préstamo ===")
-capital = float(input("Monto inicial del préstamo  :"))
-tasa    = float(input("Tasa Nominal Anual (TNA)    :"))
-cuotas  = int( input("Cantidad de cuotas mensuales:"))
+def formato_moneda(x: float, decimales: int = 2) -> str:
+    """Formatea con coma como separador decimal y punto de miles."""
+    try:
+        s = f"{x:,.{decimales}f}"
+        return s.replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return str(x)
 
-## === Realizar los calculos ===
+# -----------------------------
+# 2) Barra lateral (sidebar)
+# -----------------------------
+st.sidebar.title("Configuración")
+archivo = st.sidebar.file_uploader("Seleccioná un CSV", type=["csv"])
 
-# Calcular las cuotas mensuales y la tasa periódica
-tasa_mensual = tasa / 12
+# Preparamos el selector de año cuando haya datos
+df = None
+anios = []
 
-if cuotas <= 0:
-    raise ValueError("La cantidad de cuotas debe ser mayor que 0.")
-if capital <= 0:
-    raise ValueError("El monto del préstamo debe ser mayor que 0.")
-if tasa_mensual == 0:
-    cuota = capital / cuotas
-else:
-    factor = (1 + tasa_mensual) ** cuotas
-    cuota = capital * (tasa_mensual * factor) / (factor - 1)
+if archivo is not None:
+    try:
+        df = pd.read_csv(archivo)
+    except Exception as e:
+        st.sidebar.error(f"Error al leer el CSV: {e}")
+        df = None
 
-tea = (1 + tasa_mensual) ** 12 - 1
+    # Validamos columnas requeridas
+    columnas_requeridas = {"año", "mes", "producto", "cantidad", "ingreso", "costo"}
+    if df is not None and not columnas_requeridas.issubset(df.columns):
+        faltan = columnas_requeridas - set(df.columns)
+        st.sidebar.error(f"El CSV no contiene las columnas requeridas: {', '.join(sorted(faltan))}")
+        df = None
 
-# Mostrar los resultados en el formato pedido
-print("\n=== Resultados ===")
-print(f"Cuota fija (mensual)    : ${cuota:,.2f}")
-print(f"Tasa periódica (TNA/12): {tasa_mensual*100:7.2f}%")
-print(f"TEA (efectiva anual)   : {tea*100:7.2f}%")
+    if df is not None:
+        # Tipos mínimos y limpieza suave
+        for c in ["año", "mes", "cantidad", "ingreso", "costo"]:
+            if c in df.columns:
+                df[c] = pd.to_numeric(df[c], errors="coerce")
+        if "producto" in df.columns:
+            df["producto"] = df["producto"].astype(str).str.strip()
 
-print("\nCronograma de pagos:")
-# Encabezados con ancho fijo de 10 caracteres
-print(f"{'Mes':>10} {'Pago':>10} {'Capital':>10} {'Interés':>10} {'Saldo':>10}")
-print(" ".join(["-"*10]*5))
+        # Quitamos filas sin datos clave
+        df = df.dropna(subset=["año", "mes", "producto", "cantidad", "ingreso", "costo"])
 
-saldo = capital
-pago_total = 0.0
-capital_total = 0.0
-interes_total = 0.0
+        # Aseguramos enteros donde corresponde (sin cambiar cálculos)
+        df["año"] = df["año"].astype(int)
+        df["mes"] = df["mes"].astype(int)
 
-for mes in range(1, cuotas + 1):
-    interes = saldo * tasa_mensual
-    amortizacion = cuota - interes
+        # Años disponibles ordenados
+        anios = sorted(df["año"].dropna().unique().astype(int).tolist())
 
-    # Ajuste en la última cuota para evitar residuo por redondeos
-    if mes == cuotas:
-        amortizacion = saldo
-        interes = cuota - amortizacion
+anio_sel = st.sidebar.selectbox("Seleccioná un año", options=anios) if anios else None
 
-    saldo -= amortizacion
-    # Evitar -0.00 por errores numéricos mínimos
-    if abs(saldo) < 0.005:
-        saldo = 0.0
+# -----------------------------
+# 3) Validaciones
+# -----------------------------
+if df is None:
+    st.info("Subí un archivo CSV desde la barra lateral para comenzar.")
+    st.stop()
 
-    pago_total += cuota
-    capital_total += amortizacion
-    interes_total += interes
+if anio_sel is None:
+    st.warning("El año seleccionado no tiene datos para mostrar.")
+    st.stop()
 
-    # Imprimir fila con 2 decimales y ancho fijo 10
-    print(f"{mes:10d} {cuota:10.2f} {amortizacion:10.2f} {interes:10.2f} {saldo:10.2f}")
+# Filtramos por año
+df_year = df[df["año"] == anio_sel].copy()
+if df_year.empty:
+    st.warning("El año seleccionado no tiene datos para mostrar.")
+    st.stop()
 
-print()  # línea en blanco antes de totales
+# ---------------------------------
+# 4) Encabezado principal de página
+# ---------------------------------
+st.title("Informe de Productos 📈")
+st.caption("Métricas resumidas y evolución de precios/costos por año y mes.")
 
-print("Totales:")
-print(f"  Pago   :  ${pago_total:,.2f}")
-print(f"  Capital:  ${capital_total:,.2f}")
-print(f"  Interés:  ${interes_total:,.2f}")
+# ---------------------------------
+# 5) Visualización por producto
+# ---------------------------------
+# Calculamos promedio por registro (auxiliar)
+df_year["precio_prom_reg"] = df_year["ingreso"] / df_year["cantidad"]
+df_year["costo_prom_reg"] = df_year["costo"] / df_year["cantidad"]
+
+for producto in sorted(df_year["producto"].unique()):
+    data_p = df_year[df_year["producto"] == producto].copy()
+
+    total_cantidad = data_p["cantidad"].sum()
+    total_ingreso = data_p["ingreso"].sum()
+    total_costo = data_p["costo"].sum()
+
+    precio_promedio = (total_ingreso / total_cantidad) if total_cantidad != 0 else 0.0
+    costo_promedio = (total_costo / total_cantidad) if total_cantidad != 0 else 0.0
+
+    with st.container(border=True):
+        st.markdown(f"## :red[{producto}]")
+
+        col_m, col_g = st.columns([0.3, 0.7], vertical_alignment="start")
+
+        with col_m:
+            st.markdown("**Cantidad de ventas**")
+            st.write(formato_miles(total_cantidad))
+            st.markdown("**Precio promedio**")
+            st.write(formato_moneda(precio_promedio))
+            st.markdown("**Costo promedio**")
+            st.write(formato_moneda(costo_promedio))
+
+        with col_g:
+            grp = (
+                data_p.groupby("mes", as_index=False)
+                .agg({"cantidad": "sum", "ingreso": "sum", "costo": "sum"})
+                .sort_values("mes")
+            )
+            grp["precio_prom"] = grp.apply(
+                lambda r: (r["ingreso"] / r["cantidad"]) if r["cantidad"] != 0 else 0.0, axis=1
+            )
+            grp["costo_prom"] = grp.apply(
+                lambda r: (r["costo"] / r["cantidad"]) if r["cantidad"] != 0 else 0.0, axis=1
+            )
+
+            fig = plt.figure(figsize=(8, 3))
+            ax = fig.add_subplot(111)
+            ax.plot(grp["mes"], grp["precio_prom"], marker="o", linestyle="-", color="#1f77b4", label="Precio promedio")
+            ax.plot(grp["mes"], grp["costo_prom"], marker="o", linestyle="-", color="#d62728", label="Costo promedio")
+            ax.set_xlabel("Mes")
+            ax.set_ylabel("Monto")
+            ax.set_title("Evolución de precio y costo promedio")
+            ax.legend(loc="best")
+            ax.grid(True, linestyle="--", alpha=0.3)
+            st.pyplot(fig)
