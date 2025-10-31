@@ -1,3 +1,7 @@
+# ============================================
+# PYTHON BACKEND (FastAPI + uv)
+# ============================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -65,6 +69,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# uv (Python package manager)
+uv.lock
+.uv/
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -80,19 +88,41 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Base de datos local
+*.db
+*.sqlite
+*.sqlite3
+database.db
 
 /interno
 
-# ---------------------------
-# Proyecto React (Vite)
-# ---------------------------
+# ============================================
+# NODE.JS FRONTEND (Next.js + React)
+# ============================================
 
 # Dependencias
 node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+next-env.d.ts
 
 # Salidas de build
 dist/
 dist-ssr/
+build/
 *.tsbuildinfo
 
 # Archivos de log
@@ -105,41 +135,97 @@ lerna-debug.log*
 # Coverage / pruebas
 coverage/
 .vitest/
+.nyc_output/
 
 # Cachés de herramientas
 .eslintcache
 .stylelintcache
 .cache/
+.parcel-cache/
+.turbo/
 
 # Variables de entorno (mantener .env.example si existe)
-.env.local
+.env
+.env*.local
 .env.development.local
 .env.test.local
 .env.production.local
 !.env.example
 
-# Sistemas operativos / editores
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Storybook / documentación front
+storybook-static/
+.out/
+
+# ============================================
+# SISTEMAS OPERATIVOS Y EDITORES
+# ============================================
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+
+# IDEs y editores
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Storybook / documentación front
-storybook-static/
-.out/
+# ============================================
+# OTROS ARTEFACTOS
+# ============================================
 
-# Otros artefactos que no se versionan
+# Archivos temporales
 *.log
 *.tgz
 *.patch
 *.orig
 *.rej
+*.tmp
+*.temp
+*.bak
+
+# Lock files específicos del proyecto
+# Descomentar si no quieres versionarlos
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
 
 /wapp
-*.lock
-*.lock

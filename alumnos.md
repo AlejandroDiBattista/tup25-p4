@@ -34,6 +34,7 @@
 - 61337  Díaz, Christian Gabriel                   (381) 571-4797  🔴🔴🔴                      
 - 61813  Figueroa, Manuel                          (381) 544-2423  🔴🔴🔴                      
 - 61463  González, Vladimir                        (381) 419-4154  🔴🔴🔴                      
+- 61463  González, Nicolas (oyente)                (381) 588-3047  🔴🔴🔴
 ```
 
 ## Comisión 3

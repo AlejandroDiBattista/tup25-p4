@@ -1,0 +1,24 @@
+@baseUrl = http://127.0.0.1:8000
+
+GET {{baseUrl}}/
+        
+### Traer un contacto por ID
+
+GET {{baseUrl}}/contacto/2 HTTP/1.1
+
+### Buscar contactos por nombre o apellido
+
+GET {{baseUrl}}/buscar?texto=Ana HTTP/1.1
+
+### Agregar un nuevo contacto
+POST {{baseUrl}}/agregar HTTP/1.1
+Content-Type: application/json
+
+{
+    "nombre": "Fernando",
+    "apellido": "Fernandez",
+    "email": "fernando.fernandez@example.com"
+}
+
+### Listar todos los contactos
+GET {{baseUrl}}/contactos/ HTTP/1.1

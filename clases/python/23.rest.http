@@ -1,0 +1,36 @@
+@baseUrl = http://127.0.0.1:8000
+
+### Obtener información de la API
+GET {{baseUrl}}/
+
+### Crear un nuevo contacto
+POST {{baseUrl}}/contactos/
+Content-Type: application/json
+
+{
+    "nombre": "Ana",
+    "apellido": "García",
+    "email": "ana.garcia@example.com",
+    "telefono": "+54 11 1234-5678"
+}
+
+### Listar todos los contactos
+GET {{baseUrl}}/contactos/
+
+### Obtener un contacto específico
+GET {{baseUrl}}/contactos/1
+
+### Buscar contactos
+GET {{baseUrl}}/contactos/buscar/?q=ana
+
+### Actualizar un contacto
+PUT {{baseUrl}}/contactos/1
+Content-Type: application/json
+
+{
+    "nombre": "Ana María",
+    "telefono": "+54 11 9876-5432"
+}
+
+### Eliminar un contacto
+DELETE {{baseUrl}}/contactos/1
