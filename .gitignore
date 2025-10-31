@@ -229,3 +229,4 @@ $RECYCLE.BIN/
 # pnpm-lock.yaml
 
 /wapp
+clases/21.gpt/.streamlit/secrets.toml
