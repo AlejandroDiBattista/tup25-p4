@@ -1,0 +1,321 @@
+### ========================================
+### API E-Commerce - Tests REST Client
+### ========================================
+### 
+### Este archivo contiene pruebas para todos los endpoints de la API.
+### Usa la extensión REST Client de VSCode para ejecutar las peticiones.
+### 
+### Presiona "Send Request" sobre cada petición o usa:
+### - Ctrl+Alt+R (Windows/Linux) 
+### - Cmd+Alt+R (Mac)
+###
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+### Variables para autenticación (se actualizan después del login)
+# @token = tu_token_aqui
+
+
+### ========================================
+### 1. ENDPOINTS BÁSICOS
+### ========================================
+
+### 1.1 - Verificar que la API está corriendo
+GET {{baseUrl}}/
+Accept: {{contentType}}
+
+### 1.2 - Ver documentación interactiva
+# GET {{baseUrl}}/docs
+
+
+### ========================================
+### 2. PRODUCTOS
+### ========================================
+
+### 2.1 - Listar todos los productos
+GET {{baseUrl}}/productos
+Accept: {{contentType}}
+
+### 2.2 - Buscar productos por texto
+GET {{baseUrl}}/productos?buscar=camis
+Accept: {{contentType}}
+
+### 2.3 - Filtrar productos por categoría
+GET {{baseUrl}}/productos?categoria=electro
+Accept: {{contentType}}
+
+### 2.4 - Combinar búsqueda y filtro
+GET {{baseUrl}}/productos?categoria=ropa&buscar=hombre
+Accept: {{contentType}}
+
+### 2.5 - Obtener detalle de un producto (ID: 1)
+GET {{baseUrl}}/productos/1
+Accept: {{contentType}}
+
+### 2.6 - Obtener producto inexistente (debe devolver 404)
+GET {{baseUrl}}/productos/999
+Accept: {{contentType}}
+
+
+### ========================================
+### 3. AUTENTICACIÓN
+### ========================================
+
+### 3.1 - Registrar un nuevo usuario
+POST {{baseUrl}}/registrar
+Content-Type: {{contentType}}
+
+{
+  "nombre": "Juan Pérez",
+  "email": "juan.perez@example.com",
+  "password": "miPassword123"
+}
+
+### 3.2 - Iniciar sesión
+# @name login
+POST {{baseUrl}}/iniciar-sesion
+Content-Type: {{contentType}}
+
+{
+  "email": "juan.perez@example.com",
+  "password": "miPassword123"
+}
+
+### Guardar el token de la respuesta anterior
+@token = {{login.response.body.access_token}}
+
+### 3.3 - Intentar registrar usuario duplicado (debe devolver 400)
+POST {{baseUrl}}/registrar
+Content-Type: {{contentType}}
+
+{
+  "nombre": "Juan Pérez",
+  "email": "juan.perez@example.com",
+  "password": "miPassword123"
+}
+
+### 3.4 - Cerrar sesión (requiere autenticación)
+POST {{baseUrl}}/cerrar-sesion
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+
+### ========================================
+### 4. CARRITO DE COMPRAS
+### ========================================
+
+### 4.1 - Ver carrito actual (requiere autenticación)
+GET {{baseUrl}}/carrito
+Accept: {{contentType}}
+Authorization: Bearer {{token}}
+
+### 4.2 - Agregar producto al carrito
+POST {{baseUrl}}/carrito
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "producto_id": 1,
+  "cantidad": 2
+}
+
+### 4.3 - Agregar otro producto al carrito
+POST {{baseUrl}}/carrito
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "producto_id": 5,
+  "cantidad": 1
+}
+
+### 4.4 - Quitar producto del carrito
+DELETE {{baseUrl}}/carrito/1
+Authorization: Bearer {{token}}
+
+### 4.5 - Intentar agregar producto sin existencia (debe fallar)
+POST {{baseUrl}}/carrito
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "producto_id": 1,
+  "cantidad": 1000
+}
+
+### 4.6 - Cancelar compra (vaciar carrito)
+POST {{baseUrl}}/carrito/cancelar
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+
+### ========================================
+### 5. FINALIZAR COMPRA
+### ========================================
+
+### 5.1 - Agregar productos para la compra
+POST {{baseUrl}}/carrito
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "producto_id": 6,
+  "cantidad": 2
+}
+
+### 5.2 - Finalizar compra
+# @name checkout
+POST {{baseUrl}}/carrito/finalizar
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "direccion": "Av. Corrientes 1234, CABA",
+  "tarjeta": "4111111111111111"
+}
+
+### Guardar el ID de la compra
+@compra_id = {{checkout.response.body.compra_id}}
+
+
+### ========================================
+### 6. HISTORIAL DE COMPRAS
+### ========================================
+
+### 6.1 - Ver resumen de todas las compras
+GET {{baseUrl}}/compras
+Accept: {{contentType}}
+Authorization: Bearer {{token}}
+
+### 6.2 - Ver detalle de una compra específica
+GET {{baseUrl}}/compras/{{compra_id}}
+Accept: {{contentType}}
+Authorization: Bearer {{token}}
+
+### 6.3 - Ver detalle de compra inexistente (debe devolver 404)
+GET {{baseUrl}}/compras/999
+Accept: {{contentType}}
+Authorization: Bearer {{token}}
+
+
+### ========================================
+### 7. CASOS DE ERROR (Sin autenticación)
+### ========================================
+
+### 7.1 - Intentar acceder al carrito sin autenticación (debe devolver 401)
+GET {{baseUrl}}/carrito
+Accept: {{contentType}}
+
+### 7.2 - Intentar agregar al carrito sin autenticación (debe devolver 401)
+POST {{baseUrl}}/carrito
+Content-Type: {{contentType}}
+
+{
+  "producto_id": 1,
+  "cantidad": 1
+}
+
+### 7.3 - Intentar ver compras sin autenticación (debe devolver 401)
+GET {{baseUrl}}/compras
+Accept: {{contentType}}
+
+
+### ========================================
+### 8. FLUJO COMPLETO DE PRUEBA
+### ========================================
+
+### 8.1 - Registrar nuevo usuario para prueba completa
+POST {{baseUrl}}/registrar
+Content-Type: {{contentType}}
+
+{
+  "nombre": "María García",
+  "email": "maria.garcia@example.com",
+  "password": "password123"
+}
+
+### 8.2 - Iniciar sesión con el nuevo usuario
+# @name login_test
+POST {{baseUrl}}/iniciar-sesion
+Content-Type: {{contentType}}
+
+{
+  "email": "maria.garcia@example.com",
+  "password": "password123"
+}
+
+### 8.3 - Buscar productos de electrónica
+GET {{baseUrl}}/productos?categoria=electro
+Accept: {{contentType}}
+
+### 8.4 - Agregar producto al carrito (Monitor)
+POST {{baseUrl}}/carrito
+Content-Type: {{contentType}}
+Authorization: Bearer {{login_test.response.body.access_token}}
+
+{
+  "producto_id": 13,
+  "cantidad": 1
+}
+
+### 8.5 - Agregar otro producto (SSD)
+POST {{baseUrl}}/carrito
+Content-Type: {{contentType}}
+Authorization: Bearer {{login_test.response.body.access_token}}
+
+{
+  "producto_id": 11,
+  "cantidad": 2
+}
+
+### 8.6 - Ver contenido del carrito
+GET {{baseUrl}}/carrito
+Accept: {{contentType}}
+Authorization: Bearer {{login_test.response.body.access_token}}
+
+### 8.7 - Finalizar la compra
+POST {{baseUrl}}/carrito/finalizar
+Content-Type: {{contentType}}
+Authorization: Bearer {{login_test.response.body.access_token}}
+
+{
+  "direccion": "Calle Falsa 123, Springfield",
+  "tarjeta": "5555555555554444"
+}
+
+### 8.8 - Ver historial de compras
+GET {{baseUrl}}/compras
+Accept: {{contentType}}
+Authorization: Bearer {{login_test.response.body.access_token}}
+
+
+### ========================================
+### NOTAS IMPORTANTES
+### ========================================
+###
+### 1. Los endpoints marcados con "requiere autenticación" necesitan
+###    el header: Authorization: Bearer {token}
+###
+### 2. Después de hacer login, copia el access_token y actualiza
+###    la variable @token al inicio del archivo
+###
+### 3. Los IDs de productos van del 1 al 20 (ver productos.json)
+###
+### 4. Reglas de negocio:
+###    - IVA: 21% para productos normales, 10% para electrónica
+###    - Envío gratis para compras > $1000, sino $50
+###    - No se pueden agregar productos sin existencia
+###    - Los productos sin stock se muestran como "Agotados"
+###
+### 5. Códigos de estado esperados:
+###    - 200: OK
+###    - 201: Created (registro, agregar al carrito)
+###    - 400: Bad Request (validación fallida, duplicado)
+###    - 401: Unauthorized (sin autenticación)
+###    - 404: Not Found (recurso no encontrado)
+###
+### 6. Para usar variables automáticas:
+###    Descomentar las líneas que empiezan con # @name
+###    y usar {{nombre.response.body.campo}}
+###
