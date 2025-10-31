@@ -1,109 +1,104 @@
-# TP5 - Análisis de Datos con Streamlit
+# TP6: 2do Parcial
+
+El trabajo práctico 2 será evaluado como el 2do parcial.
+El trabajo es individual y debe ser realizado en el repositorio personal de cada alumno.
+
+Debe ser entregado el día *Miércoles 12 de Noviembre a partir de las 21hs y hasta las 22hs*.
+
 
 ## Objetivo
 
-Desarrollar una aplicación web interactiva utilizando **Streamlit** que permita visualizar y analizar datos de productos a partir de archivos CSV. La aplicación debe generar informes con métricas y gráficos de evolución de precios y costos.
+Desarrollo de un sitio de comercio electrónico simple utilizando usando React para el frontend y FastAPI para el backend.
 
-## Descripción
+## Funcionalidad
+- Registar usuario
+- Iniciar sesión
+- Cerrar sesión
+- Ver resumen de compras
+- Ver detalle de compras
+- Buscar productos (por contenido y categoría)
+- Agregar productos al carrito
+- Quitar productos del carrito
+- Cancelar compra
+- Finalizar compra
 
-Deberás crear una aplicación que cumpla **exactamente** con las siguientes especificaciones:
+## Tecnologías
+- Frontend: React (Usando next.js con Tailwind CSS & Shadcn UI)
+- Backend: FastAPI (API RESTful, SQLModel + SQLite)
 
-### Funcionalidades Requeridas
+## Estructura de la base de datos
+    - Usuario: id, nombre, email, contraseña (hashed)
+    - Producto: id, nombre, descripción, precio, categoría, existencia
+    - Carrito: id, usuario_id, estado, productos (lista de productos con cantidad)
+        - Item del carrito: producto_id, cantidad
+    - Compra: id, usuario_id, fecha, direccion, tarjeta, total, envio  
+        - Item de compra: producto_id, cantidad, nombre, precio_unitario
 
-#### 1. Configuración de la Página
-- La aplicación debe configurarse con el título "Reporte de productos" y diseño ancho (`layout="wide"`)
+## Endpoints de la API
+- POST /registrar: Registrar un nuevo usuario
+- POST /iniciar-sesion: Iniciar sesión y obtener token de autenticación
+- POST /cerrar-sesion: Cerrar sesión (invalidar token)
+- GET /productos: Obtener lista de productos (con filtros opcionales por categoría y búsqueda)
+- GET /productos/{id}: Obtener detalles de un producto específico
+- POST /carrito: Agregar producto al carrito
+- DELETE /carrito/{product_id}: Quitar producto del carrito
+- GET /carrito: Ver contenido del carrito
+- POST /carrito/finalizar: Finalizar compra
+- POST /carrito/cancelar: Cancelar compra (vaciar carrito)
+- GET /compras: Ver resumen de compras del usuario
+- GET /compras/{id}: Ver detalle de una compra específica
 
-#### 2. Barra Lateral (Sidebar)
-La barra lateral debe contener:
-- Un título "Configuración"
-- Un selector de archivos (`file_uploader`) que:
-  - Muestre el texto "Seleccioná un CSV"
-  - Acepte únicamente archivos con extensión `.csv`
-- Un selector desplegable (`selectbox`) para elegir el año, que:
-  - Muestre los años disponibles ordenados
-  - Tenga el texto "Seleccioná un año"
+## Pantallas principales
+- Pantalla de registro e inicio de sesión
+- Pantalla de listado de productos con búsqueda y filtros / Carrito de compras
+- Pantalla de finalización de compra (carrito + con dirección y detalles de pago)
+- Pantalla de compras anteriores (resumen + detalle)
 
-#### 3. Validaciones
-- Si no se ha cargado ningún archivo:
-  - Mostrar mensaje informativo: "Subí un archivo CSV desde la barra lateral para comenzar."
-  - Detener la ejecución
-- Si el año seleccionado no tiene datos:
-  - Mostrar mensaje de advertencia: "El año seleccionado no tiene datos para mostrar."
-  - Detener la ejecución
+## Flujo de trabajo
+1. El usuario se registra e inicia sesión.
+2. El usuario navega por los productos, utilizando búsqueda y filtro de categoría.
+3. El usuario agrega productos al carrito.
+4. El usuario revisa el carrito y puede eliminar productos si lo desea.
+5. El usuario finaliza la compra proporcionando dirección y detalles de pago.
+6. El usuario puede ver un resumen de sus compras anteriores.
 
-#### 4. Encabezado Principal
-- Título: "Informe de Productos 📈"
-- Subtítulo (caption): "Métricas resumidas y evolución de precios/costos por año y mes."
+## Reglas de uso
+- Solo se puede agregar productos al carrito si hay existencia disponible.
+- El usuario debe estar autenticado para realizar compras y ver su historial.
+- El precio total se calcula sumando el precio unitario por la cantidad de cada producto en el carrito.
+- El iva es el 21% del total de la compra (excepto los productos electrónicos que son 10%).
+- El envío es gratuito para compras superiores a $1000, de lo contrario tiene un costo fijo de $50.
+- Los productos solo pueder ser eliminados del carrito si el carrito no ha sido finalizado.
+- Una vez finalizada la compra, el carrito se vacía y se crea un registro de compra.
+- Los productos sin existencias deben mostrarse como "Agotados" y no se pueden agregar al carrito.
 
-#### 5. Visualización por Producto
-Para cada producto en el dataset (ordenados alfabéticamente), crear un contenedor con borde que incluya:
+## Consideraciones adicionales
+- Realizar pruebas unitarias para los endpoints de la API.
+- Implementar manejo de errores adecuado (e.g., usuario no encontrado, producto agotado).
+- Cargar datos iniciales de productos en la base de datos para pruebas.
+- Los datos de los productos se encuentran en el archivo `productos.json`, las imágenes en la carpeta `/imagenes`.
 
-##### a) Título del Producto
-- Formato: `## :red[{nombre_del_producto}]`
 
-##### b) Columnas de Información
-Dividir el contenedor en dos columnas con proporción 0.3 y 0.7:
+## Instrucciones para la entrega.
+> [!NOTA] El trabajo debe ser entregado el día *Miércoles 12 de Noviembre a partir de las 21hs y hasta las 22hs*.
+Durante el desarrollo se deben hacer commits frecuentes y descriptivos. (mínimo 10 commits)
 
-**Columna de Métricas (izquierda, 30%):**
-- Cantidad de ventas (suma total con formato de miles separados por comas)
-- Precio promedio (con 2 decimales)
-- Costo promedio (con 2 decimales)
+## Pantallas.
+### 1. Pantalla inicial de productos.
+![Pantalla inicial de productos](./01-pantalla-inicial.png)
 
-**Columna de Gráfico (derecha, 70%):**
-- Gráfico de líneas que muestre:
-  - Evolución mensual del precio promedio (línea azul `#1f77b4`, con marcadores circulares)
-  - Evolución mensual del costo promedio (línea roja `#d62728`, con marcadores circulares)
-  - Eje X: Mes
-  - Eje Y: Monto
-  - Título del gráfico: "Evolución de precio y costo promedio"
-  - Leyenda posicionada en el mejor lugar
-  - Grilla con líneas punteadas y transparencia del 30%
-  - Tamaño de figura: 8x3
+### 2. Pantalla de inicio de sesión.
+![Pantalla de inicio de sesión](./02-iniciar-sesion.png)
 
-#### 6. Cálculos Requeridos
-Para cada producto, calcular:
-- **Precio promedio**: `ingreso / cantidad`
-- **Costo promedio**: `costo / cantidad`
+### 3. Pantalla de registrar usuario.
+![Pantalla de registrar usuario](./03-registrar-usuario.png)
 
-## Estructura del CSV
+### 4. Pantalla de compra (con carrito).
+![Pantalla de compra](./04-comprando.png)
 
-El archivo CSV debe contener las siguientes columnas:
-- `año`: Año de la venta
-- `mes`: Mes de la venta
-- `producto`: Nombre del producto
-- `cantidad`: Cantidad vendida
-- `ingreso`: Ingreso total por las ventas
-- `costo`: Costo total de los productos vendidos
+### 5. Pantalla de confirmar compra.
+![Pantalla de confirmar compra](./05-finalizando-compra.png)
 
-## Tecnologías a Utilizar
+### 6. Pantalla de historial de compras.
+![Pantalla de historial de compras](./06-historial-compra.png)
 
-- **Python 3.x**
-- **Streamlit**: Framework para la aplicación web
-- **Pandas**: Manipulación y análisis de datos
-- **Matplotlib**: Generación de gráficos
-
-## Criterios de Evaluación
-- ✅ Funcionalidad completa según especificaciones
-- ✅ Carga y validación correcta de archivos CSV
-- ✅ Filtrado por año funcionando correctamente
-- ✅ Cálculos de métricas precisos
-- ✅ Visualizaciones con formato y colores especificados
-- ✅ Organización y presentación de la información
-- ✅ Manejo de casos especiales (sin archivo, sin datos)
-
-## Imagen de Referencia
-
-El sistema se debe parecerse a la siguiente imagen:
-
-![Pantalla de sistema](enunciados/tp5/referencia.png)
-
-<!-- Alternativa para controlar tamaño (descomentar si se prefiere):
-<img src="referencia.png" alt="ReadMe con instrucciones detalladas" width="600" />
--->
-
-> **Nota 1**: Revisar que los valores sean exactos a los mostrados en la imagen
-> **Nota 2**: Debe funcionar con `gaseosas.csv` o para cualquier `csv` con la misma estructura
----
-## Entrega
-**Fecha de entrega**: Lunes 20 de octubre a las 23:59 hs.
-Subir solo el archivo `ejercicio.py` como **TP5 - {legajo} - {apellido} {nombre}** a GitHub

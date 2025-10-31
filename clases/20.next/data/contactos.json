@@ -1,0 +1,219 @@
+[
+  {
+    "id": 1,
+    "nombre": "Adrián",
+    "apellido": "Alconada",
+    "edad": 31,
+    "telefono": "(381) 555-1234"
+  },
+  {
+    "id": 2,
+    "nombre": "Beatriz",
+    "apellido": "Bustos",
+    "edad": 25,
+    "telefono": "(381) 555-5678"
+  },
+  {
+    "id": 3,
+    "nombre": "Carlos",
+    "apellido": "Cabrera",
+    "edad": 28,
+    "telefono": "(381) 555-8765"
+  },
+  {
+    "id": 4,
+    "nombre": "Diana",
+    "apellido": "Domínguez",
+    "edad": 32,
+    "telefono": "(381) 555-4321"
+  },
+  {
+    "id": 5,
+    "nombre": "Elena",
+    "apellido": "Escobar",
+    "edad": 27,
+    "telefono": "(381) 555-6789"
+  },
+  {
+    "id": 6,
+    "nombre": "Fernando",
+    "apellido": "Figueroa",
+    "edad": 29,
+    "telefono": "(381) 555-9876"
+  },
+  {
+    "id": 7,
+    "nombre": "Gabriela",
+    "apellido": "Gómez",
+    "edad": 31,
+    "telefono": "(381) 555-5432"
+  },
+  {
+    "id": 8,
+    "nombre": "Héctor",
+    "apellido": "Hernández",
+    "edad": 26,
+    "telefono": "(381) 555-8765"
+  },
+  {
+    "id": 9,
+    "nombre": "Isabel",
+    "apellido": "Ibarra",
+    "edad": 24,
+    "telefono": "(381) 555-2345"
+  },
+  {
+    "id": 10,
+    "nombre": "Javier",
+    "apellido": "Jiménez",
+    "edad": 33,
+    "telefono": "(381) 555-3456"
+  },
+  {
+    "id": 11,
+    "nombre": "Karla",
+    "apellido": "Klein",
+    "edad": 28,
+    "telefono": "(381) 555-4567"
+  },
+  {
+    "id": 12,
+    "nombre": "Luis",
+    "apellido": "López",
+    "edad": 30,
+    "telefono": "(381) 555-5678"
+  },
+  {
+    "id": 13,
+    "nombre": "María",
+    "apellido": "Martínez",
+    "edad": 27,
+    "telefono": "(381) 555-6789"
+  },
+  {
+    "id": 14,
+    "nombre": "Nicolás",
+    "apellido": "Núñez",
+    "edad": 29,
+    "telefono": "(381) 555-7890"
+  },
+  {
+    "id": 15,
+    "nombre": "Olga",
+    "apellido": "Ortiz",
+    "edad": 31,
+    "telefono": "(381) 555-8901"
+  },
+  {
+    "id": 16,
+    "nombre": "Pablo",
+    "apellido": "Pérez",
+    "edad": 26,
+    "telefono": "(381) 555-9012"
+  },
+  {
+    "id": 17,
+    "nombre": "Quintina",
+    "apellido": "Quinteros",
+    "edad": 24,
+    "telefono": "(381) 555-0123"
+  },
+  {
+    "id": 18,
+    "nombre": "Raúl",
+    "apellido": "Ramírez",
+    "edad": 32,
+    "telefono": "(381) 555-1234"
+  },
+  {
+    "id": 19,
+    "nombre": "Sofía",
+    "apellido": "Sánchez",
+    "edad": 25,
+    "telefono": "(381) 555-2345"
+  },
+  {
+    "id": 20,
+    "nombre": "Tomás",
+    "apellido": "Torres",
+    "edad": 28,
+    "telefono": "(381) 555-3456"
+  },
+  {
+    "id": 21,
+    "nombre": "Úrsula",
+    "apellido": "Urbina",
+    "edad": 30,
+    "telefono": "(381) 555-4567"
+  },
+  {
+    "id": 22,
+    "nombre": "Víctor",
+    "apellido": "Vega",
+    "edad": 27,
+    "telefono": "(381) 555-5678"
+  },
+  {
+    "id": 23,
+    "nombre": "Wendy",
+    "apellido": "Wong",
+    "edad": 29,
+    "telefono": "(381) 555-6789"
+  },
+  {
+    "id": 24,
+    "nombre": "Ximena",
+    "apellido": "Xavier",
+    "edad": 31,
+    "telefono": "(381) 555-7890"
+  },
+  {
+    "id": 25,
+    "nombre": "Yago",
+    "apellido": "Yáñez",
+    "edad": 26,
+    "telefono": "(381) 555-8901"
+  },
+  {
+    "id": 27,
+    "nombre": "Ana",
+    "apellido": "García",
+    "edad": 28,
+    "telefono": "(381) 555-0000"
+  },
+  {
+    "id": 28,
+    "nombre": "Alejandro",
+    "apellido": "Alcatraz",
+    "edad": 99,
+    "telefono": "(381) 555-1221"
+  },
+  {
+    "id": 29,
+    "nombre": "xxx",
+    "apellido": "xxx",
+    "edad": 33,
+    "telefono": "as"
+  },
+  {
+    "id": 30,
+    "nombre": "Ana",
+    "apellido": "García",
+    "edad": 28,
+    "telefono": "(381) 555-0000"
+  },
+  {
+    "id": 31,
+    "nombre": "aaa",
+    "apellido": "bbb",
+    "edad": 12,
+    "telefono": "3232"
+  },
+  {
+    "id": 32,
+    "nombre": "aaaa",
+    "apellido": "aaa",
+    "edad": 22,
+    "telefono": "222"
+  }
+]

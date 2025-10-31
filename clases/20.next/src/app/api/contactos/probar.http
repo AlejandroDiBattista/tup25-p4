@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:3000/api
+
+### Obtener todos los contactos
+GET {{baseUrl}}/contactos
+
+###
+
+### Obtener un contacto por ID
+GET {{baseUrl}}/contactos/21
+
+###
+
+### Crear un nuevo contacto
+POST {{baseUrl}}/contactos
+Content-Type: application/json
+
+{
+  "nombre": "Ana",
+  "apellido": "García",
+  "edad": 28,
+  "telefono": "(381) 555-0000"
+}
+
+###
+
+### Actualizar un contacto
+PUT {{baseUrl}}/contactos/1
+Content-Type: application/json
+
+{
+  "edad": 99
+}
+
+###
+
+### Eliminar un contacto
+DELETE {{baseUrl}}/contactos/1
+
+###
