@@ -84,6 +84,9 @@ Desarrollo de un sitio de comercio electrónico simple utilizando usando React p
 Durante el desarrollo se deben hacer commits frecuentes y descriptivos. (mínimo 10 commits)
 
 ## Pantallas.
+
+### Video de demostracion
+![demo](./tp6.mp4)
 ### 1. Pantalla inicial de productos.
 ![Pantalla inicial de productos](./01-pantalla-inicial.png)
 
