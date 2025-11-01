@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
+from database import crear_db
+from models import *
 
 app = FastAPI(title="API Productos")
 
@@ -27,6 +29,10 @@ def cargar_productos():
 @app.get("/")
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
+
+@app.on_event("startup")
+def on_startup():
+    crear_db()
 
 @app.get("/productos")
 def obtener_productos():
