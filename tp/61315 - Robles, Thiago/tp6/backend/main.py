@@ -24,19 +24,14 @@ app = FastAPI(title="API Productos")
 def crear_db ():
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
-        if session.exec(select(Producto).limit(1)).first():
-            return
-        
-        data = json.loads(SEED_PATH.read_text(encoding="utf-8"))
-        for row in data:
-            imagen = row.get("imagen")
-            if imagen:
-                row["imagen"] = Path(imagen).name
-            else:
-                row["imagen"] = ""
-            session.add(Producto(**row))
-        session.commit()
-
+        productos = session.exec(select(Producto)).all()
+        if not productos:
+            with open(SEED_PATH, "r", encoding="utf-8") as archivo:
+                datos_productos = json.load(archivo)
+                for item in datos_productos:
+                    producto = Producto(**item)
+                    session.add(producto)
+                session.commit()
 
 @app.on_event("startup")
 def on_startup():
@@ -70,34 +65,19 @@ def root():
 
 # Endpoints de Auth
 
-@app.post("/registrar")
-@app.post("/iniciar-sesion")
-@app.post("/cerrar-sesion")
+# @app.post("/registrar")
+# @app.post("/iniciar-sesion")
+# @app.post("/cerrar-sesion")
 
 
 # Endpoints de Productos
 
 #Obtener lista de productos (con filtros opciones por categoria y busqueda por nombre)
 
-@app.get("/productos")
-def obtener_productos(categoria: str = None, nombre: str = None):
-    with Session(engine) as session:
-        query = select(Producto)
-        if categoria:
-            query = query.where(Producto.categoria == categoria)
-        if nombre:
-            query = query.where(Producto.nombre.contains(nombre))
-        productos = session.exec(query).all()
-        return productos
+# @app.get("/productos")
 
+# @app.get("/productos/{id}")
 
-@app.get("/productos/{id}")
-def obtener_producto(id: int):
-    with Session(engine) as session:
-        producto = session.exec(select(Producto).where(Producto.id == id)).first()
-        if not producto:
-            return {"error": "Producto no encontrado"}
-        return producto
 
 # # Endpoints de Carrito
 # @app.post("/carrito")
