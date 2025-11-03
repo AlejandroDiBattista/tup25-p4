@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import SQLModel, Session, create_engine, select
+from typing import Optional
+from sqlalchemy import or_
 
 import json
 from pathlib import Path
@@ -74,9 +76,29 @@ def root():
 
 #Obtener lista de productos (con filtros opciones por categoria y busqueda por nombre)
 
-# @app.get("/productos")
 
-# @app.get("/productos/{id}")
+#Generar endpoint dinamico para filtros opcionales por categoria y busqueda
+@app.get("/productos/", response_model=list[Producto])
+
+def obtener_productos(categoria: Optional[str] = Query(None,description="Filtrar por categoria"),
+    buscar: Optional[str] = Query(None,description="Buscar por nombre")):
+    with Session(engine) as session:
+        query = select(Producto)
+        if categoria:
+            query = query.where(Producto.categoria == categoria)
+        if buscar:
+            query = query.where(Producto.titulo.ilike(f"%{buscar}%"))
+        productos = session.exec(query).all()
+        return productos
+
+@app.get("/productos/{id}")
+def obtener_producto(id: int):
+    with Session(engine) as session:
+        producto = session.get(Producto, id)
+        if producto:
+            return producto
+        return {"mensaje": "Producto no encontrado"}, 404
+
 
 
 # # Endpoints de Carrito

@@ -1,5 +1,6 @@
 import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
+import BuscarFiltrar from './components/BuscarFiltrar';
 
 export default async function Home({
   searchParams,
@@ -23,6 +24,7 @@ export default async function Home({
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        <BuscarFiltrar />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {productos.map((producto) => (
             <ProductoCard key={producto.id} producto={producto} />
