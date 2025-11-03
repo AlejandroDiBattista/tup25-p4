@@ -1,11 +1,6 @@
 from typing import Optional
 from sqlmodel import Field, SQLModel
 
-
-if TYPE_CHECKING:
-    from .productos import Producto
-
-
 class Carrito(SQLModel, table=True):
     __tablename__ = "carritos"
     

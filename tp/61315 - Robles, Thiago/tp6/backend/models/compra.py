@@ -6,7 +6,7 @@ class Compras(SQLModel, table=True):
     __tablename__ = "compras"
     
     id: Optional[int] = Field(default=None, primary_key=True)
-    usuario_id: Optional[int] = Field(default=None, foreign_key="usuario.id")
+    usuario_id: Optional[int] = Field(default=None, foreign_key="usuarios.id")
     fecha: str = Field(default=None)
     direccion: str = Field(default=None)
     tarjeta_ult4: str = Field(default=None)
