@@ -24,6 +24,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+SECRET_KEY = "clave_muy_muy_secreta"
+ALGORITHM = "HS256"
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_contraseña(contraseña: str):
+    return pwd_context.hash(contraseña)
+
+def verificar_contraseña(contraseña: str, hashed_contraseña: str):
+    return pwd_context.verify(contraseña, hashed_contraseña)
+
+def crear_token(data: dict):
+    codificado = data.copy()
+    expiracion = datetime.utcnow() + timedelta(hours=1)
+    codificado.update({"exp": expiracion})
+    return jwt.encode(codificado, SECRET_KEY, algorithm=ALGORITHM)
+
+def usuario_actual(request: Request, session: Session=Depends(get_session)):
+    auth = request.headers.get("Authorization")
+    if not auth or not auth.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="No autenticado")
+    token = auth.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Tóken inválido")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Tóken inválido")
+
+    usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    return usuario
+
 # Cargar productos desde el archivo JSON
 def cargar_productos():
     ruta_productos = Path(__file__).parent / "productos.json"
@@ -46,7 +80,7 @@ def registrar(data: dict, session: Session=Depends(get_session)):
     contraseña = data.get("contraseña")
 
     if session.exec(select(Usuario).where(Usuario.email == email)).first():
-        raise HTTPException(status_code=status_code=400, detail="El email ya está registrado")
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
 
     usuario = Usuario(nombre=nombre, email=email, contraseña=hash_contraseña(contraseña))
     session.add(usuario)
@@ -61,7 +95,7 @@ def iniciar_sesion(data: dict, session: Session=Depends(get_session)):
 
     usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
     if not usuario or not verificar_contraseña(contraseña, usuario.contraseña):
-        raise HTTPException(status_code=status_code=401, detail="Credenciales inválidas")
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
     
     token = crear_token({"sub": usuario.email})
     return {"access_token": token, "token_type": "bearer"}
@@ -87,7 +121,7 @@ def listar_productos(
 def obtener_producto(producto_id: int, session: Session=Depends(get_session)):
     producto = session.get(Producto, producto_id)
     if not producto:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
+        raise HTTPException(status_code=404, detail="Producto inexistente")
     return producto
 
 if __name__ == "__main__":

@@ -7,5 +7,5 @@ class Usuario(SQLModel, table=True):
     email: str = Field(default="", max_length=125, unique=True, index=True)
     contraseña: str = Field(default="")
 
-    compras: List["Compra"] = Relationship(back_populates="usuario")
+    compras: List[Compra] = Relationship(back_populates="usuario")
     carrito: Optional["Carrito"] = Relationship(back_populates="usuario")
