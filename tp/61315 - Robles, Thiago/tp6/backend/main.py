@@ -62,27 +62,29 @@ def cargar_productos():
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
-# Endpoints de Productos
+# Endpoints de Auth
 
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
-
-@app.get("/productos/{id}")
-def obtener_producto_por_id(id: int):
-    productos = cargar_productos()
-    for producto in productos:
-        if producto["id"] == id:
-            return producto
-    return {"mensaje": "Producto no encontrado"}, 404
-
-
-# Endpoints de Login
 @app.post("/registrar")
-def registrar_usuario():
+@app.post("/iniciar-sesion")
+@app.post("/cerrar-sesion")
 
-    return {"mensaje": "Registro de usuario no implementado"}
+
+# Endpoints de Productos
+@app.get("/productos")
+@app.get("/productos/{id}")
+
+
+# Endpoints de Carrito
+@app.post("/carrito")
+@app.delete("/carrito/{producto_id}")
+@app.get("/carrito")
+@app.post("/carrito/finalizar")
+@app.post("/carrito/cancelar")
+
+#Endpoints de Compras
+@app.get("/compras")
+@app.get("/compras/{compra_id}")
+
 
 if __name__ == "__main__":
     import uvicorn
