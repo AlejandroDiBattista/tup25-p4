@@ -4,7 +4,20 @@ from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
 
+from database import crear_tablas
+from models.usuarios import Usuario
+from models.productos import Producto
+from models.carrito import Carrito, ItemCarrito
+from models.compras import Compra, ItemCompra
+
+
 app = FastAPI(title="API Productos")
+
+# crear la base de datos sqlite
+@app.on_event("startup")
+def startup():
+    crear_tablas()
+
 
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")

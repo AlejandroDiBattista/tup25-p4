@@ -2,6 +2,7 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 
 
+
 class Producto(SQLModel, table=True):
     """Modelo de Producto para la base de datos.
     
