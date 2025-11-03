@@ -1,8 +1,13 @@
 import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
 
-export default async function Home() {
-  const productos = await obtenerProductos();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ categoria?: string; nombre?: string }>;
+}) {
+  const params = await searchParams;
+  const productos = await obtenerProductos(params);
 
   return (
     <div className="min-h-screen bg-gray-50">

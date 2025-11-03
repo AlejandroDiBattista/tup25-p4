@@ -2,14 +2,19 @@ import { Producto } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export async function obtenerProductos(): Promise<Producto[]> {
-  const response = await fetch(`${API_URL}/productos`, {
-    cache: 'no-store'
-  });
+export async function obtenerProductos(params?: { categoria?: string; nombre?: string }) {
+
+  const query = new URLSearchParams();
+
+  if (params?.categoria) query.set('categoria', params.categoria);
+  if (params?.nombre) query.set('nombre', params.nombre);
+
+  const url = `${API_URL}/productos${query.toString() ? `?${query}` : ''}`;
+
+  const respuesta = await fetch(url, { cache: 'no-store' });
   
-  if (!response.ok) {
-    throw new Error('Error al obtener productos');
+  if (!respuesta.ok) {
+    throw new Error(`Error al cargar productos (${respuesta.status})`);
   }
-  
-  return response.json();
+  return (await respuesta.json()) as Producto[];
 }

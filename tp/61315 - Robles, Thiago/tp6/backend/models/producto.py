@@ -12,4 +12,5 @@ class Producto(SQLModel, table=True):
     categoria: str = Field(default="", max_length=100)
     existencia: int = Field(default=0, ge=0)
     activo: bool = Field(default=True)
+    imagen: str = Field(default=None, max_length=255)
 
