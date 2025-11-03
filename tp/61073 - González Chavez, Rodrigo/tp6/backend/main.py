@@ -124,6 +124,47 @@ def obtener_producto(producto_id: int, session: Session=Depends(get_session)):
         raise HTTPException(status_code=404, detail="Producto inexistente")
     return producto
 
+@app.get("/carrito")
+def ver_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario.id)).first()
+    if not carrito:
+        return {"productos": []}
+    items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
+    return {"productos": items}
+
+@app.post("/carrito/agregar/{producto_id}")
+def agregar_al_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    producto_id = data.get("producto_id")
+    cantidad = data.get("cantidad", 1)
+    producto = session.get(Producto, producto_id)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    if producto.existencia < cantidad:
+        raise HTTPException(status_code=400, detail="Stock insuficiente")
+
+    carrito = session.exec(select(Carrito).where(
+        Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
+        )).first()
+    if not carrito:
+        carrito = Carrito(usuario_id=usuario.id)
+        session.add(carrito)
+        session.commit()
+        session.refresh(carrito)
+    
+    item = session.exec(select(ItemCarrito).where(
+        ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto.id
+        )).first()
+    if item:
+        item.cantidad += cantidad
+    else:
+        item = ItemCarrito(carrito_id=carrito.id, producto_id=producto.id, cantidad=cantidad)
+        session.add(item)
+
+    producto.existencia -= cantidad
+    session.commit()
+    return {"Mensaje": "Producto agregado al carrito"}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
