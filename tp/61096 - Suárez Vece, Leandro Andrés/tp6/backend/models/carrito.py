@@ -14,7 +14,7 @@ class ItemCarrito(SQLModel, table=True):
     producto_id: Optional[int] = Field(default=None, foreign_key="producto.id", primary_key=True)
     cantidad: int = Field(default=1, ge=1)
 
-    carritos: List["Carrito"] = Relationship(back_populates="items")
+    carrito: Optional["Carrito"] = Relationship(back_populates="items")
     producto: Optional["Producto"] = Relationship()
 
 
