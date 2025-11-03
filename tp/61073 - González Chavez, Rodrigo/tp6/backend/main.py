@@ -1,14 +1,15 @@
 from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import Session, select, Optional
-from passlib.context import CryptContext
-from jose import jwt, JWTError
+from sqlmodel import Session, select
+from typing import Optional
+# from passlib.context import CryptContext
+# from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
 from database import crear_db, get_session
-from models import *
+from models import Usuario, Producto, Carrito, ItemCarrito, Compra, ItemCompra
 
 app = FastAPI(title="API Productos")
 
@@ -24,21 +25,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SECRET_KEY = "clave_muy_muy_secreta"
-ALGORITHM = "HS256"
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# SECRET_KEY = "clave_muy_muy_secreta"
+# ALGORITHM = "HS256"
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def hash_contraseña(contraseña: str):
-    return pwd_context.hash(contraseña)
+# def hash_contraseña(contraseña: str):
+#     return pwd_context.hash(contraseña)
 
-def verificar_contraseña(contraseña: str, hashed_contraseña: str):
-    return pwd_context.verify(contraseña, hashed_contraseña)
+# def verificar_contraseña(contraseña: str, hashed_contraseña: str):
+#     return pwd_context.verify(contraseña, hashed_contraseña)
 
-def crear_token(data: dict):
-    codificado = data.copy()
-    expiracion = datetime.utcnow() + timedelta(hours=1)
-    codificado.update({"exp": expiracion})
-    return jwt.encode(codificado, SECRET_KEY, algorithm=ALGORITHM)
+# def crear_token(data: dict):
+#     codificado = data.copy()
+#     expiracion = datetime.utcnow() + timedelta(hours=1)
+#     codificado.update({"exp": expiracion})
+#     return jwt.encode(codificado, SECRET_KEY, algorithm=ALGORITHM)
 
 def usuario_actual(request: Request, session: Session=Depends(get_session)):
     auth = request.headers.get("Authorization")
@@ -87,7 +88,6 @@ def registrar(data: dict, session: Session=Depends(get_session)):
     session.commit()
     return {"mensaje": "Usuario registrado exitosamente"}
 
-
 @app.post("/iniciar-sesion")
 def iniciar_sesion(data: dict, session: Session=Depends(get_session)):
     email = data.get("email")
@@ -124,6 +124,7 @@ def obtener_producto(producto_id: int, session: Session=Depends(get_session)):
         raise HTTPException(status_code=404, detail="Producto inexistente")
     return producto
 
+
 @app.get("/carrito")
 def ver_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
     carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario.id)).first()
@@ -132,7 +133,7 @@ def ver_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depen
     items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
     return {"productos": items}
 
-@app.post("/carrito/agregar/{producto_id}")
+@app.post("/carrito")
 def agregar_al_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
     producto_id = data.get("producto_id")
     cantidad = data.get("cantidad", 1)
@@ -141,6 +142,8 @@ def agregar_al_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), ses
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     if producto.existencia < cantidad:
         raise HTTPException(status_code=400, detail="Stock insuficiente")
+    if cantidad <= 0:
+        raise HTTPException(status_code=400, detail="La cantidad debe ser mayor a cero")
 
     carrito = session.exec(select(Carrito).where(
         Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
@@ -164,6 +167,100 @@ def agregar_al_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), ses
     session.commit()
     return {"Mensaje": "Producto agregado al carrito"}
 
+@app.delete("/carrito/{producto_id}")
+def eliminar_producto(producto_id: int, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    carrito = session.exec(select(Carrito).where(
+        Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
+        )).first()
+    if not carrito:
+        raise HTTPException(status_code=404, detail="Carrito vacío")
+    
+    item = session.exec(select(ItemCarrito).where(
+        ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id
+        )).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="El Producto no está en el carrito")
+
+    producto = session.get(Producto, producto_id)
+    producto.existencia += item.cantidad
+    
+    session.delete(item)
+    session.commit()
+    if item.cantidad >= 2:
+        return {"Mensaje": "Productos eliminados del carrito"}
+    else:
+        return {"Mensaje": "Producto eliminado del carrito"} 
+
+@app.post("/carrito/cancelar")
+def cancelar_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    carrito = session.exec(select(Carrito).where(
+        carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
+    )).first()
+    if carrito:
+        items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
+        for item in items:
+            producto = session.get(Producto, item.producto_id)
+            if producto:
+                producto.existencia += item.cantidad
+            session.delete(item)
+
+        session.delete(carrito)
+        session.commit()
+        return {"Mensaje": "Carrito cancelado"}
+    
+@app.post("/carrito/finalizar")
+def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    direccion = data.get("direccion")
+    tarjeta = data.get("tarjeta")
+
+    carrito = session.exec(select(Carrito).where(
+        Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
+    )).first()
+    if not carrito:
+        raise HTTPException(status_code=404, detail="No hay carrito abierto")
+
+    items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
+    if not items:
+        raise HTTPException(status_code=404, detail="Carrito vacío")
+    
+    subtotal = 0
+    total = 0
+    iva = 0.21
+    envio = 50
+
+    for item in items:
+        producto = session.get(Producto, item.producto_id)
+        if producto.categoria.lower() == "electronica":
+            iva = 0.10
+            subtotal += producto.precio * item.cantidad
+            total = subtotal * (1 + iva)
+
+    if total > 1000:
+        envio = 0
+    compra = Compra(usuario_id=usuario.id, direccion=direccion, tarjeta=tarjeta, total=total, envio=envio)
+    session.add(compra)
+    session.commit()
+    session.refresh(compra)
+
+    for item in items:
+        producto = session.get(Producto, item.producto_id)
+        detalle = ItemCompra(
+            compra_id=compra.id,
+            producto_id=producto.id, 
+            nombre=producto.nombre, 
+            cantidad=item.cantidad,
+            precio_unitario=producto.precio
+        )
+        session.add(detalle)
+
+    for item in items:
+        session.delete(item)
+    
+    carrito.estado = "cerrado"
+    session.commit()
+
+    return {"Mensaje": "Compra finalizada exitosamente"}
+    
 
 if __name__ == "__main__":
     import uvicorn

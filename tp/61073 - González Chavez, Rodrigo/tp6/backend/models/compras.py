@@ -19,7 +19,5 @@ class ItemCompra(SQLModel, table=True):
     cantidad: int = Field(default=1, ge=1)
     precio_unitario: float = Field(default=0.0, ge=0)
 
-    usuario: Optional["Usuario"] = Relationship(back_populates="compras")
+    usuarios: Optional["Usuario"] = Relationship(back_populates="compras")
     items: List[ItemCompra] =  Relationship()
-
-
