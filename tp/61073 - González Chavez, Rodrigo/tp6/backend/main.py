@@ -8,7 +8,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
-from database import crear_db, get_session
+from database import crear_db, get_session, engine
 from models import Usuario, Producto, Carrito, ItemCarrito, Compra, ItemCompra
 
 app = FastAPI(title="API Productos")
@@ -64,6 +64,53 @@ def cargar_productos():
     ruta_productos = Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
+    
+def normalizar_texto(texto: str):
+    if not texto:
+        return ""
+    texto = texto.lower()
+    texto = (texto
+        .replace("á", "a",)
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    return texto
+
+def cargar_productos_a_db():
+    with Session(engine) as session:
+        existentes = session.exec(select(Producto)).first()
+        if not existentes:
+            productos = cargar_productos()
+            for producto in productos:
+                nuevo_producto = Producto(
+                    nombre=producto.get("nombre", ""),
+                    categoria=normalizar_texto(producto.get("categoria", "")),
+                    precio=producto.get("precio", 0.0),
+                    existencia=producto.get("existencia", 0),
+                    descripcion=normalizar_texto(producto.get("descripcion", ""))
+                )
+                session.add(nuevo_producto)
+            session.commit()
+            return {"Mensaje": "Productos cargados en la base de datos"}
+        else:
+            return {"Mensaje": "Productos ya cargados previamente"}
+
+def normalizar_productos():
+    with Session(engine) as session:
+        productos = session.exec(select(Producto)).all()
+        cambios = 0
+        for producto in productos:
+            descripcion_normalizada = normalizar_texto(producto.descripcion)
+            categoria_normalizada = normalizar_texto(producto.categoria)
+            if producto.descripcion != descripcion_normalizada or producto.categoria != categoria_normalizada:
+                producto.descripcion = descripcion_normalizada
+                producto.categoria = categoria_normalizada
+                cambios += 1
+        if cambios > 0:
+            session.commit()
+            return {"Mensaje": f"{cambios} productos normalizados"}
 
 @app.get("/")
 def root():
@@ -72,6 +119,8 @@ def root():
 @app.on_event("startup")
 def on_startup():
     crear_db()
+    cargar_productos_a_db()
+    normalizar_productos()
 
 
 @app.post("/registrar")
@@ -112,9 +161,12 @@ def listar_productos(
     session: Session = Depends(get_session)):
     query = select(Producto)
     if buscar:
-        query = query.where(Producto.nombre.contains(buscar))
+        buscar = normalizar_texto(buscar)
+        query = query.where(Producto.descripcion.contains(buscar))
     if categoria:
+        categoria = normalizar_texto(categoria)
         query = query.where(Producto.categoria.contains(categoria))
+
     return session.exec(query).all()
 
 @app.get("/productos/{producto_id}")
@@ -230,7 +282,7 @@ def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), sess
 
     for item in items:
         producto = session.get(Producto, item.producto_id)
-        if producto.categoria.lower() == "electronica":
+        if producto.categoria() == "Electrónica":
             iva = 0.10
             subtotal += producto.precio * item.cantidad
             total = subtotal * (1 + iva)
@@ -260,7 +312,6 @@ def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), sess
     session.commit()
 
     return {"Mensaje": "Compra finalizada exitosamente"}
-    
 
 if __name__ == "__main__":
     import uvicorn

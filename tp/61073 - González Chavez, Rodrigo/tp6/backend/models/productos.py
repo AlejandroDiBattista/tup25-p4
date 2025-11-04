@@ -8,8 +8,8 @@ class Producto(SQLModel, table=True):
     TODO: Implementar los campos necesarios según las especificaciones.
     """
     id: Optional[int] = Field(default=None, primary_key=True)
+    precio: float = Field(default=0.0, ge=0)
+    existencia: int = Field(default=0, ge=0) 
     nombre: str = Field(default="", max_length=255)
     descripcion: str = Field(default="")
-    precio: float = Field(default=0.0, ge=0)
     categoria: str = Field(default="", max_length=100)
-    existencia: int = Field(default=0, ge=0) 
