@@ -22,7 +22,8 @@ from jose import jwt, JWTError
 from dtos.userDto import UsuarioRegister, UsuarioLogin, Token
 from auth import get_password_hash, verify_password, create_access_token, SECRET_KEY, ALGORITHM, CREDENTIALS_EXCEPTION, oauth2_scheme
 from dtos.carritoDto import CarritoAdd, CarritoRead
-from dtos.compraDto import CompraFinalizar, CompraExito
+from dtos.productoDto import ProductoRead
+from dtos.compraDto import CompraFinalizar, CompraExito, CompraResumen, CompraDetalle
 
 
 app = FastAPI(title="API Productos")
@@ -104,7 +105,7 @@ def cargar_productos():
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
-@app.get("/productos")
+@app.get("/productos",response_model=List[ProductoRead])
 def obtener_productos(
     session: Session = Depends(get_session),
     categoria: str = Query(None, description="Filtrar productos por categoría"),
@@ -129,10 +130,17 @@ def obtener_productos(
         )
 
     productos_db = session.exec(statement).all()
-    
-    return productos_db
 
-@app.get("/productos/{producto_id}", response_model=Producto)
+    productos_con_estado: List[ProductoRead] = []
+    
+    for producto in productos_db:
+        producto_read = ProductoRead.model_validate(producto)
+        producto_read.agotado = producto.existencia <= 0
+        productos_con_estado.append(producto_read)
+    
+    return productos_con_estado
+
+@app.get("/productos/{producto_id}", response_model=ProductoRead)
 def obtener_producto_por_id(
     producto_id: int, # FastAPI automáticamente toma este valor de la URL
     session: Session = Depends(get_session)
@@ -145,8 +153,11 @@ def obtener_producto_por_id(
             status_code=404,
             detail=f"Producto con ID {producto_id} no encontrado"
         )
+    
+    producto_read = ProductoRead.model_validate(producto)
+    producto_read.agotado = producto.existencia <= 0
         
-    return producto
+    return producto_read
 
 
 #----------------------------------------
@@ -173,7 +184,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: Session
     return user 
 
 
-@app.post("/registrar", response_model=Token, status_code=status.HTTP_201_CREATED)
+@app.post("/registrar", status_code=status.HTTP_201_CREATED)
 def registrar_usuario(usuario_data: UsuarioRegister, session: Session = Depends(get_session)):
     
     #  Verificar si el email ya existe (para devolver un 400 más claro)
@@ -197,8 +208,10 @@ def registrar_usuario(usuario_data: UsuarioRegister, session: Session = Depends(
     session.refresh(db_usuario)
     
     # Generar y devolver el token (loguear automáticamente)
-    access_token = create_access_token(data={"user_id": db_usuario.id})
-    return Token(access_token=access_token)
+    # access_token = create_access_token(data={"user_id": db_usuario.id})
+    # return Token(access_token=access_token)
+    return {"message": "Usuario registrado exitosamente", "usuario_id": db_usuario.id}
+
 
 
 
@@ -211,7 +224,7 @@ def iniciar_sesion(usuario_data: UsuarioLogin, session: Session = Depends(get_se
     # Verificar existencia y contraseña
     if not usuario or not verify_password(usuario_data.password, usuario.hashed_password):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -274,7 +287,7 @@ def obtener_carrito(
     return carrito.items
 
 
-@app.post("/carrito", status_code=status.HTTP_200_OK)
+@app.post("/carrito", status_code=status.HTTP_201_CREATED)
 def agregar_producto_a_carrito(
     item_data: CarritoAdd, 
     current_user: Usuario = Depends(get_current_user), 
@@ -416,7 +429,8 @@ def finalizar_compra(
  
     #Variables para el cálculo
     subtotal = 0.0
-    ENVIO = 5.0 # Costo de envío fijo (ejemplo)
+    ENVIO = 50.0 
+    ENVIOGRATIS = 1000.0
     items_compra_final = []
     
     # ITERAR, VALIDAR STOCK, CALCULAR y PREPARAR ITEMS
@@ -432,7 +446,11 @@ def finalizar_compra(
             )
             
         #  Calcular subtotal y preparar ItemCompra
-        precio_unitario = producto.precio # Precio actual del producto
+        if producto.categoria == "electronica":
+            precio_unitario = producto.precio * 1.10
+        else:
+            precio_unitario = producto.precio * 1.21
+            
         costo_item = item_carrito.cantidad * precio_unitario
         subtotal += costo_item
         
@@ -450,6 +468,9 @@ def finalizar_compra(
         session.add(producto) # Marcar el producto para ser guardado
         
     #  Crear la Compra principal
+    if subtotal< ENVIOGRATIS:
+        ENVIO = 0.0
+
     total_final = subtotal + ENVIO
     
     nueva_compra = Compra(
@@ -485,6 +506,49 @@ def finalizar_compra(
         compra_id=nueva_compra.id,
         total_pagado=total_final
     )
+
+@app.get("/compras", response_model=List[CompraResumen])
+def ver_historial_compras(
+    current_user: Usuario = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+):
+    """Muestra el resumen de todas las compras realizadas por el usuario."""
+    
+    compras = session.exec(
+        select(Compra)
+        .where(Compra.usuario_id == current_user.id)
+        .order_by(Compra.fecha.desc())
+    ).all()
+    
+    return compras
+
+
+
+@app.get("/compras/{compra_id}", response_model=CompraDetalle)
+def ver_detalle_compra(
+    compra_id: int,
+    current_user: Usuario = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+):
+    """Muestra el detalle completo de una compra específica (incluyendo items)."""
+    
+    statement = (
+        select(Compra)
+        .where(
+            Compra.id == compra_id,
+            Compra.usuario_id == current_user.id
+        )
+        .options(joinedload(Compra.items))
+    )
+    
+    compra = session.exec(statement).first()
+    
+   
+    if not compra:
+       
+        raise HTTPException(status_code=404, detail="Compra no encontrada.")
+        
+    return compra
 
 
 if __name__ == "__main__":
