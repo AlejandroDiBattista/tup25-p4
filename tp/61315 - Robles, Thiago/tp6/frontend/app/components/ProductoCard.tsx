@@ -17,7 +17,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     : `${API_URL}/${relativePath.replace(/^\//, "")}`;
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="bg-white mt-3 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
         <Image
           src={imageSrc}
