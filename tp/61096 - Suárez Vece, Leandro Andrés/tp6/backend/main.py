@@ -22,6 +22,7 @@ from jose import jwt, JWTError
 from dtos.userDto import UsuarioRegister, UsuarioLogin, Token
 from auth import get_password_hash, verify_password, create_access_token, SECRET_KEY, ALGORITHM, CREDENTIALS_EXCEPTION, oauth2_scheme
 from dtos.carritoDto import CarritoAdd, CarritoRead
+from dtos.compraDto import CompraFinalizar, CompraExito
 
 
 app = FastAPI(title="API Productos")
@@ -289,10 +290,6 @@ def agregar_producto_a_carrito(
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado.")
     
-    # VALIDACIÓN DE EXISTENCIA
-    if producto.existencia < item_data.cantidad: 
-        raise HTTPException(status_code=400, detail=f"Stock insuficiente. Solo quedan {producto.existencia} unidades.")
-    
     # BUSCAR ÍTEM EXISTENTE EN EL CARRITO
     item_carrito = session.exec(
         select(ItemCarrito).where(
@@ -300,12 +297,18 @@ def agregar_producto_a_carrito(
             ItemCarrito.producto_id == item_data.producto_id
         )
     ).first()
-    
+
+    cantidad_total_solicitada = item_data.cantidad
     if item_carrito:
-        # ACTUALIZAR CANTIDAD (Si ya existe)
-        item_carrito.cantidad += item_data.cantidad
+        cantidad_total_solicitada += item_carrito.cantidad
+    
+    # VALIDACIÓN DE EXISTENCIA
+    if producto.existencia < cantidad_total_solicitada: 
+        raise HTTPException(status_code=400, detail=f"Stock insuficiente. Solo quedan {producto.existencia} unidades.")
+
+    if item_carrito:
+        item_carrito.cantidad = cantidad_total_solicitada
     else:
-        # CREAR NUEVO ItemCarrito
         item_carrito = ItemCarrito(
             carrito_id=carrito.id,
             producto_id=item_data.producto_id,
@@ -313,6 +316,10 @@ def agregar_producto_a_carrito(
         )
 
     session.add(item_carrito)
+
+    producto.existencia -= item_data.cantidad
+    session.add(producto)
+
     session.commit()
     session.refresh(item_carrito)
 
@@ -327,10 +334,10 @@ def eliminar_producto_de_carrito(
 ):
     """Elimina un ítem del carrito activo del usuario."""
     
-    # 1. Obtener el carrito activo
+    # Obtener el carrito activo
     carrito = get_or_create_active_cart(session, current_user.id)
     
-    # 2. Buscar el ItemCarrito específico
+    #  Buscar el ItemCarrito específico
     item_carrito = session.exec(
         select(ItemCarrito).where(
             ItemCarrito.carrito_id == carrito.id,
@@ -341,8 +348,13 @@ def eliminar_producto_de_carrito(
     if not item_carrito:
         raise HTTPException(status_code=404, detail="Producto no encontrado en tu carrito.")
         
-    # 3. Eliminar el ítem
+    #  Eliminar el ítem
     session.delete(item_carrito)
+
+    producto = session.get(Producto, producto_id)
+    producto.existencia += item_carrito.cantidad
+    session.add(producto)
+
     session.commit()
 
     return {"message": "Producto eliminado del carrito."}
@@ -373,12 +385,107 @@ def vaciar_carrito(
     
     session.commit()
     
-    # Opcional: Actualizar el estado del carrito a "cancelado" o mantener "activo"
-    # carrito.estado = "cancelado" 
-    # session.add(carrito)
-    # session.commit()
+    #  Actualizar el estado del carrito a "cancelado" o mantener "activo"
+    carrito.estado = "Inactivo" 
+    session.add(carrito)
+    session.commit()
     
     return {"message": "Carrito vaciado exitosamente (Compra cancelada)."}
+
+
+#----------------------------------------
+#               compras
+#----------------------------------------
+
+@app.post("/carrito/finalizar", response_model=CompraExito)
+def finalizar_compra(
+    compra_data: CompraFinalizar, 
+    current_user: Usuario = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+):
+    """Procesa el pago, crea el registro de compra y vacía el carrito activo."""
+    
+    # Obtener el carrito activo (debe existir)
+    carrito = get_or_create_active_cart(session, current_user.id)
+    
+    # Obtener los ítems del carrito (Eager loading para seguridad)
+    session.refresh(carrito) 
+    
+    if not carrito.items:
+        raise HTTPException(status_code=400, detail="El carrito está vacío.")
+ 
+    #Variables para el cálculo
+    subtotal = 0.0
+    ENVIO = 5.0 # Costo de envío fijo (ejemplo)
+    items_compra_final = []
+    
+    # ITERAR, VALIDAR STOCK, CALCULAR y PREPARAR ITEMS
+    for item_carrito in carrito.items:
+        producto = session.get(Producto, item_carrito.producto_id)
+        
+        # 4a. Validación de Stock final
+        if not producto or producto.existencia < item_carrito.cantidad:
+            # Revertir todo y notificar qué producto falla
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Stock insuficiente para {producto.nombre if producto else 'producto desconocido'}. Intente de nuevo."
+            )
+            
+        #  Calcular subtotal y preparar ItemCompra
+        precio_unitario = producto.precio # Precio actual del producto
+        costo_item = item_carrito.cantidad * precio_unitario
+        subtotal += costo_item
+        
+        #  Crear el objeto ItemCompra
+        item_compra = ItemCompra(
+            producto_id=producto.id,
+            cantidad=item_carrito.cantidad,
+            nombre=producto.nombre, # Capturar nombre y precio para el historial
+            precio_unitario=precio_unitario 
+        )
+        items_compra_final.append(item_compra)
+        
+        #  Reducir stock del Producto
+        producto.existencia -= item_carrito.cantidad
+        session.add(producto) # Marcar el producto para ser guardado
+        
+    #  Crear la Compra principal
+    total_final = subtotal + ENVIO
+    
+    nueva_compra = Compra(
+        usuario_id=current_user.id,
+        direccion=compra_data.direccion,
+        tarjeta=compra_data.tarjeta,
+        total=total_final,
+        envio=ENVIO, 
+    )
+    
+    session.add(nueva_compra)
+    session.flush() # Obtiene el ID de la Compra antes del commit
+
+    for item_compra in items_compra_final:
+
+        item_compra.compra_id = nueva_compra.id 
+        session.add(item_compra)
+    
+    # Vaciar/Inactivar el Carrito
+    for item in carrito.items:
+        session.delete(item) # Eliminar ItemCarrito
+        
+    carrito.estado = "finalizado" # Cambiar estado del Carrito principal
+    session.add(carrito)
+    
+    # COMMIT: Si todo lo anterior funcionó, se guardan los cambios
+    session.commit()
+    session.refresh(nueva_compra)
+    
+    # Devolver éxito
+    return CompraExito(
+        message="Compra finalizada exitosamente.",
+        compra_id=nueva_compra.id,
+        total_pagado=total_final
+    )
+
 
 if __name__ == "__main__":
     import uvicorn
