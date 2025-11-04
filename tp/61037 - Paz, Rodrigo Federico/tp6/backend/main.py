@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
+from models.database import init_db
+from models.cargar_datos import cargar_productos_iniciales
 
 app = FastAPI(title="API Productos")
 
@@ -32,6 +34,10 @@ def root():
 def obtener_productos():
     productos = cargar_productos()
     return productos
+
+init_db()
+cargar_productos_iniciales()
+
 
 if __name__ == "__main__":
     import uvicorn
