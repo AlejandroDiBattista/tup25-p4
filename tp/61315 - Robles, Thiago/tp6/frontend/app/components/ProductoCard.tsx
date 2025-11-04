@@ -1,21 +1,27 @@
-import { Producto } from '../types';
-import Image from 'next/image';
+import { Producto } from "../types";
+import Image from "next/image";
 
 interface ProductoCardProps {
   producto: Producto;
 }
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
-  
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/imagenes';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+  const relativePath = producto.imagen.includes("/")
+    ? producto.imagen
+    : `imagenes/${producto.imagen}`;
+
+  const imageSrc = producto.imagen.startsWith("http")
+    ? producto.imagen
+    : `${API_URL}/${relativePath.replace(/^\//, "")}`;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
         <Image
-          src={`${producto.imagen}`}
-          alt={`Producto ${producto.id}`}
+          src={imageSrc}
+          alt={producto.titulo}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain p-4"

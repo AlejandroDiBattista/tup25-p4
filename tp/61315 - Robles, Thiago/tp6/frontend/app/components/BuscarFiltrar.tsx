@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-const categorias = [
+const categorias : { value: string; label: string }[] = [
   { value: '', label: 'Todas las categorías' },
   { value: 'Ropa de hombre', label: 'Ropa de hombre' },
   { value: 'Ropa de mujer', label: 'Ropa de mujer' },
@@ -45,7 +45,6 @@ export default function BuscarFiltrar() {
         placeholder="Buscar..."
         value={buscar}
         onChange={(e) => setBuscar(e.target.value)}
-        disabled={isPending}
       />
       <select
         className="px-3 py-2 rounded-md border bg-white text-black outline-none"

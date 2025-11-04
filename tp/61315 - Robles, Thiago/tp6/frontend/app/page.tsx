@@ -4,11 +4,8 @@ import BuscarFiltrar from "./components/BuscarFiltrar";
 
 type ParametrosBusqueda = { categoria?: string; buscar?: string };
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<ParametrosBusqueda>;
-}) {
+export default async function Home({searchParams,}: {searchParams:Promise<ParametrosBusqueda>;}){
+  
   const params = await searchParams;
   const productos = await obtenerProductos(params);
 
