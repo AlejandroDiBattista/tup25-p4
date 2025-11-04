@@ -61,16 +61,18 @@ def verificar_token(token: str):
 def usuario_actual(request: Request, session: Session=Depends(get_session)):
     auth = request.headers.get("Authorization")
     if not auth or not auth.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="No autenticado")
+        raise HTTPException(status_code=401, detail="Usuario no autenticado")
+    
     token = auth.split(" ")[1]
     payload = verificar_token(token)
     email = payload.get("sub")
-    if email is None:
+    if not email:
         raise HTTPException(status_code=401, detail="Tóken inválido")
 
     usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
     if not usuario:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    
     return usuario
 
 # Cargar productos desde el archivo JSON
@@ -270,7 +272,7 @@ def eliminar_producto(producto_id: int, usuario: Usuario=Depends(usuario_actual)
 @app.post("/carrito/cancelar")
 def cancelar_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
     carrito = session.exec(select(Carrito).where(
-        carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
+        Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
     )).first()
     if carrito:
         items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
@@ -300,19 +302,23 @@ def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), sess
         raise HTTPException(status_code=404, detail="Carrito vacío")
     
     subtotal = 0
-    total = 0
     iva = 0.21
     envio = 50
 
     for item in items:
         producto = session.get(Producto, item.producto_id)
-        if producto.categoria() == "Electrónica":
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        if producto.categoria == "electronica":
             iva = 0.10
-            subtotal += producto.precio * item.cantidad
-            total = subtotal * (1 + iva)
 
-    if total > 1000:
+    subtotal += producto.precio * item.cantidad * (1 + iva)
+    if subtotal > 1000:
         envio = 0
+
+    total = subtotal + envio
+
     compra = Compra(usuario_id=usuario.id, direccion=direccion, tarjeta=tarjeta, total=total, envio=envio)
     session.add(compra)
     session.commit()
@@ -335,7 +341,23 @@ def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), sess
     carrito.estado = "cerrado"
     session.commit()
 
-    return {"Mensaje": "Compra finalizada exitosamente"}
+    return {"Mensaje": "Compra finalizada exitosamente", "compra_id": compra.id}
+
+
+@app.get("/compras")
+def listar_compras(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    compras = session.exec(select(Compra).where(Compra.usuario_id == usuario.id)).all()
+    return compras
+
+@app.get("/compras/{compra_id}")
+def obtener_compra(compra_id: int, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    compra = session.get(Compra, compra_id)
+    if not compra or compra.usuario_id != usuario.id:
+        raise HTTPException(status_code=404, detail="Compra no encontrada")
+    
+    items = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
+
+    return {"compra": compra, "items": items}
 
 if __name__ == "__main__":
     import uvicorn
