@@ -14,7 +14,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
         <Image
-          src={`${API_URL}/${producto.imagen}`}
+          src={`${producto.imagen}`}
           alt={`Producto ${producto.id}`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

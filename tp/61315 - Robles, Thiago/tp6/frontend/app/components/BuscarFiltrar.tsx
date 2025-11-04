@@ -24,17 +24,17 @@ export default function BuscarFiltrar() {
   const [buscar, setBuscar] = useState(searchParams.get('buscar') ?? '');
   const [categoria, setCategoria] = useState(searchParams.get('categoria') ?? '');
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-
+   useEffect(() => {
+    const params = new URLSearchParams();
     if (buscar.trim()) params.set('buscar', buscar.trim());
-    else params.delete('buscar');
-
     if (categoria) params.set('categoria', categoria);
-    else params.delete('categoria');
+
+    const next = params.toString();
+    const current = searchParams.toString();
+    if (next === current) return;
 
     startTransition(() => {
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
     });
   }, [buscar, categoria, pathname, router, searchParams]);
 
