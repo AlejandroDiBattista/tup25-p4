@@ -1,6 +1,11 @@
-from fastapi import FastAPI, Depends, Query, HTTPException
+from fastapi import FastAPI, Depends, Query, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.exc import IntegrityError
+from typing import Optional, List
+from sqlalchemy.orm import joinedload
+
 import json
 from pathlib import Path
 from unidecode import unidecode
@@ -12,6 +17,11 @@ from models.usuarios import Usuario
 from models.productos import Producto
 from models.carrito import Carrito, ItemCarrito
 from models.compras import Compra, ItemCompra
+
+from jose import jwt, JWTError
+from dtos.userDto import UsuarioRegister, UsuarioLogin, Token
+from auth import get_password_hash, verify_password, create_access_token, SECRET_KEY, ALGORITHM, CREDENTIALS_EXCEPTION, oauth2_scheme
+from dtos.carritoDto import CarritoAdd, CarritoRead
 
 
 app = FastAPI(title="API Productos")
@@ -57,6 +67,7 @@ def cargar_datos_iniciales(session: Session):
         print(f"Cargados {len(productos_a_crear)} productos en la base de datos.")
     else:
         print("La base de datos ya contiene productos.")
+
 
 # crear la base de datos sqlite
 @app.on_event("startup")
@@ -135,6 +146,239 @@ def obtener_producto_por_id(
         )
         
     return producto
+
+
+#----------------------------------------
+#               users
+#----------------------------------------
+
+async def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
+    try:
+        # Decodificar el token con la clave secreta
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: Optional[str] = payload.get("user_id")
+        
+        if user_id is None:
+            raise CREDENTIALS_EXCEPTION
+            
+    except JWTError:
+        raise CREDENTIALS_EXCEPTION
+
+    # Buscar el usuario en la DB por el ID en el token
+    user = session.get(Usuario, int(user_id))
+    if user is None:
+        raise CREDENTIALS_EXCEPTION
+        
+    return user 
+
+
+@app.post("/registrar", response_model=Token, status_code=status.HTTP_201_CREATED)
+def registrar_usuario(usuario_data: UsuarioRegister, session: Session = Depends(get_session)):
+    
+    #  Verificar si el email ya existe (para devolver un 400 más claro)
+    existing_user = session.exec(select(Usuario).where(Usuario.email == usuario_data.email)).first()
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El email ya está registrado")
+
+    password_to_hash = usuario_data.password
+    hashed_password = get_password_hash(password_to_hash)
+    
+    # Crear el objeto de la base de datos
+    db_usuario = Usuario(
+        nombre=usuario_data.nombre,
+        email=usuario_data.email,
+        hashed_password=hashed_password
+    )
+    
+    # Guardar en DB
+    session.add(db_usuario)
+    session.commit()
+    session.refresh(db_usuario)
+    
+    # Generar y devolver el token (loguear automáticamente)
+    access_token = create_access_token(data={"user_id": db_usuario.id})
+    return Token(access_token=access_token)
+
+
+
+@app.post("/iniciar-sesion", response_model=Token)
+def iniciar_sesion(usuario_data: UsuarioLogin, session: Session = Depends(get_session)):
+    
+    # Buscar el usuario
+    usuario = session.exec(select(Usuario).where(Usuario.email == usuario_data.email)).first()
+    
+    # Verificar existencia y contraseña
+    if not usuario or not verify_password(usuario_data.password, usuario.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    # Crear y devolver el token
+    access_token = create_access_token(data={"user_id": usuario.id})
+    return Token(access_token=access_token)
+
+
+
+@app.post("/cerrar-sesion", status_code=status.HTTP_200_OK)
+def cerrar_sesion(current_user: Usuario = Depends(get_current_user)):
+    return {"message": f"Sesión de {current_user.email} cerrada. El token ya no debe usarse."}
+
+
+
+#----------------------------------------
+#               carrito
+#----------------------------------------
+
+
+def get_or_create_active_cart(session: Session, user_id: int) -> Carrito:
+    """Busca el carrito activo del usuario o crea uno si no existe."""
+    carrito = session.exec(
+        select(Carrito).where(
+            Carrito.usuario_id == user_id,
+            Carrito.estado == "activo"
+        )
+    ).first()
+    
+    if not carrito:
+        carrito = Carrito(usuario_id=user_id, estado="activo")
+        session.add(carrito)
+        session.commit()
+        session.refresh(carrito)
+    
+    return carrito
+
+@app.get("/carrito", response_model=List[CarritoRead])
+def obtener_carrito(
+    current_user: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    # Usamos joinedload para cargar los ítems y los productos de los ítems en una sola consulta.
+    statement = (
+        select(Carrito)
+        .where(
+            Carrito.usuario_id == current_user.id,
+            Carrito.estado == "activo"
+        )
+        .options(joinedload(Carrito.items).joinedload(ItemCarrito.producto)) # Carga ItemCarrito y luego el Producto dentro de ItemCarrito
+    )
+    
+    carrito = session.exec(statement).first()
+    
+    if not carrito:
+        return [] 
+    
+    # 2. Devolver la lista de ITEMS
+    return carrito.items
+
+
+@app.post("/carrito", status_code=status.HTTP_200_OK)
+def agregar_producto_a_carrito(
+    item_data: CarritoAdd, 
+    current_user: Usuario = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+):
+    """Agrega un producto al carrito activo o actualiza la cantidad si ya existe."""
+    
+    carrito = get_or_create_active_cart(session, current_user.id)
+    
+    # Verificar Producto y Stock (Asumo que Producto tiene 'existencia' o 'stock')
+    producto = session.get(Producto, item_data.producto_id)
+    
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    
+    # VALIDACIÓN DE EXISTENCIA
+    if producto.existencia < item_data.cantidad: 
+        raise HTTPException(status_code=400, detail=f"Stock insuficiente. Solo quedan {producto.existencia} unidades.")
+    
+    # BUSCAR ÍTEM EXISTENTE EN EL CARRITO
+    item_carrito = session.exec(
+        select(ItemCarrito).where(
+            ItemCarrito.carrito_id == carrito.id,
+            ItemCarrito.producto_id == item_data.producto_id
+        )
+    ).first()
+    
+    if item_carrito:
+        # ACTUALIZAR CANTIDAD (Si ya existe)
+        item_carrito.cantidad += item_data.cantidad
+    else:
+        # CREAR NUEVO ItemCarrito
+        item_carrito = ItemCarrito(
+            carrito_id=carrito.id,
+            producto_id=item_data.producto_id,
+            cantidad=item_data.cantidad
+        )
+
+    session.add(item_carrito)
+    session.commit()
+    session.refresh(item_carrito)
+
+    return {"message": "Producto agregado o actualizado en el carrito."}
+
+
+@app.delete("/carrito/{producto_id}", status_code=status.HTTP_200_OK)
+def eliminar_producto_de_carrito(
+    producto_id: int,
+    current_user: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Elimina un ítem del carrito activo del usuario."""
+    
+    # 1. Obtener el carrito activo
+    carrito = get_or_create_active_cart(session, current_user.id)
+    
+    # 2. Buscar el ItemCarrito específico
+    item_carrito = session.exec(
+        select(ItemCarrito).where(
+            ItemCarrito.carrito_id == carrito.id,
+            ItemCarrito.producto_id == producto_id
+        )
+    ).first()
+
+    if not item_carrito:
+        raise HTTPException(status_code=404, detail="Producto no encontrado en tu carrito.")
+        
+    # 3. Eliminar el ítem
+    session.delete(item_carrito)
+    session.commit()
+
+    return {"message": "Producto eliminado del carrito."}
+
+
+@app.post("/carrito/cancelar", status_code=status.HTTP_200_OK)
+def vaciar_carrito(
+    current_user: Usuario = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+):
+    """Vacía completamente el carrito activo del usuario (mantiene el objeto Carrito)."""
+    
+    # 1. Obtener el carrito activo
+    carrito = get_or_create_active_cart(session, current_user.id)
+    
+    # 2. Eliminar todos los ítems asociados a ese carrito_id
+    # Se puede hacer manualmente o actualizando el estado de todos los ítems (mejor eliminar)
+    
+    items_a_eliminar = session.exec(
+        select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
+    ).all()
+    
+    if not items_a_eliminar:
+        return {"message": "El carrito ya está vacío."}
+
+    for item in items_a_eliminar:
+        session.delete(item)
+    
+    session.commit()
+    
+    # Opcional: Actualizar el estado del carrito a "cancelado" o mantener "activo"
+    # carrito.estado = "cancelado" 
+    # session.add(carrito)
+    # session.commit()
+    
+    return {"message": "Carrito vaciado exitosamente (Compra cancelada)."}
 
 if __name__ == "__main__":
     import uvicorn
