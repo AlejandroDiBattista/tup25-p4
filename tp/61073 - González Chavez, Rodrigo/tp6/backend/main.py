@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from typing import Optional
 # from passlib.context import CryptContext
-# from jose import jwt, JWTError
+import jwt
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
@@ -25,8 +25,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# SECRET_KEY = "clave_muy_muy_secreta"
-# ALGORITHM = "HS256"
+SECRET_KEY = "clave_muy_muy_secreta"
+ALGORITHM = "HS256"
 # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # def hash_contraseña(contraseña: str):
@@ -35,23 +35,29 @@ app.add_middleware(
 # def verificar_contraseña(contraseña: str, hashed_contraseña: str):
 #     return pwd_context.verify(contraseña, hashed_contraseña)
 
-# def crear_token(data: dict):
-#     codificado = data.copy()
-#     expiracion = datetime.utcnow() + timedelta(hours=1)
-#     codificado.update({"exp": expiracion})
-#     return jwt.encode(codificado, SECRET_KEY, algorithm=ALGORITHM)
+def crear_token(payload: dict):
+    datos = payload.copy()
+    expiracion = datetime.utcnow() + timedelta(hours=1)
+    datos.update({"exp": expiracion})
+    return jwt.encode(datos, SECRET_KEY, algorithm=ALGORITHM)
+
+def verificar_token(token: str):
+    try:
+        datos = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return datos
+    except jwt.ExpiredSignatureError:
+        raise Exception("Tóken expirado")
+    except jwt.InvalidTokenError:
+        raise Exception("Tóken Inválido")
 
 def usuario_actual(request: Request, session: Session=Depends(get_session)):
     auth = request.headers.get("Authorization")
     if not auth or not auth.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="No autenticado")
     token = auth.split(" ")[1]
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        if email is None:
-            raise HTTPException(status_code=401, detail="Tóken inválido")
-    except JWTError:
+    payload = verificar_token(token)
+    email = payload.get("sub")
+    if email is None:
         raise HTTPException(status_code=401, detail="Tóken inválido")
 
     usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
@@ -127,12 +133,15 @@ def on_startup():
 def registrar(data: dict, session: Session=Depends(get_session)):
     nombre = data.get("nombre")
     email = data.get("email")
-    contraseña = data.get("contraseña")
+    password = data.get("password")
+
+    if not nombre or not email or not password:
+        raise HTTPException(status_code=400, detail="Todos los campos son obligatorios")
 
     if session.exec(select(Usuario).where(Usuario.email == email)).first():
         raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-    usuario = Usuario(nombre=nombre, email=email, contraseña=hash_contraseña(contraseña))
+    usuario = Usuario(nombre=nombre, email=email, contraseña=password)
     session.add(usuario)
     session.commit()
     return {"mensaje": "Usuario registrado exitosamente"}
@@ -140,11 +149,16 @@ def registrar(data: dict, session: Session=Depends(get_session)):
 @app.post("/iniciar-sesion")
 def iniciar_sesion(data: dict, session: Session=Depends(get_session)):
     email = data.get("email")
-    contraseña = data.get("contraseña")
+    password = data.get("password")
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="El email y la contraseña son obligatorios")
 
     usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
-    if not usuario or not verificar_contraseña(contraseña, usuario.contraseña):
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Credenciales Inválidas")
+    if usuario.contraseña != password:
+        raise HTTPException(status_code=401, detail="Credenciales Inválidas")
     
     token = crear_token({"sub": usuario.email})
     return {"access_token": token, "token_type": "bearer"}
