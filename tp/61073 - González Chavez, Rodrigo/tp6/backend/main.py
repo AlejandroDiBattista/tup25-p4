@@ -2,9 +2,9 @@ from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
-from typing import Optional
-# from passlib.context import CryptContext
+from typing import Optional, Any
 import jwt
+import bcrypt
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
@@ -29,11 +29,19 @@ SECRET_KEY = "clave_muy_muy_secreta"
 ALGORITHM = "HS256"
 # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# def hash_contraseña(contraseña: str):
-#     return pwd_context.hash(contraseña)
+def hashed_password(password: str):
+    if not password:
+        raise ValueError("Contraseña vacía")
+    hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    return hashed.decode("utf-8")
 
-# def verificar_contraseña(contraseña: str, hashed_contraseña: str):
-#     return pwd_context.verify(contraseña, hashed_contraseña)
+def verificar_contraseña(password: str, hashed_password: str):
+    if not password or not hashed_password:
+        return False
+    try:
+        return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
+    except ValueError:
+        return False
 
 def crear_token(payload: dict):
     datos = payload.copy()
@@ -136,12 +144,13 @@ def registrar(data: dict, session: Session=Depends(get_session)):
     password = data.get("password")
 
     if not nombre or not email or not password:
-        raise HTTPException(status_code=400, detail="Todos los campos son obligatorios")
+        raise HTTPException(status_code=400, detail="Faltan datos")
 
     if session.exec(select(Usuario).where(Usuario.email == email)).first():
         raise HTTPException(status_code=400, detail="El email ya está registrado")
-
-    usuario = Usuario(nombre=nombre, email=email, contraseña=password)
+    
+    hashed = hashed_password(password)
+    usuario = Usuario(nombre=nombre, email=email, contraseña=hashed)
     session.add(usuario)
     session.commit()
     return {"mensaje": "Usuario registrado exitosamente"}
@@ -157,7 +166,8 @@ def iniciar_sesion(data: dict, session: Session=Depends(get_session)):
     usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
     if not usuario:
         raise HTTPException(status_code=401, detail="Credenciales Inválidas")
-    if usuario.contraseña != password:
+    
+    if not verificar_contraseña(password, usuario.contraseña):
         raise HTTPException(status_code=401, detail="Credenciales Inválidas")
     
     token = crear_token({"sub": usuario.email})

@@ -105,10 +105,7 @@ Authorization: Bearer {{token}}
 ### 4. CARRITO DE COMPRAS
 ### ========================================
 
-### 4.1 - Ver carrito actual (requiere autenticación)
-GET {{baseUrl}}/carrito
-Accept: {{contentType}}
-Authorization: Bearer {{token}}
+
 
 ### 4.2 - Agregar producto al carrito
 POST {{baseUrl}}/carrito
