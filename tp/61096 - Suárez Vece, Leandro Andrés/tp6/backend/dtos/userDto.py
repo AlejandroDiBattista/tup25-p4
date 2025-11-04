@@ -20,9 +20,3 @@ class Token(SQLModel):
     access_token: str
     token_type: str = "bearer"
 
-
-# class UsuarioPublic(SQLModel):
-#     """Modelo público para devolver un usuario (sin hashed_password)."""
-#     id: Optional[int]
-#     nombre: str
-#     email: EmailStr

@@ -53,10 +53,6 @@ def cargar_datos_iniciales(session: Session):
         
         productos_a_crear = []
         for item in datos_json:
-            # Crea una instancia de Producto para cada ítem del JSON
-
-            if 'titulo' in item:
-                item['nombre'] = item.pop('titulo')
 
             if 'categoria' in item:
                 item['categoria'] = normalize_text(item['categoria'])
@@ -123,9 +119,10 @@ def obtener_productos(
 
     if buscar:
         termino_busqueda = f"%{buscar}%"
+        print(termino_busqueda)
 
         statement = statement.where(
-            (Producto.nombre.ilike(termino_busqueda)) |  # Filtra por nombre
+            (Producto.titulo.ilike(termino_busqueda)) |  # Filtra por nombre
             (Producto.descripcion.ilike(termino_busqueda)) # O Filtra por descripción
         )
 
@@ -211,8 +208,6 @@ def registrar_usuario(usuario_data: UsuarioRegister, session: Session = Depends(
     # access_token = create_access_token(data={"user_id": db_usuario.id})
     # return Token(access_token=access_token)
     return {"message": "Usuario registrado exitosamente", "usuario_id": db_usuario.id}
-
-
 
 
 @app.post("/iniciar-sesion", response_model=Token)
