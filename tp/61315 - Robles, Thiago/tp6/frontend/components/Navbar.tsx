@@ -4,7 +4,7 @@ import {
     NavigationMenuList,
     NavigationMenuItem,
     NavigationMenuLink,
-} from "@/app/components/ui/navigation-menu";
+} from "@/components/ui/navigation-menu";
 
 export default function Navbar() {
     return (

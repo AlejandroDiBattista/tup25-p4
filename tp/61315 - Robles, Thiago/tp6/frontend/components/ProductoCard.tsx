@@ -1,4 +1,4 @@
-import { Producto } from "../types";
+import { Producto } from "../app/types";
 import Image from "next/image";
 
 interface ProductoCardProps {
