@@ -46,6 +46,7 @@ class LoginRequest(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
+    nombre: str
     token_type: str = "bearer"
 
 app = FastAPI(title="API Productos")
@@ -102,7 +103,7 @@ def iniciar_sesion(payload: LoginRequest, session: Session = Depends(get_session
 
     token = secrets.token_hex(32)
     TOKENS[token] = usuario.id
-    return TokenResponse(access_token=token)
+    return TokenResponse(access_token=token, nombre=usuario.nombre)
 
 
 @app.on_event("startup")
@@ -115,9 +116,33 @@ def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 @app.get("/productos")
-def obtener_productos():
+def obtener_productos(categoria: str | None = None, busqueda: str | None = None):
     productos = cargar_productos()
+
+    if categoria:
+        categoria_lower = categoria.lower()
+        productos = [producto for producto in productos if producto.get("categoria", "").lower() == categoria_lower]
+
+    if busqueda:
+        termino = busqueda.lower()
+        productos = [
+            producto
+            for producto in productos
+            if termino in producto.get("titulo", "").lower()
+            or termino in producto.get("descripcion", "").lower()
+        ]
+
     return productos
+
+
+@app.get("/productos/{producto_id}")
+def obtener_producto(producto_id: int):
+    productos = cargar_productos()
+    for producto in productos:
+        if producto.get("id") == producto_id:
+            return producto
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
 
 if __name__ == "__main__":
     import uvicorn

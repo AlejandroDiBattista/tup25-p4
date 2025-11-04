@@ -37,6 +37,11 @@ export default function LoginPage() {
       const tokenResponse = await iniciarSesion({ email, password });
       if (typeof window !== "undefined") {
         localStorage.setItem("token", tokenResponse.access_token);
+        localStorage.setItem("usuarioNombre", tokenResponse.nombre);
+
+        
+        window.location.href = "/";
+        return;
       }
       router.push("/");
     } catch (err) {
@@ -59,7 +64,7 @@ export default function LoginPage() {
         <form className="space-y-4" onSubmit={handleSubmit}>
           {mode === "register" && (
             <div>
-              <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="nombre" className="block text-sm font-medium text-gray-900">
                 Nombre completo
               </label>
               <input
@@ -68,13 +73,13 @@ export default function LoginPage() {
                 required
                 value={nombre}
                 onChange={(event) => setNombre(event.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-900">
               Email
             </label>
             <input
@@ -83,12 +88,12 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-900">
               Contraseña
             </label>
             <input
@@ -97,7 +102,7 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
@@ -117,7 +122,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-800">
           {mode === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
           <button
             type="button"
@@ -128,7 +133,7 @@ export default function LoginPage() {
           </button>
         </p>
 
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-gray-700">
           <Link href="/" className="text-blue-600 hover:text-blue-500">
             Volver al catálogo
           </Link>

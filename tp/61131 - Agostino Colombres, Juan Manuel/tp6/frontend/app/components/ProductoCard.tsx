@@ -1,50 +1,73 @@
-import { Producto } from '../types';
-import Image from 'next/image';
+import Image from "next/image";
+
+import { Producto } from "../types";
 
 interface ProductoCardProps {
   producto: Producto;
+  onAdd: (producto: Producto) => void;
+  isAuthenticated: boolean;
 }
 
-export default function ProductoCard({ producto }: ProductoCardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
+const formatter = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+});
+
+export default function ProductoCard({ producto, onAdd, isAuthenticated }: ProductoCardProps) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const hayStock = producto.existencia > 0;
+
+  // Evitamos renders innecesarios cuando el botón está deshabilitado.
+  const handleAddClick = () => {
+    if (!hayStock || !isAuthenticated) {
+      return;
+    }
+    onAdd(producto);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-64 bg-gray-100">
+    <article className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+      <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
         <Image
           src={`${API_URL}/${producto.imagen}`}
           alt={producto.titulo}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain p-4"
+          sizes="112px"
+          className="object-contain p-3"
           unoptimized
         />
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {producto.descripcion}
-        </p>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
-          </span>
-          <div className="flex items-center gap-1">
-            <span className="text-yellow-500">★</span>
-            <span className="text-sm text-gray-700">{producto.valoracion}</span>
-          </div>
+
+      <div className="flex flex-1 flex-col justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{producto.titulo}</h3>
+          <p className="mt-1 text-sm text-gray-600">{producto.descripcion}</p>
+          <p className="mt-2 text-xs font-medium text-gray-500">Categoría: {producto.categoria}</p>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio}
-          </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
+
+        <div className="mt-3 flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-right sm:text-left">
+            <p className="text-xl font-bold text-gray-900">{formatter.format(producto.precio)}</p>
+            <p className={`text-sm font-medium ${hayStock ? "text-green-600" : "text-gray-500"}`}>
+              {hayStock ? `Disponible: ${producto.existencia}` : "Agotado"}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAddClick}
+            disabled={!hayStock || !isAuthenticated}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              hayStock && isAuthenticated
+                ? "bg-slate-900 text-white hover:bg-slate-800"
+                : "cursor-not-allowed bg-gray-200 text-gray-500"
+            }`}
+          >
+            {hayStock ? "Agregar al carrito" : "Sin stock"}
+          </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

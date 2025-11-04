@@ -23,5 +23,6 @@ export interface RegistroResponse {
 
 export interface TokenResponse {
   access_token: string;
+  nombre: string;
   token_type: string;
 }
