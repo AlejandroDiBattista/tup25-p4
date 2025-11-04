@@ -45,6 +45,10 @@ app = FastAPI(
 imagenes_dir = Path(__file__).parent / "imagenes"
 app.mount("/imagenes", StaticFiles(directory=str(imagenes_dir)), name="imagenes")
 
+# Montar directorio static para archivos HTML/CSS/JS
+static_dir = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
@@ -460,4 +464,4 @@ def listar_todos_los_pedidos(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8002, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8001, reload=False)
