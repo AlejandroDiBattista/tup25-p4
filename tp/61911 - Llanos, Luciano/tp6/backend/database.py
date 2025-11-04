@@ -30,6 +30,7 @@ def inicializar_datos():
     from models.productos import Producto
     from models.usuarios import Usuario
     from models.carrito import Carrito, CarritoItem
+    from models.pedidos import Pedido, PedidoItem
     
     with Session(engine) as session:
         # Verificar si ya hay productos

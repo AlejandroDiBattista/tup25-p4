@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from pathlib import Path
 from typing import List
-from datetime import timedelta
+from datetime import timedelta, datetime
 import json
 import re
 
@@ -16,6 +16,11 @@ from models.carrito import (
     Carrito, CarritoItem, CarritoPublico, CarritoItemPublico,
     AgregarItemCarrito, ActualizarItemCarrito, CarritoResumen
 )
+from models.pedidos import (
+    Pedido, PedidoItem, EstadoPedido, MetodoPago,
+    PedidoPublico, PedidoItemPublico, ResumenPedido,
+    CrearPedidoRequest, DireccionEntrega, InfoPago, ActualizarEstadoPedido
+)
 from auth import (
     get_password_hash, autenticar_usuario, crear_access_token,
     get_usuario_activo_actual, ACCESS_TOKEN_EXPIRE_MINUTES
@@ -23,6 +28,10 @@ from auth import (
 from carrito_helpers import (
     obtener_carrito_usuario, convertir_carrito_a_publico, validar_stock_producto,
     buscar_item_en_carrito, actualizar_fecha_carrito, calcular_total_carrito
+)
+from pedidos_helpers import (
+    crear_pedido_desde_carrito, convertir_pedido_a_publico, obtener_pedidos_usuario,
+    calcular_costos_pedido, validar_carrito_para_checkout, generar_numero_seguimiento
 )
 
 # Crear la aplicación FastAPI
@@ -298,6 +307,156 @@ def resumen_carrito(
     """Obtener resumen del carrito (totales)"""
     carrito = obtener_carrito_usuario(usuario_actual.id, session)
     return calcular_total_carrito(carrito.id, session)
+
+# ===============================================
+# ENDPOINTS DE CHECKOUT Y PEDIDOS
+# ===============================================
+
+@app.get("/checkout/preview", response_model=ResumenPedido)
+def preview_checkout(
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener preview del costo total antes del checkout"""
+    items_carrito = validar_carrito_para_checkout(usuario_actual.id, session)
+    return calcular_costos_pedido(items_carrito)
+
+@app.post("/checkout", response_model=PedidoPublico)
+def procesar_checkout(
+    pedido_data: CrearPedidoRequest,
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Procesar checkout y crear pedido"""
+    pedido = crear_pedido_desde_carrito(usuario_actual.id, pedido_data, session)
+    return convertir_pedido_a_publico(pedido, session)
+
+@app.get("/pedidos", response_model=List[PedidoPublico])
+def obtener_mis_pedidos(
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener historial de pedidos del usuario"""
+    pedidos = obtener_pedidos_usuario(usuario_actual.id, session)
+    return [convertir_pedido_a_publico(pedido, session) for pedido in pedidos]
+
+@app.get("/pedidos/{pedido_id}", response_model=PedidoPublico)
+def obtener_pedido_por_id(
+    pedido_id: int,
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener detalles de un pedido específico"""
+    pedido = session.get(Pedido, pedido_id)
+    
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    
+    if pedido.usuario_id != usuario_actual.id:
+        raise HTTPException(status_code=403, detail="No autorizado para ver este pedido")
+    
+    return convertir_pedido_a_publico(pedido, session)
+
+@app.get("/pedidos/numero/{numero_pedido}", response_model=PedidoPublico)
+def obtener_pedido_por_numero(
+    numero_pedido: str,
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener pedido por número de pedido"""
+    pedido = session.exec(
+        select(Pedido).where(
+            Pedido.numero_pedido == numero_pedido,
+            Pedido.usuario_id == usuario_actual.id
+        )
+    ).first()
+    
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    
+    return convertir_pedido_a_publico(pedido, session)
+
+@app.put("/pedidos/{pedido_id}/cancelar")
+def cancelar_pedido(
+    pedido_id: int,
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Cancelar un pedido (solo si está en estado pendiente o confirmado)"""
+    pedido = session.get(Pedido, pedido_id)
+    
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    
+    if pedido.usuario_id != usuario_actual.id:
+        raise HTTPException(status_code=403, detail="No autorizado para cancelar este pedido")
+    
+    if pedido.estado not in [EstadoPedido.PENDIENTE, EstadoPedido.CONFIRMADO]:
+        raise HTTPException(
+            status_code=400, 
+            detail="No se puede cancelar un pedido que ya está en proceso o entregado"
+        )
+    
+    # Restaurar stock de productos
+    for item in pedido.items:
+        producto = session.get(Producto, item.producto_id)
+        if producto:
+            producto.existencia += item.cantidad
+            session.add(producto)
+    
+    # Actualizar estado del pedido
+    pedido.estado = EstadoPedido.CANCELADO
+    session.add(pedido)
+    session.commit()
+    
+    return {"mensaje": f"Pedido {pedido.numero_pedido} cancelado exitosamente"}
+
+# ===============================================
+# ENDPOINTS ADMINISTRATIVOS (Simulación)
+# ===============================================
+
+@app.put("/admin/pedidos/{pedido_id}/estado")
+def actualizar_estado_pedido(
+    pedido_id: int,
+    estado_data: ActualizarEstadoPedido,
+    session: Session = Depends(get_session)
+    # Nota: En producción aquí iría autenticación de admin
+):
+    """Actualizar estado de pedido (endpoint administrativo simulado)"""
+    pedido = session.get(Pedido, pedido_id)
+    
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    
+    pedido.estado = estado_data.estado
+    
+    if estado_data.numero_seguimiento:
+        pedido.numero_seguimiento = estado_data.numero_seguimiento
+    elif estado_data.estado == EstadoPedido.ENVIADO and not pedido.numero_seguimiento:
+        pedido.numero_seguimiento = generar_numero_seguimiento()
+    
+    if estado_data.fecha_estimada_entrega:
+        pedido.fecha_estimada_entrega = estado_data.fecha_estimada_entrega
+    
+    if estado_data.estado == EstadoPedido.ENTREGADO:
+        pedido.fecha_entrega = datetime.now()
+    
+    session.add(pedido)
+    session.commit()
+    
+    return {"mensaje": f"Estado del pedido {pedido.numero_pedido} actualizado a {estado_data.estado}"}
+
+@app.get("/admin/pedidos", response_model=List[PedidoPublico])
+def listar_todos_los_pedidos(
+    session: Session = Depends(get_session)
+    # Nota: En producción aquí iría autenticación de admin
+):
+    """Listar todos los pedidos (endpoint administrativo simulado)"""
+    pedidos = session.exec(
+        select(Pedido).order_by(Pedido.fecha_pedido.desc())
+    ).all()
+    
+    return [convertir_pedido_a_publico(pedido, session) for pedido in pedidos]
 
 if __name__ == "__main__":
     import uvicorn

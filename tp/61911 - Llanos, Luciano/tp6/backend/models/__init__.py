@@ -5,6 +5,11 @@ from .carrito import (
     Carrito, CarritoItem, CarritoPublico, CarritoItemPublico,
     AgregarItemCarrito, ActualizarItemCarrito, CarritoResumen
 )
+from .pedidos import (
+    Pedido, PedidoItem, EstadoPedido, MetodoPago,
+    PedidoPublico, PedidoItemPublico, ResumenPedido,
+    CrearPedidoRequest, DireccionEntrega, InfoPago, ActualizarEstadoPedido
+)
 
 __all__ = [
     "Producto", 
