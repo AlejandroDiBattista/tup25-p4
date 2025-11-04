@@ -1,7 +1,7 @@
 """
 Configuración de la base de datos SQLite con SQLModel
 """
-from sqlmodel import create_engine, SQLModel, Session
+from sqlmodel import create_engine, SQLModel, Session, select
 import json
 from pathlib import Path
 from typing import Generator
@@ -31,7 +31,7 @@ def inicializar_datos():
     
     with Session(engine) as session:
         # Verificar si ya hay productos
-        existing_products = session.query(Producto).first()
+        existing_products = session.exec(select(Producto)).first()
         if existing_products:
             print("Los productos ya están cargados en la base de datos")
             return

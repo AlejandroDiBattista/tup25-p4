@@ -1,8 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlmodel import Session, select
 from pathlib import Path
+from typing import List
 import json
+
+# Importar configuración de base de datos y modelos
+from database import crear_tablas, get_session, inicializar_datos
+from models.productos import Producto, ProductoPublico
 
 # Crear la aplicación FastAPI
 app = FastAPI(
@@ -31,6 +37,13 @@ def cargar_productos():
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
+# Evento de inicio - crear tablas y cargar datos
+@app.on_event("startup")
+def on_startup():
+    """Inicializar base de datos al arrancar la aplicación"""
+    crear_tablas()
+    inicializar_datos()
+
 # ===============================================
 # ENDPOINTS BÁSICOS
 # ===============================================
@@ -44,20 +57,26 @@ def health_check():
     from datetime import datetime
     return {"status": "ok", "timestamp": datetime.now()}
 
-@app.get("/productos")
-def obtener_productos():
-    """Obtener lista de productos"""
-    productos = cargar_productos()
+@app.get("/productos", response_model=List[ProductoPublico])
+def obtener_productos(session: Session = Depends(get_session)):
+    """Obtener lista de productos desde la base de datos"""
+    productos = session.exec(select(Producto)).all()
     return productos
 
-@app.get("/productos/{producto_id}")
-def obtener_producto(producto_id: int):
+@app.get("/productos/{producto_id}", response_model=ProductoPublico)
+def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
     """Obtener un producto específico por ID"""
-    productos = cargar_productos()
-    for producto in productos:
-        if producto["id"] == producto_id:
-            return producto
-    return {"error": "Producto no encontrado"}
+    producto = session.get(Producto, producto_id)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return producto
+
+@app.get("/categorias")
+def obtener_categorias(session: Session = Depends(get_session)):
+    """Obtener lista de categorías disponibles"""
+    query = select(Producto.categoria).distinct()
+    categorias = session.exec(query).all()
+    return {"categorias": categorias}
 
 if __name__ == "__main__":
     import uvicorn
