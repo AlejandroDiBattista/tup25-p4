@@ -12,9 +12,17 @@ import re
 from database import crear_tablas, get_session, inicializar_datos
 from models.productos import Producto, ProductoPublico
 from models.usuarios import Usuario, UsuarioRegistro, UsuarioLogin, UsuarioPublico, Token
+from models.carrito import (
+    Carrito, CarritoItem, CarritoPublico, CarritoItemPublico,
+    AgregarItemCarrito, ActualizarItemCarrito, CarritoResumen
+)
 from auth import (
     get_password_hash, autenticar_usuario, crear_access_token,
     get_usuario_activo_actual, ACCESS_TOKEN_EXPIRE_MINUTES
+)
+from carrito_helpers import (
+    obtener_carrito_usuario, convertir_carrito_a_publico, validar_stock_producto,
+    buscar_item_en_carrito, actualizar_fecha_carrito, calcular_total_carrito
 )
 
 # Crear la aplicación FastAPI
@@ -145,6 +153,152 @@ def obtener_perfil(usuario_actual: Usuario = Depends(get_usuario_activo_actual))
     """Obtener perfil del usuario actual"""
     return usuario_actual
 
+# ===============================================
+# ENDPOINTS DEL CARRITO DE COMPRAS
+# ===============================================
+
+@app.get("/carrito", response_model=CarritoPublico)
+def obtener_carrito(
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener carrito del usuario autenticado"""
+    carrito = obtener_carrito_usuario(usuario_actual.id, session)
+    return convertir_carrito_a_publico(carrito, session)
+
+@app.post("/carrito/agregar")
+def agregar_al_carrito(
+    item_data: AgregarItemCarrito,
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Agregar producto al carrito"""
+    
+    # Validar producto y stock
+    producto = validar_stock_producto(item_data.producto_id, item_data.cantidad, session)
+    
+    # Obtener carrito del usuario
+    carrito = obtener_carrito_usuario(usuario_actual.id, session)
+    
+    # Verificar si el producto ya está en el carrito
+    item_existente = buscar_item_en_carrito(carrito.id, item_data.producto_id, session)
+    
+    if item_existente:
+        # Actualizar cantidad si ya existe
+        nueva_cantidad = item_existente.cantidad + item_data.cantidad
+        
+        # Validar stock total
+        validar_stock_producto(item_data.producto_id, nueva_cantidad, session)
+        
+        item_existente.cantidad = nueva_cantidad
+        session.add(item_existente)
+    else:
+        # Crear nuevo item
+        nuevo_item = CarritoItem(
+            carrito_id=carrito.id,
+            producto_id=item_data.producto_id,
+            cantidad=item_data.cantidad,
+            precio_unitario=producto.precio
+        )
+        session.add(nuevo_item)
+    
+    # Actualizar fecha del carrito
+    actualizar_fecha_carrito(carrito.id, session)
+    session.commit()
+    
+    return {"mensaje": "Producto agregado al carrito exitosamente"}
+
+@app.put("/carrito/item/{item_id}")
+def actualizar_item_carrito(
+    item_id: int,
+    item_data: ActualizarItemCarrito,
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Actualizar cantidad de un item del carrito"""
+    
+    # Buscar el item
+    item = session.get(CarritoItem, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item no encontrado")
+    
+    # Verificar que el item pertenece al carrito del usuario
+    carrito = session.get(Carrito, item.carrito_id)
+    if not carrito or carrito.usuario_id != usuario_actual.id:
+        raise HTTPException(status_code=403, detail="No autorizado para modificar este item")
+    
+    # Validar stock
+    validar_stock_producto(item.producto_id, item_data.cantidad, session)
+    
+    # Actualizar cantidad
+    item.cantidad = item_data.cantidad
+    session.add(item)
+    
+    # Actualizar fecha del carrito
+    actualizar_fecha_carrito(carrito.id, session)
+    session.commit()
+    
+    return {"mensaje": "Item actualizado exitosamente"}
+
+@app.delete("/carrito/item/{item_id}")
+def eliminar_item_carrito(
+    item_id: int,
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Eliminar un item del carrito"""
+    
+    # Buscar el item
+    item = session.get(CarritoItem, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item no encontrado")
+    
+    # Verificar que el item pertenece al carrito del usuario
+    carrito = session.get(Carrito, item.carrito_id)
+    if not carrito or carrito.usuario_id != usuario_actual.id:
+        raise HTTPException(status_code=403, detail="No autorizado para eliminar este item")
+    
+    # Eliminar item
+    session.delete(item)
+    
+    # Actualizar fecha del carrito
+    actualizar_fecha_carrito(carrito.id, session)
+    session.commit()
+    
+    return {"mensaje": "Item eliminado del carrito exitosamente"}
+
+@app.delete("/carrito/vaciar")
+def vaciar_carrito(
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Vaciar completamente el carrito del usuario"""
+    
+    carrito = obtener_carrito_usuario(usuario_actual.id, session)
+    
+    # Eliminar todos los items del carrito
+    items = session.exec(
+        select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)
+    ).all()
+    
+    for item in items:
+        session.delete(item)
+    
+    # Actualizar fecha del carrito
+    actualizar_fecha_carrito(carrito.id, session)
+    session.commit()
+    
+    return {"mensaje": "Carrito vaciado exitosamente"}
+
+@app.get("/carrito/resumen", response_model=CarritoResumen)
+def resumen_carrito(
+    usuario_actual: Usuario = Depends(get_usuario_activo_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener resumen del carrito (totales)"""
+    carrito = obtener_carrito_usuario(usuario_actual.id, session)
+    return calcular_total_carrito(carrito.id, session)
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8002, reload=True)

@@ -28,6 +28,8 @@ def get_session() -> Generator[Session, None, None]:
 def inicializar_datos():
     """Cargar datos iniciales desde productos.json"""
     from models.productos import Producto
+    from models.usuarios import Usuario
+    from models.carrito import Carrito, CarritoItem
     
     with Session(engine) as session:
         # Verificar si ya hay productos

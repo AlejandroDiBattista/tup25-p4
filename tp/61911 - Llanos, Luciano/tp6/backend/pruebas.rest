@@ -1,0 +1,118 @@
+# Pruebas de la API E-Commerce
+# Asegúrate de que el servidor esté ejecutándose en http://localhost:8002
+
+### 1. Obtener todos los productos
+GET http://localhost:8002/productos/
+Content-Type: application/json
+
+### 2. Obtener un producto específico por ID
+GET http://localhost:8002/productos/1
+Content-Type: application/json
+
+### 3. Registrar un nuevo usuario
+POST http://localhost:8002/auth/registro
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "password123",
+    "nombre": "Usuario Test"
+}
+
+### 4. Login con el usuario registrado
+POST http://localhost:8002/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=test@example.com&password=password123
+
+### 5. Obtener perfil del usuario (requiere token)
+# Primero ejecuta el login y copia el token de acceso
+GET http://localhost:8002/auth/perfil
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 6. Crear un nuevo producto (requiere autenticación)
+POST http://localhost:8002/productos/
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "nombre": "Nuevo Producto",
+    "descripcion": "Descripción del nuevo producto",
+    "precio": 99.99,
+    "categoria": "Electrónicos",
+    "stock": 10,
+    "imagen": "https://via.placeholder.com/300"
+}
+
+### 7. Actualizar un producto existente (requiere autenticación)
+PUT http://localhost:8002/productos/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "nombre": "Smartphone Samsung Galaxy S21 - Actualizado",
+    "descripcion": "Descripción actualizada del smartphone",
+    "precio": 799.99,
+    "categoria": "Electrónicos",
+    "stock": 15,
+    "imagen": "https://via.placeholder.com/300"
+}
+
+### 8. Eliminar un producto (requiere autenticación)
+DELETE http://localhost:8002/productos/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# ===============================================
+# PRUEBAS DEL CARRITO DE COMPRAS
+# ===============================================
+
+### 9. Obtener carrito del usuario (requiere autenticación)
+GET http://localhost:8002/carrito
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 10. Agregar producto al carrito (requiere autenticación)
+POST http://localhost:8002/carrito/agregar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "producto_id": 1,
+    "cantidad": 2
+}
+
+### 11. Agregar otro producto al carrito
+POST http://localhost:8002/carrito/agregar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "producto_id": 5,
+    "cantidad": 1
+}
+
+### 12. Actualizar cantidad de un item del carrito
+PUT http://localhost:8002/carrito/item/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "cantidad": 3
+}
+
+### 13. Obtener resumen del carrito
+GET http://localhost:8002/carrito/resumen
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 14. Eliminar un item del carrito
+DELETE http://localhost:8002/carrito/item/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 15. Vaciar completamente el carrito
+DELETE http://localhost:8002/carrito/vaciar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
