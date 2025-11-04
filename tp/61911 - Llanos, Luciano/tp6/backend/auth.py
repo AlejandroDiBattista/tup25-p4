@@ -14,10 +14,14 @@ from database import get_session
 # Configuración de seguridad
 SECRET_KEY = "tu-clave-secreta-super-segura-cambiala-en-produccion"  # En producción usar variable de entorno
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 días
+ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutos como especifica el enunciado
 
-# Configurar bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configurar bcrypt con configuración específica
+pwd_context = CryptContext(
+    schemes=["bcrypt"], 
+    deprecated="auto",
+    bcrypt__rounds=12
+)
 
 # Configurar Bearer token
 security = HTTPBearer()
