@@ -3,11 +3,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import Session, select
 from pathlib import Path
 import json
 
-from config import DATABASE_URL, ALLOWED_ORIGINS
+from config import ALLOWED_ORIGINS
+from database import engine, create_db_and_tables
+from routers import productos as productos_router
+from models import Producto
 
 # Crear la aplicación FastAPI
 app = FastAPI(
@@ -28,28 +31,11 @@ app.add_middleware(
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
-# Configurar base de datos
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    echo=False
-)
-
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
-
-
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
-    cargar_productos_iniciales()
+# Incluir routers
+app.include_router(productos_router.router)
 
 
 def cargar_productos_iniciales():
-    from sqlmodel import select
-    from models import Producto
-    
     with Session(engine) as session:
         statement = select(Producto)
         productos_existentes = session.exec(statement).all()
@@ -77,7 +63,12 @@ def cargar_productos_iniciales():
         session.commit()
 
 
-# Endpoints básicos de bienvenida
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    cargar_productos_iniciales()
+
+
 @app.get("/")
 def root():
     return {
