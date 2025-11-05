@@ -200,8 +200,9 @@ def crear_compra(
             )
         )
 
-    envio = 0.0 if subtotal == 0.0 else (0.0 if subtotal > FREE_SHIPPING_THRESHOLD else SHIPPING_FLAT_COST)
-    total = subtotal + total_iva + envio
+    total_antes_envio = subtotal + total_iva
+    envio = 0.0 if subtotal == 0.0 else (0.0 if total_antes_envio > FREE_SHIPPING_THRESHOLD else SHIPPING_FLAT_COST)
+    total = total_antes_envio + envio
 
     compra = Compra(
         usuario_id=usuario.id,

@@ -108,9 +108,10 @@ export default function CheckoutPage() {
       }, 0),
     [cartItems],
   );
+  const totalAntesEnvio = subtotal + iva;
   const envio = cartItems.length === 0
     ? 0
-    : subtotal > FREE_SHIPPING_THRESHOLD
+    : totalAntesEnvio > FREE_SHIPPING_THRESHOLD
       ? 0
       : SHIPPING_FLAT;
   const total = subtotal + iva + envio;
@@ -230,7 +231,7 @@ export default function CheckoutPage() {
             </div>
             <div className="flex justify-between">
               <span>Envío</span>
-              <span>{formatCurrency(envio)}</span>
+              <span>{envio === 0 ? "Gratis" : formatCurrency(envio)}</span>
             </div>
             <hr className="border-gray-200" />
             <div className="flex justify-between text-base font-semibold text-gray-900">
