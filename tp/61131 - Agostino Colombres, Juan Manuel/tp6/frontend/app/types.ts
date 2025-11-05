@@ -45,3 +45,22 @@ export interface CompraResponse {
   envio: number;
   total: number;
 }
+
+export interface CompraItemResponse {
+  producto_id: number;
+  nombre: string;
+  precio_unitario: number;
+  cantidad: number;
+}
+
+export interface CompraDetalleResponse {
+  id: number;
+  fecha: string;
+  direccion: string;
+  tarjeta: string;
+  subtotal: number;
+  iva: number;
+  envio: number;
+  total: number;
+  items: CompraItemResponse[];
+}

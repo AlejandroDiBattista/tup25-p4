@@ -33,6 +33,25 @@ class CompraResponse(BaseModel):
     total: float
 
 
+class CompraItemResponse(BaseModel):
+    producto_id: int
+    nombre: str
+    precio_unitario: float
+    cantidad: int
+
+
+class CompraDetalleResponse(BaseModel):
+    id: int
+    fecha: str
+    direccion: str
+    tarjeta: str
+    subtotal: float
+    iva: float
+    envio: float
+    total: float
+    items: list[CompraItemResponse]
+
+
 # Tokens en memoria para sesiones simples de desarrollo.
 TOKENS: Dict[str, int] = {}
 
@@ -229,6 +248,71 @@ def crear_compra(
         envio=round(envio, 2),
         total=round(total, 2),
     )
+
+
+@app.get("/compras", response_model=list[CompraDetalleResponse])
+def listar_compras(
+    session: Session = Depends(get_session),
+    usuario: Usuario = Depends(get_current_user),
+) -> list[CompraDetalleResponse]:
+    productos = {producto["id"]: producto for producto in cargar_productos()}
+
+    compras = session.exec(
+        select(Compra)
+        .where(Compra.usuario_id == usuario.id)
+        .order_by(Compra.fecha.desc())
+    ).all()
+
+    compras_respuesta: list[CompraDetalleResponse] = []
+
+    for compra in compras:
+        compra_items = session.exec(
+            select(CompraItem).where(CompraItem.compra_id == compra.id)
+        ).all()
+
+        subtotal = 0.0
+        total_iva = 0.0
+        items_respuesta: list[CompraItemResponse] = []
+
+        for item in compra_items:
+            precio_total_item = item.precio_unitario * item.cantidad
+            subtotal += precio_total_item
+
+            producto_catalogo = productos.get(item.producto_id)
+            es_electronica = False
+            if producto_catalogo:
+                es_electronica = producto_catalogo.get("categoria", "").strip().lower() == ELECTRONICS_CATEGORY
+
+            tasa_iva = IVA_ELECTRONICA if es_electronica else IVA_GENERAL
+            total_iva += precio_total_item * tasa_iva
+
+            items_respuesta.append(
+                CompraItemResponse(
+                    producto_id=item.producto_id,
+                    nombre=item.nombre,
+                    precio_unitario=item.precio_unitario,
+                    cantidad=item.cantidad,
+                )
+            )
+
+        envio_valor = float(compra.envio or 0.0)
+        total_valor = float(compra.total or subtotal + total_iva + envio_valor)
+
+        compras_respuesta.append(
+            CompraDetalleResponse(
+                id=compra.id,
+                fecha=compra.fecha.isoformat(),
+                direccion=compra.direccion,
+                tarjeta=compra.tarjeta,
+                subtotal=round(subtotal, 2),
+                iva=round(total_iva, 2),
+                envio=round(envio_valor, 2),
+                total=round(total_valor, 2),
+                items=items_respuesta,
+            )
+        )
+
+    return compras_respuesta
 
 
 @app.on_event("startup")
