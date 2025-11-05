@@ -6,8 +6,11 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { Producto } from "../types";
 
 const CART_STORAGE_KEY = "cartItems";
-const IVA_RATE = 0.21;
+const DEFAULT_IVA_RATE = 0.21;
+const ELECTRONICS_IVA_RATE = 0.1;
+const ELECTRONICS_CATEGORY = "electrónica";
 const SHIPPING_FLAT = 50;
+const FREE_SHIPPING_THRESHOLD = 1000;
 
 interface CartItem {
   producto: Producto;
@@ -92,8 +95,22 @@ export default function CheckoutPage() {
     () => cartItems.reduce((acc, item) => acc + item.producto.precio * item.cantidad, 0),
     [cartItems],
   );
-  const iva = subtotal * IVA_RATE;
-  const envio = cartItems.length > 0 ? SHIPPING_FLAT : 0;
+  const iva = useMemo(
+    () =>
+      cartItems.reduce((acc, item) => {
+        const rate =
+          item.producto.categoria.toLowerCase() === ELECTRONICS_CATEGORY
+            ? ELECTRONICS_IVA_RATE
+            : DEFAULT_IVA_RATE;
+        return acc + item.producto.precio * item.cantidad * rate;
+      }, 0),
+    [cartItems],
+  );
+  const envio = cartItems.length === 0
+    ? 0
+    : subtotal > FREE_SHIPPING_THRESHOLD
+      ? 0
+      : SHIPPING_FLAT;
   const total = subtotal + iva + envio;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -152,7 +169,11 @@ export default function CheckoutPage() {
             <ul className="mt-6 space-y-5">
               {cartItems.map(({ producto, cantidad }) => {
                 const itemSubtotal = producto.precio * cantidad;
-                const itemIva = itemSubtotal * IVA_RATE;
+                const rate =
+                  producto.categoria.toLowerCase() === ELECTRONICS_CATEGORY
+                    ? ELECTRONICS_IVA_RATE
+                    : DEFAULT_IVA_RATE;
+                const itemIva = itemSubtotal * rate;
 
                 return (
                   <li key={producto.id} className="flex items-start justify-between gap-3">
@@ -176,7 +197,7 @@ export default function CheckoutPage() {
               <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span>IVA</span>
+              <span>IVA estimado</span>
               <span>{formatCurrency(iva)}</span>
             </div>
             <div className="flex justify-between">

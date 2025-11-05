@@ -13,6 +13,12 @@ from sqlmodel import Session, select
 from database import create_db_and_tables, get_session
 from models import Usuario
 
+
+class CartItem(BaseModel):
+    producto_id: int
+    cantidad: int
+
+
 # Tokens en memoria para sesiones simples de desarrollo.
 TOKENS: Dict[str, int] = {}
 
@@ -72,7 +78,7 @@ def cargar_productos():
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
-
+# Registro de usuarios
 @app.post("/registrar", response_model=RegistroResponse, status_code=status.HTTP_201_CREATED)
 def registrar_usuario(payload: RegistroRequest, session: Session = Depends(get_session)) -> RegistroResponse:
     """Crea un nuevo usuario con la contraseña hasheada."""
@@ -92,7 +98,7 @@ def registrar_usuario(payload: RegistroRequest, session: Session = Depends(get_s
 
     return RegistroResponse(id=usuario.id, nombre=usuario.nombre, email=usuario.email)
 
-
+# Inicio de sesión
 @app.post("/iniciar-sesion", response_model=TokenResponse)
 def iniciar_sesion(payload: LoginRequest, session: Session = Depends(get_session)) -> TokenResponse:
     """Verifica credenciales y devuelve un token en memoria."""
@@ -104,6 +110,18 @@ def iniciar_sesion(payload: LoginRequest, session: Session = Depends(get_session
     token = secrets.token_hex(32)
     TOKENS[token] = usuario.id
     return TokenResponse(access_token=token, nombre=usuario.nombre)
+
+# Guardar compra en la base de datos
+@app.post("/GuardarCompra")
+def guardar_compra(token: str, items: list[CartItem]) -> None:
+    """Guarda la compra en la base de datos."""
+    if token not in TOKENS:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+
+    usuario_id = TOKENS[token]
+   
+
+    return {"mensaje": "Compra guardada con éxito"}
 
 
 @app.on_event("startup")

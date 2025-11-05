@@ -1,10 +1,20 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/componentsShadCN/ui/button";
+import { Input } from "@/componentsShadCN/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/componentsShadCN/ui/select";
 import ProductoCard from "./ProductoCard";
 import { obtenerProductos } from "../services/productos";
 import type { Producto } from "../types";
+import { cn } from "@/lib/utils";
 
 interface ProductosExplorerProps {
   initialProducts: Producto[];
@@ -12,8 +22,11 @@ interface ProductosExplorerProps {
 }
 
 const DEFAULT_CATEGORY = "todas";
-const IVA_RATE = 0.21;
+const DEFAULT_IVA_RATE = 0.21;
+const ELECTRONICS_IVA_RATE = 0.1;
+const ELECTRONICS_CATEGORY = "electrónica";
 const SHIPPING_FLAT = 50;
+const FREE_SHIPPING_THRESHOLD = 1000;
 const CART_STORAGE_KEY = "cartItems";
 
 interface CartItem {
@@ -54,7 +67,6 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
         return;
       }
 
-      // Restauramos el carrito guardado si había una sesión previa.
       const storedCart = window.localStorage.getItem(CART_STORAGE_KEY);
       if (storedCart) {
         try {
@@ -131,8 +143,7 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
     void fetchProductos();
   };
 
-  const handleCategoriaChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
+  const handleCategoriaChange = (value: string) => {
     setCategoria(value);
     void fetchProductos({ categoria: value });
   };
@@ -188,8 +199,22 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
     () => cartItems.reduce((acc, item) => acc + item.producto.precio * item.cantidad, 0),
     [cartItems],
   );
-  const iva = subtotal * IVA_RATE;
-  const envio = cartItems.length > 0 ? SHIPPING_FLAT : 0;
+  const iva = useMemo(
+    () =>
+      cartItems.reduce((acc, item) => {
+        const rate =
+          item.producto.categoria.toLowerCase() === ELECTRONICS_CATEGORY
+            ? ELECTRONICS_IVA_RATE
+            : DEFAULT_IVA_RATE;
+        return acc + item.producto.precio * item.cantidad * rate;
+      }, 0),
+    [cartItems],
+  );
+  const envio = cartItems.length === 0
+    ? 0
+    : subtotal > FREE_SHIPPING_THRESHOLD
+      ? 0
+      : SHIPPING_FLAT;
   const total = subtotal + iva + envio;
 
   return (
@@ -202,32 +227,32 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
               <line x1="20" y1="20" x2="16.65" y2="16.65" />
             </svg>
           </span>
-          <input
+          <Input
             type="search"
             value={busqueda}
             onChange={(event) => setBusqueda(event.target.value)}
             placeholder="Buscar..."
-            className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             aria-label="Buscar productos"
+            className="h-12 w-full rounded-xl border border-gray-200 bg-white pl-12 pr-4 text-sm text-gray-900 shadow-sm focus-visible:border-blue-500 focus-visible:ring-blue-100"
           />
         </div>
         <div className="w-full lg:w-64">
-          <label htmlFor="categoria" className="sr-only">
+          <span className="sr-only" id="categoria-label">
             Filtrar por categoría
-          </label>
-          <select
-            id="categoria"
-            value={categoria}
-            onChange={handleCategoriaChange}
-            className="w-full rounded-xl border border-gray-200 bg-white py-3 px-4 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-          >
-            <option value={DEFAULT_CATEGORY}>Todas las categorías</option>
-            {categories.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          </span>
+          <Select value={categoria} onValueChange={handleCategoriaChange}>
+            <SelectTrigger aria-labelledby="categoria-label" className="h-12 w-full rounded-xl border border-gray-200 bg-white text-sm text-gray-900">
+              <SelectValue placeholder="Selecciona categoría" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={DEFAULT_CATEGORY}>Todas las categorías</SelectItem>
+              {categories.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <button type="submit" className="hidden">
           Buscar
@@ -296,32 +321,38 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900">{producto.titulo}</p>
-                      <p className="text-xs text-gray-500">{formatCurrency(producto.precio)} c/u</p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleDecrease(producto.id)}
-                          className="h-8 w-8 rounded-full border border-gray-300 text-gray-600 transition hover:border-gray-400"
-                        >
-                          -
-                        </button>
-                        <span className="min-w-[2ch] text-center text-sm font-semibold text-gray-900">{cantidad}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleIncrease(producto)}
-                          className="h-8 w-8 rounded-full border border-gray-300 text-gray-600 transition hover:border-gray-400"
-                          disabled={cantidad >= producto.existencia}
-                        >
-                          +
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemove(producto.id)}
-                          className="ml-2 text-xs font-medium text-red-600 hover:text-red-700"
-                        >
-                          Quitar
-                        </button>
-                      </div>
+                        <p className="text-xs text-gray-500">{formatCurrency(producto.precio)} c/u</p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon-sm"
+                            className="rounded-full"
+                            onClick={() => handleDecrease(producto.id)}
+                          >
+                            -
+                          </Button>
+                          <span className="min-w-[2ch] text-center text-sm font-semibold text-gray-900">{cantidad}</span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon-sm"
+                            className="rounded-full"
+                            onClick={() => handleIncrease(producto)}
+                            disabled={cantidad >= producto.existencia}
+                          >
+                            +
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="link"
+                            size="sm"
+                            className="ml-2 px-0 text-xs font-medium text-red-600 hover:text-red-700"
+                            onClick={() => handleRemove(producto.id)}
+                          >
+                            Quitar
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <p className="pt-1 text-sm font-semibold text-gray-900">{formatCurrency(producto.precio * cantidad)}</p>
@@ -335,7 +366,7 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>IVA (21%)</span>
+                  <span>IVA estimado</span>
                   <span>{formatCurrency(iva)}</span>
                 </div>
                 <div className="flex justify-between">
@@ -350,9 +381,10 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
               </div>
 
               <div className="flex flex-col gap-3">
-                <button
+                <Button
                   type="button"
-                  className="w-full rounded-full border border-gray-300 py-3 text-sm font-semibold text-gray-700 transition hover:border-gray-400"
+                  variant="outline"
+                  className="w-full rounded-full border border-gray-300 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100"
                   onClick={() => {
                     setCartItems([]);
                     if (typeof window !== "undefined") {
@@ -361,14 +393,16 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
                   }}
                 >
                   Cancelar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className={`w-full rounded-full py-3 text-sm font-semibold transition ${
+                  variant="default"
+                  className={cn(
+                    "w-full rounded-full py-3 text-sm font-semibold",
                     cartItems.length > 0
                       ? "bg-slate-900 text-white hover:bg-slate-800"
-                      : "bg-gray-200 text-gray-500"
-                  }`}
+                      : "bg-gray-200 text-gray-500 hover:bg-gray-200"
+                  )}
                   disabled={cartItems.length === 0}
                   onClick={() => {
                     if (cartItems.length === 0) {
@@ -378,7 +412,7 @@ export default function ProductosExplorer({ initialProducts, categories }: Produ
                   }}
                 >
                   Continuar compra
-                </button>
+                </Button>
               </div>
             </div>
           )}
