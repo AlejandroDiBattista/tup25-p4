@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+PyGithub
+pandas
+requests
+ipykernel
