@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Producto } from '../types';
 import Image from 'next/image';
 
@@ -7,7 +8,14 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
+
+  const token = localStorage.getItem("token");
+
+  const handleAddToCart = (id: number) => {
+    // Lógica para agregar el producto al carrito
+    console.log(`Producto ${producto.id} agregado al carrito.`);
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
@@ -44,6 +52,13 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             Stock: {producto.existencia}
           </span>
         </div>
+        <Button
+          className="bg-black hover:bg-gray-800 text-white mt-4 w-full"
+          onClick={() => handleAddToCart(producto.id)}
+          disabled={!token}
+        >
+          Agregar al carrito
+        </Button>
       </div>
     </div>
   );

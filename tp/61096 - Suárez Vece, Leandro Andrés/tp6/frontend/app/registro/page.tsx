@@ -1,10 +1,12 @@
 "use client";
 
 import Navbar from "../components/navbar";
-import Formulario from "./formulario";
+import FormularioRegistro from "./formulario";
 
 
-export default function login() {
+export default function Registro() {
+
+
     return (
 
 
@@ -14,7 +16,7 @@ export default function login() {
             </header>
 
             <main className=" flex-grow flex items-center justify-center p-4">
-                <Formulario />
+                <FormularioRegistro />
             </main>
         </div>
     );

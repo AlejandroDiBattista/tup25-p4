@@ -308,7 +308,7 @@ def agregar_producto_a_carrito(
 
     cantidad_total_solicitada = item_data.cantidad
     if item_carrito:
-        cantidad_total_solicitada += item_carrito.cantidad
+        cantidad_total_solicitada = item_carrito.cantidad
     
     # VALIDACIÓN DE EXISTENCIA
     if producto.existencia < cantidad_total_solicitada: 

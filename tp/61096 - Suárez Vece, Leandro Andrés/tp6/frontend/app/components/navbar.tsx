@@ -19,7 +19,11 @@ export default function Navbar() {
                 Ingresar
             </Link>
 
-            <Button variant="outline">Crear cuenta</Button>
+            <Button variant="outline">
+                <Link href="/registro">
+                    Crear cuenta
+                </Link>
+            </Button>
         </nav>
     );
 }
