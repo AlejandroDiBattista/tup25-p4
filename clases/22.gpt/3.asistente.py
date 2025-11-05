@@ -47,10 +47,28 @@ if prompt := st.chat_input("Escribe tu mensaje..."):
             model=modelo,
             instructions=instruccion,
             input=s.messages,
+            text={
+                "format": {
+                "type": "text"
+                },
+                "verbosity": "medium"
+            },
             tools=[
-                {"type": "web_search"},
-                {"type": "code_interpreter", "container": {"type": "auto"}}
-            ],
+                {
+                "type": "web_search",
+                "user_location": {
+                    "type": "approximate"
+                },
+                "search_context_size": "medium"
+                },
+                {
+                "type": "code_interpreter",
+                "container": {
+                    "type": "auto",
+                    "file_ids": []
+                }
+                }
+            ],            
         )
         respuesta = response.output_text
         s.messages.append({"role": "assistant", "content": respuesta})
