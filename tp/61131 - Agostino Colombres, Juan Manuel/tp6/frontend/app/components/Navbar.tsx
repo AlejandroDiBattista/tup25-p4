@@ -2,11 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import { Button } from "@/componentsShadCN/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/componentsShadCN/ui/navigation-menu";
+import { Separator } from "@/componentsShadCN/ui/separator";
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [token, setToken] = useState<string | null>(null);
   const [nombre, setNombre] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -58,45 +69,48 @@ export default function Navbar() {
           </div>
         </div>
 
-        <nav className="flex items-center gap-1 text-sm text-gray-600">
-          <Link
-            href="/"
-            className="px-3 py-2 rounded-md hover:text-blue-600 hover:bg-blue-50 transition"
-          >
-            Productos
-          </Link>
-          {token && (
-            <Link
-              href="/compras"
-              className="px-3 py-2 rounded-md hover:text-blue-600 hover:bg-blue-50 transition"
-            >
-              Mis compras
-            </Link>
-          )}
+        <nav className="flex items-center gap-4 text-sm text-gray-600">
+          <NavigationMenu viewport={false} className="flex">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild active={pathname === "/"}>
+                  <Link href="/" className={navigationMenuTriggerStyle({ className: "text-gray-700" })}>
+                    Productos
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              {token && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    asChild
+                    active={pathname?.startsWith("/compras")}
+                  >
+                    <Link href="/compras" className={navigationMenuTriggerStyle({ className: "text-gray-700" })}>
+                      Mis compras
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
+            </NavigationMenuList>
+          </NavigationMenu>
+
+          <Separator orientation="vertical" className="hidden h-6 md:block" />
+
           {token ? (
-            <div className="flex items-center gap-3 pl-3 ml-3 border-l border-gray-200">
-              {nombre && <span className="text-gray-700 font-medium">{nombre}</span>}
-              <button
-                onClick={handleLogout}
-                className="text-sm text-red-600 hover:text-red-700"
-              >
+            <div className="flex items-center gap-3">
+              {nombre && <span className="text-sm font-medium text-gray-800">{nombre}</span>}
+              <Button variant="outline" size="sm" onClick={handleLogout} className="border-red-200 text-red-600 hover:bg-red-50">
                 Salir
-              </button>
+              </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 pl-3 ml-3 border-l border-gray-200">
-              <Link
-                href="/login?mode=login"
-                className="px-3 py-2 rounded-md hover:text-blue-600 hover:bg-blue-50 transition"
-              >
-                Ingresar
-              </Link>
-              <Link
-                href="/login?mode=register"
-                className="px-3 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-              >
-                Crear cuenta
-              </Link>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/login?mode=login">Ingresar</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/login?mode=register">Crear cuenta</Link>
+              </Button>
             </div>
           )}
         </nav>
