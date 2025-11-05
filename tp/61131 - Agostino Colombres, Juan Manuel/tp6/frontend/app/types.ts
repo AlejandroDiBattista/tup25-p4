@@ -26,3 +26,22 @@ export interface TokenResponse {
   nombre: string;
   token_type: string;
 }
+
+export interface CompraItemPayload {
+  producto_id: number;
+  cantidad: number;
+}
+
+export interface CompraRequest {
+  direccion: string;
+  tarjeta: string;
+  items: CompraItemPayload[];
+}
+
+export interface CompraResponse {
+  id: number;
+  subtotal: number;
+  iva: number;
+  envio: number;
+  total: number;
+}

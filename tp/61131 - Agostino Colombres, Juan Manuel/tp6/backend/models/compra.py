@@ -15,7 +15,7 @@ class Compra(SQLModel, table=True):
   direccion: str = Field(default="", max_length=255)
   tarjeta: str = Field(default="", max_length=32)
   total: float = Field(default=0.0, ge=0)
-  envio: str = Field(default="", max_length=50)
+  envio: float = Field(default=0.0, ge=0)
 
   # Items relacionados por CompraItem (ver modelo CompraItem).
 

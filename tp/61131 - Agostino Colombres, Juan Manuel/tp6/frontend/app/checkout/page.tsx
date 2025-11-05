@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
+import { crearCompra } from "../services/compras";
 import type { Producto } from "../types";
 
 const CART_STORAGE_KEY = "cartItems";
@@ -50,6 +51,7 @@ export default function CheckoutPage() {
   const [tarjeta, setTarjeta] = useState("");
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Leemos token al montar la vista y reaccionamos a cambios del storage.
   useEffect(() => {
@@ -113,12 +115,12 @@ export default function CheckoutPage() {
       : SHIPPING_FLAT;
   const total = subtotal + iva + envio;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     setMensaje(null);
 
-    // Validamos formulario y simulamos confirmación.
+    // Validaciones básicas antes de enviar al backend.
     if (cartItems.length === 0) {
       setError("Tu carrito está vacío.");
       return;
@@ -129,15 +131,41 @@ export default function CheckoutPage() {
       return;
     }
 
-    setMensaje("¡Compra confirmada! Gracias por tu pedido.");
-    setCartItems([]);
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem(CART_STORAGE_KEY);
+    const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+    if (!token) {
+      setError("Tu sesión caducó. Inicia sesión nuevamente.");
+      return;
     }
 
-    setTimeout(() => {
-      router.push("/");
-    }, 2000);
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        direccion: direccion.trim(),
+        tarjeta: tarjeta.trim(),
+        items: cartItems.map(({ producto, cantidad }) => ({
+          producto_id: producto.id,
+          cantidad,
+        })),
+      };
+
+  const compra = await crearCompra(payload, token);
+
+  setMensaje(`¡Compra #${compra.id} confirmada! Total ${formatCurrency(compra.total)}.`);
+      setCartItems([]);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(CART_STORAGE_KEY);
+      }
+
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    } catch (submitError) {
+      const message = submitError instanceof Error ? submitError.message : "No pudimos confirmar la compra.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -245,9 +273,10 @@ export default function CheckoutPage() {
 
           <button
             type="submit"
-            className="mt-6 w-full rounded-full bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="mt-6 w-full rounded-full bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+            disabled={isSubmitting}
           >
-            Confirmar compra
+            {isSubmitting ? "Procesando..." : "Confirmar compra"}
           </button>
         </form>
       </section>

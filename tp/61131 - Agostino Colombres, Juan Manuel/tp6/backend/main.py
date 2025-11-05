@@ -4,19 +4,33 @@ import secrets
 from pathlib import Path
 from typing import Dict
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Session, select
 
 from database import create_db_and_tables, get_session
-from models import Usuario
+from models import Compra, CompraItem, Usuario
 
 
-class CartItem(BaseModel):
+class CartItemPayload(BaseModel):
     producto_id: int
     cantidad: int
+
+
+class CompraRequest(BaseModel):
+    direccion: str
+    tarjeta: str
+    items: list[CartItemPayload]
+
+
+class CompraResponse(BaseModel):
+    id: int
+    subtotal: float
+    iva: float
+    envio: float
+    total: float
 
 
 # Tokens en memoria para sesiones simples de desarrollo.
@@ -111,17 +125,109 @@ def iniciar_sesion(payload: LoginRequest, session: Session = Depends(get_session
     TOKENS[token] = usuario.id
     return TokenResponse(access_token=token, nombre=usuario.nombre)
 
-# Guardar compra en la base de datos
-@app.post("/GuardarCompra")
-def guardar_compra(token: str, items: list[CartItem]) -> None:
-    """Guarda la compra en la base de datos."""
-    if token not in TOKENS:
+IVA_GENERAL = 0.21
+IVA_ELECTRONICA = 0.10
+ELECTRONICS_CATEGORY = "electrónica"
+FREE_SHIPPING_THRESHOLD = 1000.0
+SHIPPING_FLAT_COST = 50.0
+
+
+def get_current_user(
+    authorization: str = Header(..., alias="Authorization"),
+    session: Session = Depends(get_session),
+) -> Usuario:
+    if not authorization:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token faltante")
+
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
 
-    usuario_id = TOKENS[token]
-   
+    usuario_id = TOKENS.get(token)
+    if not usuario_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
 
-    return {"mensaje": "Compra guardada con éxito"}
+    usuario = session.get(Usuario, usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no encontrado")
+
+    return usuario
+
+
+@app.post("/compras", response_model=CompraResponse, status_code=status.HTTP_201_CREATED)
+def crear_compra(
+    payload: CompraRequest,
+    session: Session = Depends(get_session),
+    usuario: Usuario = Depends(get_current_user),
+) -> CompraResponse:
+    if not payload.items:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito no puede estar vacío")
+
+    productos = {producto["id"]: producto for producto in cargar_productos()}
+
+    subtotal = 0.0
+    total_iva = 0.0
+    items_a_guardar: list[CompraItem] = []
+
+    for item in payload.items:
+        producto = productos.get(item.producto_id)
+        if not producto:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Producto con id {item.producto_id} no existe",
+            )
+
+        if item.cantidad < 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="La cantidad debe ser al menos 1",
+            )
+
+        precio_unitario = float(producto.get("precio", 0.0))
+        item_subtotal = precio_unitario * item.cantidad
+        subtotal += item_subtotal
+
+        es_electronica = producto.get("categoria", "").strip().lower() == ELECTRONICS_CATEGORY
+        tasa_iva = IVA_ELECTRONICA if es_electronica else IVA_GENERAL
+        total_iva += item_subtotal * tasa_iva
+
+        items_a_guardar.append(
+            CompraItem(
+                producto_id=item.producto_id,
+                nombre=producto.get("titulo", ""),
+                precio_unitario=precio_unitario,
+                cantidad=item.cantidad,
+            )
+        )
+
+    envio = 0.0 if subtotal == 0.0 else (0.0 if subtotal > FREE_SHIPPING_THRESHOLD else SHIPPING_FLAT_COST)
+    total = subtotal + total_iva + envio
+
+    compra = Compra(
+        usuario_id=usuario.id,
+        direccion=payload.direccion.strip(),
+        tarjeta=payload.tarjeta.strip(),
+        total=round(total, 2),
+        envio=envio,
+    )
+
+    session.add(compra)
+    session.flush()
+
+    for compra_item in items_a_guardar:
+        compra_item.compra_id = compra.id
+        session.add(compra_item)
+
+    session.commit()
+    session.refresh(compra)
+
+    return CompraResponse(
+        id=compra.id,
+        subtotal=round(subtotal, 2),
+        iva=round(total_iva, 2),
+        envio=round(envio, 2),
+        total=round(total, 2),
+    )
 
 
 @app.on_event("startup")
