@@ -1,3 +1,5 @@
+import { strict } from "assert";
+
 export interface Producto {
   id: number;
   titulo: string;
@@ -78,4 +80,8 @@ export interface CarritoAdd {
 export interface CarritoRead {
   cantidad: number;
   producto: ProductoRead;
+}
+
+export interface message {
+  message: string
 }

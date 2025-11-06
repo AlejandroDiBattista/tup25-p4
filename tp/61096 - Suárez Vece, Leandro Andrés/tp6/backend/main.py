@@ -377,8 +377,6 @@ def vaciar_carrito(
     # 1. Obtener el carrito activo
     carrito = get_or_create_active_cart(session, current_user.id)
     
-    # 2. Eliminar todos los ítems asociados a ese carrito_id
-    # Se puede hacer manualmente o actualizando el estado de todos los ítems (mejor eliminar)
     
     items_a_eliminar = session.exec(
         select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
@@ -388,6 +386,8 @@ def vaciar_carrito(
         return {"message": "El carrito ya está vacío."}
 
     for item in items_a_eliminar:
+        producto = session.get(Producto, item.producto_id)
+        producto.existencia += item.cantidad
         session.delete(item)
     
     session.commit()

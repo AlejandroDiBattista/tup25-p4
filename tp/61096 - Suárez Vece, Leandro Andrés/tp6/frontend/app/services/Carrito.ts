@@ -1,4 +1,4 @@
-import { CarritoRead } from "../types";
+import { CarritoRead, message } from "../types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -14,7 +14,7 @@ export async function agregarAlCarrito(
     token: string,
     producto_id: number,
     cantidad: number
-): Promise<void> {
+): Promise<message> {
     const response = await fetch(`${API_URL}/carrito`, {
         method: 'POST',
         headers: {
@@ -23,21 +23,24 @@ export async function agregarAlCarrito(
         },
         body: JSON.stringify({ producto_id, cantidad }),
     });
-    if (!response.ok) throw new Error('Error al agregar producto al carrito');
+    if (!response) throw new Error('Error al agregar producto al carrito');
+    return response.json();
+
 }
 
 export async function quitarDelCarrito(
     token: string,
     producto_id: number
-): Promise<void> {
+): Promise<message> {
     const response = await fetch(`${API_URL}/carrito/${producto_id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!response) throw new Error('Error al quitar producto del carrito');
+    return response.json()
 }
 
-export async function cancelarCompra(token: string): Promise<void> {
+export async function cancelarCompra(token: string): Promise<message> {
     const response = await fetch(`${API_URL}/carrito/cancelar`, {
         method: 'POST',
         headers: {
@@ -45,5 +48,8 @@ export async function cancelarCompra(token: string): Promise<void> {
             'Content-Type': 'application/json',
         },
     });
-    if (!response.ok) throw new Error('Error al cancelar la compra');
+    if (!response) throw new Error('Error al cancelar la compra');
+
+    return response.json()
+
 }

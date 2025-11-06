@@ -29,7 +29,7 @@ export default function Home() {
     const token = localStorage.getItem("token")
     if (token) setToken(token);
     fetchProductos();
-  }, []);
+  }, [token]);
 
 
   const categoriaUnicas = ['ropa de hombre', 'joyeria', 'electronica', 'ropa de mujer'];
@@ -54,6 +54,8 @@ export default function Home() {
               CarritoData={CarritoData}
               setCarritoData={setCarritoData}
               setProductos={setProductos}
+              productos={productos}
+              token={token}
             />
           </div>
 

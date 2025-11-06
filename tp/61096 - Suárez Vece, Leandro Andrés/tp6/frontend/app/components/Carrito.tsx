@@ -5,21 +5,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import ItemCarrito from "./ItemCarrrito";
 import { CarritoRead, Producto } from "../types";
 import React, { useEffect, useState } from "react";
-import { verCarrito } from "../services/Carrito";
+import { cancelarCompra, verCarrito } from "../services/Carrito";
 import { useRouter } from 'next/navigation';
+import { Item } from "@radix-ui/react-select";
+
 
 
 interface CarritoProps {
     CarritoData: CarritoRead[];
     setCarritoData: React.Dispatch<React.SetStateAction<CarritoRead[]>>;
     setProductos: React.Dispatch<React.SetStateAction<Producto[]>>;
+    productos: Producto[];
+    token: string;
 }
 
-export default function Carrito({ CarritoData, setCarritoData, setProductos }: CarritoProps) {
+export default function Carrito({ CarritoData, setCarritoData, setProductos, token, productos }: CarritoProps) {
 
     const router = useRouter();
 
-    const token = localStorage.getItem("token");
+
     const subtotal = CarritoData.reduce((acc, item) => acc + item.producto.precio * item.cantidad, 0);
     const iva = CarritoData.reduce((acc, item) => {
         const precioTotalItem = item.producto.precio * item.cantidad;
@@ -32,7 +36,6 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos }: C
 
 
     useEffect(() => {
-
 
         const fetchCarrito = async (token: string) => {
             try {
@@ -50,9 +53,30 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos }: C
     }, []);
 
     const actualizarCantidad = (idProducto: number, nuevaCantidad: number) => {
-        const copia = CarritoData.map(item => {
+
+        const itemActual = CarritoData.find(item => item.producto.id === idProducto);
+        if (!itemActual) return;
+
+        const diferencia = nuevaCantidad - itemActual.cantidad;
+
+        setProductos(prevProductos =>
+            prevProductos.map(p => {
+                if (p.id === idProducto) {
+                    const nuevaExistencia = p.existencia - diferencia;
+
+                    return {
+                        ...p,
+                        existencia: nuevaExistencia >= 0 ? nuevaExistencia : 0,
+                        agotado: nuevaExistencia <= 0
+                    };
+                }
+                return p;
+            })
+        );
+
+        const copiaCarrito = CarritoData.map(item => {
             if (item.producto.id === idProducto) {
-                const diferencia = nuevaCantidad - item.cantidad;
+
                 const nuevaExistencia = item.producto.existencia - diferencia;
 
                 return {
@@ -66,29 +90,42 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos }: C
                 };
             }
             return item;
-        })
+        });
 
-        setCarritoData(copia);
-        actualizarExitenciaHome(idProducto, nuevaCantidad, copia)
+        setCarritoData(copiaCarrito);
     };
-
-    const actualizarExitenciaHome = (idProducto: number, nuevaCantidad: number, copia: CarritoRead[]) => {
-        setProductos(prev =>
-            prev.map(p => {
-                const itemCarrito = copia.find(item => item.producto.id === idProducto);
-                if (p.id === idProducto && itemCarrito) {
-                    return {
-                        ...p,
-                        existencia: itemCarrito?.producto.existencia
-                    };
-                }
-                return p;
-            })
-        );
-    }
 
     const ContinuarCompra = () => {
         router.push('/confirmar-compra');
+    }
+
+    const quitarProdCarrito = (id: number, cantidad: number) => {
+        setProductos(prev =>
+            prev.map(item => {
+                if (item.id == id) {
+                    return {
+                        ...item,
+                        existencia: item.existencia + cantidad
+                    };
+                }
+                return item;
+            })
+        );
+        setCarritoData([]);
+    }
+
+    const CancelarCarrito = async () => {
+        try {
+            const res = await cancelarCompra(token!)
+            if (res) {
+                // quitarDeMemoriaCarrito();
+                CarritoData.forEach(x => quitarProdCarrito(x.producto.id!, x.cantidad))
+                alert(res.message)
+            }
+        }
+        catch (error) {
+            console.error(error)
+        }
     }
 
 
@@ -111,6 +148,7 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos }: C
                                     token={token!}
                                     onActualizarCantidad={actualizarCantidad}
                                     cantidad={item.cantidad}
+                                    quitarProdCarrito={quitarProdCarrito}
 
                                 />
                             ))
@@ -149,7 +187,9 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos }: C
 
 
                     < div className="flex space-x-2 flex-wrap " >
-                        <Button variant="outline" className="flex-1 mt-2">
+                        <Button variant="outline" className="flex-1 mt-2"
+                            onClick={CancelarCarrito}
+                        >
                             ❌ Cancelar
                         </Button>
                         <Button

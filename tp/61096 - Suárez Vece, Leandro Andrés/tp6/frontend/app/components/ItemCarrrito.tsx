@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Producto, ProductoRead } from "../types";
 import { useState } from "react";
-import { agregarAlCarrito } from "../services/Carrito";
+import { agregarAlCarrito, quitarDelCarrito } from "../services/Carrito";
 import { on } from "events";
 
 
@@ -10,11 +10,12 @@ interface ItemCarritoProps {
     item: Producto;
     precioTotal: number;
     token?: string;
-    onActualizarCantidad: (idProducto: number, nuevaCantidad: number) => void
-    cantidad: number
+    onActualizarCantidad: (idProducto: number, nuevaCantidad: number) => void;
+    cantidad: number;
+    quitarProdCarrito: (id: number, cantidad: number) => void
 }
 
-export default function ItemCarrito({ item, precioTotal, token, onActualizarCantidad, cantidad }: ItemCarritoProps) {
+export default function ItemCarrito({ item, precioTotal, token, onActualizarCantidad, cantidad, quitarProdCarrito }: ItemCarritoProps) {
 
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -22,7 +23,6 @@ export default function ItemCarrito({ item, precioTotal, token, onActualizarCant
     const handleCantidadChange = async (id: number, nuevaCantidad: number) => {
 
         if (token) {
-
             try {
                 await agregarAlCarrito(token, id, nuevaCantidad);
                 onActualizarCantidad(id, nuevaCantidad);
@@ -33,15 +33,38 @@ export default function ItemCarrito({ item, precioTotal, token, onActualizarCant
         }
     };
 
-    return (
-        <div className="flex space-x-3 border-b pb-4 last:border-b-0 last:pb-0">
+    const handleRemoveItem = async (id: number) => {
+        try {
+            const res = await quitarDelCarrito(token!, id);
+            if (res) {
+                alert(res.message)
+                quitarProdCarrito(id, cantidad)
 
-            <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    return (
+        <div className="flex space-x-3 border-b pb-4 last:border-b-0 last:pb-0 relative">
+
+            <div className="w-16 h-16 flex-shrink-0 bg-gray-100   relative">
 
                 <img
                     src={`${API_URL}/${item.imagen}`}
                     alt={item.titulo}
-                    className="w-full h-full object-cover" />
+                    className="w-full h-full object-cover rounded-md " />
+                <Button
+                    size="icon"
+                    variant="destructive"
+                    className="h-5 w-5 p-0 text-xs rounded-full absolute top-[-6px] right-[-5px] z-12 
+                   shadow-md bg-red-500 hover:bg-red-600 text-white border-white border"
+                    onClick={() => handleRemoveItem(item.id!)} // Usar una función específica para eliminar
+                    title="Eliminar producto"
+                >
+                    x
+                </Button>
             </div>
 
 
@@ -50,7 +73,11 @@ export default function ItemCarrito({ item, precioTotal, token, onActualizarCant
                 <p className="text-xs text-gray-500">${item.precio} c/u</p>
 
 
+
                 <div className="flex items-center mt-1 space-x-0.5">
+                    <div>
+
+                    </div>
                     <Button
                         size="icon"
                         variant="outline"
@@ -75,7 +102,11 @@ export default function ItemCarrito({ item, precioTotal, token, onActualizarCant
                     >
                         +
                     </Button>
+
+
                 </div>
+
+
             </div>
 
 
