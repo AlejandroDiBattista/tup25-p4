@@ -77,8 +77,8 @@ export default function ProductoCard({ producto, setCarritoData, carritoData, se
           <span className="text-2xl font-bold text-blue-600">
             ${producto.precio}
           </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
+          <span className="text-md text-gray-500">
+            Stock: {(producto.existencia >= 1) ? producto.existencia : "Agotado"}
           </span>
         </div>
         <Button

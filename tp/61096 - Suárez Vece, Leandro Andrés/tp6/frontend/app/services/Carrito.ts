@@ -6,7 +6,7 @@ export async function verCarrito(token: string): Promise<CarritoRead[]> {
     const response = await fetch(`${API_URL}/carrito`, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     });
-    if (!response.ok) throw new Error('Error al obtener el carrito');
+    if (!response) throw new Error('Error al obtener el carrito');
     return response.json();
 }
 
@@ -23,7 +23,10 @@ export async function agregarAlCarrito(
         },
         body: JSON.stringify({ producto_id, cantidad }),
     });
-    if (!response) throw new Error('Error al agregar producto al carrito');
+    if (!response) {
+        localStorage.clear();
+        throw new Error('Error al agregar producto al carrito');
+    }
     return response.json();
 
 }
@@ -36,7 +39,10 @@ export async function quitarDelCarrito(
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
-    if (!response) throw new Error('Error al quitar producto del carrito');
+    if (!response) {
+        localStorage.clear();
+        throw new Error('Error al quitar producto del carrito');
+    }
     return response.json()
 }
 
@@ -48,7 +54,10 @@ export async function cancelarCompra(token: string): Promise<message> {
             'Content-Type': 'application/json',
         },
     });
-    if (!response) throw new Error('Error al cancelar la compra');
+    if (!response) {
+        localStorage.clear();
+        throw new Error('Error al cancelar la compra');
+    }
 
     return response.json()
 

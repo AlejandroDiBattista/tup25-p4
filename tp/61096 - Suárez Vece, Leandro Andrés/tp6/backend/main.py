@@ -436,7 +436,7 @@ def finalizar_compra(
             # Revertir todo y notificar qué producto falla
             raise HTTPException(
                 status_code=400, 
-                detail=f"Stock insuficiente para {producto.nombre if producto else 'producto desconocido'}. Intente de nuevo."
+                detail=f"Stock insuficiente para {producto.titulo if producto else 'producto desconocido'}. Intente de nuevo."
             )
             
         #  Calcular subtotal y preparar ItemCompra
@@ -452,14 +452,14 @@ def finalizar_compra(
         item_compra = ItemCompra(
             producto_id=producto.id,
             cantidad=item_carrito.cantidad,
-            nombre=producto.nombre, # Capturar nombre y precio para el historial
+            nombre=producto.titulo, # Capturar nombre y precio para el historial
             precio_unitario=precio_unitario 
         )
         items_compra_final.append(item_compra)
         
         #  Reducir stock del Producto
-        producto.existencia -= item_carrito.cantidad
-        session.add(producto) # Marcar el producto para ser guardado
+        # producto.existencia -= item_carrito.cantidad
+        # session.add(producto) # Marcar el producto para ser guardado
         
     #  Crear la Compra principal
     if subtotal< ENVIOGRATIS:

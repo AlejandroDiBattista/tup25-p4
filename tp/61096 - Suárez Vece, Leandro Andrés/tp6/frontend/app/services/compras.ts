@@ -12,9 +12,9 @@ export async function finalizarCompra(
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ finalizar }),
+        body: JSON.stringify(finalizar),
     });
-    if (!response.ok) throw new Error('Error al finalizar la compra');
+    if (!response) throw new Error('Error al finalizar la compra');
     return response.json();
 }
 
@@ -22,7 +22,7 @@ export async function verCompras(token: string): Promise<CompraResumen[]> {
     const response = await fetch(`${API_URL}/compras`, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     });
-    if (!response.ok) throw new Error('Error al obtener historial de compras');
+    if (!response) throw new Error('Error al obtener historial de compras');
     return response.json();
 }
 
@@ -33,6 +33,6 @@ export async function verCompraPorId(
     const response = await fetch(`${API_URL}/compras/${compra_id}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     });
-    if (!response.ok) throw new Error('Compra no encontrada');
+    if (!response) throw new Error('Compra no encontrada');
     return response.json();
 }

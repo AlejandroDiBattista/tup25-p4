@@ -40,6 +40,8 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos, tok
         const fetchCarrito = async (token: string) => {
             try {
                 const res = await verCarrito(token);
+                console.log(res);
+
                 if (res)
                     setCarritoData(res);
 
@@ -49,7 +51,6 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos, tok
         }
         if (token)
             fetchCarrito(token);
-
     }, []);
 
     const actualizarCantidad = (idProducto: number, nuevaCantidad: number) => {
@@ -96,7 +97,7 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos, tok
     };
 
     const ContinuarCompra = () => {
-        router.push('/confirmar-compra');
+        router.push('/confirmar');
     }
 
     const quitarProdCarrito = (id: number, cantidad: number) => {
@@ -131,77 +132,74 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos, tok
 
     return (
 
-        <Card className="p-4 sticky top-4">
-            {!token ? (
-                <h2 className="mx-auto ">Inicie Sesion</h2>
-            ) :
-
-                (<CardContent className="p-0">
 
 
-                    < div className="space-y-4" >
-                        {
-                            (CarritoData).map(item => (
-                                <ItemCarrito key={item.producto.id}
-                                    item={item.producto as Producto}
-                                    precioTotal={item.producto.precio * item.cantidad}
-                                    token={token!}
-                                    onActualizarCantidad={actualizarCantidad}
-                                    cantidad={item.cantidad}
-                                    quitarProdCarrito={quitarProdCarrito}
-
-                                />
-                            ))
-                        }
-                    </div >
+        <CardContent className="p-0">
 
 
-                    < hr className="my-4" />
+            < div className="space-y-4" >
+                {
+                    (CarritoData).map(item => (
+                        <ItemCarrito key={item.producto.id}
+                            item={item.producto as Producto}
+                            precioTotal={item.producto.precio * item.cantidad}
+                            token={token!}
+                            onActualizarCantidad={actualizarCantidad}
+                            cantidad={item.cantidad}
+                            quitarProdCarrito={quitarProdCarrito}
+
+                        />
+                    ))
+                }
+            </div >
 
 
-                    < div className="space-y-2 text-sm" >
-
-                        < div className="flex justify-between" >
-                            <span>Subtotal</span>
-                            <span>${subtotal.toFixed(2)}</span>
-                        </div >
-
-                        < div className="flex justify-between" >
-                            <span>IVA</span>
-                            <span>${iva.toFixed(2)}</span>
-                        </div >
-
-                        < div className="flex justify-between" >
-                            <span>Envío</span>
-                            <span>${envio.toFixed(2)}</span>
-                        </div >
-
-                        < div className="flex justify-between font-bold border-t pt-2 mt-2" >
-                            <span>Total</span>
-                            <span>${total.toFixed(2)}</span>
-                        </div >
-                    </div >
+            < hr className="my-4" />
 
 
-                    < hr className="my-4" />
+            < div className="space-y-2 text-sm" >
+
+                < div className="flex justify-between" >
+                    <span>Subtotal</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                </div >
+
+                < div className="flex justify-between" >
+                    <span>IVA</span>
+                    <span>${iva.toFixed(2)}</span>
+                </div >
+
+                < div className="flex justify-between" >
+                    <span>Envío</span>
+                    <span>${envio.toFixed(2)}</span>
+                </div >
+
+                < div className="flex justify-between font-bold border-t pt-2 mt-2" >
+                    <span>Total</span>
+                    <span>${total.toFixed(2)}</span>
+                </div >
+            </div >
 
 
-                    < div className="flex space-x-2 flex-wrap " >
-                        <Button variant="outline" className="flex-1 mt-2"
-                            onClick={CancelarCarrito}
-                        >
-                            ❌ Cancelar
-                        </Button>
-                        <Button
-                            className="flex-1 bg-black text-white hover:bg-gray-800 mt-2"
-                            onClick={ContinuarCompra}
-                        >
-                            Continuar compra
-                        </Button>
-                    </div >
-                </CardContent >)}
+            < hr className="my-4" />
 
-        </Card >
+
+            < div className="flex space-x-2 flex-wrap " >
+                <Button variant="outline" className="flex-1 mt-2"
+                    onClick={CancelarCarrito}
+                >
+                    ❌ Cancelar
+                </Button>
+                <Button
+                    className="flex-1 bg-black text-white hover:bg-gray-800 mt-2"
+                    onClick={ContinuarCompra}
+                >
+                    Continuar compra
+                </Button>
+            </div >
+        </CardContent >
+
+
 
     );
 }
