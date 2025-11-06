@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation';
 
 
 export default function Formulario() {
-    // 1. Estado para almacenar los datos del formulario
     const [formData, setFormData] = useState<UsuarioLogin>({
 
         email: "vece@gmail.com",

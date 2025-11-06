@@ -34,7 +34,7 @@ export async function quitarDelCarrito(
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
     });
-    if (!response.ok) throw new Error('Error al quitar producto del carrito');
+    if (!response) throw new Error('Error al quitar producto del carrito');
 }
 
 export async function cancelarCompra(token: string): Promise<void> {

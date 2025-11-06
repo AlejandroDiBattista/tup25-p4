@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { registrarUsuario } from "../services/usuarios";
+import { useRouter } from 'next/navigation';
 
 export default function FormularioRegistro() {
+    const router = useRouter();
     // 1. Estado para almacenar los datos del formulario
     const [formData, setFormData] = useState<UsuarioRegister>({
         nombre: "Leandro Vece",
@@ -29,8 +31,11 @@ export default function FormularioRegistro() {
 
         try {
             const res = await registrarUsuario(formData);
-            if (res)
+            if (res) {
                 alert(res)
+                console.log(res.message);
+                router.push('/login');
+            }
         } catch (error) {
             console.error("Error al registrar usuario:", error);
         }
@@ -38,8 +43,6 @@ export default function FormularioRegistro() {
     };
 
     return (
-
-
 
         <div className="w-full max-w-md p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
             <h1 className="text-2xl font-bold mb-6">Crear cuenta</h1>

@@ -306,9 +306,8 @@ def agregar_producto_a_carrito(
         )
     ).first()
 
+    cantidad_existente = item_carrito.cantidad if item_carrito else 0
     cantidad_total_solicitada = item_data.cantidad
-    if item_carrito:
-        cantidad_total_solicitada = item_carrito.cantidad
     
     # VALIDACIÓN DE EXISTENCIA
     if producto.existencia < cantidad_total_solicitada: 
@@ -325,7 +324,7 @@ def agregar_producto_a_carrito(
 
     session.add(item_carrito)
 
-    producto.existencia -= item_data.cantidad
+    producto.existencia -= (item_data.cantidad - cantidad_existente)
     session.add(producto)
 
     session.commit()

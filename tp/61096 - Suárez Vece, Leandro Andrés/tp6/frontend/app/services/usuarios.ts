@@ -1,9 +1,9 @@
-import { Token, UsuarioLogin, UsuarioRegister } from "../types";
+import { Token, UsuarioLogin, UsuarioRegisterResponse, UsuarioRegister } from "../types";
 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export async function registrarUsuario(usuario: UsuarioRegister): Promise<string> {
+export async function registrarUsuario(usuario: UsuarioRegister): Promise<UsuarioRegisterResponse> {
     const response = await fetch(`${API_URL}/registrar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

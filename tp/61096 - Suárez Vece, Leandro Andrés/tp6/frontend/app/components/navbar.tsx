@@ -1,8 +1,25 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { cerrarSesion } from "../services/usuarios";
 
-export default function Navbar() {
+interface NavbarProps {
+    token: string
+}
+
+
+export default function Navbar({ token }: NavbarProps) {
+
+
+    const logout = () => {
+        try {
+            cerrarSesion(token!)
+            localStorage.removeItem("token");
+        } catch (error) {
+            console.error("Error al cerrar sesión");
+        }
+    }
+
     return (
         <nav className="flex items-center justify-end space-x-4 p-4">
             <Link

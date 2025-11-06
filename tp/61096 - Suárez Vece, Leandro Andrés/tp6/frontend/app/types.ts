@@ -30,6 +30,10 @@ export interface UsuarioLogin {
   email: string;
   password: string;
 }
+export interface UsuarioRegisterResponse {
+  message: string;
+  usuario_id: string;
+}
 
 export interface Token {
   access_token: string;

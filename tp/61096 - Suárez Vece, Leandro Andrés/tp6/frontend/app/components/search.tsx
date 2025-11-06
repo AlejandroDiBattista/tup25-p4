@@ -29,9 +29,9 @@ export default function SearchBarWithCategory({ categorias, setProductos }: prop
 
     const handleSelect = async (value: string) => {
         const cat = value === "all" ? "" : encodeURIComponent(value.trim().toLowerCase());
-        setCategoria(cat); // actualiza el estado para mantenerlo sincronizado
+        setCategoria(cat);
 
-        const res = await buscarProductos(cat, titulo); // usa el valor actualizado directamente
+        const res = await buscarProductos(cat, titulo);
         setProductos(res);
     };
 
