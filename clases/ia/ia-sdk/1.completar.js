@@ -55,14 +55,14 @@ async function traducir(texto, idiomaDestino) {
 
 
 
-titulo("Realizar definiciones en el Diccionario")
-console.log(await definicion("agencia"))
+// titulo("Realizar definiciones en el Diccionario")
+// console.log(await definicion("agencia"))
 
 // titulo("Calcular fecha absoluta")
 // console.log(await calcularFechaAbsoluta("el proximo dia del ingeniero en argentina"))
 
-// // titulo("Extraer tarea")
-// // console.log(await extraerTarea("El lunes próximo, María debe enviar el informe mensual."))
+titulo("Extraer tarea")
+console.log(await extraerTarea("El lunes próximo, María debe enviar el informe mensual."))
 
 // titulo("Traducir texto (al inglés)")
 // console.log(await traducir("Hola, ¿cómo estás?", "inglés"))

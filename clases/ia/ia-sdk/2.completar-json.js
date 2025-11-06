@@ -13,7 +13,7 @@ const esquemaOpinion = z.object({
           intensidad: z.number().min(0).max(10),
         })
     ),
-    explicacion: z.string().descri,
+    explicacion: z.string(),
 });
 
 // generateObject usa el esquema para estructurar la respuesta 
