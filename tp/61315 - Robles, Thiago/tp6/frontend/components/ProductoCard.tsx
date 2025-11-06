@@ -136,6 +136,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
                   agregarArticulo({
                     id: producto.id,
                     nombre: producto.titulo,
+                    categoria:producto.categoria,
                     precio: producto.precio,
                     cantidad: 1,
                     imagen: imageSrc,

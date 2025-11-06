@@ -3,16 +3,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// Luego exportar tipados
 
 export type ItemCarrito = {
   id: number;
   nombre: string;
+  categoria: string;
   precio: number;
   cantidad: number;
   imagen?: string;
   stock?: number;
 };
-
 
 type EstadoCarrito = {
   articulos: ItemCarrito[];
@@ -20,6 +21,12 @@ type EstadoCarrito = {
   actualizarCantidad: (id: number, cantidad: number) => void;
   eliminarArticulo: (id: number) => void;
   limpiar: () => void;
+};
+
+export type TotalesCarrito = {
+  subtotal: number;
+  iva: number;
+  total: number;
 };
 
 export const agregarArticulo = (
@@ -49,7 +56,6 @@ export const agregarArticulo = (
   );
 };
 
-
 // ...existing code...
 export const actualizarCantidad = (
   articulos: ItemCarrito[],
@@ -70,16 +76,13 @@ export const actualizarCantidad = (
     })
     .filter((articulo) => articulo.cantidad > 0);
 };
-   
 
 export const eliminarArticulo = (
   articulos: ItemCarrito[],
   id: number
-): ItemCarrito[] =>
-  articulos.filter((articulo) => articulo.id !== id);
+): ItemCarrito[] => articulos.filter((articulo) => articulo.id !== id);
 
 export const limpiar = (): ItemCarrito[] => [];
-
 
 export const useCarritoStore = create<EstadoCarrito>()(
   persist(
@@ -102,3 +105,18 @@ export const useCarritoStore = create<EstadoCarrito>()(
     { name: "carrito" }
   )
 );
+
+
+export const calcularTotales = (articulos: ItemCarrito[]): TotalesCarrito => {
+  const subtotal = articulos.reduce(
+    (acc, item) => acc + item.precio * item.cantidad,
+    0,
+  );
+
+  const iva = articulos.reduce((acc, item) => {
+    const tasaIva = item.categoria === "Electronica" ? 0.1 : 0.21;
+    return acc + item.precio * item.cantidad * tasaIva;
+  }, 0);
+
+  return { subtotal, iva, total: subtotal + iva };
+};

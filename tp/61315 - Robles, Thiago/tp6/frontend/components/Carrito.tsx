@@ -1,6 +1,9 @@
 "use client";
 
+import {useMemo} from "react";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Card,
   CardContent,
@@ -11,20 +14,26 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { useCarritoStore } from "@/store/useCarritoStore";
+import { calcularTotales, useCarritoStore } from "@/store/useCarritoStore";
+
 
 import Image from "next/image";
 
 export default function Carrito() {
-  const { actualizarCantidad, eliminarArticulo, limpiar, articulos } =
-    useCarritoStore();
+
+  const actualizarCantidad = useCarritoStore(
+    (state) => state.actualizarCantidad
+  );
+  const eliminarArticulo = useCarritoStore((state) => state.eliminarArticulo);
+
+  const articulos = useCarritoStore((state) => state.articulos);
 
   const articulosValidos = articulos.filter(
     (item): item is NonNullable<typeof item> => !!item
   );
-  const subtotal = articulosValidos.reduce(
-    (acumulado, item) => acumulado + item.precio * item.cantidad,
-    0
+
+  const {subtotal,iva,total} = useMemo(
+    () => calcularTotales(articulosValidos), [articulosValidos] 
   );
 
   return (
@@ -116,6 +125,15 @@ export default function Carrito() {
           <span>Subtotal</span>
           <span className="font-semibold">${subtotal.toFixed(2)}</span>
         </div>
+        <div className="flex w-full justify-between text-sm">
+          <span>IVA</span>
+          <span className="font-semibold">${iva.toFixed(2)}</span>
+        </div>
+        <div className="flex w-full justify-between text-sm">
+          <span>Total</span>
+          <span className="font-semibold">${total.toFixed(2)}</span>
+        </div>
+
         <Button className="w-full" disabled={articulosValidos.length === 0}>
           Proceder al pago
         </Button>
