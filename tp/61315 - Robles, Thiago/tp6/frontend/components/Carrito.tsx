@@ -19,7 +19,6 @@ export default function Carrito() {
   const { actualizarCantidad, eliminarArticulo, limpiar, articulos } =
     useCarritoStore();
 
-    
   const articulosValidos = articulos.filter(
     (item): item is NonNullable<typeof item> => !!item
   );
@@ -69,10 +68,20 @@ export default function Carrito() {
                         size="icon"
                         variant="outline"
                         onClick={() => actualizarCantidad(item.id, 1)}
+                        disabled={
+                          item.stock !== undefined &&
+                          item.cantidad >= item.stock
+                        }
                       >
                         +
                       </Button>
                     </div>
+
+                    {item.stock !== undefined && (
+                      <span className="text-xs text-muted-foreground">
+                        Stock disponible: {item.stock - item.cantidad}
+                      </span>
+                    )}
 
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">

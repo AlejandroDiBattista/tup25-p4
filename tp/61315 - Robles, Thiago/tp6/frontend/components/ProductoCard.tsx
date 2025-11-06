@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Producto } from "../app/types";
 
+import { useMemo } from "react";
 import { useCarritoStore } from "@/store/useCarritoStore";
 
 interface ProductoCardProps {
@@ -15,8 +16,12 @@ interface ProductoCardProps {
 }
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
+  const agregarArticulo = useCarritoStore((state) => state.agregarArticulo);
 
-  const agregarArticulo = useCarritoStore((art) => art.agregarArticulo);
+  // Busca en el carrito el articulo correspondiente a este producto
+  const articuloEnCarrito = useCarritoStore((state) =>
+    state.articulos.find((item) => item.id === producto.id)
+  );
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -34,7 +39,20 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     ? producto.imagen
     : `${API_URL}/${relativePath.replace(/^\//, "")}`;
 
-  const disponible = producto.existencia > 0 ? producto.existencia : 0;
+  const disponible = Math.max(producto.existencia, 0);
+
+  const cantidadEnCarrito = articuloEnCarrito?.cantidad ?? 0;
+
+
+  // useMemo nos permite memorizar el cálculo de los restantes en función de las dependencias
+  // disponibles, evitando cálculos innecesarios en cada renderizado
+
+  const restantes = useMemo(
+    () => Math.max(disponible - cantidadEnCarrito, 0),
+    [disponible, cantidadEnCarrito]
+  );
+
+  const puedeAgregar = restantes > 0;
 
   return (
     <Card className="mt-3 overflow-hidden border-border/50 bg-card shadow-sm transition hover:shadow-md">
@@ -62,13 +80,18 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
               />
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium text-foreground"></span>
+                <span className="font-medium text-foreground">
+                  {producto.valoracion?.toFixed?.(1) ?? "-"}
+                </span>
               </div>
               <Separator
                 orientation="vertical"
                 className="hidden h-4 sm:block"
               />
-              <span>Disponible: {producto.existencia}</span>
+              <span>
+                Stock total: {disponible}
+                {cantidadEnCarrito > 0 && ` · En carrito: ${cantidadEnCarrito}`}
+              </span>
             </div>
 
             <div className="space-y-2">
@@ -98,41 +121,30 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
                     : "bg-red-100 text-red-600"
                 }`}
               >
-                {disponible ? `Disponible: ${disponible}` : "Agotado"}
+                {puedeAgregar
+                  ? `Quedan: ${restantes}`
+                  : cantidadEnCarrito > 0
+                  ? "Sin stock disponible"
+                  : "Agotado"}
               </span>
               <Button
-                className={`w-full sm:w-auto ${
-                  disponible ? "" : "pointer-events-none opacity-70"
-                }`}
-                variant={disponible ? "secondary" : "outline"}
-                disabled={!disponible}
+                className="w-full sm:w-auto"
+                variant={puedeAgregar ? "secondary" : "outline"}
+                disabled={!puedeAgregar}
+                onClick={() =>
+                  puedeAgregar &&
+                  agregarArticulo({
+                    id: producto.id,
+                    nombre: producto.titulo,
+                    precio: producto.precio,
+                    cantidad: 1,
+                    imagen: imageSrc,
+                    stock: producto.existencia,
+                  })
+                }
               >
-                {disponible ? (
-                  <>
-                    <Button
-                      className={`w-full sm:w-auto ${
-                        disponible ? "" : "pointer-events-none opacity-70"
-                      }`}
-                      variant={disponible ? "secondary" : "outline"}
-                      disabled={!disponible}
-                      onClick={() =>
-                        agregarArticulo({
-                          id: producto.id,
-                          nombre: producto.titulo,
-                          precio: producto.precio,
-                          cantidad: 1,
-                          imagen: imageSrc,
-                          stock: producto.existencia,
-                        })
-                      }
-                    >
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      Agregar al carrito
-                    </Button>
-                  </>
-                ) : (
-                  "Sin stock"
-                )}
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                {puedeAgregar ? "Agregar al carrito" : "Sin stock"}
               </Button>
             </div>
           </div>
