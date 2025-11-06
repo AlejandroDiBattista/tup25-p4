@@ -90,88 +90,79 @@ export default function CarritoPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">Carrito de compras</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold mb-8">Finalizar compra</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Resumen del carrito */}
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <h3 className="text-xl font-bold mb-6">Resumen del carrito</h3>
           {carrito!.items.map((item) => (
-            <div
-              key={item.producto_id}
-              className="flex items-center justify-between border-b py-4"
-            >
-              <div>
-                <h3 className="font-semibold">{item.nombre}</h3>
-                <p className="text-gray-600">
-                  Cantidad: {item.cantidad} x ${Number(item.precio).toFixed(2)}
-                </p>
+            <div key={item.producto_id} className="mb-4 pb-4 border-b last:border-b-0 last:pb-0">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="font-semibold text-gray-900">{item.nombre}</span>
+                  <div className="text-gray-500 text-sm">Cantidad: {item.cantidad}</div>
+                </div>
+                <div className="text-right">
+                  <span className="font-semibold text-gray-900">${Number(item.precio * item.cantidad).toFixed(2)}</span>
+                  <div className="text-xs text-gray-400">IVA: ${item.iva ? Number(item.iva).toFixed(2) : '-'}</div>
+                </div>
               </div>
-              <button
-                onClick={() => handleRemoveItem(item.producto_id)}
-                className="text-red-600 hover:text-red-800"
-              >
-                Eliminar
-              </button>
             </div>
           ))}
-        </div>
-
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Resumen del pedido</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
+          <div className="mt-6 space-y-1">
+            <div className="flex justify-between text-sm">
+              <span>Total productos:</span>
               <span>${Number(carrito!.subtotal).toFixed(2)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>IVA</span>
+            <div className="flex justify-between text-sm">
+              <span>IVA:</span>
               <span>${Number(carrito!.iva).toFixed(2)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Envío</span>
+            <div className="flex justify-between text-sm">
+              <span>Envío:</span>
               <span>${Number(carrito!.envio).toFixed(2)}</span>
             </div>
-            <div className="flex justify-between font-bold pt-2 border-t">
-              <span>Total</span>
+            <div className="flex justify-between font-bold text-lg mt-2">
+              <span>Total a pagar:</span>
               <span>${Number(carrito!.total).toFixed(2)}</span>
             </div>
           </div>
-
-          <form onSubmit={handleCheckout} className="mt-6 space-y-4">
+        </div>
+        {/* Datos de envío */}
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <h3 className="text-xl font-bold mb-6">Datos de envío</h3>
+          <form onSubmit={handleCheckout} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Dirección de envío
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
               <input
                 type="text"
                 required
                 value={direccion}
                 onChange={(e) => setDireccion(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:border-gray-500 focus:outline-none text-gray-900"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Tarjeta de crédito
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tarjeta</label>
               <input
                 type="text"
                 required
                 value={tarjeta}
                 onChange={(e) => setTarjeta(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:border-gray-500 focus:outline-none text-gray-900"
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700"
+              className="w-full py-2 px-4 rounded-lg bg-gray-900 text-white font-semibold shadow hover:bg-gray-800 transition"
             >
-              Finalizar compra
+              Confirmar compra
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 mt-2"
+              className="w-full py-2 px-4 rounded-lg bg-gray-200 text-gray-800 font-semibold shadow hover:bg-gray-300 transition mt-2"
             >
               Cancelar
             </button>

@@ -47,19 +47,19 @@ export default function ProductosPage() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row gap-4 mb-8 items-center">
         <input
           type="text"
-          placeholder="Buscar productos..."
+          placeholder="Buscar..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md mr-4"
+          className="w-full md:w-1/2 px-4 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-100"
         />
         <select
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md"
+          className="w-full md:w-1/4 px-4 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-100"
         >
           <option value="">Todas las categorías</option>
           <option value="Ropa de hombre">Ropa de hombre</option>
@@ -67,26 +67,41 @@ export default function ProductosPage() {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Grilla de productos */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {productos.map((producto) => (
-          <div key={producto.id} className="border rounded-lg shadow-lg p-4">
-            <h3 className="text-lg font-semibold">{producto.nombre}</h3>
-            <p className="text-gray-600 mt-2">{producto.descripcion}</p>
-            <p className="text-xl font-bold mt-2">${producto.precio.toFixed(2)}</p>
-            <p className="text-sm text-gray-500 mt-1">
-              Disponible: {producto.existencia}
-            </p>
-            <button
-              onClick={() => handleAddToCart(producto.id)}
-              disabled={producto.existencia === 0}
-              className={`mt-4 w-full py-2 px-4 rounded-md ${
-                producto.existencia > 0
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-              }`}
-            >
-              {producto.existencia > 0 ? 'Agregar al carrito' : 'Agotado'}
-            </button>
+          <div key={producto.id} className="bg-white rounded-2xl shadow-lg flex flex-col items-center p-6 relative h-full">
+            {/* Imagen */}
+            <div className="w-full flex justify-center mb-4">
+              <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                {/* Aquí podrías usar <Image /> si tienes la url */}
+                <span className="text-gray-400 text-xs">Imagen</span>
+              </div>
+            </div>
+            {/* Info */}
+            <div className="w-full flex-1 flex flex-col justify-between">
+              <h3 className="text-lg font-bold text-gray-900 mb-1 text-center">{producto.nombre}</h3>
+              <p className="text-gray-600 mb-2 text-center">{producto.descripcion}</p>
+              <div className="text-sm text-gray-500 mb-2 text-center">Categoría: {producto.categoria}</div>
+              <div className="flex justify-center items-center gap-4 mb-2">
+                <span className="text-xl font-bold text-gray-800">${producto.precio.toFixed(2)}</span>
+                <span className="text-xs text-gray-500">Stock: {producto.existencia}</span>
+              </div>
+            </div>
+            {/* Botón */}
+            <div className="w-full mt-4">
+              <button
+                onClick={() => handleAddToCart(producto.id)}
+                disabled={producto.existencia === 0}
+                className={`w-full py-2 px-4 rounded-lg text-white font-semibold transition-colors ${
+                  producto.existencia > 0
+                    ? 'bg-gray-900 hover:bg-gray-800'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {producto.existencia > 0 ? 'Agregar al carrito' : 'Sin stock'}
+              </button>
+            </div>
           </div>
         ))}
       </div>
