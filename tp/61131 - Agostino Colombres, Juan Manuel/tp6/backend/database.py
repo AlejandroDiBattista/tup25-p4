@@ -11,8 +11,7 @@ engine = create_engine(DATABASE_URL, echo=False)
 
 def create_db_and_tables() -> None:
     """Crea las tablas definidas en los modelos si no existen."""
-    # Importar modelos asegura que SQLModel conozca todas las tablas.
-    from models import Carrito, CarritoItem, Compra, CompraItem, Producto, Usuario  # noqa: F401
+    from models import Carrito, CarritoItem, Compra, CompraItem, Producto, Usuario 
 
     SQLModel.metadata.create_all(engine)
 

@@ -17,8 +17,6 @@ class Compra(SQLModel, table=True):
   total: float = Field(default=0.0, ge=0)
   envio: float = Field(default=0.0, ge=0)
 
-  # Items relacionados por CompraItem (ver modelo CompraItem).
-
 
 class CompraItem(SQLModel, table=True):
   """Detalle de un producto incluido en la compra."""
@@ -29,5 +27,3 @@ class CompraItem(SQLModel, table=True):
   nombre: str = Field(default="", max_length=255)
   precio_unitario: float = Field(default=0.0, ge=0)
   cantidad: int = Field(default=1, ge=1)
-
-  # Relación inversa manejada a nivel de consultas cuando sea necesario.

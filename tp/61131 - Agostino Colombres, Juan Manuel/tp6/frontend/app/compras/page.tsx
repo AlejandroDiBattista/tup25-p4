@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 import { listarCompras } from "../services/compras";
 import type { CompraDetalleResponse } from "../types";
+
+const ELECTRONICS_CATEGORY = "electrónica";
+const DEFAULT_IVA_RATE = 0.21;
+const ELECTRONICS_IVA_RATE = 0.1;
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-AR", {
@@ -14,15 +18,23 @@ const formatCurrency = (value: number) =>
   }).format(value);
 
 const maskCard = (value: string) => {
-  if (value.length < 4) {
+  if (!value) {
     return "****";
   }
-  const lastDigits = value.slice(-4);
+  const digits = value.replace(/\s+/g, "");
+  const lastDigits = digits.slice(-4).padStart(4, "*");
   return `**** **** **** ${lastDigits}`;
 };
 
+const formatDate = (value: string) =>
+  new Date(value).toLocaleString("es-AR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+
 export default function ComprasPage() {
   const [compras, setCompras] = useState<CompraDetalleResponse[]>([]);
+  const [selectedCompraId, setSelectedCompraId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +57,11 @@ export default function ComprasPage() {
         if (!isMounted) {
           return;
         }
+
         setCompras(data);
+        if (data.length > 0) {
+          setSelectedCompraId(data[0].id);
+        }
       } catch (fetchError) {
         if (!isMounted) {
           return;
@@ -66,10 +82,38 @@ export default function ComprasPage() {
     };
   }, []);
 
+  const selectedCompra = useMemo(
+    () => compras.find((compra) => compra.id === selectedCompraId) ?? null,
+    [compras, selectedCompraId],
+  );
+
+  const detalleItems = useMemo(() => {
+    if (!selectedCompra) {
+      return [];
+    }
+
+    return selectedCompra.items.map((item) => {
+      const rate = item.categoria?.toLowerCase() === ELECTRONICS_CATEGORY ? ELECTRONICS_IVA_RATE : DEFAULT_IVA_RATE;
+      const base = item.precio_unitario * item.cantidad;
+      const iva = base * rate;
+      const total = base + iva;
+
+      return {
+        id: `${selectedCompra.id}-${item.producto_id}`,
+        nombre: item.nombre,
+        cantidad: item.cantidad,
+        base,
+        total,
+        iva,
+        precioUnitario: item.precio_unitario,
+      };
+    });
+  }, [selectedCompra]);
+
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
+    <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold text-gray-900">Tus compras</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Mis compras</h1>
         <Link
           href="/"
           className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
@@ -96,62 +140,98 @@ export default function ComprasPage() {
         </p>
       )}
 
-      <section className="mt-8 space-y-6">
-        {compras.map((compra) => (
-          <article key={compra.id} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <header className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">Compra #{compra.id}</h2>
-                <p className="text-sm text-gray-500">Realizada el {new Date(compra.fecha).toLocaleString()}</p>
-              </div>
-              <div className="text-sm text-gray-700">
-                <p>
-                  <span className="font-medium">Envío:</span> {compra.direccion}
-                </p>
-                <p>
-                  <span className="font-medium">Tarjeta:</span> {maskCard(compra.tarjeta)}
-                </p>
-              </div>
-            </header>
+      {!loading && !error && compras.length > 0 && (
+        <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <aside className="space-y-3">
+            {compras.map((compra) => {
+              const isActive = compra.id === selectedCompraId;
+              return (
+                <button
+                  key={compra.id}
+                  type="button"
+                  onClick={() => setSelectedCompraId(compra.id)}
+                  className={`w-full rounded-2xl border px-5 py-4 text-left transition ${
+                    isActive
+                      ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                      : "border-gray-200 bg-white text-gray-900 hover:border-gray-300 hover:shadow"
+                  }`}
+                >
+                  <p className="text-sm font-semibold">Compra #{compra.id}</p>
+                  <p className={`text-xs ${isActive ? "text-slate-100" : "text-gray-500"}`}>
+                    {formatDate(compra.fecha)}
+                  </p>
+                  <p className={`mt-2 text-sm font-semibold ${isActive ? "text-white" : "text-gray-900"}`}>
+                    Total: {formatCurrency(compra.total)}
+                  </p>
+                </button>
+              );
+            })}
+          </aside>
 
-            <ul className="mt-4 divide-y divide-gray-100">
-              {compra.items.map((item) => (
-                <li key={`${compra.id}-${item.producto_id}`} className="flex flex-wrap items-center justify-between gap-3 py-3">
+          <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            {selectedCompra ? (
+              <div className="space-y-6">
+                <header className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="font-medium text-gray-900">{item.nombre}</p>
-                    <p className="text-sm text-gray-600">Cantidad: {item.cantidad}</p>
+                    <h2 className="text-lg font-semibold text-gray-900">Detalle de la compra</h2>
+                    <p className="text-sm text-gray-500">Compra #{selectedCompra.id}</p>
                   </div>
-                  <div className="text-right text-sm text-gray-700">
-                    <p>Precio unitario: {formatCurrency(item.precio_unitario)}</p>
-                    <p className="font-semibold text-gray-900">
-                      Total: {formatCurrency(item.precio_unitario * item.cantidad)}
+                  <div className="text-sm text-gray-700">
+                    <p>
+                      <span className="font-medium">Fecha:</span> {formatDate(selectedCompra.fecha)}
+                    </p>
+                    <p>
+                      <span className="font-medium">Dirección:</span> {selectedCompra.direccion}
+                    </p>
+                    <p>
+                      <span className="font-medium">Tarjeta:</span> {maskCard(selectedCompra.tarjeta)}
                     </p>
                   </div>
-                </li>
-              ))}
-            </ul>
+                </header>
 
-            <footer className="mt-4 space-y-2 text-sm text-gray-800">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>{formatCurrency(compra.subtotal)}</span>
+                <ul className="divide-y divide-gray-100">
+                  {detalleItems.map((item) => (
+                    <li key={item.id} className="flex flex-wrap items-start justify-between gap-4 py-4">
+                      <div>
+                        <p className="font-medium text-gray-900">{item.nombre}</p>
+                        <p className="text-sm text-gray-600">Cantidad: {item.cantidad}</p>
+                      </div>
+                      <div className="text-right text-sm text-gray-700">
+                        <p>Precio unitario: {formatCurrency(item.precioUnitario)}</p>
+                        <p>IVA: {formatCurrency(item.iva)}</p>
+                        <p className="font-semibold text-gray-900">
+                          Total: {formatCurrency(item.total)}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <footer className="space-y-2 rounded-xl bg-gray-50 p-4 text-sm text-gray-800">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(selectedCompra.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>IVA</span>
+                    <span>{formatCurrency(selectedCompra.iva)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Envío</span>
+                    <span>{selectedCompra.envio === 0 ? "Gratis" : formatCurrency(selectedCompra.envio)}</span>
+                  </div>
+                  <div className="flex justify-between text-base font-semibold text-gray-900">
+                    <span>Total pagado</span>
+                    <span>{formatCurrency(selectedCompra.total)}</span>
+                  </div>
+                </footer>
               </div>
-              <div className="flex justify-between">
-                <span>IVA</span>
-                <span>{formatCurrency(compra.iva)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Envío</span>
-                <span>{compra.envio === 0 ? "Gratis" : formatCurrency(compra.envio)}</span>
-              </div>
-              <div className="flex justify-between text-base font-semibold text-gray-900">
-                <span>Total</span>
-                <span>{formatCurrency(compra.total)}</span>
-              </div>
-            </footer>
+            ) : (
+              <p className="text-sm text-gray-600">Seleccioná una compra para ver el detalle.</p>
+            )}
           </article>
-        ))}
-      </section>
+        </section>
+      )}
     </main>
   );
 }

@@ -51,6 +51,7 @@ export interface CompraItemResponse {
   nombre: string;
   precio_unitario: number;
   cantidad: number;
+  categoria?: string | null;
 }
 
 export interface CompraDetalleResponse {

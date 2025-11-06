@@ -21,7 +21,7 @@ export async function crearCompra(payload: CompraRequest, token: string): Promis
         message = detail;
       }
     } catch {
-      // ignoramos errores de parseo y usamos mensaje genérico
+      let mensaje = "No se pudo registrar la compra";
     }
 
     throw new Error(message);
@@ -48,7 +48,7 @@ export async function listarCompras(token: string): Promise<CompraDetalleRespons
         message = detail;
       }
     } catch {
-      // ignoramos errores de parseo y usamos el mensaje genérico
+      let mensaje = "No se pudo obtener el historial de compras";
     }
 
     throw new Error(message);

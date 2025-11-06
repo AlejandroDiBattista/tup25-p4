@@ -4,7 +4,7 @@ import secrets
 from pathlib import Path
 from typing import Dict
 
-from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import Cookie, Depends, FastAPI, Header, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
@@ -38,6 +38,7 @@ class CompraItemResponse(BaseModel):
     nombre: str
     precio_unitario: float
     cantidad: int
+    categoria: str | None = None
 
 
 class CompraDetalleResponse(BaseModel):
@@ -50,21 +51,6 @@ class CompraDetalleResponse(BaseModel):
     envio: float
     total: float
     items: list[CompraItemResponse]
-
-
-# Tokens en memoria para sesiones simples de desarrollo.
-TOKENS: Dict[str, int] = {}
-
-
-def hash_password(password: str) -> str:
-    """Devuelve un hash estable para la contraseña ingresada."""
-
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return hash_password(password) == hashed_password
-
 
 class RegistroRequest(BaseModel):
     nombre: str
@@ -88,6 +74,27 @@ class TokenResponse(BaseModel):
     nombre: str
     token_type: str = "bearer"
 
+
+IVA_GENERAL = 0.21
+IVA_ELECTRONICA = 0.10
+ELECTRONICS_CATEGORY = "electrónica"
+FREE_SHIPPING_THRESHOLD = 1000.0
+SHIPPING_FLAT_COST = 50.0
+
+# Tokens en memoria.
+TOKENS: Dict[str, int] = {}
+
+# Hash de la contraseña
+def hash_password(password: str) -> str:
+    """Devuelve un hash estable para la contraseña ingresada."""
+
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    return hash_password(password) == hashed_password
+
+
 app = FastAPI(title="API Productos")
 
 # Montar directorio de imágenes como archivos estáticos
@@ -106,14 +113,24 @@ app.add_middleware(
 )
 
 # Cargar productos desde el archivo JSON
-def cargar_productos():
+def cargar_productos() -> list[dict]:
     ruta_productos = Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
+
+def guardar_productos(productos: list[dict]) -> None:
+    """Persiste el catálogo actualizado (por ejemplo, tras descontar stock)."""
+    ruta_productos = Path(__file__).parent / "productos.json"
+    with open(ruta_productos, "w", encoding="utf-8") as archivo:
+        json.dump(productos, archivo, ensure_ascii=False, indent=2)
+
 # Registro de usuarios
 @app.post("/registrar", response_model=RegistroResponse, status_code=status.HTTP_201_CREATED)
-def registrar_usuario(payload: RegistroRequest, session: Session = Depends(get_session)) -> RegistroResponse:
+def registrar_usuario(
+    payload: RegistroRequest,
+    session: Session = Depends(get_session),
+) -> RegistroResponse:
     """Crea un nuevo usuario con la contraseña hasheada."""
 
     existente = session.exec(select(Usuario).where(Usuario.email == payload.email)).first()
@@ -133,7 +150,11 @@ def registrar_usuario(payload: RegistroRequest, session: Session = Depends(get_s
 
 # Inicio de sesión
 @app.post("/iniciar-sesion", response_model=TokenResponse)
-def iniciar_sesion(payload: LoginRequest, session: Session = Depends(get_session)) -> TokenResponse:
+def iniciar_sesion(
+    payload: LoginRequest,
+    response: Response,
+    session: Session = Depends(get_session),
+) -> TokenResponse:
     """Verifica credenciales y devuelve un token en memoria."""
 
     usuario = session.exec(select(Usuario).where(Usuario.email == payload.email)).first()
@@ -142,25 +163,38 @@ def iniciar_sesion(payload: LoginRequest, session: Session = Depends(get_session
 
     token = secrets.token_hex(32)
     TOKENS[token] = usuario.id
-    return TokenResponse(access_token=token, nombre=usuario.nombre)
 
-IVA_GENERAL = 0.21
-IVA_ELECTRONICA = 0.10
-ELECTRONICS_CATEGORY = "electrónica"
-FREE_SHIPPING_THRESHOLD = 1000.0
-SHIPPING_FLAT_COST = 50.0
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=60 * 60 * 24,
+    )
+
+    return TokenResponse(access_token=token, nombre=usuario.nombre)
 
 
 def get_current_user(
-    authorization: str = Header(..., alias="Authorization"),
+    authorization: str | None = Header(default=None, alias="Authorization"),
+    access_token: str | None = Cookie(default=None, alias="access_token"),
     session: Session = Depends(get_session),
 ) -> Usuario:
-    if not authorization:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token faltante")
+    token: str | None = None
 
-    scheme, _, token = authorization.partition(" ")
-    if scheme.lower() != "bearer" or not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    if authorization:
+        scheme, _, candidate = authorization.partition(" ")
+        if scheme.lower() == "bearer" and candidate:
+            token = candidate
+        else:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+
+    if not token and access_token:
+        token = access_token
+
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token faltante")
 
     usuario_id = TOKENS.get(token)
     if not usuario_id:
@@ -182,14 +216,15 @@ def crear_compra(
     if not payload.items:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito no puede estar vacío")
 
-    productos = {producto["id"]: producto for producto in cargar_productos()}
+    productos_lista = cargar_productos()
+    productos_por_id = {producto["id"]: producto for producto in productos_lista}
 
     subtotal = 0.0
     total_iva = 0.0
     items_a_guardar: list[CompraItem] = []
 
     for item in payload.items:
-        producto = productos.get(item.producto_id)
+        producto = productos_por_id.get(item.producto_id)
         if not producto:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -202,6 +237,13 @@ def crear_compra(
                 detail="La cantidad debe ser al menos 1",
             )
 
+        stock_disponible = int(producto.get("existencia", 0))
+        if stock_disponible < item.cantidad:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"No hay stock suficiente para {producto.get('titulo', 'producto')}",
+            )
+
         precio_unitario = float(producto.get("precio", 0.0))
         item_subtotal = precio_unitario * item.cantidad
         subtotal += item_subtotal
@@ -209,6 +251,8 @@ def crear_compra(
         es_electronica = producto.get("categoria", "").strip().lower() == ELECTRONICS_CATEGORY
         tasa_iva = IVA_ELECTRONICA if es_electronica else IVA_GENERAL
         total_iva += item_subtotal * tasa_iva
+
+        producto["existencia"] = stock_disponible - item.cantidad
 
         items_a_guardar.append(
             CompraItem(
@@ -241,6 +285,8 @@ def crear_compra(
     session.commit()
     session.refresh(compra)
 
+    guardar_productos(productos_lista)
+
     return CompraResponse(
         id=compra.id,
         subtotal=round(subtotal, 2),
@@ -249,7 +295,7 @@ def crear_compra(
         total=round(total, 2),
     )
 
-
+# Listar compras del usuario actual
 @app.get("/compras", response_model=list[CompraDetalleResponse])
 def listar_compras(
     session: Session = Depends(get_session),
@@ -292,6 +338,7 @@ def listar_compras(
                     nombre=item.nombre,
                     precio_unitario=item.precio_unitario,
                     cantidad=item.cantidad,
+                    categoria=producto_catalogo.get("categoria") if producto_catalogo else None,
                 )
             )
 
@@ -314,16 +361,16 @@ def listar_compras(
 
     return compras_respuesta
 
-
+# Evento de inicio
 @app.on_event("startup")
 def on_startup() -> None:
     """Inicializa la base de datos al arrancar la aplicación."""
     create_db_and_tables()
-
+# Ruta raíz
 @app.get("/")
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
-
+# Listar productos con filtros
 @app.get("/productos")
 def obtener_productos(categoria: str | None = None, busqueda: str | None = None):
     productos = cargar_productos()
@@ -343,7 +390,7 @@ def obtener_productos(categoria: str | None = None, busqueda: str | None = None)
 
     return productos
 
-
+# Obtener producto por ID
 @app.get("/productos/{producto_id}")
 def obtener_producto(producto_id: int):
     productos = cargar_productos()

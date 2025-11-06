@@ -12,8 +12,7 @@ class Carrito(SQLModel, table=True):
     usuario_id: int = Field(foreign_key="usuario.id", index=True)
     estado: str = Field(default="abierto", max_length=20)
 
-    # Relaciones a través de CarritoItem (ver modelo CarritoItem).
-
+ 
 
 class CarritoItem(SQLModel, table=True):
     """Producto agregado al carrito con su cantidad."""
@@ -23,4 +22,4 @@ class CarritoItem(SQLModel, table=True):
     producto_id: int = Field(foreign_key="producto.id")
     cantidad: int = Field(default=1, ge=1)
 
-    # Relación inversa manejada a nivel de consultas cuando sea necesario.
+ 
