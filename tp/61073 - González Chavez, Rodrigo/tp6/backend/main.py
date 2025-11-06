@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
-from typing import Optional, Any
+from typing import Optional
 import jwt
 import bcrypt
 from datetime import datetime, timedelta
@@ -193,7 +193,15 @@ def listar_productos(
         categoria = normalizar_texto(categoria)
         query = query.where(Producto.categoria.contains(categoria))
 
-    return session.exec(query).all()
+    productos = session.exec(query).all()
+
+    productos_imagenes = []
+    for producto in productos:
+        productos_dict = producto.dict()
+        productos_dict["imagen"] = f"{producto.id:04}.png"
+        productos_imagenes.append(productos_dict)
+
+    return productos_imagenes
 
 @app.get("/productos/{producto_id}")
 def obtener_producto(producto_id: int, session: Session=Depends(get_session)):
@@ -219,7 +227,7 @@ def agregar_al_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), ses
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     if producto.existencia < cantidad:
-        raise HTTPException(status_code=400, detail="Stock insuficiente")
+        raise HTTPException(status_code=400, detail="Producto agotado")
     if cantidad <= 0:
         raise HTTPException(status_code=400, detail="La cantidad debe ser mayor a cero")
 
