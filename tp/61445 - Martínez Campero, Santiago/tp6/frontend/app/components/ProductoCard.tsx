@@ -13,7 +13,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       <div className="relative h-64 bg-gray-100">
         <Image
           src={`${API_URL}/${producto.imagen}`}
-          alt={producto.titulo}
+          alt={producto.nombre}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain p-4"
@@ -22,7 +22,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
+          {producto.nombre}
         </h3>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
           {producto.descripcion}

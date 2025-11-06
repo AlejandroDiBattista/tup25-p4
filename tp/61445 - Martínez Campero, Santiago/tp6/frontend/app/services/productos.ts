@@ -2,14 +2,29 @@ import { Producto } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export async function obtenerProductos(): Promise<Producto[]> {
-  const response = await fetch(`${API_URL}/productos`, {
-    cache: 'no-store'
-  });
+export async function obtenerProductos(
+  categoria?: string,
+  buscar?: string
+): Promise<Producto[]> {
+  const params = new URLSearchParams();
+  if (categoria) params.append('categoria', categoria);
+  if (buscar) params.append('buscar', buscar);
+
+  const url = `${API_URL}/productos${params.size > 0 ? `?${params}` : ''}`;
   
-  if (!response.ok) {
-    throw new Error('Error al obtener productos');
-  }
-  
-  return response.json();
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch products');
+  return res.json();
+}
+
+export async function obtenerProducto(id: number): Promise<Producto> {
+  const res = await fetch(`${API_URL}/productos/${id}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch product');
+  return res.json();
+}
+
+export async function obtenerCategorias(): Promise<string[]> {
+  const res = await fetch(`${API_URL}/productos/categorias/todas`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch categories');
+  return res.json();
 }
