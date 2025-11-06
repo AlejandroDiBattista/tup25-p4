@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login, register } from '@/api';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -31,34 +35,37 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="w-full max-w-md p-6">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-center text-3xl font-bold text-gray-900 mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">
             {isLogin ? 'Iniciar sesión' : 'Crear cuenta'}
-          </h2>
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          </CardTitle>
+          <CardDescription className="text-center">
+            {isLogin 
+              ? 'Ingresa tus credenciales para acceder' 
+              : 'Completa el formulario para registrarte'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {!isLogin && (
-              <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="nombre">Nombre</Label>
+                <Input
                   id="nombre"
                   name="nombre"
                   type="text"
                   required
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:border-gray-500 focus:outline-none text-gray-900"
+                  placeholder="Tu nombre completo"
                 />
               </div>
             )}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="email">Correo electrónico</Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
@@ -66,14 +73,12 @@ export default function AuthPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:border-gray-500 focus:outline-none text-gray-900"
+                placeholder="tu@email.com"
               />
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
@@ -81,34 +86,30 @@ export default function AuthPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:border-gray-500 focus:outline-none text-gray-900"
+                placeholder="••••••••"
               />
             </div>
             {error && (
-              <div className="text-red-600 text-sm text-center">
+              <div className="text-sm text-destructive text-center font-medium">
                 {error}
               </div>
             )}
-            <div>
-              <button
-                type="submit"
-                className="w-full py-2 px-4 rounded-lg bg-gray-900 text-white font-semibold shadow hover:bg-gray-800 transition"
-              >
-                {isLogin ? 'Iniciar sesión' : 'Registrarse'}
-              </button>
-            </div>
+            <Button type="submit" className="w-full">
+              {isLogin ? 'Iniciar sesión' : 'Registrarse'}
+            </Button>
           </form>
-          <div className="mt-6">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="w-full text-center text-sm text-gray-700 hover:text-gray-900 underline"
-            >
-              {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-            </button>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-2">
+          <Button
+            type="button"
+            variant="link"
+            onClick={() => setIsLogin(!isLogin)}
+            className="w-full"
+          >
+            {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

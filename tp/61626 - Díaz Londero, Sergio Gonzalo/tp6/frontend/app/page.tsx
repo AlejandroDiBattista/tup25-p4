@@ -1,29 +1,27 @@
-import { obtenerProductos } from './services/productos';
-import ProductoCard from './components/ProductoCard';
+'use client';
 
-export default async function Home() {
-  const productos = await obtenerProductos();
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Verificar si hay token
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+      // Si está autenticado, ir a productos
+      router.push('/productos');
+    } else {
+      // Si no está autenticado, ir a auth
+      router.push('/auth');
+    }
+  }, [router]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
-        </div>
-      </main>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-lg text-muted-foreground">Redirigiendo...</div>
     </div>
   );
 }

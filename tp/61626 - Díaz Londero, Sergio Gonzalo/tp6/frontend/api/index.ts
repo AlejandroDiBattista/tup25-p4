@@ -35,6 +35,14 @@ export const register = async (nombre: string, email: string, password: string) 
   return response.data;
 };
 
+export const logout = async () => {
+  const response = await api.post('/cerrar-sesion');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('token');
+  }
+  return response.data;
+};
+
 export const getProducts = async (categoria?: string, busqueda?: string) => {
   const params = new URLSearchParams();
   if (categoria) params.append('categoria', categoria);

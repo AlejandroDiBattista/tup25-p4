@@ -3,6 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCart, removeFromCart, checkout, cancelCart } from '@/api';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Trash2, ShoppingBag, CreditCard } from 'lucide-react';
 
 interface ItemCarrito {
   producto_id: number;
@@ -29,13 +35,18 @@ export default function CarritoPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Verificar autenticación
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/auth');
+      return;
+    }
     cargarCarrito();
-  }, []);
+  }, [router]);
 
   const cargarCarrito = async () => {
     try {
       const data = await getCart();
-      // data expected: { items: [{producto_id,nombre,precio,cantidad,iva}], subtotal, iva, envio, total }
       setCarrito(data);
       setLoading(false);
     } catch (error) {
@@ -73,100 +84,169 @@ export default function CarritoPage() {
     }
   };
 
-  if (loading) return <div>Cargando...</div>;
-  if (error) return <div>{error}</div>;
-  if (loading === false && (!carrito || carrito.items.length === 0)) {
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-lg text-muted-foreground">Cargando carrito...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-lg text-destructive">{error}</div>
+    </div>
+  );
+
+  if (!carrito || !carrito.items || carrito.items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Tu carrito está vacío</h2>
-        <button
-          onClick={() => router.push('/productos')}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-        >
-          Ver productos
-        </button>
+      <div className="container mx-auto px-4 py-16">
+        <Card className="max-w-md mx-auto text-center">
+          <CardHeader>
+            <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <CardTitle>Tu carrito está vacío</CardTitle>
+            <CardDescription>
+              Agrega productos a tu carrito para continuar con la compra
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="justify-center">
+            <Button onClick={() => router.push('/productos')}>
+              Ver productos
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-8">Finalizar compra</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Resumen del carrito */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h3 className="text-xl font-bold mb-6">Resumen del carrito</h3>
-          {carrito!.items.map((item) => (
-            <div key={item.producto_id} className="mb-4 pb-4 border-b last:border-b-0 last:pb-0">
-              <div className="flex justify-between items-center">
-                <div>
-                  <span className="font-semibold text-gray-900">{item.nombre}</span>
-                  <div className="text-gray-500 text-sm">Cantidad: {item.cantidad}</div>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold text-gray-900">${Number(item.precio * item.cantidad).toFixed(2)}</span>
-                  <div className="text-xs text-gray-400">IVA: ${item.iva ? Number(item.iva).toFixed(2) : '-'}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-          <div className="mt-6 space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>Total productos:</span>
-              <span>${Number(carrito!.subtotal).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>IVA:</span>
-              <span>${Number(carrito!.iva).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Envío:</span>
-              <span>${Number(carrito!.envio).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between font-bold text-lg mt-2">
-              <span>Total a pagar:</span>
-              <span>${Number(carrito!.total).toFixed(2)}</span>
-            </div>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Carrito de Compras</h1>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Lista de productos - 2 columnas */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Productos en tu carrito</CardTitle>
+              <CardDescription>
+                {carrito.items.length} {carrito.items.length === 1 ? 'producto' : 'productos'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Producto</TableHead>
+                    <TableHead className="text-center">Cantidad</TableHead>
+                    <TableHead className="text-right">Precio</TableHead>
+                    <TableHead className="text-right">Subtotal</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {carrito.items.map((item) => (
+                    <TableRow key={item.producto_id}>
+                      <TableCell className="font-medium">{item.nombre}</TableCell>
+                      <TableCell className="text-center">{item.cantidad}</TableCell>
+                      <TableCell className="text-right">${item.precio.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        ${(item.cantidad * item.precio).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveItem(item.producto_id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
-        {/* Datos de envío */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h3 className="text-xl font-bold mb-6">Datos de envío</h3>
-          <form onSubmit={handleCheckout} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-              <input
-                type="text"
-                required
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:border-gray-500 focus:outline-none text-gray-900"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tarjeta</label>
-              <input
-                type="text"
-                required
-                value={tarjeta}
-                onChange={(e) => setTarjeta(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:border-gray-500 focus:outline-none text-gray-900"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2 px-4 rounded-lg bg-gray-900 text-white font-semibold shadow hover:bg-gray-800 transition"
-            >
-              Confirmar compra
-            </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="w-full py-2 px-4 rounded-lg bg-gray-200 text-gray-800 font-semibold shadow hover:bg-gray-300 transition mt-2"
-            >
-              Cancelar
-            </button>
-          </form>
+
+        {/* Resumen y pago - 1 columna */}
+        <div className="space-y-6">
+          {/* Resumen */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Resumen</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-medium">${carrito.subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">IVA</span>
+                <span className="font-medium">${carrito.iva.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Envío</span>
+                <span className="font-medium">
+                  {carrito.envio === 0 ? 'Gratis' : `$${carrito.envio.toFixed(2)}`}
+                </span>
+              </div>
+              <div className="border-t pt-3 flex justify-between">
+                <span className="font-semibold">Total</span>
+                <span className="text-xl font-bold">${carrito.total.toFixed(2)}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Formulario de pago */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Información de pago
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleCheckout} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="direccion">Dirección de envío</Label>
+                  <Input
+                    id="direccion"
+                    type="text"
+                    required
+                    value={direccion}
+                    onChange={(e) => setDireccion(e.target.value)}
+                    placeholder="Ingresa tu dirección completa"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tarjeta">Número de tarjeta</Label>
+                  <Input
+                    id="tarjeta"
+                    type="text"
+                    required
+                    value={tarjeta}
+                    onChange={(e) => setTarjeta(e.target.value)}
+                    placeholder="0000 0000 0000 0000"
+                    maxLength={19}
+                  />
+                </div>
+                <div className="space-y-3 pt-4">
+                  <Button type="submit" className="w-full">
+                    Confirmar compra
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    className="w-full"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

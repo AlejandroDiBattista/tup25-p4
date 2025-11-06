@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getOrders, getOrderById } from '@/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Package, Calendar, MapPin, CreditCard, ShoppingBag } from 'lucide-react';
 
 interface ItemCompra {
   producto_id: number;
@@ -26,15 +31,26 @@ export default function ComprasPage() {
   const [compraSeleccionada, setCompraSeleccionada] = useState<Compra | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
+    // Verificar autenticación
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/auth');
+      return;
+    }
     cargarCompras();
-  }, []);
+  }, [router]);
 
   const cargarCompras = async () => {
     try {
       const data = await getOrders();
       setCompras(data);
+      // Seleccionar la primera compra automáticamente si existe
+      if (data.length > 0) {
+        await verDetalle(data[0].id);
+      }
       setLoading(false);
     } catch (error) {
       setError('Error al cargar las compras');
@@ -51,91 +67,177 @@ export default function ComprasPage() {
     }
   };
 
-  if (loading) return <div>Cargando...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-lg text-muted-foreground">Cargando compras...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-lg text-destructive">{error}</div>
+    </div>
+  );
+
   if (compras.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">No tienes compras realizadas</h2>
+      <div className="container mx-auto px-4 py-16">
+        <Card className="max-w-md mx-auto text-center">
+          <CardHeader>
+            <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <CardTitle>No tienes compras realizadas</CardTitle>
+            <CardDescription>
+              Explora nuestro catálogo y realiza tu primera compra
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => router.push('/productos')}>
+              Ver productos
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">Historial de compras</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
+      <h1 className="text-3xl font-bold mb-8">Mis Compras</h1>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Lista de compras - 1 columna */}
+        <div className="lg:col-span-1 space-y-4">
+          <h2 className="text-lg font-semibold mb-4">Historial</h2>
           {compras.map((compra) => (
-            <div
+            <Card
               key={compra.id}
-              className="border rounded-lg p-4 mb-4 cursor-pointer hover:bg-gray-50"
+              className={`cursor-pointer transition-all hover:shadow-lg ${
+                compraSeleccionada?.id === compra.id ? 'ring-2 ring-primary' : ''
+              }`}
               onClick={() => verDetalle(compra.id)}
             >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold">Compra #{compra.id}</h3>
-                  <p className="text-gray-600">
-                    Fecha: {new Date(compra.fecha).toLocaleDateString()}
-                  </p>
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-base">Compra #{compra.id}</CardTitle>
+                    <CardDescription className="flex items-center gap-1 mt-1">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(compra.fecha).toLocaleDateString('es-AR', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </CardDescription>
+                  </div>
+                  <Badge variant="secondary">{compra.items?.length || 0} items</Badge>
                 </div>
-                <span className="font-bold">${compra.total.toFixed(2)}</span>
-              </div>
-            </div>
+              </CardHeader>
+              <CardContent className="pb-4">
+                <div className="text-xl font-bold">${compra.total.toFixed(2)}</div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
+        {/* Detalle de la compra - 2 columnas */}
         {compraSeleccionada && (
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4">
-              Detalle de compra #{compraSeleccionada.id}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-gray-600">
-                  Fecha: {new Date(compraSeleccionada.fecha).toLocaleDateString()}
-                </p>
-                <p className="text-gray-600">
-                  Dirección: {compraSeleccionada.direccion}
-                </p>
-                <p className="text-gray-600">
-                  Tarjeta: ****-****-****-
-                  {compraSeleccionada.tarjeta.slice(-4)}
-                </p>
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-semibold mb-2">Productos</h4>
-                {compraSeleccionada.items.map((item) => (
-                  <div
-                    key={item.producto_id}
-                    className="flex justify-between py-2"
-                  >
-                    <div>
-                      <p className="font-medium">{item.nombre}</p>
-                      <p className="text-sm text-gray-600">
-                        {item.cantidad} x ${item.precio_unitario.toFixed(2)}
-                      </p>
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5" />
+                  Detalle de la Compra #{compraSeleccionada.id}
+                </CardTitle>
+                <CardDescription>
+                  {new Date(compraSeleccionada.fecha).toLocaleDateString('es-AR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Información de envío y pago */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">Dirección de envío</p>
+                        <p className="text-sm text-muted-foreground">{compraSeleccionada.direccion}</p>
+                      </div>
                     </div>
-                    <span>
-                      ${(item.cantidad * item.precio_unitario).toFixed(2)}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <CreditCard className="h-4 w-4 mt-1 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">Tarjeta</p>
+                        <p className="text-sm text-muted-foreground">
+                          **** **** **** {compraSeleccionada.tarjeta.slice(-4)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Productos */}
+                <div>
+                  <h4 className="font-semibold mb-3">Productos</h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Producto</TableHead>
+                        <TableHead className="text-center">Cantidad</TableHead>
+                        <TableHead className="text-right">Precio Unit.</TableHead>
+                        <TableHead className="text-right">Subtotal</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {compraSeleccionada.items.map((item) => (
+                        <TableRow key={item.producto_id}>
+                          <TableCell className="font-medium">{item.nombre}</TableCell>
+                          <TableCell className="text-center">{item.cantidad}</TableCell>
+                          <TableCell className="text-right">${item.precio_unitario.toFixed(2)}</TableCell>
+                          <TableCell className="text-right font-medium">
+                            ${(item.cantidad * item.precio_unitario).toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Resumen de costos */}
+                <div className="border-t pt-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">
+                      ${(compraSeleccionada.total - compraSeleccionada.envio).toFixed(2)}
                     </span>
                   </div>
-                ))}
-              </div>
-
-              <div className="border-t pt-4">
-                <div className="flex justify-between">
-                  <span>Envío</span>
-                  <span>${compraSeleccionada.envio.toFixed(2)}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Envío</span>
+                    <span className="font-medium">
+                      {compraSeleccionada.envio === 0 ? (
+                        <Badge variant="secondary">Gratis</Badge>
+                      ) : (
+                        `$${compraSeleccionada.envio.toFixed(2)}`
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                    <span>Total pagado</span>
+                    <span>${compraSeleccionada.total.toFixed(2)}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between font-bold mt-2">
-                  <span>Total</span>
-                  <span>${compraSeleccionada.total.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
