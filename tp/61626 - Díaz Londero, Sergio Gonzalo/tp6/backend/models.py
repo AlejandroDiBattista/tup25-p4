@@ -22,6 +22,7 @@ class ProductoBase(SQLModel):
     precio: float
     categoria: str
     existencia: int
+    imagen: Optional[str] = None
 
 class Producto(ProductoBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

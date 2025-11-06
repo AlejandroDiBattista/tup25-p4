@@ -66,6 +66,7 @@ def on_startup():
                             precio=float(p.get("precio", 0)),
                             categoria=p.get("categoria", ""),
                             existencia=int(p.get("existencia", p.get("stock", 0))),
+                            imagen=p.get("imagen", None),
                         )
                         session.add(prod)
                     session.commit()

@@ -1,5 +1,9 @@
+"use client";
+
 import { Producto } from '../types';
 import Image from 'next/image';
+import { useState } from 'react';
+import { addToCart } from '@/api';
 
 interface ProductoCardProps {
   producto: Producto;
@@ -7,22 +11,43 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
+  const [loading, setLoading] = useState(false);
+
+  const handleAdd = async () => {
+    if (producto.existencia <= 0) {
+      alert('Producto agotado');
+      return;
+    }
+    setLoading(true);
+    try {
+      await addToCart(producto.id, 1);
+      alert('Producto agregado al carrito');
+    } catch (err: any) {
+      alert('Error al agregar al carrito: ' + (err?.message || err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-64 bg-gray-100">
-        <Image
-          src={`${API_URL}/${producto.imagen}`}
-          alt={producto.titulo}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain p-4"
-          unoptimized
-        />
+      <div className="relative h-64 bg-gray-100 flex items-center justify-center">
+        {producto.imagen ? (
+          <Image
+            src={`${API_URL}/${producto.imagen}`}
+            alt={producto.nombre}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-contain p-4"
+            unoptimized
+          />
+        ) : (
+          <div className="text-gray-400">Sin imagen</div>
+        )}
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
+          {producto.nombre}
         </h3>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
           {producto.descripcion}
@@ -33,17 +58,23 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </span>
           <div className="flex items-center gap-1">
             <span className="text-yellow-500">★</span>
-            <span className="text-sm text-gray-700">{producto.valoracion}</span>
+            <span className="text-sm text-gray-700">{producto.valoracion ?? '-'}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio}
-          </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-2xl font-bold text-blue-600">${producto.precio}</span>
+          <span className="text-xs text-gray-500">{producto.existencia > 0 ? `Stock: ${producto.existencia}` : 'Agotado'}</span>
         </div>
+
+        <button
+          onClick={handleAdd}
+          disabled={loading || producto.existencia <= 0}
+          className={`w-full py-2 px-4 rounded-md text-white ${
+            producto.existencia > 0 ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'
+          }`}
+        >
+          {producto.existencia > 0 ? (loading ? 'Añadiendo...' : 'Agregar al carrito') : 'Agotado'}
+        </button>
       </div>
     </div>
   );
