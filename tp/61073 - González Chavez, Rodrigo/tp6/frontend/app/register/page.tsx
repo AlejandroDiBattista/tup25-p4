@@ -2,28 +2,27 @@
 
 import {useState} from "react"
 import {useRouter} from "next/navigation"
-import { iniciarSesion } from "../services/auth"
-import { useAuthStore } from "../store/useAuthStore"
+import { registrarUsuario } from "../services/auth"
 import {Button} from "../components/ui/button"
 import {Input} from "../components/ui/input"
-import {Card, CardContent, CardHeader, CardTitle} from "../components/ui/card"
+import {Card, CardContent, CardHeader, CardTitle} from  "../components/ui/card"
 import {Eye, EyeOff} from "lucide-react"
 
-export default function LoginPage() {
+export default function RegisterPage() {
+    const [nombre, setNombre] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const router = useRouter()
-    const {iniciarSesion: login} = useAuthStore()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const data = await iniciarSesion(email, password)
-            login(data.token, data.usuario)
-            router.push("/")
+            await registrarUsuario(nombre, email, password)
+            alert("Usuario registrado con éxito")
+            router.push("/login")
         } catch {
-            alert("Email o Contraseña incorrectos")
+            alert("Error al registrar el usuario")
         }
     }
 
@@ -31,15 +30,14 @@ export default function LoginPage() {
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <Card className="w-[400px]">
                 <CardHeader>
-                    <CardTitle>
-                        Iniciar Sesión
-                    </CardTitle>
+                    <CardTitle>Registro</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                        <Input placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
                         <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         <div className="relative">
-                            <Input
+                            <Input 
                                 placeholder="Contraseña"
                                 type={showPassword ? "text" : "password"}
                                 value={password}
@@ -54,19 +52,15 @@ export default function LoginPage() {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                         </div>
-                        <Button type="submit" className="w-full" >
-                            Iniciar Sesión
-                        </Button>
+                        <Button type="submit" className="w-full">Registrarse</Button>
                     </form>
                     <p className="text-sm mt-4 text-center">
-                        ¿No tenés cuenta? {""}
-                        <a href="/register" className="text-black-600 hover:underline">
-                        Registrate
-                        </a>
+                        ¿Ya tenés cuenta? {""}
+                        <a href="/login" className="text-black-600 hover:underline">
+                        Iniciar Sesión</a>
                     </p>
                 </CardContent>
             </Card>
-        </div>
+        </div>        
     )
 }
-
