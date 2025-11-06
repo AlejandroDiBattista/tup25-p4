@@ -31,14 +31,25 @@ def get_current_user(authorization: Optional[str] = Header(None)) -> Usuario:
             raise HTTPException(status_code=401, detail="Token inválido")
     except ValueError:
         raise HTTPException(status_code=401, detail="Token inválido")
-    except Exception:
+    except Exception as e:
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
     
     with Session(engine) as session:
         usuario = session.get(Usuario, usuario_id)
         if not usuario:
             raise HTTPException(status_code=401, detail="Usuario no encontrado")
-        return usuario
+        # Necesito descargar el usuario antes de cerrar la sesión
+        usuario_dict = {
+            "id": usuario.id,
+            "nombre": usuario.nombre,
+            "email": usuario.email,
+            "contraseña_hash": usuario.contraseña_hash,
+            "fecha_creacion": usuario.fecha_creacion
+        }
+    
+    # Recrear el objeto Usuario fuera de la sesión
+    usuario_obj = Usuario(**usuario_dict)
+    return usuario_obj
 
 
 @router.post("/registrar", response_model=UsuarioResponse)
