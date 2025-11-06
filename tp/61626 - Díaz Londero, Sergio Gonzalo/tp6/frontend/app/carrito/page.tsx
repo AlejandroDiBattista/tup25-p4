@@ -7,22 +7,21 @@ import { getCart, removeFromCart, checkout, cancelCart } from '@/api';
 interface ItemCarrito {
   producto_id: number;
   cantidad: number;
-  producto: {
-    nombre: string;
-    precio: number;
-  };
+  nombre: string;
+  precio: number;
+  iva?: number;
 }
 
-interface Carrito {
-  id: number;
+interface CarritoResponse {
   items: ItemCarrito[];
-  total: number;
+  subtotal: number;
   iva: number;
   envio: number;
+  total: number;
 }
 
 export default function CarritoPage() {
-  const [carrito, setCarrito] = useState<Carrito | null>(null);
+  const [carrito, setCarrito] = useState<CarritoResponse | null>(null);
   const [direccion, setDireccion] = useState('');
   const [tarjeta, setTarjeta] = useState('');
   const [loading, setLoading] = useState(true);
@@ -36,6 +35,7 @@ export default function CarritoPage() {
   const cargarCarrito = async () => {
     try {
       const data = await getCart();
+      // data expected: { items: [{producto_id,nombre,precio,cantidad,iva}], subtotal, iva, envio, total }
       setCarrito(data);
       setLoading(false);
     } catch (error) {
@@ -47,9 +47,9 @@ export default function CarritoPage() {
   const handleRemoveItem = async (productoId: number) => {
     try {
       await removeFromCart(productoId);
-      cargarCarrito();
-    } catch (error) {
-      alert('Error al eliminar el producto');
+      await cargarCarrito();
+    } catch (error: any) {
+      alert('Error al eliminar el producto: ' + (error?.message || error));
     }
   };
 
@@ -59,8 +59,8 @@ export default function CarritoPage() {
       await checkout(direccion, tarjeta);
       alert('Compra realizada con éxito');
       router.push('/compras');
-    } catch (error) {
-      alert('Error al procesar la compra');
+    } catch (error: any) {
+      alert('Error al procesar la compra: ' + (error?.message || error));
     }
   };
 
@@ -68,14 +68,14 @@ export default function CarritoPage() {
     try {
       await cancelCart();
       router.push('/productos');
-    } catch (error) {
-      alert('Error al cancelar el carrito');
+    } catch (error: any) {
+      alert('Error al cancelar el carrito: ' + (error?.message || error));
     }
   };
 
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
-  if (!carrito || carrito.items.length === 0) {
+  if (loading === false && (!carrito || carrito.items.length === 0)) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h2 className="text-2xl font-bold mb-4">Tu carrito está vacío</h2>
@@ -95,15 +95,15 @@ export default function CarritoPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          {carrito.items.map((item) => (
+          {carrito!.items.map((item) => (
             <div
               key={item.producto_id}
               className="flex items-center justify-between border-b py-4"
             >
               <div>
-                <h3 className="font-semibold">{item.producto.nombre}</h3>
+                <h3 className="font-semibold">{item.nombre}</h3>
                 <p className="text-gray-600">
-                  Cantidad: {item.cantidad} x ${item.producto.precio.toFixed(2)}
+                  Cantidad: {item.cantidad} x ${Number(item.precio).toFixed(2)}
                 </p>
               </div>
               <button
@@ -121,21 +121,19 @@ export default function CarritoPage() {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>${carrito.total.toFixed(2)}</span>
+              <span>${Number(carrito!.subtotal).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>IVA</span>
-              <span>${carrito.iva.toFixed(2)}</span>
+              <span>${Number(carrito!.iva).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Envío</span>
-              <span>${carrito.envio.toFixed(2)}</span>
+              <span>${Number(carrito!.envio).toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold pt-2 border-t">
               <span>Total</span>
-              <span>
-                ${(carrito.total + carrito.iva + carrito.envio).toFixed(2)}
-              </span>
+              <span>${Number(carrito!.total).toFixed(2)}</span>
             </div>
           </div>
 

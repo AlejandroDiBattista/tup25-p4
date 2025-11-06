@@ -2,16 +2,32 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { getCart } from '@/api';
 
 export default function Header() {
   const [logged, setLogged] = useState(false);
+  const [count, setCount] = useState<number>(0);
 
   useEffect(() => {
-    setLogged(!!localStorage.getItem('token'));
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    setLogged(!!token);
+    if (token) {
+      // obtener cantidad de items en carrito
+      (async () => {
+        try {
+          const data = await getCart();
+          const items = data?.items || [];
+          const total = items.reduce((s: number, it: any) => s + (it.cantidad || 0), 0);
+          setCount(total);
+        } catch (e) {
+          // ignore
+        }
+      })();
+    }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    if (typeof window !== 'undefined') localStorage.removeItem('token');
     setLogged(false);
     window.location.href = '/auth';
   };
@@ -28,7 +44,14 @@ export default function Header() {
         <div className="flex items-center gap-4">
           {logged ? (
             <>
-              <Link href="/carrito" className="text-sm text-gray-600 hover:text-gray-900">Carrito</Link>
+              <Link href="/carrito" className="relative text-sm text-gray-600 hover:text-gray-900">
+                Carrito
+                {count > 0 && (
+                  <span className="absolute -top-2 -right-3 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
+                    {count}
+                  </span>
+                )}
+              </Link>
               <button onClick={handleLogout} className="text-sm text-indigo-600">Salir</button>
             </>
           ) : (
