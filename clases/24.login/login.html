@@ -71,7 +71,7 @@
                 const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
+                    credentials: 'include',//Manda el Cookie
                     body: JSON.stringify({ email, password })
                 });
                 return await response.json();
@@ -250,6 +250,32 @@
                     </div>
                     
                     <div className="main-content">
+                        {view === 'idle' && (
+                            <div className="container">
+                                <h2>Bienvenido al Sistema</h2>
+                                <p style={{textAlign: 'center', color: '#555', marginBottom: '30px'}}>
+                                    Selecciona una opción para comenzar
+                                </p>
+                                <button 
+                                    onClick={() => {
+                                        setView('login');
+                                        setMessage({ text: '', type: '' });
+                                    }}
+                                >
+                                    Iniciar Sesión
+                                </button>
+                                <button 
+                                    className="secondary"
+                                    onClick={() => {
+                                        setView('signup');
+                                        setMessage({ text: '', type: '' });
+                                    }}
+                                >
+                                    Crear Cuenta Nueva
+                                </button>
+                            </div>
+                        )}
+
                         {(view === 'signup' || view === 'login') && (
                             <div className="container">
                             {message.text && (
@@ -284,6 +310,12 @@
                                 </div>
                                 <button type="submit">Iniciar Sesión</button>
                             </form>
+                            <div className="toggle-link" onClick={() => {
+                                setView('signup');
+                                setMessage({ text: '', type: '' });
+                            }}>
+                                ¿No tienes cuenta? Regístrate aquí
+                            </div>
                         </>
                     )}
 
@@ -323,8 +355,35 @@
                                 </div>
                                 <button type="submit">Registrarse</button>
                             </form>
+                            <div className="toggle-link" onClick={() => {
+                                setView('login');
+                                setMessage({ text: '', type: '' });
+                            }}>
+                                ¿Ya tienes cuenta? Inicia sesión aquí
+                            </div>
                         </>
                     )}
+                            </div>
+                        )}
+
+                        {view === 'logged' && usuario && (
+                            <div className="container">
+                                <h2>Perfil de Usuario</h2>
+                                <div className="profile">
+                                    <h3>Información Personal</h3>
+                                    <div className="profile-item">
+                                        <strong>Nombre:</strong> {usuario.nombre}
+                                    </div>
+                                    <div className="profile-item">
+                                        <strong>Email:</strong> {usuario.email}
+                                    </div>
+                                    <div className="profile-item">
+                                        <strong>ID:</strong> {usuario.id}
+                                    </div>
+                                </div>
+                                <button className="logout" onClick={handleLogout}>
+                                    Cerrar Sesión
+                                </button>
                             </div>
                         )}
                     </div>

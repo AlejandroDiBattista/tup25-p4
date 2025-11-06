@@ -1,20 +1,19 @@
 from fastapi import FastAPI, Depends, Response, Cookie, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import uvicorn
+
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 
 from hashlib import sha256
 from secrets import token_hex
 
 from datetime import datetime, timedelta
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pathlib import Path
-
-import uvicorn
 
 
 class Usuario(SQLModel, table=True):
-    
     id: int | None = Field(default=None, primary_key=True)
     nombre: str = Field(index=True)
     email: str = Field(index=True, unique=True)
@@ -45,12 +44,15 @@ def crear_hash(password: str) -> str:
     """ Crea un hash SHA-256 de la contraseña proporcionada. """
     return sha256(password.encode('utf-8')).hexdigest()
 
+
 def validar_contraseña(password: str, password_hash: str) -> bool:
     """ Valida si la contraseña coincide con el hash proporcionado. """
     return crear_hash(password) == password_hash
 
+
 def generar_token() -> str:
     return token_hex(16)
+
 
 def usuario_actual(token: str, session: Session) -> Usuario | None:
     cmd = select(Usuario).where(Usuario.token == token)
@@ -65,14 +67,15 @@ def usuario_actual(token: str, session: Session) -> Usuario | None:
 def usuario_desde_email(email: str, session: Session) -> Usuario | None:
     return session.exec(select(Usuario).where(Usuario.email == email)).first()
 
-# Dependencias
 
+# Dependencias
 def get_session():
     """ Dependencia para obtener sesión de DB """
     
     with Session(engine) as session:
         yield session
         session.commit()
+
 
 def get_usuario(token: str = Cookie(), session: Session = Depends(get_session)) -> Usuario:
     """ Dependencia que obtiene el usuario autenticado actual """
@@ -92,17 +95,21 @@ def get_usuario(token: str = Cookie(), session: Session = Depends(get_session)) 
 app = FastAPI()
 
 # Configurar CORS para permitir acceso desde el HTML
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=[
-#         "http://localhost:8000",
-#         "http://127.0.0.1:8000", 
-#         "null"  # Permite archivos abiertos directamente desde el sistema
-#     ],
-#     allow_credentials=True,  # Permite el envío de cookies
-#     allow_methods=["*"],  # Permite todos los métodos HTTP
-#     allow_headers=["*"],  # Permite todos los headers
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:5504",
+        "http://127.0.0.1:5504",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "null"  # Permite archivos abiertos directamente desde el sistema
+    ],
+    allow_credentials=True,  # Permite el envío de cookies
+    allow_methods=["*"],  # Permite todos los métodos HTTP
+    allow_headers=["*"],  # Permite todos los headers
+)
     
 static_dir = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
