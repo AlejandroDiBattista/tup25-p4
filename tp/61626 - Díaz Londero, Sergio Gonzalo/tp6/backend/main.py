@@ -107,7 +107,7 @@ def cerrar_sesion(current_user: Usuario = Depends(get_current_user)):
 
 
 # --------- Productos ---------
-@app.get("/productos", response_model=List[Producto])
+@app.get("/productos")
 def listar_productos(categoria: str = None, busqueda: str = None, db: Session = Depends(get_session)):
     q = select(Producto)
     if categoria:
@@ -115,7 +115,19 @@ def listar_productos(categoria: str = None, busqueda: str = None, db: Session = 
     if busqueda:
         q = q.where(Producto.nombre.contains(busqueda))
     productos = db.exec(q).all()
-    return productos
+    resultado = []
+    for p in productos:
+        resultado.append({
+            "id": p.id,
+            "nombre": p.nombre,
+            "descripcion": p.descripcion,
+            "precio": p.precio,
+            "categoria": p.categoria,
+            "existencia": p.existencia,
+            "imagen": p.imagen,
+            "agotado": (p.existencia <= 0),
+        })
+    return resultado
 
 
 @app.get("/productos/{producto_id}")
