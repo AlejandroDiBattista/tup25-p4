@@ -25,6 +25,7 @@ class Carrito(SQLModel, table=True):
     usuario_id: int = Field(foreign_key="usuario.id", index=True)
     estado: EstadoCarrito = Field(default=EstadoCarrito.ACTIVO)
     fecha_creacion: datetime = Field(default_factory=datetime.utcnow)
+    fecha_cancelacion: Optional[datetime] = Field(default=None)
 
 
 class ItemCarritoCreate(SQLModel):

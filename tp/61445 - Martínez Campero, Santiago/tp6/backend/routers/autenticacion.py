@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from typing import Optional
 from datetime import timedelta
 
-from models import Usuario, UsuarioCreate, UsuarioResponse, UsuarioLogin
+from models import Usuario, UsuarioCreate, UsuarioResponse, UsuarioLogin, AuthResponse
 from database import engine
 from utils import hash_password, verify_password, create_access_token, decode_token
 from config import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -52,7 +52,7 @@ def get_current_user(authorization: Optional[str] = Header(None)) -> Usuario:
     return usuario_obj
 
 
-@router.post("/registrar", response_model=UsuarioResponse)
+@router.post("/registrar", response_model=AuthResponse)
 def registrar(usuario_data: UsuarioCreate, session: Session = Depends(get_session)):
     statement = select(Usuario).where(Usuario.email == usuario_data.email)
     usuario_existente = session.exec(statement).first()
@@ -61,14 +61,24 @@ def registrar(usuario_data: UsuarioCreate, session: Session = Depends(get_sessio
         raise HTTPException(status_code=400, detail="Email ya registrado")
     
     usuario = Usuario(
-        nombre=usuario_data.nombre,
+        nombre=usuario_data.nombre or usuario_data.email.split("@")[0],
         email=usuario_data.email,
         contraseña_hash=hash_password(usuario_data.password)
     )
     session.add(usuario)
     session.commit()
     session.refresh(usuario)
-    return usuario
+    
+    access_token = create_access_token(
+        data={"sub": usuario.id},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "usuario": UsuarioResponse.from_orm(usuario)
+    }
 
 
 @router.post("/iniciar-sesion")

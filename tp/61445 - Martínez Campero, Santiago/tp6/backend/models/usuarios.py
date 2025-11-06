@@ -14,9 +14,9 @@ class Usuario(SQLModel, table=True):
 
 
 class UsuarioCreate(SQLModel):
-    nombre: str = Field(min_length=1, max_length=255)
     email: str = Field(min_length=5, max_length=255)
     password: str = Field(min_length=8, max_length=255)
+    nombre: str = Field(min_length=1, max_length=255, default=None)
 
 
 class UsuarioResponse(SQLModel):
@@ -29,3 +29,9 @@ class UsuarioResponse(SQLModel):
 class UsuarioLogin(SQLModel):
     email: str
     password: str
+
+
+class AuthResponse(SQLModel):
+    access_token: str
+    token_type: str
+    usuario: UsuarioResponse
