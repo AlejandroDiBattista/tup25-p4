@@ -164,3 +164,29 @@ def registrar(req: RegisterRequest, session: Session = Depends(get_session)):
     session.refresh(user)
     return {"mensaje": "Usuario registrado", "usuario_id": user.id, "email": user.email}
 
+# ====== LOGIN (debajo del registro) ======
+
+# Verifica contraseña comparando hash
+def verify_password(p: str, h: str) -> bool:
+    return hash_password(p) == h
+
+# Almacén de tokens en memoria: token -> usuario_id
+active_tokens: dict[str, int] = {}
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+@app.post("/iniciar-sesion")
+def iniciar_sesion(req: LoginRequest, session: Session = Depends(get_session)):
+    user = session.exec(select(Usuario).where(Usuario.email == req.email)).first()
+    if not user or not verify_password(req.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    token = secrets.token_urlsafe(32)
+    active_tokens[token] = user.id
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": user.id, "nombre": user.nombre, "email": user.email},
+    }
+
