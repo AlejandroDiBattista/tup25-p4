@@ -1,10 +1,10 @@
 import os
+import hashlib
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlmodel import Session, select
 from models import Usuario, TokenData
 from database import get_session
@@ -14,16 +14,18 @@ SECRET_KEY = os.getenv("SECRET_KEY", "tu_clave_secreta_muy_segura_aqui")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="iniciar-sesion")
 
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verifica que la contraseña coincida con el hash"""
+    password_hash = hashlib.sha256(plain_password.encode()).hexdigest()
+    return password_hash == hashed_password
 
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    """Hashea la contraseña usando SHA256"""
+    return hashlib.sha256(password.encode()).hexdigest()
 
 
 def authenticate_user(db: Session, email: str, password: str):

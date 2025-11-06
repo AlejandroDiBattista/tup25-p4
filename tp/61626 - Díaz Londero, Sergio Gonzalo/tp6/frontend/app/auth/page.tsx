@@ -24,9 +24,12 @@ export default function AuthPage() {
       if (isLogin) {
         const data = await login(email, password);
         localStorage.setItem('token', data.access_token);
+        // Guardar información del usuario
+        localStorage.setItem('user', JSON.stringify({ email, nombre: email.split('@')[0] }));
       } else {
         await register(nombre, email, password);
         setIsLogin(true);
+        return; // No redirigir, dejar que haga login
       }
       router.push('/productos');
     } catch (error) {
