@@ -21,7 +21,7 @@ app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 # CORS para el frontend en localhost:3000
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -180,13 +180,9 @@ class LoginRequest(BaseModel):
 @app.post("/iniciar-sesion")
 def iniciar_sesion(req: LoginRequest, session: Session = Depends(get_session)):
     user = session.exec(select(Usuario).where(Usuario.email == req.email)).first()
-    if not user or not verify_password(req.password, user.password_hash):
+    if not user or hash_password(req.password) != user.password_hash:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     token = secrets.token_urlsafe(32)
-    active_tokens[token] = user.id
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {"id": user.id, "nombre": user.nombre, "email": user.email},
-    }
+    active_tokens[token] = user.id  # dict[str,int] definido arriba
+    return {"access_token": token, "token_type": "bearer", "user": {"id": user.id, "nombre": user.nombre, "email": user.email}}
 
