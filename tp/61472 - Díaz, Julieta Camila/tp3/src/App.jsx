@@ -6,16 +6,15 @@ import ContactSection from './components/ContactSection';
 import './App.css'; 
 
 function App() {
-    // Estado inicial de todos los alumnos y el término de búsqueda
     const [alumnos, setAlumnos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // 1. Carga inicial de datos
+    
     useEffect(() => {
         setAlumnos(loadAlumnos());
     }, []);
 
-    // 2. Función para alternar el estado de favorito
+    
     const toggleFavorito = (legajo) => {
         setAlumnos(prevAlumnos =>
             prevAlumnos.map(alumno =>
@@ -26,15 +25,15 @@ function App() {
         );
     };
 
-    // 3. Filtrado, Agrupación y Ordenamiento (Memorizado)
+   
     const { favoritos, noFavoritos } = useMemo(() => {
         
-        // A. Filtrar por término de búsqueda
+        
         const filteredAlumnos = alumnos.filter(alumno =>
             includesContacto(alumno, searchTerm)
         );
 
-        // B. Agrupar, Ordenar y Asignar títulos
+       
         const favs = filteredAlumnos
             .filter(a => a.favorito)
             .sort(cmpNombre);
@@ -44,7 +43,7 @@ function App() {
             .sort(cmpNombre);
 
         return { favoritos: favs, noFavoritos: nonFavs };
-    }, [alumnos, searchTerm]); // Se recalcula si cambian los alumnos o el término
+    }, [alumnos, searchTerm]); 
 
     const totalResults = favoritos.length + noFavoritos.length;
     const isListEmpty = totalResults === 0 && searchTerm !== '';
@@ -60,16 +59,16 @@ function App() {
                     </p>
                 ) : (
                     <>
-                        {/* Grupo 1: Favoritos */}
+                        {}
                         <ContactSection
                             title="Favoritos"
                             contacts={favoritos}
                             onToggleFavorite={toggleFavorito}
                         />
 
-                        {/* Separador visual opcional aquí si es necesario */}
+                        {}
 
-                        {/* Grupo 2: No Favoritos */}
+                        {}
                         <ContactSection
                             title="Contactos"
                             contacts={noFavoritos}
