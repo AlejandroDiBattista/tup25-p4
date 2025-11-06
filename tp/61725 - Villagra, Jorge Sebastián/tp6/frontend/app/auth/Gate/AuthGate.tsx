@@ -1,23 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Login from '@/components/ui/Login';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-type Props = { children: React.ReactNode };
-
-export default function AuthGate({ children }: Props) {
-  const [ready, setReady] = useState(false);
-  const [authed, setAuthed] = useState(false);
+export default function AuthGate({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
 
   useEffect(() => {
-    const t = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    setAuthed(!!t);
-    setReady(true);
-  }, []);
+    const t = localStorage.getItem('token');
+    if (!t) router.replace('/auth/login');
+  }, [router]);
 
-  if (!ready) return null; // o un spinner
-
-  if (!authed) return <Login />;
+  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
+  if (!hasToken) return null; // o spinner
 
   return <>{children}</>;
 }

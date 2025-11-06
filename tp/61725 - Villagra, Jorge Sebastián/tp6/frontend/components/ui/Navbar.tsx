@@ -1,73 +1,62 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function Navbar() {
+  const pathname = usePathname();
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
+  const [isAuth, setIsAuth] = useState(false);
   const [nombre, setNombre] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    setToken(localStorage.getItem('token'));
-    setNombre(localStorage.getItem('usuario_nombre'));
-  }, []);
+  if (pathname !== '/') return null;
 
-  async function logout() {
-    try {
+  useEffect(() => {
+    const load = () => {
       const t = localStorage.getItem('token');
-      if (t) {
-        await fetch(`${API_URL}/cerrar-sesion`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${t}` },
-        }).catch(() => {});
-      }
-    } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('usuario_nombre');
-      setToken(null);
-      setNombre(null);
-      toast.success('Sesión cerrada', { duration: 1200 });
-      router.push('/auth/login');
-    }
-  }
+      const nom =
+        localStorage.getItem('usuario_nombre') ||
+        JSON.parse(localStorage.getItem('user') || 'null')?.nombre ||
+        null;
+      setIsAuth(!!t);
+      setNombre(nom);
+    };
+    load();
+    const onStorage = () => load();
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [pathname]);
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario_nombre');
+    localStorage.removeItem('user');
+    setIsAuth(false);
+    setNombre(null);
+    router.push('/auth/login');
+  };
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
+    <nav className="w-full border-b bg-white">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="font-semibold hover:opacity-80">
-            Mi Tienda
-          </Link>
-          <div className="hidden sm:flex items-center gap-4 text-sm text-muted-foreground">
-            <Link href="/" className="hover:text-foreground">Productos</Link>
-            <Link href="/compras" className="hover:text-foreground">Mis compras</Link>
-            <Link href="/carrito" className="hover:text-foreground">Carrito</Link>
-          </div>
-        </div>
+        <Link href="/" className="font-semibold">Mi Tienda</Link>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-sm">Inicio</Link>
+          <Link href="/carrito" className="text-sm">Carrito</Link>
 
-        <div className="flex items-center gap-2">
-          {token ? (
+          {!isAuth ? (
             <>
-              {nombre && (
-                <span className="hidden sm:inline text-sm text-muted-foreground">
-                  Hola, {nombre}
-                </span>
-              )}
-              <Button variant="secondary" size="sm" onClick={logout}>
-                Cerrar sesión
-              </Button>
+              <Link href="/auth/login" className="text-sm">Iniciar sesión</Link>
+              <Link href="/auth/registro" className="text-sm">Registrarse</Link>
             </>
           ) : (
-            <Button size="sm" onClick={() => router.push('/auth/login')}>
-              Iniciar sesión
-            </Button>
+            <>
+              <span className="text-sm text-gray-700">
+                Bienvenido{nombre ? `, ${nombre}` : ''}!
+              </span>
+              <button onClick={logout} className="text-sm text-red-600">Cerrar sesión</button>
+            </>
           )}
         </div>
       </div>

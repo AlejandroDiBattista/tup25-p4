@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { Producto } from '../../app/types';
+import type { Producto } from '@/app/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import ProductoCard from '@/components/ui/ProductoCard';

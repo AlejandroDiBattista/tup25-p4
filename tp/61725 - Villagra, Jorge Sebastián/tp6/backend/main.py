@@ -6,17 +6,17 @@ from pathlib import Path
 from typing import Optional
 import json
 import hashlib
-from models import Producto
-from fastapi import HTTPException, status  # <- faltaba
-from pydantic import BaseModel, EmailStr    # <- esquema request
-from models import Usuario                  # <- tu modelo Usuario
-from sqlmodel import select                 # <- ya lo usás arriba
+from models import Producto, Usuario
+from fastapi import HTTPException, status
+from pydantic import BaseModel
 import secrets
 
 app = FastAPI(title="API Productos")
 
-# Archivos estáticos (imágenes)
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+# Archivos estáticos (imágenes): crear carpeta si no existe y montar sin romper
+IMGS_DIR = Path(__file__).parent / "imagenes"
+IMGS_DIR.mkdir(exist_ok=True)
+app.mount("/imagenes", StaticFiles(directory=str(IMGS_DIR), check_dir=False), name="imagenes")
 
 # CORS para el frontend en localhost:3000
 app.add_middleware(
@@ -30,7 +30,7 @@ app.add_middleware(
 # ==============================
 # Base de datos (SQLModel + SQLite)
 # ==============================
-DB_URL = "sqlite:///./ParcialProgramacion.db"  # cra parcialdb en esta carpeta
+DB_URL = "sqlite:///./ParcialProgramacion.db"  # crea parcialdb en esta carpeta
 engine = create_engine(DB_URL, echo=False)
 
 
@@ -41,7 +41,6 @@ def get_session():
 
 @app.on_event("startup")
 def on_startup():
-    # Crear tablas si no existen y cargar productos al iniciar
     SQLModel.metadata.create_all(engine)
     init_productos_desde_json()
 
@@ -143,7 +142,7 @@ if __name__ == "__main__":
 ## ENDPOINT DE REGISTRO DE USUARIO ##
 class RegisterRequest(BaseModel):
     nombre: str
-    email: EmailStr
+    email: str
     password: str
 
 def hash_password(p: str) -> str:
@@ -174,7 +173,7 @@ def verify_password(p: str, h: str) -> bool:
 active_tokens: dict[str, int] = {}
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 @app.post("/iniciar-sesion")

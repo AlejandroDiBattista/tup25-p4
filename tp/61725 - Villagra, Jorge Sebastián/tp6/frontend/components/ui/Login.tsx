@@ -1,22 +1,15 @@
 'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 
 export default function Login() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const API = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,48 +26,26 @@ export default function Login() {
     setNombreLS(typeof window !== 'undefined' ? localStorage.getItem('usuario_nombre') : null);
   }, []);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setErr(null);
-    setLoading(true);
-
-    const ctrl = new AbortController();
-    const timeoutId = setTimeout(() => ctrl.abort(), 15000);
-
+    const form = new FormData(e.currentTarget);
+    const email = String(form.get('email') || '');
+    const password = String(form.get('password') || '');
     try {
-      console.log('Login →', `${API_URL}/iniciar-sesion`);
-      const res = await fetch(`${API_URL}/iniciar-sesion`, {
+      const res = await fetch(`${API}/iniciar-sesion`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        signal: ctrl.signal,
       });
-
-      if (!res.ok) {
-        const txt = await res.text().catch(() => '');
-        console.error('Login error:', res.status, txt);
-        setErr(res.status === 401 ? 'Email o contraseña inválidos' : 'Error al iniciar sesión');
-        toast.error('No se pudo iniciar sesión', { duration: 1800 });
-        return;
-      }
-
+      if (!res.ok) throw new Error(await res.text().catch(() => 'Credenciales inválidas'));
       const data = await res.json();
-      const token: string | undefined = data?.access_token;
-      const nombre: string | undefined = data?.user?.nombre;
-
-      if (token) localStorage.setItem('token', token);
-      if (nombre) localStorage.setItem('usuario_nombre', nombre);
-
-      toast.success(nombre ? `Bienvenido, ${nombre}` : 'Inicio de sesión exitoso', { duration: 1600 });
-      setTimeout(() => router.push('/'), 1600);
-    } catch (e: any) {
-      console.error('Network/Abort:', e);
-      const aborted = e?.name === 'AbortError';
-      setErr(aborted ? 'Tiempo de espera agotado' : 'No se pudo conectar con el servidor');
-      toast.error(aborted ? 'Timeout' : 'Error de red', { duration: 1800 });
-    } finally {
-      clearTimeout(timeoutId);
-      setLoading(false);
+      if (data.access_token) localStorage.setItem('token', data.access_token);
+      const nombre = data?.user?.nombre || data?.usuario?.nombre || data?.nombre || null;
+      if (nombre) localStorage.setItem('usuario_nombre', String(nombre));
+      toast.success('Inicio de sesión exitoso');
+      router.replace('/');
+    } catch (err: any) {
+      toast.error(err?.message || 'No se pudo iniciar sesión');
     }
   }
 
@@ -106,12 +77,13 @@ export default function Login() {
             </div>
           </CardContent>
         ) : (
-          <form onSubmit={onSubmit}>
+          <form onSubmit={handleSubmit}>
             <CardContent className="space-y-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="tu@email.com"
                   autoComplete="email"
@@ -126,6 +98,7 @@ export default function Login() {
                 <Label htmlFor="password">Contraseña</Label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   placeholder="••••••••"
                   autoComplete="current-password"
