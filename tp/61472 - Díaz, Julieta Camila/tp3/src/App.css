@@ -1,0 +1,155 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    min-height: 100vh;
+}
+
+.main-content {
+    padding: 0 40px 40px;
+}
+
+/* --- Topbar --- */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.topbar h1 {
+    font-size: 1.5em;
+    color: #333;
+    margin: 0;
+}
+
+.search-input {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    width: 250px;
+    font-size: 0.9em;
+    /* Icono de búsqueda */
+    background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="%23999" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 5L20.49 19l-5-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>') no-repeat 10px center;
+    background-size: 16px 16px;
+    padding-left: 35px;
+}
+
+/* --- Contact Section & Grid --- */
+.contact-section h2 {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #555;
+    /* Estilo de la imagen de referencia */
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.contact-list {
+    display: grid;
+    /* Grid de 3 columnas (aprox.) */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 20px; 
+}
+
+/* --- Contact Card --- */
+.contact-card {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: flex-start; 
+    position: relative;
+    transition: box-shadow 0.2s;
+}
+
+.contact-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-container {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #ccc;
+}
+
+.avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.contact-info {
+    flex-grow: 1;
+}
+
+.contact-info .name {
+    font-weight: 600;
+    font-size: 1em;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #1a1a1a;
+    line-height: 1.3;
+}
+
+.contact-info .detail {
+    font-size: 0.85em;
+    color: #666;
+    margin: 2px 0;
+}
+
+/* Favorito Botón */
+.favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0;
+    color: #aaa; 
+    transition: color 0.2s;
+}
+
+.favorite-btn.favorited {
+    color: #ffc107; /* Dorado */
+}
+
+/* Mensaje de lista vacía */
+.empty-message {
+    text-align: center;
+    padding: 50px;
+    color: #777;
+    font-style: italic;
+    border: 1px dashed #ccc;
+    margin: 50px 20px;
+    border-radius: 5px;
+}
