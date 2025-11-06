@@ -19,6 +19,26 @@ app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+    inicializar_datos()
+
+# Carga los productos del archivo JSON si la base de datos está vacía
+def inicializar_datos():
+    from sqlmodel import select
+    from database import engine
+
+# Si no hay productos, se cargan desde productos.json
+    with Session(engine) as session:
+         if not session.exec(select(Producto)).first():
+            ruta = Path(__file__).parent / "productos.json"
+            if ruta.exists():
+                with open(ruta, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for p in data:
+                        session.add(Producto(**p))
+                session.commit()
+                print("Productos cargados desde productos.json")
+            else:
+                print("No se encontró el archivo productos.json")
 
 # Configurar CORS
 app.add_middleware(
