@@ -1,108 +1,77 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Producto } from '@/app/types'; // si falla el alias, probá: import type { Producto } from '../../app/types';
-import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
+import type { Producto } from '../../app/types';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 type Props = {
   producto: Producto;
   onAdd?: (producto: Producto) => Promise<void> | void;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+function buildImageUrl(p: Producto): string {
+  const raw = (p.imagen_url ?? p.imagen ?? '').toString();
+  if (!raw) return '';
+  if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('//')) return raw;
+  const path = raw.startsWith('/') ? raw : `/${raw}`;
+  const finalPath = path.startsWith('/imagenes') ? path : `/imagenes${path}`;
+  return `${API_URL}${finalPath}`;
+}
+
 export default function ProductoCard({ producto, onAdd }: Props) {
   const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  const [adding, setAdding] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
 
-  const agotado = (producto.existencia ?? 0) <= 0;
-  const precioFmt = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(producto.precio);
+  const nombre = (producto.nombre ?? producto.titulo ?? 'Producto').toString();
+  const descripcion = (producto.descripcion ?? '').toString();
+  const imagen = buildImageUrl(producto);
+  const agotado = Boolean(producto.agotado ?? ((producto.existencia ?? 0) <= 0));
 
-  const imgSrc = (() => {
-    const img = producto.imagen?.trim();
-    if (!img) return undefined;
-    if (img.startsWith('http')) return img;
-    const path = img.replace(/^\/?imagenes\//, '');
-    return `${API_URL}/imagenes/${path}`;
-  })();
-
-  async function addToCart() {
-    setErr(null);
-    setAdding(true);
-    try {
-      if (onAdd) {
-        await onAdd(producto);
-        return;
-      }
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      if (!token) {
-        router.push('/auth/login');
-        return;
-      }
-      const res = await fetch(`${API_URL}/carrito`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ producto_id: producto.id, cantidad: 1 }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-    } catch {
-      setErr('No se pudo agregar al carrito.');
-    } finally {
-      setAdding(false);
-    }
+  async function handleAdd() {
+    if (onAdd) await onAdd(producto);
   }
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="space-y-2">
-        <CardTitle className="line-clamp-1">{producto.titulo}</CardTitle>
-        <CardDescription className="flex items-center gap-2">
-          <span className="font-semibold text-foreground">{precioFmt}</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full ${agotado ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
-            {agotado ? 'Agotado' : `Stock: ${producto.existencia}`}
-          </span>
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="flex-1">
-        {imgSrc ? (
+    <Card className="h-full flex flex-col overflow-hidden hover:shadow-md transition-shadow">
+      {/* Imagen: relación 1:1 para todas iguales */}
+      <div
+        className="relative w-full aspect-square bg-muted/60 cursor-pointer"
+        onClick={() => router.push(`/producto/${producto.id}`)}
+        title={nombre}
+      >
+        {imagen ? (
           <img
-            src={imgSrc}
-            alt={producto.titulo}
-            className="w-full h-48 object-cover rounded-md border"
+            src={imagen}
+            alt={nombre}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
           />
         ) : (
-          <div className="w-full h-48 rounded-md border grid place-items-center text-sm text-muted-foreground">
+          <div className="absolute inset-0 grid place-items-center text-sm text-muted-foreground">
             Sin imagen
           </div>
         )}
+      </div>
 
-        {producto.descripcion && (
-          <p className="mt-3 text-sm text-muted-foreground line-clamp-3">{producto.descripcion}</p>
-        )}
+      <CardHeader className="pb-2 min-h-[88px]">
+        <CardTitle className="line-clamp-1 text-base">{nombre}</CardTitle>
+        <p className="text-sm text-muted-foreground line-clamp-2">{descripcion}</p>
+      </CardHeader>
 
-        {typeof producto.valoracion === 'number' && (
-          <div className="mt-2 text-amber-500 text-sm" title={`Valoración: ${producto.valoracion}/5`}>
-            {'★'.repeat(Math.round(producto.valoracion))}{' '}
-            <span className="text-muted-foreground">({producto.valoracion.toFixed(1)})</span>
-          </div>
-        )}
-
-        {producto.categoria && (
-          <p className="mt-2 text-xs text-muted-foreground">Categoría: {producto.categoria}</p>
-        )}
-
-        {err && <p className="mt-2 text-xs text-red-600">{err}</p>}
+      <CardContent className="pt-0">
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-semibold">${producto.precio}</span>
+          {agotado && (
+            <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-700">Agotado</span>
+          )}
+        </div>
       </CardContent>
 
-      <CardFooter>
-        <Button className="w-full" onClick={addToCart} disabled={agotado || adding}>
-          {agotado ? 'No disponible' : adding ? 'Agregando...' : 'Agregar al carrito'}
+      <CardFooter className="mt-auto">
+        <Button className="w-full" disabled={agotado} onClick={handleAdd}>
+          {agotado ? 'Sin stock' : 'Agregar al carrito'}
         </Button>
       </CardFooter>
     </Card>

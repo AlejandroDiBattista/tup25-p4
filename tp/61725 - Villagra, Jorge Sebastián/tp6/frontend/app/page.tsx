@@ -1,28 +1,18 @@
-import AuthGate from '@/app/auth/Gate/AuthGate'; // ajustá si no tenés alias @
+import AuthGate from '@/app/auth/Gate/AuthGate';
 import { obtenerProductos } from './services/productos';
-import ProductoCard from '@/components/ui/ProductoCard';
+import ProductosGrid from '@/components/ui/ProductosGrid';
+import PageHeader from '@/components/ui/PageHeader';
 
 export default async function HomePage() {
   const productos = await obtenerProductos();
 
   return (
     <AuthGate>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Catálogo de Productos</h1>
-            <p className="text-gray-600 mt-2">{productos.length} productos disponibles</p>
-          </div>
-        </header>
+      <PageHeader title="Catálogo de Productos" subtitle={`${productos.length} productos disponibles`} />
 
-        <main className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {productos.map((producto) => (
-              <ProductoCard key={producto.id} producto={producto} />
-            ))}
-          </div>
-        </main>
-      </div>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <ProductosGrid productos={productos} />
+      </main>
     </AuthGate>
   );
 }
