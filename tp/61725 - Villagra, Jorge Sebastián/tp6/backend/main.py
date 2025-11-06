@@ -5,18 +5,23 @@ from sqlmodel import SQLModel, Session, create_engine, select
 from pathlib import Path
 from typing import Optional
 import json
-
+import hashlib
 from models import Producto
+from fastapi import HTTPException, status  # <- faltaba
+from pydantic import BaseModel, EmailStr    # <- esquema request
+from models import Usuario                  # <- tu modelo Usuario
+from sqlmodel import select                 # <- ya lo usás arriba
+import secrets
 
 app = FastAPI(title="API Productos")
 
 # Archivos estáticos (imágenes)
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
-# CORS
+# CORS para el frontend en localhost:3000
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -133,3 +138,29 @@ def health(session: Session = Depends(get_session)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+## ENDPOINT DE REGISTRO DE USUARIO ##
+class RegisterRequest(BaseModel):
+    nombre: str
+    email: EmailStr
+    password: str
+
+def hash_password(p: str) -> str:
+    return hashlib.sha256(p.encode("utf-8")).hexdigest()
+
+@app.post("/registrar", status_code=status.HTTP_201_CREATED)
+def registrar(req: RegisterRequest, session: Session = Depends(get_session)):
+    existente = session.exec(select(Usuario).where(Usuario.email == req.email)).first()
+    if existente:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email ya registrado")
+    user = Usuario(
+        nombre=req.nombre,
+        email=req.email,
+        password_hash=hash_password(req.password),
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return {"mensaje": "Usuario registrado", "usuario_id": user.id, "email": user.email}
+

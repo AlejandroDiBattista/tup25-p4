@@ -1,5 +1,5 @@
 import { obtenerProductos } from './services/productos';
-import ProductoCard from './components/ProductoCard';
+import ProductoCard from '../components/ui/ProductoCard';
 
 export default async function Home() {
   const productos = await obtenerProductos();
