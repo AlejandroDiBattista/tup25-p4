@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
-from auth import registrar_usuario, iniciar_sesion  
+from auth import registrar_usuario, iniciar_sesion, get_current_user
 
 app = FastAPI(title="API Productos")
 
@@ -101,7 +101,14 @@ def crear_usuario(usuario: Usuario, session: Session = Depends(get_session)):
 
 #  Carrito 
 @app.post("/carrito/", response_model=CarritoItem)
-def agregar_al_carrito(item: CarritoItem, session: Session = Depends(get_session)):
+def agregar_al_carrito(
+    item: CarritoItem,
+    session: Session = Depends(get_session),
+    usuario: Usuario = Depends(get_current_user)  # Solo si está logueado el usuario
+):
+    # Asigna el usuario logueado al carrito
+    item.usuario_id = usuario.id
+
     session.add(item)
     session.commit()
     session.refresh(item)
@@ -115,6 +122,59 @@ def registrar_compra(compra: Compra, session: Session = Depends(get_session)):
     session.refresh(compra)
     return compra
 
+# Ver contenido del carrito
+@app.get("/carrito/", response_model=list[CarritoItem])
+def ver_carrito(session: Session = Depends(get_session)):
+    items = session.exec(select(CarritoItem)).all()
+    return items
+
+
+# Quitar producto del carrito
+@app.delete("/carrito/{producto_id}")
+def eliminar_del_carrito(producto_id: int, session: Session = Depends(get_session)):
+    item = session.exec(select(CarritoItem).where(CarritoItem.producto_id == producto_id)).first()
+    if not item:
+        return {"mensaje": "El producto no está en el carrito"}
+    session.delete(item)
+    session.commit()
+    return {"mensaje": f"Producto con ID {producto_id} eliminado del carrito"}
+
+
+# Cancelar compra (vaciar carrito)
+@app.post("/carrito/cancelar")
+def cancelar_carrito(session: Session = Depends(get_session)):
+    items = session.exec(select(CarritoItem)).all()
+    if not items:
+        return {"mensaje": "El carrito ya está vacío"}
+    for item in items:
+        session.delete(item)
+    session.commit()
+    return {"mensaje": "Compra cancelada, carrito vaciado"}
+
+
+# Finalizar compra
+@app.post("/carrito/finalizar")
+def finalizar_compra(session: Session = Depends(get_session)):
+    items = session.exec(select(CarritoItem)).all()
+    if not items:
+        return {"mensaje": "El carrito está vacío"}
+
+    total = 0
+    for item in items:
+        producto = session.get(Producto, item.producto_id)
+        if producto:
+            total += producto.precio * item.cantidad
+            producto.existencia -= item.cantidad  # Actualiza el stock
+
+    compra = Compra(total=total, fecha="2025-11-06")  # fecha temporal
+    session.add(compra)
+
+    # Vaciar carrito después de finalizar compra
+    for item in items:
+        session.delete(item)
+
+    session.commit()
+    return {"mensaje": "Compra finalizada con exito", "total": total}
 
 if __name__ == "__main__":
     import uvicorn
