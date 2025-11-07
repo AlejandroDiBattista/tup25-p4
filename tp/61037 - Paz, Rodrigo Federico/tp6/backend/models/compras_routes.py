@@ -69,3 +69,27 @@ def finalizar_compra(usuario_id: int, direccion: str, tarjeta: str):
         session.commit()
 
         return {"mensaje": "Compra realizada con éxito", "total_pagado": total}
+    
+@router.get("/compras")
+def ver_compras(usuario_id: int):
+    with Session(engine) as session:
+        compras = session.exec(
+            select(Compra).where(Compra.usuario_id == usuario_id)
+        ).all()
+        return compras
+
+@router.get("/compras/{compra_id}")
+def detalle_compra(compra_id: int):
+    with Session(engine) as session:
+        compra = session.get(Compra, compra_id)
+        if not compra:
+            raise HTTPException(status_code=404, detail="Compra no encontrada")
+
+        items = session.exec(
+            select(ItemCompra).where(ItemCompra.compra_id == compra_id)
+        ).all()
+
+        return {
+            "compra": compra,
+            "items": items
+        }
