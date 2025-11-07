@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import Session, select
 from models.database import engine
 from models.usuarios import Usuario
+import bcrypt
+
 
 router = APIRouter()
 
@@ -13,10 +15,13 @@ def registrar_usuario(usuario: Usuario):
         if existente:
             raise HTTPException(status_code=400, detail="El correo ya está registrado")
 
+        hashed = bcrypt.hashpw(usuario.password.encode("utf-8"), bcrypt.gensalt())
+        usuario.password = hashed.decode("utf-8")
+
         session.add(usuario)
         session.commit()
         session.refresh(usuario)
-        return {"mensaje": "Usuario registrado correctamente", "usuario": usuario}
+        return {"mensaje": "Usuario registrado correctamente", "usuario": usuario.email}
 
 
 @router.post("/iniciar-sesion")
@@ -24,7 +29,10 @@ def iniciar_sesion(email: str, password: str):
     with Session(engine) as session:
         usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
 
-        if not usuario or usuario.password != password:
-            raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+        if not usuario:
+            raise HTTPException(status_code=401, detail="Usuario no encontrado")
+
+        if not bcrypt.checkpw(password.encode("utf-8"), usuario.password.encode("utf-8")):
+            raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
         return {"mensaje": "Inicio de sesión exitoso", "usuario": usuario.nombre}
