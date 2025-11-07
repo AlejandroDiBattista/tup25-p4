@@ -12,36 +12,65 @@ export default function Header() {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    // Verificar si hay token
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const user = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-    
-    setIsAuthenticated(!!token);
-    
-    if (user) {
-      try {
-        const userData = JSON.parse(user);
-        setUserName(userData.nombre || userData.email || 'Usuario');
-      } catch {
-        setUserName('Usuario');
+    // Función para actualizar el estado de autenticación
+    const updateAuthState = () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const user = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      
+      setIsAuthenticated(!!token);
+      
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          setUserName(userData.nombre || userData.email?.split('@')[0] || 'Usuario');
+        } catch {
+          setUserName('Usuario');
+        }
+      } else {
+        setUserName('');
       }
-    }
+    };
+
+    // Actualizar al montar y cuando cambie la ruta
+    updateAuthState();
+
+    // Escuchar cambios en localStorage (útil para sincronizar entre pestañas)
+    window.addEventListener('storage', updateAuthState);
+
+    // Intervalo para verificar cambios en localStorage
+    const interval = setInterval(updateAuthState, 500);
+
+    return () => {
+      window.removeEventListener('storage', updateAuthState);
+      clearInterval(interval);
+    };
   }, [pathname]);
 
   const handleLogout = async () => {
     try {
       await logout();
-      router.push('/auth');
     } catch (error) {
-      // Forzar logout en el cliente aunque falle el servidor
+      // Continuar con logout aunque falle el servidor
+    } finally {
+      // Siempre limpiar el localStorage y redirigir
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      router.push('/auth');
+      setIsAuthenticated(false);
+      setUserName('');
+      router.push('/productos');
     }
   };
 
+  const handleIngresar = () => {
+    router.push('/auth');
+  };
+
+  const handleCrearCuenta = () => {
+    router.push('/auth?register=true');
+  };
+
   // No mostrar header en la página de auth
-  if (pathname === '/auth' || !isAuthenticated) {
+  if (pathname === '/auth') {
     return null;
   }
 
@@ -63,23 +92,45 @@ export default function Header() {
               Productos
             </Link>
             
-            <Link 
-              href="/compras" 
-              className={`text-sm ${pathname === '/compras' ? 'font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              Mis compras
-            </Link>
-            
-            <span className="text-sm text-muted-foreground">
-              {userName}
-            </span>
-            
-            <button
-              onClick={handleLogout}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              Salir
-            </button>
+            {isAuthenticated ? (
+              <>
+                {/* Usuario autenticado */}
+                <Link 
+                  href="/compras" 
+                  className={`text-sm ${pathname === '/compras' ? 'font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  Mis compras
+                </Link>
+                
+                <span className="text-sm text-muted-foreground">
+                  {userName}
+                </span>
+                
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Salir
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Usuario NO autenticado */}
+                <button
+                  onClick={handleIngresar}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Ingresar
+                </button>
+                
+                <button
+                  onClick={handleCrearCuenta}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Crear cuenta
+                </button>
+              </>
+            )}
           </div>
         </nav>
       </div>

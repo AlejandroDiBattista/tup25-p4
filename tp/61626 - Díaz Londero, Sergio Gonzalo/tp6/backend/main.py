@@ -57,24 +57,30 @@ def on_startup():
     ruta = Path(__file__).parent / "productos.json"
     if ruta.exists():
         with Session(engine) as session:
-            count = session.exec(select(Producto)).first()
-            # si no hay productos, insertar
+            # Verificar si ya hay productos en la base de datos
             existing = session.exec(select(Producto)).all()
-            if not existing:
-                with open(ruta, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for p in data:
-                        # Mapear campos del JSON (titulo -> nombre)
-                        prod = Producto(
-                            nombre=p.get("nombre") or p.get("titulo") or "",
-                            descripcion=p.get("descripcion", ""),
-                            precio=float(p.get("precio", 0)),
-                            categoria=p.get("categoria", ""),
-                            existencia=int(p.get("existencia", p.get("stock", 0))),
-                            imagen=p.get("imagen", None),
-                        )
-                        session.add(prod)
-                    session.commit()
+            if not existing:  # Solo cargar si no hay productos
+                try:
+                    with open(ruta, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        print(f"Cargando {len(data)} productos desde productos.json...")
+                        for p in data:
+                            # Mapear campos del JSON (titulo -> nombre)
+                            prod = Producto(
+                                nombre=p.get("nombre") or p.get("titulo") or "",
+                                descripcion=p.get("descripcion", ""),
+                                precio=float(p.get("precio", 0)),
+                                categoria=p.get("categoria", ""),
+                                existencia=int(p.get("existencia", p.get("stock", 0))),
+                                imagen=p.get("imagen", None),
+                            )
+                            session.add(prod)
+                        session.commit()
+                        print("Productos cargados exitosamente")
+                except Exception as e:
+                    print(f"Error al cargar productos: {e}")
+            else:
+                print(f"Ya hay {len(existing)} productos en la base de datos")
 
 
 # --------- Autenticación ---------
@@ -197,6 +203,7 @@ def ver_carrito(db: Session = Depends(get_session), current_user: Usuario = Depe
             "nombre": prod.nombre,
             "precio": prod.precio,
             "cantidad": it.cantidad,
+            "imagen": prod.imagen,
             "iva": iva,
         })
 

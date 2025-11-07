@@ -7,16 +7,12 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar si hay token
-    const token = localStorage.getItem('token');
+    // Limpiar sesión al iniciar la aplicación
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     
-    if (token) {
-      // Si está autenticado, ir a productos
-      router.push('/productos');
-    } else {
-      // Si no está autenticado, ir a auth
-      router.push('/auth');
-    }
+    // Redirigir a productos
+    router.push('/productos');
   }, [router]);
 
   return (

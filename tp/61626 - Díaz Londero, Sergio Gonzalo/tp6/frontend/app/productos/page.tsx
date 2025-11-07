@@ -113,7 +113,20 @@ export default function ProductosPage() {
 
   const handleDisminuirCantidad = async (productoId: number) => {
     try {
-      await removeFromCart(productoId);
+      // Verificar la cantidad actual antes de disminuir
+      const itemActual = carrito?.items.find(item => item.producto_id === productoId);
+      
+      if (itemActual && itemActual.cantidad > 1) {
+        // Si hay más de 1, eliminar solo 1 unidad agregando -1
+        // Primero removemos todo el producto
+        await removeFromCart(productoId);
+        // Luego agregamos la cantidad que quedaba menos 1
+        await addToCart(productoId, itemActual.cantidad - 1);
+      } else {
+        // Si solo hay 1, eliminar completamente
+        await removeFromCart(productoId);
+      }
+      
       await cargarCarrito();
       await cargarProductos(); // Actualizar stock disponible
     } catch (error) {
@@ -156,6 +169,17 @@ export default function ProductosPage() {
     return producto && producto.existencia > 0;
   };
 
+  // Helper para limpiar la ruta de imagen
+  const getImageUrl = (imagePath?: string) => {
+    if (!imagePath) return null;
+    // Si ya incluye "imagenes/", usar la ruta completa
+    if (imagePath.startsWith('imagenes/')) {
+      return `http://localhost:8000/${imagePath}`;
+    }
+    // Si no, agregar el prefijo
+    return `http://localhost:8000/imagenes/${imagePath}`;
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-lg text-muted-foreground">Cargando productos...</div>
@@ -190,7 +214,9 @@ export default function ProductosPage() {
             <SelectContent>
               <SelectItem value="todas">Todas las categorías</SelectItem>
               <SelectItem value="Ropa de hombre">Ropa de hombre</SelectItem>
-              <SelectItem value="electrónicos">Electrónicos</SelectItem>
+              <SelectItem value="Ropa de mujer">Ropa de mujer</SelectItem>
+              <SelectItem value="Electrónica">Electrónica</SelectItem>
+              <SelectItem value="Joyería">Joyería</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -209,7 +235,7 @@ export default function ProductosPage() {
                   <div className="relative w-40 h-40 bg-muted rounded flex-shrink-0 overflow-hidden">
                     {producto.imagen ? (
                       <Image
-                        src={`http://localhost:8000/imagenes/${producto.imagen}`}
+                        src={getImageUrl(producto.imagen) || ''}
                         alt={producto.nombre}
                         fill
                         className="object-cover"
@@ -272,18 +298,21 @@ export default function ProductosPage() {
           </div>
 
           {/* Panel del carrito - Derecha */}
-          {isAuthenticated && (
-            <div className="w-96 flex-shrink-0">
-              <div className="sticky top-24">
-                <div className="bg-card border rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <ShoppingCart className="h-6 w-6" />
-              <h2 className="text-2xl font-bold">Mi carrito</h2>
-            </div>
-
-            {carrito && carrito.items && carrito.items.length > 0 ? (
-            <div className="space-y-4">
-              {/* Items del carrito */}
+          <div className="w-96 flex-shrink-0">
+            <div className="sticky top-24 max-h-[calc(100vh-7rem)] flex flex-col">
+              <div className="bg-card border rounded-lg overflow-hidden flex flex-col p-6">
+                {!isAuthenticated ? (
+                  /* Mensaje cuando NO está autenticado */
+                  <div className="text-center py-12">
+                    <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">
+                      Inicia sesión para ver y editar tu carrito.
+                    </p>
+                  </div>
+                ) : carrito && carrito.items && carrito.items.length > 0 ? (
+                    <>
+                      {/* Items del carrito con scroll */}
+                      <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-[calc(100vh-28rem)]">
               {carrito.items.map((item) => {
                 const producto = productos.find(p => p.id === item.producto_id);
                 return (
@@ -292,13 +321,14 @@ export default function ProductosPage() {
                       <div className="flex items-start gap-3">
                         {/* Imagen del producto */}
                         <div className="relative w-16 h-16 bg-muted rounded flex-shrink-0 overflow-hidden">
-                          {item.imagen || producto?.imagen ? (
+                          {(item.imagen || producto?.imagen) ? (
                             <Image
-                              src={`http://localhost:8000/imagenes/${item.imagen || producto?.imagen}`}
+                              src={getImageUrl(item.imagen || producto?.imagen) || ''}
                               alt={item.nombre}
                               fill
                               className="object-cover"
                               sizes="64px"
+                              unoptimized
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
@@ -354,7 +384,10 @@ export default function ProductosPage() {
                   </Card>
                 );
               })}
+                      </div>
 
+                      {/* Resumen y botones - Siempre visible al final */}
+                      <div className="p-6 pt-4 border-t space-y-4">
               {/* Resumen */}
               <Card>
                 <CardContent className="p-4 space-y-2">
@@ -391,17 +424,18 @@ export default function ProductosPage() {
                   Cancelar
                 </Button>
               </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">Tu carrito está vacío</p>
-            </div>
-          )}
-                </div>
+                      </div>
+                    </>
+                ) : (
+                  /* Carrito vacío pero autenticado */
+                  <div className="text-center py-12">
+                    <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">Tu carrito está vacío</p>
+                  </div>
+                )}
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
