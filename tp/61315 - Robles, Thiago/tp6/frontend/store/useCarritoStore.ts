@@ -26,6 +26,7 @@ type EstadoCarrito = {
 export type TotalesCarrito = {
   subtotal: number;
   iva: number;
+  envio: number;
   total: number;
 };
 
@@ -106,17 +107,18 @@ export const useCarritoStore = create<EstadoCarrito>()(
   )
 );
 
-
 export const calcularTotales = (articulos: ItemCarrito[]): TotalesCarrito => {
   const subtotal = articulos.reduce(
     (acc, item) => acc + item.precio * item.cantidad,
-    0,
+    0
   );
+
+  const envio = subtotal > 1000 ? 0 : 50;
 
   const iva = articulos.reduce((acc, item) => {
     const tasaIva = item.categoria === "Electronica" ? 0.1 : 0.21;
     return acc + item.precio * item.cantidad * tasaIva;
   }, 0);
 
-  return { subtotal, iva, total: subtotal + iva };
+  return { subtotal, envio, iva, total: subtotal + iva + envio };
 };
