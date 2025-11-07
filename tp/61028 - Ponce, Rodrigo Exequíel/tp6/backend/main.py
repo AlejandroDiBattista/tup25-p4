@@ -33,6 +33,11 @@ def obtener_productos():
     productos = cargar_productos()
     return productos
 
+
+from usuarios import router as usuarios_router
+app.include_router(usuarios_router)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
