@@ -16,6 +16,17 @@ from models import Usuario, Carrito, CarritoItem, Compra, CompraItem
 DATABASE_URL = "sqlite:///./tienda.db"
 engine = create_engine(DATABASE_URL)
 
+# Configuración de JWT
+SECRET_KEY = "tu_clave_secreta_aqui"  # En producción usar variable de entorno
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Configuración de password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Configuración de OAuth2
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 # Configuración de la aplicación
 app = FastAPI(title="API Productos")
 
@@ -89,6 +100,67 @@ def cargar_productos():
     ruta_productos = Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
+
+@app.post("/registrar")
+async def registrar_usuario(
+    nombre: str,
+    email: str,
+    password: str,
+    db: Session = Depends(get_db)
+):
+    # Verificar si el usuario ya existe
+    usuario_existe = db.query(Usuario).filter(Usuario.email == email).first()
+    if usuario_existe:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El email ya está registrado"
+        )
+    
+    # Crear nuevo usuario
+    usuario = Usuario(
+        nombre=nombre,
+        email=email,
+        password_hash=get_password_hash(password)
+    )
+    db.add(usuario)
+    db.commit()
+    db.refresh(usuario)
+    
+    return {"mensaje": "Usuario registrado exitosamente"}
+
+@app.post("/token")
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    usuario = db.query(Usuario).filter(Usuario.email == form_data.username).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales incorrectas"
+        )
+    
+    if not verify_password(form_data.password, usuario.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales incorrectas"
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": usuario.email},
+        expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": usuario.id,
+            "nombre": usuario.nombre,
+            "email": usuario.email
+        }
+    }
 
 @app.get("/")
 def root():
