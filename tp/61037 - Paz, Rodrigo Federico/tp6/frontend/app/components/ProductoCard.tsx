@@ -1,5 +1,7 @@
+"use client";
 import { Producto } from '../types';
 import Image from 'next/image';
+import { agregarAlCarrito } from "../services/productos";
 
 interface ProductoCardProps {
   producto: Producto;
@@ -7,6 +9,19 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+  function handleAgregar() {
+    const usuario_id = Number(localStorage.getItem("usuario_id"));
+    if (!usuario_id) {
+      alert("Debes iniciar sesión primero");
+      window.location.href = "/ingresar";
+      return;
+    }
+
+    agregarAlCarrito(usuario_id, producto.id)
+      .then(() => alert("Producto agregado al carrito"))
+      .catch(() => alert("No se pudo agregar el producto"));
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -45,6 +60,13 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </span>
         </div>
       </div>
-    </div>
+
+     <button
+          onClick={handleAgregar}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-colors"
+        >
+          Agregar al carrito
+        </button>
+      </div>
   );
 }
