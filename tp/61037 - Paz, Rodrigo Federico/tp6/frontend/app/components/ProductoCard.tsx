@@ -59,14 +59,14 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             Stock: {producto.existencia}
           </span>
         </div>
-      </div>
 
      <button
           onClick={handleAgregar}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-colors"
-        >
+          >
           Agregar al carrito
         </button>
       </div>
+    </div>
   );
 }

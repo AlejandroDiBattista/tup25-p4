@@ -35,4 +35,4 @@ def iniciar_sesion(email: str, password: str):
         if not bcrypt.checkpw(password.encode("utf-8"), usuario.password.encode("utf-8")):
             raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
-        return {"mensaje": "Inicio de sesión exitoso", "usuario": usuario.nombre}
+        return {"mensaje": "Inicio de sesión exitoso", "usuario_id": usuario.id, "usuario": usuario.nombre}
