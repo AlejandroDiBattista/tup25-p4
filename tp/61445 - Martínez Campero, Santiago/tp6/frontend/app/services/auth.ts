@@ -1,4 +1,4 @@
-import { AuthResponse, Usuario } from '../types';
+import { AuthResponse } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -6,7 +6,7 @@ export async function registrar(
   nombre: string,
   email: string,
   password: string
-): Promise<Usuario> {
+): Promise<AuthResponse> {
   const res = await fetch(`${API_URL}/auth/registrar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -18,7 +18,9 @@ export async function registrar(
     throw new Error(error.detail || 'Error al registrar');
   }
 
-  return res.json();
+  const data = await res.json();
+  localStorage.setItem('token', data.access_token);
+  return data;
 }
 
 export async function iniciarSesion(
