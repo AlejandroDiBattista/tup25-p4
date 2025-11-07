@@ -6,6 +6,9 @@ from pathlib import Path
 from models.database import init_db
 from models.cargar_datos import cargar_productos_iniciales
 from models.auth import router as auth_router
+from models.carrito_routes import router as carrito_router
+
+
 
 app = FastAPI(title="API Productos")
 
@@ -40,7 +43,7 @@ init_db()
 cargar_productos_iniciales()
 
 app.include_router(auth_router)
-
+app.include_router(carrito_router)
 
 if __name__ == "__main__":
     import uvicorn
