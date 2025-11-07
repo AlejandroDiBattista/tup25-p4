@@ -100,8 +100,9 @@ def cargar_productos_a_db():
         if not existentes:
             productos = cargar_productos()
             for producto in productos:
+                nombre = producto.get("titulo") or producto.get("nombre", "")
                 nuevo_producto = Producto(
-                    nombre=producto.get("nombre", ""),
+                    nombre=nombre,
                     categoria=normalizar_texto(producto.get("categoria", "")),
                     precio=producto.get("precio", 0.0),
                     existencia=producto.get("existencia", 0),
@@ -112,6 +113,20 @@ def cargar_productos_a_db():
             return {"Mensaje": "Productos cargados en la base de datos"}
         else:
             return {"Mensaje": "Productos ya cargados previamente"}
+
+def actualizar_nombres_vacios():
+    with Session(engine) as session:
+        productos_sin_nombre = session.exec(select(Producto).where(Producto.nombre == "")).all()
+        if not productos_sin_nombre:
+            return {"Mensaje": "Todos los productos tienen nombre"}
+
+        productos_json = cargar_productos()
+        for producto_db in productos_sin_nombre:
+            producto_json = next((p for p in productos_json if p["id"] == producto_db.id), None)
+            if producto_json:
+                producto_db.nombre = producto_json.get("titulo") or producto_json.get("nombre", "")
+        session.commit()
+        return {"Mensaje": "Nombres actualizados correctamente"}
 
 def normalizar_productos():
     with Session(engine) as session:
@@ -137,6 +152,7 @@ def on_startup():
     crear_db()
     cargar_productos_a_db()
     normalizar_productos()
+    actualizar_nombres_vacios()
 
 
 @app.post("/registrar")

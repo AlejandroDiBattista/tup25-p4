@@ -29,7 +29,7 @@ export default function LoginPage() {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <Card className="w-[400px]">
+            <Card className="w-[500px]">
                 <CardHeader>
                     <CardTitle>
                         Iniciar Sesión
