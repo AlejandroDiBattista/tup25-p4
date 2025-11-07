@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from usuarios import router as usuarios_router
 import json
 from pathlib import Path
 
@@ -33,10 +34,8 @@ def obtener_productos():
     productos = cargar_productos()
     return productos
 
-
-from usuarios import router as usuarios_router
+# 👇 ESTE VA AQUÍ, una sola vez
 app.include_router(usuarios_router)
-
 
 if __name__ == "__main__":
     import uvicorn
