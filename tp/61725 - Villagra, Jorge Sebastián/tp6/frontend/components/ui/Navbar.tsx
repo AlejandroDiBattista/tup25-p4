@@ -40,7 +40,7 @@ export default function Navbar() {
   return (
     <nav className="w-full border-b bg-white">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-semibold">Mi Tienda</Link>
+        <Link href="/" className="font-semibold">Parcial Ecommerce</Link>
         <div className="flex items-center gap-4">
           <Link href="/" className="text-sm">Inicio</Link>
           <Link href="/carrito" className="text-sm">Carrito</Link>

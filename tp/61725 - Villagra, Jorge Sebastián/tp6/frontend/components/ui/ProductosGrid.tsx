@@ -86,7 +86,7 @@ export default function ProductosGrid({ productos }: Props) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch">
           {filtrados.map((p) => (
-            <div key={p.id} className="h-full">
+            <div key={p.id}>
               <ProductoCard producto={p} />
             </div>
           ))}
