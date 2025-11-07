@@ -7,6 +7,8 @@ from models.database import init_db
 from models.cargar_datos import cargar_productos_iniciales
 from models.auth import router as auth_router
 from models.carrito_routes import router as carrito_router
+from models.compras_routes import router as compras_router
+
 
 
 
@@ -44,6 +46,7 @@ cargar_productos_iniciales()
 
 app.include_router(auth_router)
 app.include_router(carrito_router)
+app.include_router(compras_router)
 
 if __name__ == "__main__":
     import uvicorn
