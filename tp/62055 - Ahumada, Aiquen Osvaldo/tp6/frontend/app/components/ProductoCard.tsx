@@ -5,9 +5,32 @@ interface ProductoCardProps {
   producto: Producto;
 }
 
+"use client";
+
+import { useState } from 'react';
+import { useCarrito } from '../hooks/useCarrito';
+
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
+  const { agregarAlCarrito } = useCarrito();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  async function handleAgregar() {
+    setError('');
+    setSuccess(false);
+    setLoading(true);
+    try {
+      await agregarAlCarrito(producto);
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
@@ -36,7 +59,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             <span className="text-sm text-gray-700">{producto.valoracion}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-2">
           <span className="text-2xl font-bold text-blue-600">
             ${producto.precio}
           </span>
@@ -44,6 +67,15 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             Stock: {producto.existencia}
           </span>
         </div>
+        {error && <div className="bg-red-100 text-red-700 p-2 rounded mb-2">{error}</div>}
+        {success && <div className="bg-green-100 text-green-700 p-2 rounded mb-2">Agregado al carrito</div>}
+        <button
+          className="w-full bg-blue-900 text-white py-2 rounded font-bold mt-2 disabled:bg-gray-400"
+          onClick={handleAgregar}
+          disabled={loading || producto.existencia <= 0}
+        >
+          {producto.existencia <= 0 ? 'Sin stock' : loading ? 'Agregando...' : 'Agregar al carrito'}
+        </button>
       </div>
     </div>
   );
