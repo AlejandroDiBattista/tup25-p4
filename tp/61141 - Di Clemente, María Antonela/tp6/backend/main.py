@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
+from auth import registrar_usuario, iniciar_sesion  
 
 app = FastAPI(title="API Productos")
 
@@ -80,6 +81,15 @@ def listar_productos(session: Session = Depends(get_session)):
         session.commit()
         productos = session.exec(select(Producto)).all()
     return productos
+
+# Autentificacion
+@app.post("/registrar")
+def registrar(usuario: Usuario, session: Session = Depends(get_session)):
+    return registrar_usuario(usuario, session)
+
+@app.post("/iniciar-sesion")
+def login(usuario: Usuario, session: Session = Depends(get_session)):
+    return iniciar_sesion(usuario, session)
 
 # Usuarios
 @app.post("/usuarios/", response_model=Usuario)
