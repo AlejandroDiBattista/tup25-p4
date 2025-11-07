@@ -30,9 +30,8 @@ export default function Home() {
       }
     };
 
-    if (token) {
-      fetchProductos();
-    }
+    fetchProductos();
+
   }, [token]);
 
 

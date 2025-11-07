@@ -17,6 +17,7 @@ class ItemCompra(SQLModel, table=True):
     cantidad: int = Field(default=1, ge=1)
     nombre: str = Field(max_length=255)
     precio_unitario: float = Field(ge=0)
+    iva: float = Field(ge=0)
 
     compra: Optional["Compra"] = Relationship(back_populates="items")
     producto: Optional["Producto"] = Relationship()

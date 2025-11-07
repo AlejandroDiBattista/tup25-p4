@@ -411,11 +411,9 @@ def finalizar_compra(
     session: Session = Depends(get_session)
 ):
     """Procesa el pago, crea el registro de compra y vacía el carrito activo."""
-    
-    # Obtener el carrito activo (debe existir)
+
     carrito = get_or_create_active_cart(session, current_user.id)
     
-    # Obtener los ítems del carrito (Eager loading para seguridad)
     session.refresh(carrito) 
     
     if not carrito.items:
@@ -427,7 +425,6 @@ def finalizar_compra(
     ENVIOGRATIS = 1000.0
     items_compra_final = []
     
-    # ITERAR, VALIDAR STOCK, CALCULAR y PREPARAR ITEMS
     for item_carrito in carrito.items:
         producto = session.get(Producto, item_carrito.producto_id)
         
@@ -440,10 +437,21 @@ def finalizar_compra(
             )
             
         #  Calcular subtotal y preparar ItemCompra
+        # if producto.categoria == "electronica":
+        #     precio_unitario = producto.precio * 1.10
+        #     iva = producto.precio * 0.10 * item_carrito.cantidad
+        # else:
+        #     precio_unitario = producto.precio * 1.21
+        #     iva = producto.precio * 0.21 * item_carrito.cantidad
+
+        precio_base = producto.precio
         if producto.categoria == "electronica":
-            precio_unitario = producto.precio * 1.10
+            tasa_iva = 0.10
         else:
-            precio_unitario = producto.precio * 1.21
+            tasa_iva = 0.21
+
+        iva = precio_base * tasa_iva * item_carrito.cantidad
+        precio_unitario = precio_base        
             
         costo_item = item_carrito.cantidad * precio_unitario
         subtotal += costo_item
@@ -453,16 +461,14 @@ def finalizar_compra(
             producto_id=producto.id,
             cantidad=item_carrito.cantidad,
             nombre=producto.titulo, # Capturar nombre y precio para el historial
-            precio_unitario=precio_unitario 
+            precio_unitario=precio_unitario,
+            iva=iva
         )
         items_compra_final.append(item_compra)
-        
-        #  Reducir stock del Producto
-        # producto.existencia -= item_carrito.cantidad
-        # session.add(producto) # Marcar el producto para ser guardado
+
         
     #  Crear la Compra principal
-    if subtotal< ENVIOGRATIS:
+    if subtotal> ENVIOGRATIS:
         ENVIO = 0.0
 
     total_final = subtotal + ENVIO
@@ -476,7 +482,7 @@ def finalizar_compra(
     )
     
     session.add(nueva_compra)
-    session.flush() # Obtiene el ID de la Compra antes del commit
+    session.flush() # Obtiene el ID de la Compra antes del commit 
 
     for item_compra in items_compra_final:
 
@@ -537,9 +543,9 @@ def ver_detalle_compra(
     
     compra = session.exec(statement).first()
     
+    
    
     if not compra:
-       
         raise HTTPException(status_code=404, detail="Compra no encontrada.")
         
     return compra

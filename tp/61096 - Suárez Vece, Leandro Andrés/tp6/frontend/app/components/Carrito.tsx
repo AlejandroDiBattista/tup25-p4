@@ -42,7 +42,7 @@ export default function Carrito({ CarritoData, setCarritoData, setProductos, tok
                 const res = await verCarrito(token);
                 console.log(res);
 
-                if (res)
+                if (res.length < 0)
                     setCarritoData(res);
 
             } catch (error) {

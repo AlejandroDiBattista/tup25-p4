@@ -1,16 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CarritoRead } from "../types";
+
 import Navbar from "../components/navbar";
 
-import { useRouter } from "next/navigation";
+
 import CardList from "./CardList";
+import { verCompras } from "../services/compras";
+import { CompraResumen } from "../types";
 
 export default function Historial() {
 
     const [token, setToken] = useState<string>("");
-    const router = useRouter();
+    const [compras, setCompras] = useState<CompraResumen[]>();
+
+    useEffect(() => {
+        const ifToken = localStorage.getItem("token");
+        const fetchCompras = async () => {
+            try {
+                const res = await verCompras(ifToken!)
+                if (res.length > 0)
+                    setCompras(res)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+        if (ifToken) {
+            setToken(ifToken);
+            fetchCompras();
+        }
+    }, [])
 
 
 
@@ -24,7 +43,15 @@ export default function Historial() {
             </header>
 
             <main>
-                <CardList />
+                {
+                    compras && (
+
+                        <CardList
+                            compras={compras}
+                            token={token}
+                        />
+                    )
+                }
             </main>
         </div>
     );

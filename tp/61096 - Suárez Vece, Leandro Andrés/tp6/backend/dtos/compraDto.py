@@ -19,6 +19,7 @@ class ItemCompraRead(SQLModel):
     nombre: str
     cantidad: int
     precio_unitario: float
+    iva: float
     
 class CompraResumen(SQLModel):
     """Modelo para listar todas las compras de un usuario."""
@@ -30,4 +31,5 @@ class CompraResumen(SQLModel):
 class CompraDetalle(CompraResumen):
     """Modelo para ver una compra en detalle."""
     envio: float
+    tarjeta: str
     items: List[ItemCompraRead] 

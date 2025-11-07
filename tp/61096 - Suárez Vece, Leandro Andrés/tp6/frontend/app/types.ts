@@ -58,6 +58,7 @@ export interface ItemCompraRead {
   nombre: string;
   cantidad: number;
   precio_unitario: number;
+  iva: number
 }
 
 export interface CompraResumen {
@@ -69,6 +70,7 @@ export interface CompraResumen {
 
 export interface CompraDetalle extends CompraResumen {
   envio: number;
+  tarjeta: string;
   items: ItemCompraRead[];
 }
 
