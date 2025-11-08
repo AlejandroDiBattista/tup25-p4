@@ -1,6 +1,7 @@
 import Navbar from "@/app/components/Navbar";
 import ProductoCard from "@/app/components/ProductoCard";
-import { obtenerProductos } from "@/app/services/productos";
+import SearchFilter from "@/app/components/SearchFilter";
+import { obtenerProductos, obtenerCategorias } from "@/app/services/productos";
 import { Producto } from "@/app/types";
 
 export const metadata = {
@@ -10,17 +11,23 @@ export const metadata = {
 export default async function ProductosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; buscar?: string }>;
+  searchParams: Promise<{ categoria?: string; buscar?: string; ordenar?: string }>;
 }) {
   const params = await searchParams;
   const categoria = params.categoria;
   const buscar = params.buscar;
+  const ordenar = params.ordenar;
 
   let productos: Producto[] = [];
+  let categorias: string[] = [];
+
   try {
-    productos = await obtenerProductos(categoria, buscar);
+    [productos, categorias] = await Promise.all([
+      obtenerProductos(categoria, buscar, ordenar),
+      obtenerCategorias(),
+    ]);
   } catch (error) {
-    console.error("Error fetching productos:", error);
+    console.error("Error fetching data:", error);
   }
 
   return (
@@ -36,6 +43,8 @@ export default async function ProductosPage({
             {productos.length} productos disponibles
           </p>
         </div>
+
+        <SearchFilter categorias={categorias} />
 
         {productos.length === 0 ? (
           <div className="text-center py-12">

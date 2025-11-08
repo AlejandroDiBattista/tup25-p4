@@ -4,11 +4,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function obtenerProductos(
   categoria?: string,
-  buscar?: string
+  buscar?: string,
+  ordenar?: string
 ): Promise<Producto[]> {
   const params = new URLSearchParams();
   if (categoria) params.append('categoria', categoria);
   if (buscar) params.append('buscar', buscar);
+  if (ordenar) params.append('ordenar', ordenar);
 
   const url = `${API_URL}/productos${params.size > 0 ? `?${params}` : ''}`;
   
