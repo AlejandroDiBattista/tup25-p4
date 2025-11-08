@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {useState} from "react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -14,29 +14,18 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
-import { calcularTotales, useCarritoStore } from "@/store/useCarritoStore";
+import { obtenerCarrito } from "@/app/services/carritos";
 
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export default function Carrito() {
-  const actualizarCantidad = useCarritoStore(
-    (state) => state.actualizarCantidad
-  );
-  const eliminarArticulo = useCarritoStore((state) => state.eliminarArticulo);
-  const articulos = useCarritoStore((state) => state.articulos);
 
-  const articulosValidos = articulos.filter(
-    (item): item is NonNullable<typeof item> => !!item
-  );
-
-  const totales = useMemo(
-    () => calcularTotales(articulosValidos),
-    [articulosValidos]
-  );
-  const { subtotal, envio, iva, total } = totales;
-
+  const [carrito, setCarrito] = useState(() => {
+    return obtenerCarrito();
+  });
+ 
   return (
     <div className="grid gap-8 lg:grid-cols- [minmax(0,2fr)_minmax(0,0fr)]">
       <Card className="w-full max-w-3xl justify-self-center">

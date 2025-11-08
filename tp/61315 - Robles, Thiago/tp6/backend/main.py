@@ -1,21 +1,27 @@
-from fastapi import FastAPI,Query
+from fastapi import FastAPI,Query,Path, Body, HTTPException,status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 from sqlmodel import SQLModel, Session, create_engine, select
-from typing import Optional
 from sqlalchemy import or_
+from pydantic import BaseModel
+
+from typing import Optional
 
 import json
-from pathlib import Path
+from pathlib import Path as PathlibPath
 
 from models.usuario import Usuario
 from models.producto import Producto
 from models.compra import Compras, CompraItem
 from models.carrito import Carrito, CarritoItem
 
+import secrets
 
 
-BASE_DIR = Path(__file__).resolve().parent
+
+
+BASE_DIR = PathlibPath(__file__).resolve().parent
 DB_PATH = BASE_DIR / "parcialdatabase.db"
 SEED_PATH = BASE_DIR / "productos.json"
 
@@ -38,6 +44,7 @@ def crear_db ():
 @app.on_event("startup")
 def on_startup():
     crear_db()
+    
 
 
 
@@ -58,7 +65,7 @@ def cargar_productos():
     ruta_productos = Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
-    
+
 
 
 @app.get("/")
@@ -66,18 +73,51 @@ def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 # Endpoints de Auth
+session_tokens: dict [str,int] = {}
 
-# @app.post("/registrar")
-# @app.post("/iniciar-sesion")
-# @app.post("/cerrar-sesion")
+class UsuarioCreate(BaseModel):
+    nombre: str
+    email: str
+    contraseña: str
+    
+    
+
+@app.post("/registrar")
+def registrar_usuario(usuario: UsuarioCreate):
+    with Session(engine) as session:
+        nuevo_usuario = Usuario(**usuario.dict())
+        session.add(nuevo_usuario)
+        session.commit()
+        session.refresh(nuevo_usuario)
+        return nuevo_usuario
+
+@app.post("/iniciar-sesion")
+def iniciar_sesion(usuario: UsuarioCreate):
+    with Session(engine) as session:
+        usuario_db = session.exec(
+            select(Usuario).where(
+                or_(
+                    Usuario.nombre == usuario.nombre,
+                    Usuario.email == usuario.email,
+                )
+            )
+        ).first()
+        if not usuario_db or usuario_db.contraseña != usuario.contraseña:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+        token = secrets.token_urlsafe(32)
+        session_tokens[token] = usuario_db.id
+        return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/cerrar-sesion")
+def cerrar_sesion(token: str = Body(..., embed=True)):
+    usuario_id = session_tokens.pop(token, None)
+    if not usuario_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    return {"mensaje": "Sesión cerrada", "usuario_id": usuario_id}
 
 
 # Endpoints de Productos
 
-#Obtener lista de productos (con filtros opciones por categoria y busqueda por nombre)
-
-
-#Generar endpoint dinamico para filtros opcionales por categoria y busqueda
 @app.get("/productos/", response_model=list[Producto])
 
 def obtener_productos(categoria: Optional[str] = Query(None,description="Filtrar por categoria"),
@@ -100,11 +140,105 @@ def obtener_producto(id: int):
         return {"mensaje": "Producto no encontrado"}, 404
 
 
+# Endpoints de Carrito
 
-# # Endpoints de Carrito
-# @app.post("/carrito")
-# @app.delete("/carrito/{producto_id}")
-# @app.get("/carrito")
+class CarritoItemCreate(BaseModel):
+    usuario_id: int | None = None
+    producto_id: int
+    cantidad: int 
+
+@app.post("/carrito", response_model=CarritoItem)
+def agregar_al_carrito(payload: CarritoItemCreate = Body(...)):
+    with Session(engine) as session:
+        carrito = session.exec(
+            select(Carrito).where(Carrito.usuario_id == payload.usuario_id)
+        ).first()
+        if not carrito:
+            carrito = Carrito(usuario_id=payload.usuario_id)
+            session.add(carrito)
+            session.commit()
+            session.refresh(carrito)
+
+        item = session.exec(
+            select(CarritoItem)
+            .where(CarritoItem.carrito_id == carrito.id)
+            .where(CarritoItem.producto_id == payload.producto_id)
+        ).first()
+
+        if item:
+            item.cantidad += payload.cantidad
+        else:
+            item = CarritoItem(
+                carrito_id=carrito.id,
+                producto_id=payload.producto_id,
+                cantidad=payload.cantidad,
+            )
+            session.add(item)
+
+        session.commit()
+        session.refresh(item)
+        return item
+
+# Eliminar carrito e insertar compra correspondiente
+@app.delete("/carrito/{producto_id}")
+def eliminar_del_carrito(
+    producto_id: int = Path(..., description="ID del producto a eliminar"),
+    usuario_id: int = Query(..., description="ID del usuario")
+   
+):
+    with Session(engine) as session:
+        carrito = session.exec(
+            select(Carrito).where(Carrito.usuario_id == usuario_id)
+        ).first()
+
+        if not carrito:
+            return {"mensaje": "Carrito no encontrado"}, 404
+
+        item = session.exec(
+            select(CarritoItem)
+            .where(CarritoItem.carrito_id == carrito.id)
+            .where(CarritoItem.producto_id == producto_id)
+        ).first()
+
+        if not item:
+            return {"mensaje": "Producto no encontrado en el carrito"}, 404
+
+        session.delete(item)
+        session.commit()
+        return {"mensaje": "Producto eliminado del carrito"}
+    
+
+
+@app.get("/carrito")
+def ver_carrito():
+    
+    with Session(engine) as session:
+        carrito = session.exec(
+            select(Carrito)
+        ).first()
+        
+        if not carrito:
+            return {"mensaje": "Carrito no encontrado"}, 404
+
+        resultados = session.exec(
+            select(CarritoItem, Producto)
+            .where(CarritoItem.carrito_id == carrito.id)
+            .join(Producto, Producto.id == CarritoItem.producto_id)
+        ).all()
+
+        items = []
+        for item, producto in resultados:
+            items.append(
+                {
+                    "id": item.id,
+                    "producto_id": item.producto_id,
+                    "cantidad": item.cantidad,
+                    "producto": producto,
+                }
+            )
+        return {"carrito": carrito, "items": items}
+    
+
 # @app.post("/carrito/finalizar")
 # @app.post("/carrito/cancelar")
 

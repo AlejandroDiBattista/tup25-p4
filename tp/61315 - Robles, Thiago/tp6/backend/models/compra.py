@@ -4,7 +4,6 @@ from sqlmodel import Field, SQLModel
 
 class Compras(SQLModel, table=True):
     __tablename__ = "compras"
-    
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: Optional[int] = Field(default=None, foreign_key="usuarios.id")
     fecha: str = Field(default=None)
@@ -17,7 +16,6 @@ class Compras(SQLModel, table=True):
 
 class CompraItem(SQLModel, table=True):
     __tablename__ = "compra_items"
-    
     id: Optional[int] = Field(default=None, primary_key=True)
     compra_id: Optional[int] = Field(default=None, foreign_key="compras.id")
     producto_id: Optional[int] = Field(default=None, foreign_key="productos.id")
