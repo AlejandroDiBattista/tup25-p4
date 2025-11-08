@@ -1,40 +1,66 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from passlib.context import CryptContext
-from jose import JWTError, jwt
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 from sqlmodel import Session, select
 
-from database import get_session
 from models.models import Usuario
+from database import get_session
 
 # --- Configuración de Seguridad ---
-SECRET_KEY = "un_secreto_muy_secreto_y_dificil_de_adivinar" # ¡Recuerda cambiar esto!
+# ⚠️ En producción, siempre lee esto desde variables de entorno (.env)
+SECRET_KEY = "un-secreto-muy-secreto-y-dificil-de-adivinar"  # Cambiar por una clave segura
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/iniciar-sesion")
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+# Contexto de hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def get_password_hash(password):
+
+# --- Funciones de seguridad ---
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifica una contraseña ingresada contra su hash almacenado."""
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except ValueError:
+        # Si el hash o la contraseña son inválidos
+        return False
+
+
+def get_password_hash(password: str) -> str:
+    """
+    Genera el hash de una contraseña. 
+    ⚠️ bcrypt solo admite hasta 72 bytes.
+    """
+    # Si el usuario ingresa una contraseña demasiado larga, se corta
+    if len(password.encode("utf-8")) > 72:
+        password = password[:72]
     return pwd_context.hash(password)
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Crea un nuevo token JWT con expiración."""
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)) -> Usuario:
-    """Decodifica el token JWT para obtener el usuario actual."""
+
+def get_current_user(
+    session: Session = Depends(get_session),
+    token: str = Depends(oauth2_scheme)
+) -> Usuario:
+    """
+    Decodifica el token JWT y obtiene el usuario actual.
+    Lanza HTTP 401 si el token no es válido o el usuario no existe.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="No se pudieron validar las credenciales",

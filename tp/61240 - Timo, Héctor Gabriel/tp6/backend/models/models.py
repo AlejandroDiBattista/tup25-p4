@@ -1,38 +1,19 @@
-from datetime import datetime
 from typing import List, Optional
 from sqlmodel import Field, Relationship, SQLModel
-
-
-# --- Modelos de Producto ---
-
-class ProductoBase(SQLModel):
-    titulo: str
-    precio: float
-    descripcion: str
-    categoria: str
-    imagen: str
-    existencia: int = Field(default=5)
-    valoracion: float = Field(default=0.0)
-
-class Producto(ProductoBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    items_carrito: List["ItemCarrito"] = Relationship(back_populates="producto")
-    items_compra: List["ItemCompra"] = Relationship(back_populates="producto")
-
-class ProductoRead(ProductoBase):
-    id: int
-
+from datetime import datetime
 
 # --- Modelos de Usuario ---
 
 class UsuarioBase(SQLModel):
     nombre: str
-    email: str = Field(unique=True, index=True)
+    email: str
 
 class Usuario(UsuarioBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     password_hash: str
-    carritos: List["Carrito"] = Relationship(back_populates="usuario")
+    
+    # Relaciones
+    carrito: Optional["Carrito"] = Relationship(back_populates="usuario")
     compras: List["Compra"] = Relationship(back_populates="usuario")
 
 class UsuarioCreate(UsuarioBase):
@@ -41,17 +22,38 @@ class UsuarioCreate(UsuarioBase):
 class UsuarioRead(UsuarioBase):
     id: int
 
+# --- Modelos de Producto ---
+
+class Producto(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    titulo: str
+    descripcion: str
+    precio: float
+    categoria: str
+    imagen: str
+    existencia: int
+
+class ProductoRead(SQLModel):
+    id: int
+    titulo: str
+    descripcion: str
+    precio: float
+    categoria: str
+    imagen: str
+    existencia: int
 
 # --- Modelos de Carrito ---
 
 class ItemCarritoBase(SQLModel):
     cantidad: int
     producto_id: int = Field(foreign_key="producto.id")
-    carrito_id: int = Field(foreign_key="carrito.id")
 
 class ItemCarrito(ItemCarritoBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    producto: Producto = Relationship(back_populates="items_carrito")
+    carrito_id: int = Field(foreign_key="carrito.id")
+    
+    # Relaciones
+    producto: Producto = Relationship()
     carrito: "Carrito" = Relationship(back_populates="items")
 
 class ItemCarritoCreate(SQLModel):
@@ -62,13 +64,13 @@ class ItemCarritoRead(SQLModel):
     producto: ProductoRead
     cantidad: int
 
-class CarritoBase(SQLModel):
-    usuario_id: int = Field(foreign_key="usuario.id", unique=True)
-
-class Carrito(CarritoBase, table=True):
+class Carrito(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    usuario: Usuario = Relationship(back_populates="carritos")
-    items: List[ItemCarrito] = Relationship(back_populates="carrito")
+    usuario_id: int = Field(foreign_key="usuario.id")
+    
+    # Relaciones
+    usuario: Usuario = Relationship(back_populates="carrito")
+    items: List[ItemCarrito] = Relationship(back_populates="carrito", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
 class CarritoRead(SQLModel):
     items: List[ItemCarritoRead]
@@ -77,23 +79,15 @@ class CarritoRead(SQLModel):
     iva: float
     total: float
 
-
 # --- Modelos de Compra ---
 
-class ItemCompraBase(SQLModel):
+class ItemCompra(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    compra_id: int = Field(foreign_key="compra.id")
+    producto_id: int = Field(foreign_key="producto.id")
     cantidad: int
     nombre: str
     precio_unitario: float
-    producto_id: int = Field(foreign_key="producto.id")
-    compra_id: int = Field(foreign_key="compra.id")
-
-class ItemCompra(ItemCompraBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    producto: Producto = Relationship(back_populates="items_compra")
-    compra: "Compra" = Relationship(back_populates="items")
-
-class ItemCompraRead(ItemCompraBase):
-    id: int
 
 class CompraBase(SQLModel):
     fecha: datetime = Field(default_factory=datetime.utcnow)
@@ -101,13 +95,16 @@ class CompraBase(SQLModel):
     tarjeta: str
     total: float
     envio: float
-    usuario_id: int = Field(foreign_key="usuario.id")
 
 class Compra(CompraBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    usuario_id: int = Field(foreign_key="usuario.id")
+
+    # Relaciones
     usuario: Usuario = Relationship(back_populates="compras")
-    items: List[ItemCompra] = Relationship(back_populates="compra")
+    items: List[ItemCompra] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
 class CompraRead(CompraBase):
     id: int
-    items: List[ItemCompraRead]
+    usuario_id: int
+    items: List[ItemCompra]
