@@ -15,15 +15,26 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
 
   const handleAdd = async () => {
     if (producto.existencia <= 0) {
-      alert('Producto agotado');
+      console.log('Producto agotado');
       return;
     }
+    
+    // Verificar si el usuario está autenticado
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('Debe iniciar sesión para agregar productos al carrito');
+      return;
+    }
+    
     setLoading(true);
     try {
       await addToCart(producto.id, 1);
-      alert('Producto agregado al carrito');
+      console.log('Producto agregado al carrito');
     } catch (err: any) {
-      alert('Error al agregar al carrito: ' + (err?.message || err));
+      console.error('Error al agregar al carrito:', err);
+      if (err.response?.status === 401) {
+        console.log('Su sesión ha expirado. Por favor, inicie sesión nuevamente.');
+      }
     } finally {
       setLoading(false);
     }

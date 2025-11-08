@@ -86,9 +86,7 @@ export default function ProductosPage() {
   const handleAddToCart = async (productoId: number) => {
     // Verificar autenticación antes de agregar
     if (!isAuthenticated) {
-      if (confirm('Debes iniciar sesión para agregar productos al carrito. ¿Ir a login?')) {
-        router.push('/auth');
-      }
+      console.log('Debe iniciar sesión para agregar productos al carrito');
       return;
     }
 
@@ -97,7 +95,7 @@ export default function ProductosPage() {
       await cargarCarrito();
       await cargarProductos(); // Actualizar stock disponible
     } catch (error) {
-      alert('Error al agregar al carrito');
+      console.error('Error al agregar al carrito:', error);
     }
   };
 
@@ -107,7 +105,7 @@ export default function ProductosPage() {
       await cargarCarrito();
       await cargarProductos(); // Actualizar stock disponible
     } catch (error) {
-      alert('Error al incrementar cantidad');
+      console.error('Error al incrementar cantidad:', error);
     }
   };
 
@@ -130,7 +128,7 @@ export default function ProductosPage() {
       await cargarCarrito();
       await cargarProductos(); // Actualizar stock disponible
     } catch (error) {
-      alert('Error al disminuir cantidad');
+      console.error('Error al disminuir cantidad:', error);
     }
   };
 
@@ -140,16 +138,14 @@ export default function ProductosPage() {
 
   const handleCancelarCarrito = async () => {
     if (carrito?.items && carrito.items.length > 0) {
-      if (confirm('¿Estás seguro de cancelar el carrito?')) {
-        try {
-          for (const item of carrito.items) {
-            await removeFromCart(item.producto_id);
-          }
-          await cargarCarrito();
-          await cargarProductos(); // Restaurar stock disponible
-        } catch (error) {
-          alert('Error al cancelar el carrito');
+      try {
+        for (const item of carrito.items) {
+          await removeFromCart(item.producto_id);
         }
+        await cargarCarrito();
+        await cargarProductos(); // Restaurar stock disponible
+      } catch (error) {
+        console.error('Error al cancelar el carrito:', error);
       }
     }
   };

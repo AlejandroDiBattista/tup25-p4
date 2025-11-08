@@ -63,7 +63,7 @@ export default function ComprasPage() {
       const data = await getOrderById(compraId);
       setCompraSeleccionada(data);
     } catch (error) {
-      alert('Error al cargar el detalle de la compra');
+      console.error('Error al cargar el detalle de la compra:', error);
     }
   };
 

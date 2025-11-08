@@ -312,6 +312,40 @@ def ver_compra(compra_id: int, db: Session = Depends(get_session), current_user:
     return {"id": compra.id, "fecha": compra.fecha, "direccion": compra.direccion, "tarjeta": compra.tarjeta, "total": compra.total, "envio": compra.envio, "items": [ {"producto_id": i.producto_id, "cantidad": i.cantidad, "nombre": i.nombre, "precio_unitario": i.precio_unitario} for i in items ]}
 
 
+# --------- Endpoint para desarrollo: Reset de productos ---------
+@app.post("/dev/reset-productos")
+def reset_productos(db: Session = Depends(get_session)):
+    """Endpoint para desarrollo: Elimina todos los productos y los recarga desde JSON"""
+    try:
+        # Eliminar todos los productos existentes
+        db.exec(select(Producto)).all()
+        productos_existentes = db.exec(select(Producto)).all()
+        for producto in productos_existentes:
+            db.delete(producto)
+        db.commit()
+        
+        # Recargar productos desde JSON
+        ruta = Path(__file__).parent / "productos.json"
+        if ruta.exists():
+            with open(ruta, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                for p in data:
+                    prod = Producto(
+                        nombre=p.get("nombre") or p.get("titulo") or "",
+                        descripcion=p.get("descripcion", ""),
+                        precio=float(p.get("precio", 0)),
+                        categoria=p.get("categoria", ""),
+                        existencia=int(p.get("existencia", p.get("stock", 0))),
+                        imagen=p.get("imagen", None),
+                    )
+                    db.add(prod)
+                db.commit()
+        
+        return {"message": f"Productos reseteados exitosamente. {len(data)} productos cargados."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al resetear productos: {str(e)}")
+
+
 if __name__ == "__main__":
     import uvicorn
 

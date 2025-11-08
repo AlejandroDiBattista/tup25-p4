@@ -43,7 +43,6 @@ export default function AuthPage() {
         const data = await login(email, password);
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('user', JSON.stringify({ email, nombre }));
-        alert('¡Registro exitoso! Bienvenido.');
         router.push('/productos');
         router.refresh(); // Forzar actualización del componente
         return;

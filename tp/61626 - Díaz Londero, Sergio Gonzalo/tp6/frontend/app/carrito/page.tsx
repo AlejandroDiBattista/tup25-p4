@@ -60,7 +60,7 @@ export default function CarritoPage() {
       await removeFromCart(productoId);
       await cargarCarrito();
     } catch (error: any) {
-      alert('Error al eliminar el producto: ' + (error?.message || error));
+      console.error('Error al eliminar el producto:', error);
     }
   };
 
@@ -68,10 +68,9 @@ export default function CarritoPage() {
     e.preventDefault();
     try {
       await checkout(direccion, tarjeta);
-      alert('Compra realizada con éxito');
       router.push('/compras');
     } catch (error: any) {
-      alert('Error al procesar la compra: ' + (error?.message || error));
+      console.error('Error al procesar la compra:', error);
     }
   };
 
@@ -80,7 +79,7 @@ export default function CarritoPage() {
       await cancelCart();
       router.push('/productos');
     } catch (error: any) {
-      alert('Error al cancelar el carrito: ' + (error?.message || error));
+      console.error('Error al cancelar el carrito:', error);
     }
   };
 
@@ -104,7 +103,7 @@ export default function CarritoPage() {
             <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <CardTitle>Tu carrito está vacío</CardTitle>
             <CardDescription>
-              Agrega productos a tu carrito para continuar con la compra
+              Debe iniciar sesión para ver y modificar el carrito
             </CardDescription>
           </CardHeader>
           <CardFooter className="justify-center">
@@ -118,10 +117,10 @@ export default function CarritoPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 py-8 max-w-7xl">
       <h1 className="text-3xl font-bold mb-8">Carrito de Compras</h1>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Lista de productos - 2 columnas */}
         <div className="lg:col-span-2">
           <Card>
@@ -131,15 +130,15 @@ export default function CarritoPage() {
                 {carrito.items.length} {carrito.items.length === 1 ? 'producto' : 'productos'}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-8 py-6">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Producto</TableHead>
-                    <TableHead className="text-center">Cantidad</TableHead>
-                    <TableHead className="text-right">Precio</TableHead>
-                    <TableHead className="text-right">Subtotal</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-[45%]">Producto</TableHead>
+                    <TableHead className="text-center w-[15%]">Cantidad</TableHead>
+                    <TableHead className="text-right w-[15%]">Precio</TableHead>
+                    <TableHead className="text-right w-[18%]">Subtotal</TableHead>
+                    <TableHead className="w-[7%]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -169,7 +168,7 @@ export default function CarritoPage() {
           </Card>
         </div>
 
-        {/* Resumen y pago - 1 columna */}
+        {/* Resumen y pago - 1 columna más ancha */}
         <div className="space-y-6">
           {/* Resumen */}
           <Card>
