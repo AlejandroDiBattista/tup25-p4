@@ -1,50 +1,74 @@
-import { Producto } from '../types';
-import Image from 'next/image';
+﻿import Image from "next/image";
+
+import { Producto } from "../types";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface ProductoCardProps {
   producto: Producto;
+  onAdd?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-export default function ProductoCard({ producto }: ProductoCardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
+export default function ProductoCard({
+  producto,
+  onAdd,
+  disabled = false,
+  loading = false,
+}: ProductoCardProps) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-64 bg-gray-100">
+    <Card className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:gap-6">
+      <div className="relative h-36 w-full overflow-hidden rounded-xl bg-slate-100 md:h-28 md:w-28">
         <Image
           src={`${API_URL}/${producto.imagen}`}
           alt={producto.titulo}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain p-4"
+          sizes="(max-width: 768px) 100vw, 128px"
+          className="object-cover"
           unoptimized
         />
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {producto.descripcion}
-        </p>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
-          </span>
-          <div className="flex items-center gap-1">
-            <span className="text-yellow-500">★</span>
-            <span className="text-sm text-gray-700">{producto.valoracion}</span>
-          </div>
+      <div className="flex flex-1 flex-col gap-4 md:flex-row md:items-center md:gap-6">
+        <div className="flex-1">
+          <CardHeader className="p-0">
+            <CardTitle className="text-lg font-semibold text-slate-900">
+              {producto.titulo}
+            </CardTitle>
+            <CardDescription className="text-sm text-slate-500">
+              {producto.descripcion}
+            </CardDescription>
+            <p className="text-sm font-medium text-slate-500">
+              Categoría: {producto.categoria}
+            </p>
+          </CardHeader>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio}
-          </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
-        </div>
+        <CardContent className="flex flex-col items-start gap-2 p-0 text-right md:items-end">
+          <p className="text-lg font-semibold text-slate-900">
+            ${producto.precio.toFixed(2)}
+          </p>
+          <p className="text-sm text-slate-500">
+            Disponible: {producto.existencia}
+          </p>
+          {onAdd && (
+            <Button
+              className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+              onClick={onAdd}
+              disabled={disabled}
+            >
+              {loading ? "Agregando..." : "Agregar al carrito"}
+            </Button>
+          )}
+        </CardContent>
       </div>
-    </div>
+    </Card>
   );
 }
