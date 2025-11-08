@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 
 from database import engine
+# Importamos los modelos desde el nuevo módulo para que SQLModel los reconozca
+from models import models
 
 app = FastAPI(title="API Productos")
 
