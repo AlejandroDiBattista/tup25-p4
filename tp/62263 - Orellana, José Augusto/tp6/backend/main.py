@@ -1,3 +1,4 @@
+# from enunciados.tp6.backend import models
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -5,7 +6,10 @@ import json
 from pathlib import Path
 
 from contextlib import asynccontextmanager
-from database import create_db_and_tables
+from database import create_db_and_tables, engine
+
+from sqlmodel import Session, select
+from models.productos import Producto
 
 # Función lifespan para inicializar la base de datos al iniciar la aplicación
 @asynccontextmanager
@@ -16,6 +20,43 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()
 
     print("Base de datos y tablas listas.")
+
+    # Lógia para inicializar datos en la base de datos
+    print("Verificando carga inicial de productos...")
+
+    # Se abre una sesión con la base de datos
+    with Session(engine) as session:
+        # 1. Se verifica si hay productos en la base de datos
+        # Se crea una consulta para seleccionar el primer producto
+        statement = select(Producto).limit(1)
+
+        # Se ejecuta la consulta
+        primer_producto = session.exec(statement).first()
+
+        # 2. Si no hay productos, se cargan desde el archivo JSON
+        if primer_producto is None:
+            print("La tabla 'producto' está vacía. Cargando datos desde productos.")
+
+            # Ruta al JSON de productos
+            ruta_productos = Path(__file__).parent / "productos.json"
+
+            with open(ruta_productos, "r", encoding="utf-8") as archivo:
+                datos_json = json.load(archivo)
+
+                # 3. Iterar y crear modelos
+                for item_json in datos_json:
+                    # Se crea un objeto Producto de SQLModel
+                    producto_a_crear = Producto(**item_json)
+
+                    # 4. Se agrega a la sesión
+                    session.add(producto_a_crear)
+
+            # 5. Se guardan TODOS los productos en la base de datos
+            session.commit()
+            print(f"¡Éxito! Se cargaron {len(datos_json)} productos en la base de datos.")
+        else:
+            print("La tabla 'producto' ya tiene datos. No se realiza la carga inicial.")
+
     print("Servidor listo.")
     yield
     # Esto se ejecuta al apagar la aplicación
