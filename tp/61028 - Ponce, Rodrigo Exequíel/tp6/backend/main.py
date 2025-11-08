@@ -8,6 +8,9 @@ from datetime import timedelta
 from sqlmodel import Session, select
 from models.database import create_db_and_tables, engine, get_session
 from models import Usuario, Producto
+from typing import List, Optional
+from schemas.producto_schema import ProductoResponse, ProductoFilter
+from services.producto_service import ProductoService
 from auth.schemas import UsuarioCreate, Token, UsuarioResponse
 from auth.security import (
     get_password_hash,
@@ -98,10 +101,42 @@ async def obtener_usuario_actual(usuario_actual: Usuario = Depends(get_usuario_a
 def root():
     return {"mensaje": "API de la Tienda - Bienvenido"}
 
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
+from typing import List
+from schemas.producto_schema import ProductoResponse, ProductoFilter
+from services.producto_service import ProductoService
+
+@app.get("/productos", response_model=List[ProductoResponse])
+async def obtener_productos(
+    filtros: ProductoFilter = Depends(),
+    session: Session = Depends(get_session)
+):
+    """
+    Obtiene lista de productos con filtros opcionales:
+    - busqueda: Búsqueda por nombre o descripción
+    - categoria: Filtrar por categoría
+    - precio_min: Precio mínimo
+    - precio_max: Precio máximo
+    - disponibles: Solo productos con existencia > 0
+    """
+    await ProductoService.cargar_productos_iniciales(session)
+    return await ProductoService.obtener_productos(session, filtros)
+
+@app.get("/productos/{producto_id}", response_model=ProductoResponse)
+async def obtener_producto(
+    producto_id: int,
+    session: Session = Depends(get_session)
+):
+    """Obtiene un producto específico por su ID"""
+    producto = await ProductoService.obtener_producto(session, producto_id)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return producto
+
+@app.get("/categorias", response_model=List[str])
+async def obtener_categorias(session: Session = Depends(get_session)):
+    """Obtiene la lista de categorías disponibles"""
+    await ProductoService.cargar_productos_iniciales(session)
+    return await ProductoService.obtener_categorias(session)
 
 if __name__ == "__main__":
     import uvicorn
