@@ -212,3 +212,45 @@ def cancelar_compra(current_user: Annotated[Usuario, Depends(get_current_user)],
 
     session.commit()
     return
+
+class FinalizarCompraRequest(SQLModel):
+    direccion: str
+    tarjeta: str
+
+@app.post("/carrito/finalizar", response_model=CompraRead, tags=["Carrito"], summary="Finalizar la compra")
+def finalizar_compra(compra_data: FinalizarCompraRequest, current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Finaliza la compra, crea un registro de la misma y vacía el carrito."""
+    carrito = get_or_create_carrito(session, current_user.id)
+    if not carrito.items:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito está vacío")
+
+    totales = calcular_totales_carrito(carrito)
+
+    # Crear la compra
+    nueva_compra = Compra(
+        usuario_id=current_user.id,
+        direccion=compra_data.direccion,
+        tarjeta=compra_data.tarjeta, # Simplificado para el TP
+        total=totales.total,
+        envio=totales.costo_envio
+    )
+    session.add(nueva_compra)
+    session.commit()
+    session.refresh(nueva_compra)
+
+    # Mover items del carrito a la compra
+    for item in carrito.items:
+        item_compra = ItemCompra(
+            compra_id=nueva_compra.id,
+            producto_id=item.producto_id,
+            cantidad=item.cantidad,
+            nombre=item.producto.titulo,
+            precio_unitario=item.producto.precio
+        )
+        session.add(item_compra)
+        session.delete(item) # Eliminar item del carrito
+
+    session.commit()
+    session.refresh(nueva_compra)
+
+    return nueva_compra
