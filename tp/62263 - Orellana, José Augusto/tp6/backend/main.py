@@ -4,7 +4,28 @@ from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
 
-app = FastAPI(title="API Productos")
+from contextlib import asynccontextmanager
+from database import create_db_and_tables
+
+# Función lifespan para inicializar la base de datos al iniciar la aplicación
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("iniciando la aplicación...")
+    print("Creando la base de datos y las tablas si no existen...")
+
+    create_db_and_tables()
+
+    print("Base de datos y tablas listas.")
+    print("Servidor listo.")
+    yield
+    # Esto se ejecuta al apagar la aplicación
+    print("Apagando la aplicación...")
+
+# Se agrega el lifespan a la aplicación FastAPI
+app = FastAPI(
+    title="API de E-Commerce - TP6",
+    lifespan=lifespan
+)
 
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")

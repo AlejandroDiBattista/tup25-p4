@@ -1,8 +1,8 @@
 from sqlmodel import SQLModel, create_engine
 
 # Se importa los modelos
-from .models.productos import Producto
-from .models.usuarios import Usuario
+from models.productos import Producto
+from models.usuarios import Usuario
 
 # 1. Se define el archivo de la base de datos
 sqlite_file_name = "database.db"
