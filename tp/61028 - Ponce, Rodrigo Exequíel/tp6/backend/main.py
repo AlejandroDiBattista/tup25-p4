@@ -19,6 +19,13 @@ from auth.security import (
     get_usuario_actual,
     verificar_password
 )
+from schemas.carrito_schema import (
+    ItemCarritoCreate,
+    ItemCarritoUpdate,
+    CarritoResponse,
+    ItemCarritoResponse
+)
+from services.carrito_service import CarritoService
 
 app = FastAPI(title="Tienda API")
 
@@ -137,6 +144,63 @@ async def obtener_categorias(session: Session = Depends(get_session)):
     """Obtiene la lista de categorías disponibles"""
     await ProductoService.cargar_productos_iniciales(session)
     return await ProductoService.obtener_categorias(session)
+
+# Endpoints del carrito
+@app.get("/carrito", response_model=CarritoResponse)
+async def obtener_carrito(
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtiene el contenido del carrito del usuario"""
+    return await CarritoService.obtener_carrito(session, usuario)
+
+@app.post("/carrito/productos", response_model=ItemCarritoResponse)
+async def agregar_al_carrito(
+    item: ItemCarritoCreate,
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Agrega un producto al carrito"""
+    return await CarritoService.agregar_producto(
+        session, 
+        usuario, 
+        item.producto_id, 
+        item.cantidad
+    )
+
+@app.delete("/carrito/productos/{producto_id}")
+async def quitar_del_carrito(
+    producto_id: int,
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Quita un producto del carrito"""
+    await CarritoService.quitar_producto(session, usuario, producto_id)
+    return {"message": "Producto eliminado del carrito"}
+
+@app.put("/carrito/productos/{producto_id}", response_model=ItemCarritoResponse)
+async def actualizar_cantidad_carrito(
+    producto_id: int,
+    item: ItemCarritoUpdate,
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Actualiza la cantidad de un producto en el carrito"""
+    return await CarritoService.actualizar_cantidad(
+        session, 
+        usuario, 
+        producto_id, 
+        item.cantidad
+    )
+
+@app.post("/carrito/cancelar")
+async def cancelar_carrito(
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Cancela y vacía el carrito actual"""
+    await CarritoService.vaciar_carrito(session, usuario)
+    return {"message": "Carrito cancelado"}
 
 if __name__ == "__main__":
     import uvicorn
