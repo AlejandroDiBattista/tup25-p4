@@ -9,7 +9,7 @@ from sqlmodel import SQLModel, Session, select
 from datetime import timedelta
 
 from database import engine, get_session
-from models.models import Carrito, CarritoRead, ItemCarritoRead, Producto, ProductoRead, Usuario, UsuarioCreate, UsuarioRead
+from models.models import Carrito, CarritoRead, ItemCarrito, ItemCarritoCreate, ItemCarritoRead, Producto, ProductoRead, Usuario, UsuarioCreate, UsuarioRead
 from auth.schemas import Token
 from auth.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_password_hash, verify_password, get_current_user
 
@@ -115,7 +115,6 @@ def obtener_producto(id: int, session: Session = Depends(get_session)):
 # --- Endpoints del Carrito ---
 
 def get_or_create_carrito(session: Session, usuario_id: int) -> Carrito:
-    """Obtiene el carrito de un usuario o crea uno nuevo si no existe."""
     carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id)).first()
     if not carrito:
         carrito = Carrito(usuario_id=usuario_id)
@@ -125,7 +124,6 @@ def get_or_create_carrito(session: Session, usuario_id: int) -> Carrito:
     return carrito
 
 def calcular_totales_carrito(carrito: Carrito) -> CarritoRead:
-    """Calcula los subtotales, IVA, envío y total del carrito."""
     subtotal = sum(item.producto.precio * item.cantidad for item in carrito.items)
     
     iva_electronicos = sum(item.producto.precio * item.cantidad * 0.10 for item in carrito.items if item.producto.categoria == "Electrónica")
@@ -147,6 +145,34 @@ def calcular_totales_carrito(carrito: Carrito) -> CarritoRead:
 
 @app.get("/carrito", response_model=CarritoRead, tags=["Carrito"], summary="Ver contenido del carrito")
 def ver_carrito(current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
-    """Muestra el contenido del carrito del usuario actual."""
     carrito = get_or_create_carrito(session, current_user.id)
+    return calcular_totales_carrito(carrito)
+
+@app.post("/carrito", response_model=CarritoRead, tags=["Carrito"], summary="Agregar producto al carrito")
+def agregar_al_carrito(item_create: ItemCarritoCreate, current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Agrega un producto al carrito o actualiza su cantidad."""
+    carrito = get_or_create_carrito(session, current_user.id)
+    
+    producto = session.get(Producto, item_create.producto_id)
+    if not producto:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+    
+    if item_create.cantidad > 0 and producto.existencia < item_create.cantidad:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No hay suficiente existencia del producto")
+
+    item_existente = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == item_create.producto_id)).first()
+
+    if item_existente:
+        item_existente.cantidad += item_create.cantidad
+        session.add(item_existente)
+    else:
+        nuevo_item = ItemCarrito.model_validate(item_create, update={"carrito_id": carrito.id})
+        session.add(nuevo_item)
+
+    producto.existencia -= item_create.cantidad
+    session.add(producto)
+
+    session.commit()
+    session.refresh(carrito)
+    
     return calcular_totales_carrito(carrito)
