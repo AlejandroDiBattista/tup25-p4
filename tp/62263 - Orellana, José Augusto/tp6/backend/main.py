@@ -1,5 +1,5 @@
 # from enunciados.tp6.backend import models
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
@@ -10,6 +10,15 @@ from database import create_db_and_tables, engine, get_session
 
 from sqlmodel import Session, select
 from models.productos import Producto
+
+# Se trae los "contratos" que se definieron
+from models.schemas import UsuarioRegistro, UsuarioRespuesta
+
+# Se trae el modelo de la base de datos de Usuario
+from models.usuarios import Usuario
+
+# Se trae la función para hashear contraseñas
+from security import obtener_hash_contrasenia
 
 # Función lifespan para inicializar la base de datos al iniciar la aplicación
 @asynccontextmanager
@@ -93,7 +102,38 @@ def obtener_productos(session: Session = Depends(get_session)):
     productos = session.exec(statement).all()
 
     # 3. Se retorna la lista de productos
-    return productos
+    return 
+
+@app.post("/registrar", response_model=UsuarioRespuesta)
+def registrar_usuario(usuario_data: UsuarioRegistro, session: Session = Depends(get_session)):
+    # 1. Verificar si el usuario ya existe
+    statement = select(Usuario).where(Usuario.email == usuario_data.email)
+    usuario_existente = session.exec(statement).first()
+
+    if usuario_existente:
+        raise HTTPException(
+            status_code=400,
+            detail="El email ya está registrado."
+        )
+
+    # 2. Hashear la contraseña
+    hash_contrasenia = obtener_hash_contrasenia(usuario_data.contrasenia)
+
+    # 3. Crear el nuevo usuario en la base de datos
+    nuevo_usuario = Usuario(
+        nombre=usuario_data.nombre,
+        email=usuario_data.email,
+        contrasenia=hash_contrasenia
+    )
+
+    # 4. Guardar en la base de datos
+    session.add(nuevo_usuario)
+    session.commit()
+    # Se refresca para obtener el ID generado
+    session.refresh(nuevo_usuario)
+
+    # 5. Devolver la respuesta
+    return nuevo_usuario
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,11 +1,17 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, Field
+
+# Patrón de Regex para validar emails
+EMAIL_REGEX = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
 # Esquema de Usuario
 
 class UsuarioBase(BaseModel):
     """Modelo base que comparte campos comunes."""
     nombre: str
-    email: EmailStr
+    email: str = Field(
+        pattern=EMAIL_REGEX,
+        example="usuario@mail.com"
+    )
 
 class UsuarioRegistro(UsuarioBase):
     """El modelo que espera recibir del frontend al registrar un usuario."""
