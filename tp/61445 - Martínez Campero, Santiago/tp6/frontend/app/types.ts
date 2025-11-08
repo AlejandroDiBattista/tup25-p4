@@ -41,3 +41,25 @@ export interface AuthResponse {
   token_type: string;
   usuario: Usuario;
 }
+
+export interface ItemCompra {
+  id: number;
+  producto_id: number;
+  nombre: string;
+  precio_unitario: number;
+  cantidad: number;
+  precio_total: number;
+  imagen: string;
+}
+
+export interface Compra {
+  id: number;
+  usuario_id: number;
+  fecha: string;
+  estado: string;
+  items: ItemCompra[];
+  subtotal: number;
+  iva: number;
+  envio: number;
+  total: number;
+}
