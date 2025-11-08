@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCarrito, agregarAlCarrito, quitarDelCarrito, iniciarSesion, registrarUsuario, getMiPerfil } from '@/services/api';
-import { CarritoRead, Usuario, UsuarioCreate } from '@/types';
+import { iniciarSesion, registrarUsuario, getMiPerfil } from '@/services/api';
+import { Usuario, UsuarioCreate } from '@/types';
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const profile = await getMiPerfil(access_token);
             setUser(profile);
         } catch (error) {
+            console.error("Error en el login:", error);
             throw error; // Relanzamos el error para que el componente que llama lo pueda manejar
         }
     };

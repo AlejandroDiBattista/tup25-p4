@@ -1,39 +1,52 @@
-// Corresponde a UsuarioRead del backend
-export interface Usuario {
-    id: number;
-    nombre: string;
-    email: string;
-}
-
-// Corresponde a UsuarioCreate del backend
-export interface UsuarioCreate {
-    nombre: string;
-    email: string;
-    password: string;
-}
-
-// Corresponde a ProductoRead del backend
 export interface Producto {
     id: number;
     titulo: string;
-    precio: number;
     descripcion: string;
+    precio: number;
     categoria: string;
-    imagen: string;
     existencia: number;
+    imagen: string;
 }
 
-// Corresponde a CarritoRead del backend
+export interface ItemCarritoRead {
+    producto: Producto;
+    cantidad: number;
+}
+
 export interface CarritoRead {
-    items: { producto: Producto; cantidad: number }[];
+    items: ItemCarritoRead[];
     subtotal: number;
     costo_envio: number;
     iva: number;
     total: number;
 }
 
-// Corresponde a ItemCarritoCreate del backend
-export interface ItemCarritoCreate {
-    producto_id: number;
+export interface ItemCompraRead {
+    nombre: string;
     cantidad: number;
+    precio_unitario: number;
+}
+
+export interface CompraRead {
+    id: number;
+    fecha: string; // O Date
+    total: number;
+    items: ItemCompraRead[];
+}
+
+export interface UsuarioCreate {
+    nombre: string;
+    email: string;
+    password: str
+}
+
+export interface UsuarioRead {
+    id: number;
+    nombre: string;
+    email: string;
+}
+
+export interface FinalizarCompraRequest {
+    direccion: string;
+    tarjeta: string;
 }

@@ -4,13 +4,13 @@ import { Producto } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
-import Image from 'next/image';
 
 interface ProductoCardProps {
     producto: Producto;
+    onProductUpdate: () => void; // Función para notificar una actualización
 }
 
-export default function ProductoCard({ producto }: ProductoCardProps) {
+export default function ProductoCard({ producto, onProductUpdate }: ProductoCardProps) {
     const { isAuthenticated } = useAuth();
     const { addToCart } = useCart();
     const router = useRouter();
@@ -22,32 +22,26 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
         }
         try {
             await addToCart(producto.id, 1);
-            // Opcional: mostrar una notificación de éxito
+            onProductUpdate(); // Llama a la función para recargar los productos
         } catch (error: any) {
+            // En lugar de una alerta, mostramos el error en la consola para no interrumpir.
             console.error("Error al agregar al carrito:", error.message);
-            // Opcional: mostrar una notificación de error
         }
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-4 flex flex-col text-black">
+        <div className="border rounded-lg p-4 flex flex-col">
             <div className="relative w-full h-48 mb-4">
-                <Image 
-                    src={producto.imagen} 
-                    alt={producto.titulo} 
-                    layout="fill" 
-                    objectFit="contain"
-                    className="rounded-t-lg"
-                />
+                <img src={producto.imagen} alt={producto.titulo} className="w-full h-full object-contain" />
             </div>
             <h2 className="text-lg font-bold flex-grow">{producto.titulo}</h2>
             <p className="text-sm text-gray-500 mb-2">{producto.categoria}</p>
-            <div className="flex justify-between items-center mt-4">
+            <p className="text-gray-700 mb-4 line-clamp-2 flex-grow">{producto.descripcion}</p>
+            <div className="flex justify-between items-center mt-auto">
                 <p className="text-xl font-semibold">${producto.precio.toFixed(2)}</p>
-                <p className="text-sm text-gray-600">Stock: {producto.existencia}</p>
+                <p className="text-sm text-gray-600">Disponibles: {producto.existencia}</p>
             </div>
-            <button 
-                className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400"
+            <button className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400"
                 disabled={producto.existencia === 0}
                 onClick={handleAddToCart}
             >

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getMisCompras } from '@/services/api';
-import { CompraRead } from '@/types';
+import { CompraRead, ItemCompra } from '@/types';
 import { useRouter } from 'next/navigation';
 
 export default function ComprasPage() {
@@ -28,6 +28,7 @@ export default function ComprasPage() {
                     if (!token) throw new Error("No autenticado");
                     const data = await getMisCompras(token);
                     setCompras(data);
+                    // Seleccionar la compra más reciente por defecto
                     if (data.length > 0) {
                         setSelectedCompra(data[0]);
                     }
@@ -42,7 +43,11 @@ export default function ComprasPage() {
     }, [isAuthenticated]);
 
     const formatFecha = (fecha: string) => {
-        return new Date(fecha).toLocaleString('es-AR', { dateStyle: 'long', timeStyle: 'short' });
+        return new Date(fecha).toLocaleString('es-AR');
+    };
+
+    const calcularSubtotal = (items: ItemCompra[]) => {
+        return items.reduce((acc, item) => acc + (item.precio_unitario * item.cantidad), 0);
     };
 
     if (loading || authLoading) {
@@ -55,24 +60,27 @@ export default function ComprasPage() {
 
     return (
         <div className="container mx-auto max-w-6xl mt-10">
-            <h1 className="text-3xl font-bold mb-8 text-black">Mis Compras</h1>
+            <h1 className="text-3xl font-bold mb-8">Mis Compras</h1>
             {compras.length === 0 ? (
-                <p className="text-gray-600">Aún no has realizado ninguna compra.</p>
+                <p>Aún no has realizado ninguna compra.</p>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Columna de Lista de Compras */}
                     <div className="md:col-span-1">
                         <div className="bg-white p-4 rounded-lg shadow-md space-y-3">
                             {compras.map(compra => (
                                 <div key={compra.id}
                                      onClick={() => setSelectedCompra(compra)}
-                                     className={`p-3 rounded-md cursor-pointer transition-colors ${selectedCompra?.id === compra.id ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-black'}`}>
+                                     className={`p-3 rounded-md cursor-pointer ${selectedCompra?.id === compra.id ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-black'}`}>
                                     <p className="font-bold">Compra #{compra.id}</p>
                                     <p className="text-sm">{formatFecha(compra.fecha)}</p>
-                                    <p className="text-sm mt-1 font-semibold">Total: ${compra.total.toFixed(2)}</p>
+                                    <p className="text-sm mt-1">Total: ${compra.total.toFixed(2)}</p>
                                 </div>
                             ))}
                         </div>
                     </div>
+
+                    {/* Columna de Detalle de Compra */}
                     <div className="md:col-span-2">
                         {selectedCompra && (
                             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -92,6 +100,8 @@ export default function ComprasPage() {
                                     ))}
                                 </div>
                                 <div className="border-t pt-4 space-y-2 text-sm text-black">
+                                    <div className="flex justify-between"><span>Subtotal:</span> <span>${calcularSubtotal(selectedCompra.items).toFixed(2)}</span></div>
+                                    <div className="flex justify-between"><span>Envío:</span> <span>${selectedCompra.envio.toFixed(2)}</span></div>
                                     <div className="flex justify-between font-bold text-base mt-2"><span>Total pagado:</span> <span>${selectedCompra.total.toFixed(2)}</span></div>
                                 </div>
                             </div>
