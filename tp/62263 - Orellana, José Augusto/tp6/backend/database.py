@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import SQLModel, create_engine, Session
 
 # Se importa los modelos
 from models.productos import Producto
@@ -16,3 +16,11 @@ engine = create_engine(sqlite_url, echo=True)
 # 3. Función para crear las tablas en la base de datos
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
+# 4. Fábrica de sesiones para inyectar dependencias
+def get_session():
+    # Se crea una sesión con el motor
+    with Session(engine) as session:
+        yield session
+
+    # Al salir del bloque with, la sesión se cierra automáticamente
