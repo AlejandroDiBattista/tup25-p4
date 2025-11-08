@@ -1,3 +1,5 @@
+
+// Productos
 export interface Producto {
   id: number;
   titulo: string;
@@ -9,11 +11,15 @@ export interface Producto {
   imagen: string;
 }
 
+
+// Carrito
+
 export interface Carrito {
   id: number;
   usuario_id: number;
   estado: string;
 }
+
 
  export interface CarritoItem {
   id: number;
@@ -21,6 +27,8 @@ export interface Carrito {
   producto_id: number;
   cantidad: number;
  }
+
+ // Compra
 
 
  export interface Compra{
@@ -42,9 +50,21 @@ export interface CompraItem{
   precio_unitario: number;
  }
 
- export interface Usuario {
-  id: number;
+ // Usuario
+
+export interface UsuarioRegistro {
   nombre: string;
   email: string;
   contraseña: string;
- }
+}
+
+export interface UsuarioLogin {
+  email: string;
+  contraseña: string;
+}
+
+export interface Usuario {
+  id: number;
+  nombre: string;
+  email: string;
+}
