@@ -10,8 +10,24 @@ export async function agregarAlCarrito(productoId: number, token: string) {
         "body": JSON.stringify({producto_id: productoId, cantidad: 1})
     })
 
-    if (!response.ok)
-        throw new Error("Error al agregar producto al carrito")
-    
+    if (!response.ok) throw new Error("Error al agregar producto al carrito")
     return response.json()
+}
+
+export async function procesarCarrito(token: string) {
+    const response = await fetch (`${API_URL}/carrito/finalizar`, {
+        "method": "POST",
+        "headers": {
+            Authorization: `Bearer ${token}`
+        },
+        // "body":
+        //     JSON.stringify({
+        //         direccion
+
+        //     })
+    })
+    
+    if (!response.ok) throw new Error ("Error al procesar el carrito")
+    return response.json()
+
 }

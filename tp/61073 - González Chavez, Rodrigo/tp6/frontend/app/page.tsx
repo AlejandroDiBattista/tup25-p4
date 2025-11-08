@@ -33,6 +33,7 @@ import { obtenerProductos } from "./services/productos"
 import ProductoCard from "./components/ProductoCard"
 import BusquedaBar from "./components/BusquedaBar"
 import { Producto } from "./types"
+import CarritoLateral from "./components/CarritoLateral"
 
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([])
@@ -48,10 +49,15 @@ export default function Home() {
     <div className="space-y-6">
       <BusquedaBar Buscar={(texto, categoria) => cargarProductos(texto, categoria)} />
 
-        <div className="grid gap-4">
-          {productos.map((p) => (
-            <ProductoCard key={p.id} producto={p} />
-          ))}
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 space-y-4">
+            {productos.map((p) => (
+              <ProductoCard key={p.id} producto={p} />
+            ))}
+          </div>
+          <div className="w-full lg:w-[350px]">
+            <CarritoLateral />
+          </div>
         </div>
     </div>
   )

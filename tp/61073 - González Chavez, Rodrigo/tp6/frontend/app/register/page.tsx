@@ -7,6 +7,7 @@ import {Button} from "../components/ui/button"
 import {Input} from "../components/ui/input"
 import {Card, CardContent, CardHeader, CardTitle} from  "../components/ui/card"
 import {Eye, EyeOff} from "lucide-react"
+import { toast } from "sonner"
 
 export default function RegisterPage() {
     const [nombre, setNombre] = useState("")
@@ -19,10 +20,10 @@ export default function RegisterPage() {
         e.preventDefault()
         try {
             await registrarUsuario(nombre, email, password)
-            alert("Usuario registrado con éxito")
+            toast.success("Usuario registrado con éxito")
             router.push("/login")
         } catch {
-            alert("Error al registrar el usuario")
+            toast.error("Error al registrar el usuario")
         }
     }
 

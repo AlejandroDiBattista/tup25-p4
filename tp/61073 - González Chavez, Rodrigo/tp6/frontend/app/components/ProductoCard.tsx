@@ -52,9 +52,11 @@
 
 import Image from "next/image"
 import { Button } from "./ui/button"
+import { toast } from "sonner"
 import { Producto } from "../types"
 import { useAuthStore } from "../store/useAuthStore"
 import { agregarAlCarrito } from "../services/carrito"
+import { useCarritoStore } from "../store/useCarritoStore"
 
 interface Props {
   producto: Producto
@@ -63,14 +65,16 @@ interface Props {
 export default function ProductoCard({ producto }: Props) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
   const { token } = useAuthStore()
+  const {agregar} = useCarritoStore()
 
   const handleAgregar = async () => {
     if (!token) {
-      alert("Inicia sesión para agregar al carrito")
+      toast.error("Inicia sesión para agregar al carrito")
       return
     }
+    agregar(producto)
     await agregarAlCarrito(producto.id, token)
-    alert("Producto agregado al carrito")
+    toast.success("Producto agregado al carrito")
   }
 
   return (

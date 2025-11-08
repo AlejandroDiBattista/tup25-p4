@@ -27,7 +27,6 @@ app.add_middleware(
 
 SECRET_KEY = "clave_muy_muy_secreta"
 ALGORITHM = "HS256"
-# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hashed_password(password: str):
     if not password:
@@ -189,7 +188,7 @@ def iniciar_sesion(data: dict, session: Session=Depends(get_session)):
         raise HTTPException(status_code=401, detail="Credenciales Inválidas")
     
     token = crear_token({"sub": usuario.email})
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer", "nombre": usuario.nombre}
 
 @app.post("/cerrar-sesion")
 def cerrar_sesion():
@@ -265,7 +264,6 @@ def agregar_al_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), ses
         item = ItemCarrito(carrito_id=carrito.id, producto_id=producto.id, cantidad=cantidad)
         session.add(item)
 
-    producto.existencia -= cantidad
     session.commit()
     return {"Mensaje": "Producto agregado al carrito"}
 
@@ -326,7 +324,7 @@ def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), sess
         raise HTTPException(status_code=404, detail="Carrito vacío")
     
     subtotal = 0
-    iva = 0.21
+    iva_total = 0
     envio = 50
 
     for item in items:
@@ -334,14 +332,23 @@ def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), sess
         if not producto:
             raise HTTPException(status_code=404, detail="Producto no encontrado")
         
-        if producto.categoria == "electronica":
+        if producto.categoria.lower() == "electronica":
             iva = 0.10
+        else:
+            iva = 0.21
 
-    subtotal += producto.precio * item.cantidad * (1 + iva)
+        iva_total += producto.precio * item.cantidad * iva
+        subtotal += producto.precio * item.cantidad
+
+        if producto.existencia < item.cantidad:
+            raise HTTPException(status_code=400, detail=f"Stock insuficiente de {producto.nombre}")
+        producto.existencia -= item.cantidad
+        session.add(producto)
+
     if subtotal > 1000:
         envio = 0
 
-    total = subtotal + envio
+    total = subtotal + iva_total + envio
 
     compra = Compra(usuario_id=usuario.id, direccion=direccion, tarjeta=tarjeta, total=total, envio=envio)
     session.add(compra)
@@ -365,7 +372,15 @@ def finalizar_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), sess
     carrito.estado = "cerrado"
     session.commit()
 
-    return {"Mensaje": "Compra finalizada exitosamente", "compra_id": compra.id}
+    return {
+        "Mensaje": "Compra finalizada exitosamente",
+        "compra_id": compra.id,
+        "total": total,
+        "subtotal": subtotal,
+        "iva_total": iva_total,
+        "envio": envio,
+        "tarjeta": tarjeta
+    }
 
 
 @app.get("/compras")

@@ -16,12 +16,12 @@ return (
             </Link>
 
             <div className="flex items-center gap-4">
-                <Link href="/" className="text-base text-gray-700 hover:text-gray-950">
+                <Link href="/" className="text-base text-gray-800 hover:text-gray-950">
                     Productos
                 </Link>
                     {!token ? (
                             <>
-                                <Link href="/login" className="text-base text-gray-700 hover:text-gray-950">
+                                <Link href="/login" className="text-base text-gray-800 hover:text-gray-950">
                                     Ingresar
                                 </Link>
                                 <Button asChild className="text-base px-3 py-1">
