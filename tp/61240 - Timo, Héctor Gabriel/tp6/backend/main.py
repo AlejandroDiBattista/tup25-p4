@@ -254,3 +254,81 @@ def finalizar_compra(compra_data: FinalizarCompraRequest, current_user: Annotate
     session.refresh(nueva_compra)
 
     return nueva_compra
+
+@app.post("/carrito/cancelar", status_code=status.HTTP_204_NO_CONTENT, tags=["Carrito"], summary="Cancelar compra y vaciar carrito")
+def cancelar_compra(current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Cancela la compra actual y vacía el carrito."""
+    carrito = get_or_create_carrito(session, current_user.id)
+
+    # Restaurar stock de todos los items antes de eliminarlos
+    for item in carrito.items:
+        producto = session.get(Producto, item.producto_id)
+        if producto:
+            producto.existencia += item.cantidad
+            session.add(producto)
+        session.delete(item)
+
+    session.commit()
+    return
+
+class FinalizarCompraRequest(SQLModel):
+    direccion: str
+    tarjeta: str
+
+@app.post("/carrito/finalizar", response_model=CompraRead, tags=["Carrito"], summary="Finalizar la compra")
+def finalizar_compra(compra_data: FinalizarCompraRequest, current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Finaliza la compra, crea un registro de la misma y vacía el carrito."""
+    carrito = get_or_create_carrito(session, current_user.id)
+    if not carrito.items:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito está vacío")
+
+    totales = calcular_totales_carrito(carrito)
+
+    # Crear la compra
+    nueva_compra = Compra(
+        usuario_id=current_user.id,
+        direccion=compra_data.direccion,
+        tarjeta=compra_data.tarjeta, # Simplificado para el TP
+        total=totales.total,
+        envio=totales.costo_envio
+    )
+    session.add(nueva_compra)
+    session.commit()
+    session.refresh(nueva_compra)
+
+    # Mover items del carrito a la compra
+    for item in carrito.items:
+        item_compra = ItemCompra(
+            compra_id=nueva_compra.id,
+            producto_id=item.producto_id,
+            cantidad=item.cantidad,
+            nombre=item.producto.titulo,
+            precio_unitario=item.producto.precio
+        )
+        session.add(item_compra)
+        
+        # Eliminar item del carrito
+        session.delete(item)
+
+    session.commit()
+    session.refresh(nueva_compra)
+
+    return nueva_compra
+
+# --- Endpoints de Historial de Compras ---
+
+@app.get("/compras", response_model=List[CompraRead], tags=["Compras"], summary="Ver historial de compras")
+def ver_historial_compras(current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Obtiene el historial de compras del usuario actual."""
+    compras = session.exec(select(Compra).where(Compra.usuario_id == current_user.id)).all()
+    compras = session.exec(select(Compra).where(Compra.usuario_id == current_user.id).order_by(Compra.fecha.desc())).all()
+    return compras
+
+@app.get("/compras/{compra_id}", response_model=CompraRead, tags=["Compras"], summary="Ver detalle de una compra")
+    if compra.usuario_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para ver esta compra")
+    return compra
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
