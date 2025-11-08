@@ -1,12 +1,12 @@
 # from enunciados.tp6.backend import models
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
 
 from contextlib import asynccontextmanager
-from database import create_db_and_tables, engine
+from database import create_db_and_tables, engine, get_session
 
 from sqlmodel import Session, select
 from models.productos import Producto
@@ -80,19 +80,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
-
 @app.get("/")
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 @app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
+def obtener_productos(session: Session = Depends(get_session)):
+    # Se crea la consulta para seleccionar todos los productos
+    statement = select(Producto)
+
+    # 2. Se ejecuta la consulta usando la sesión inyectada
+    productos = session.exec(statement).all()
+
+    # 3. Se retorna la lista de productos
     return productos
 
 if __name__ == "__main__":
