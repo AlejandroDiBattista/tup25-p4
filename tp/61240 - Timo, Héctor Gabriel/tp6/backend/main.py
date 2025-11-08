@@ -4,14 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm
 import json
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Annotated
 from sqlmodel import SQLModel, Session, select
 from datetime import timedelta
 
 from database import engine, get_session
 from models.models import Producto, ProductoRead, Usuario, UsuarioCreate, UsuarioRead
 from auth.schemas import Token
-from auth.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_password_hash, verify_password
+from auth.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_password_hash, verify_password, get_current_user
 
 app = FastAPI(title="API Productos")
 
@@ -53,7 +53,6 @@ def root():
 
 @app.post("/registrar", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED, tags=["Usuarios"])
 def registrar_usuario(usuario_create: UsuarioCreate, session: Session = Depends(get_session)):
-    """Registra un nuevo usuario en la base de datos."""
     usuario_existente = session.exec(select(Usuario).where(Usuario.email == usuario_create.email)).first()
     if usuario_existente:
         raise HTTPException(
@@ -63,7 +62,6 @@ def registrar_usuario(usuario_create: UsuarioCreate, session: Session = Depends(
 
     hashed_password = get_password_hash(usuario_create.password)
     
-    # Creamos un diccionario sin la contraseña en texto plano
     usuario_data = usuario_create.model_dump()
     usuario_data.pop("password", None)
     usuario_data["password_hash"] = hashed_password
@@ -77,7 +75,6 @@ def registrar_usuario(usuario_create: UsuarioCreate, session: Session = Depends(
 
 @app.post("/iniciar-sesion", response_model=Token, tags=["Usuarios"])
 def iniciar_sesion(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
-    """Inicia sesión y devuelve un token de acceso."""
     usuario = session.exec(select(Usuario).where(Usuario.email == form_data.username)).first()
     if not usuario or not verify_password(form_data.password, usuario.password_hash):
         raise HTTPException(
@@ -90,6 +87,11 @@ def iniciar_sesion(form_data: OAuth2PasswordRequestForm = Depends(), session: Se
     access_token = create_access_token(data={"sub": usuario.email}, expires_delta=access_token_expires)
     
     return Token(access_token=access_token, token_type="bearer")
+
+@app.get("/usuarios/me", response_model=UsuarioRead, tags=["Usuarios"])
+def leer_usuario_actual(current_user: Annotated[Usuario, Depends(get_current_user)]):
+    """Obtiene el perfil del usuario actualmente autenticado."""
+    return current_user
 
 # --- Endpoints de Productos ---
 
