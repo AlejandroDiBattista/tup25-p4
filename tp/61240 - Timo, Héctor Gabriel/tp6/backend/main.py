@@ -9,7 +9,7 @@ from sqlmodel import SQLModel, Session, select
 from datetime import timedelta
 
 from database import engine, get_session
-from models.models import Producto, ProductoRead, Usuario, UsuarioCreate, UsuarioRead
+from models.models import Carrito, CarritoRead, ItemCarritoRead, Producto, ProductoRead, Usuario, UsuarioCreate, UsuarioRead
 from auth.schemas import Token
 from auth.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_password_hash, verify_password, get_current_user
 
@@ -90,7 +90,6 @@ def iniciar_sesion(form_data: OAuth2PasswordRequestForm = Depends(), session: Se
 
 @app.get("/usuarios/me", response_model=UsuarioRead, tags=["Usuarios"])
 def leer_usuario_actual(current_user: Annotated[Usuario, Depends(get_current_user)]):
-    """Obtiene el perfil del usuario actualmente autenticado."""
     return current_user
 
 # --- Endpoints de Productos ---
@@ -112,3 +111,42 @@ def obtener_producto(id: int, session: Session = Depends(get_session)):
     if not producto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
     return producto
+
+# --- Endpoints del Carrito ---
+
+def get_or_create_carrito(session: Session, usuario_id: int) -> Carrito:
+    """Obtiene el carrito de un usuario o crea uno nuevo si no existe."""
+    carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id)).first()
+    if not carrito:
+        carrito = Carrito(usuario_id=usuario_id)
+        session.add(carrito)
+        session.commit()
+        session.refresh(carrito)
+    return carrito
+
+def calcular_totales_carrito(carrito: Carrito) -> CarritoRead:
+    """Calcula los subtotales, IVA, envío y total del carrito."""
+    subtotal = sum(item.producto.precio * item.cantidad for item in carrito.items)
+    
+    iva_electronicos = sum(item.producto.precio * item.cantidad * 0.10 for item in carrito.items if item.producto.categoria == "Electrónica")
+    iva_otros = sum(item.producto.precio * item.cantidad * 0.21 for item in carrito.items if item.producto.categoria != "Electrónica")
+    iva_total = iva_electronicos + iva_otros
+
+    costo_envio = 0 if subtotal > 1000 else 50
+    total = subtotal + iva_total + costo_envio
+
+    items_read = [ItemCarritoRead(producto=item.producto, cantidad=item.cantidad) for item in carrito.items]
+
+    return CarritoRead(
+        items=items_read,
+        subtotal=round(subtotal, 2),
+        costo_envio=round(costo_envio, 2),
+        iva=round(iva_total, 2),
+        total=round(total, 2)
+    )
+
+@app.get("/carrito", response_model=CarritoRead, tags=["Carrito"], summary="Ver contenido del carrito")
+def ver_carrito(current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Muestra el contenido del carrito del usuario actual."""
+    carrito = get_or_create_carrito(session, current_user.id)
+    return calcular_totales_carrito(carrito)
