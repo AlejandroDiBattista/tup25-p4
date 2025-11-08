@@ -176,3 +176,23 @@ def agregar_al_carrito(item_create: ItemCarritoCreate, current_user: Annotated[U
     session.refresh(carrito)
     
     return calcular_totales_carrito(carrito)
+
+@app.delete("/carrito/{producto_id}", response_model=CarritoRead, tags=["Carrito"], summary="Quitar producto del carrito")
+def quitar_del_carrito(producto_id: int, current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Quita un producto (y toda su cantidad) del carrito del usuario."""
+    carrito = get_or_create_carrito(session, current_user.id)
+    item_a_eliminar = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)).first()
+
+    if not item_a_eliminar:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado en el carrito")
+
+    producto = session.get(Producto, producto_id)
+    if producto:
+        producto.existencia += item_a_eliminar.cantidad
+        session.add(producto)
+
+    session.delete(item_a_eliminar)
+    session.commit()
+    session.refresh(carrito)
+
+    return calcular_totales_carrito(carrito)
