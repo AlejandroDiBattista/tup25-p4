@@ -196,3 +196,19 @@ def quitar_del_carrito(producto_id: int, current_user: Annotated[Usuario, Depend
     session.refresh(carrito)
 
     return calcular_totales_carrito(carrito)
+
+@app.post("/carrito/cancelar", status_code=status.HTTP_204_NO_CONTENT, tags=["Carrito"], summary="Cancelar compra y vaciar carrito")
+def cancelar_compra(current_user: Annotated[Usuario, Depends(get_current_user)], session: Session = Depends(get_session)):
+    """Cancela la compra actual, vacía el carrito y restaura el stock."""
+    carrito = get_or_create_carrito(session, current_user.id)
+
+    # Restaurar stock de todos los items antes de eliminarlos
+    for item in carrito.items:
+        producto = session.get(Producto, item.producto_id)
+        if producto:
+            producto.existencia += item.cantidad
+            session.add(producto)
+        session.delete(item)
+
+    session.commit()
+    return
