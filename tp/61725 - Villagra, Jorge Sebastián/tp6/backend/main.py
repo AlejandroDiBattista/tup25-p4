@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from datetime import datetime
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 from typing import Optional
 from pydantic import BaseModel
@@ -47,14 +48,35 @@ class CarritoItem(SQLModel, table=True):
     producto_id: int = Field(foreign_key="producto.id")
     cantidad: int = 1
 
+class Compra(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    usuario_id: int = Field(foreign_key="usuario.id")
+    total: float = 0
+    fecha_iso: str = ""
+    nombre: str = ""
+    direccion: str = ""
+    telefono: str = ""
+    metodo_pago: str = "tarjeta"
+    estado: str = "confirmada"
+
+class CompraItem(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    compra_id: int = Field(foreign_key="compra.id")
+    producto_id: int = Field(foreign_key="producto.id")
+    cantidad: int = 1
+    precio_unit: float = 0
+    subtotal: float = 0
+    titulo: str = ""
+    imagen: Optional[str] = None
+
 # ------------------ APP / CORS / STATIC ------------------
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # DEBUG: permitir todos (luego volver a restringir)
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=True,
 )
 app.mount("/imagenes", StaticFiles(directory=str(BASE_DIR / "imagenes"), check_dir=False), name="imagenes")
 
@@ -215,6 +237,12 @@ class LoginRequest(BaseModel):
 class CartAdd(BaseModel):
     producto_id: int
     cantidad: int = 1
+
+class ConfirmCheckoutRequest(BaseModel):
+    nombre: str
+    direccion: str
+    telefono: str
+    metodo_pago: Optional[str] = None
 
 @app.post("/registrar", status_code=201)
 def registrar(req: RegisterRequest, s: Session = Depends(get_session)):
@@ -386,8 +414,99 @@ def carrito_quitar(product_id: int, uid: int = Depends(current_user_id), s: Sess
     s.commit()
     return {"ok": True}
 
+# ------------------ CHECKOUT ------------------
+@app.post("/checkout/confirm", status_code=201)
+def checkout_confirm(req: ConfirmCheckoutRequest, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
+    carrito = get_or_create_cart(s, uid)
+    items = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
+    if not items:
+        raise HTTPException(400, "Carrito vacío")
+    # validar stock
+    for it in items:
+        p = s.get(Producto, it.producto_id)
+        if not p or p.existencia < it.cantidad:
+            raise HTTPException(400, f"Stock insuficiente para id {it.producto_id}")
+
+    compra = Compra(
+        usuario_id=uid,
+        fecha_iso=datetime.utcnow().isoformat(),
+        nombre=req.nombre,
+        direccion=req.direccion,
+        telefono=req.telefono,
+        metodo_pago=req.metodo_pago or "tarjeta",
+        estado="confirmada",
+        total=0
+    )
+    s.add(compra); s.commit(); s.refresh(compra)
+
+    total = 0.0
+    for it in items:
+        p = s.get(Producto, it.producto_id)
+        price = float(p.precio)
+        sub = price * it.cantidad
+        total += sub
+        p.existencia -= it.cantidad
+        s.add(p)
+        s.add(CompraItem(
+            compra_id=compra.id,
+            producto_id=p.id,
+            cantidad=it.cantidad,
+            precio_unit=price,
+            subtotal=sub,
+            titulo=p.nombre,
+            imagen=p.imagen
+        ))
+        s.delete(it)
+    carrito.estado = "cerrado"
+    compra.total = total
+    s.add(compra); s.add(carrito); s.commit()
+    return {"ok": True, "compra_id": compra.id}
+
 # ------------------ HEALTH ------------------
 @app.get("/health")
 def health():
     return {"ok": True}
+
+@app.get("/compras")
+def compras_usuario(uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
+    print("DEBUG /compras uid", uid)
+    compras = s.exec(select(Compra).where(Compra.usuario_id == uid).order_by(Compra.id.desc())).all()
+    resultado = []
+    for c in compras:
+        its = s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all()
+        resultado.append({
+            "id": c.id,
+            "fecha_iso": c.fecha_iso,
+            "total": c.total,
+            "items_cantidad": len(its),
+            "estado": c.estado,
+            "metodo_pago": c.metodo_pago
+        })
+    return resultado
+
+@app.get("/compras/{compra_id}")
+def compra_detalle(compra_id: int, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
+    c = s.get(Compra, compra_id)
+    if not c or c.usuario_id != uid:
+        raise HTTPException(status_code=404, detail="Compra no encontrada")
+    its = s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all()
+    return {
+        "id": c.id,
+        "fecha_iso": c.fecha_iso,
+        "total": c.total,
+        "estado": c.estado,
+        "metodo_pago": c.metodo_pago,
+        "nombre": c.nombre,
+        "direccion": c.direccion,
+        "telefono": c.telefono,
+        "items": [{
+            "id": it.id,
+            "producto_id": it.producto_id,
+            "titulo": it.titulo,
+            "cantidad": it.cantidad,
+            "precio_unit": it.precio_unit,
+            "subtotal": it.subtotal,
+            "imagen_url": _img_url(it.imagen)
+        } for it in its]
+    }
 

@@ -43,7 +43,7 @@ export default function Navbar() {
         <Link href="/" className="font-semibold">Parcial Ecommerce</Link>
         <div className="flex items-center gap-4">
           <Link href="/" className="text-sm">Inicio</Link>
-          <Link href="/carrito" className="text-sm">Carrito</Link>
+          <Link href="/compras" className="text-sm hover:text-blue-600">Mis compras</Link>
 
           {!isAuth ? (
             <>

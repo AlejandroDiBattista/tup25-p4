@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCart, checkout } from '@/app/services/carrito';
+import { getCart } from '@/app/services/carrito'; // quitado 'checkout' que no se usa
+import { confirmarCompra } from '@/app/services/compras';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -41,6 +42,12 @@ export default function CheckoutPage() {
   const [direccion, setDireccion] = useState('');
   const [tarjeta, setTarjeta] = useState(''); // formateado
   const [msg, setMsg] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // NUEVO: datos requeridos por el backend
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
+  // const [metodoPago, setMetodoPago] = useState<'tarjeta' | 'efectivo' | 'transferencia'>('tarjeta'); // <-- eliminado (solo tarjeta)
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
@@ -64,21 +71,29 @@ export default function CheckoutPage() {
   const tarjetaDigits = extractDigits(tarjeta);
   const tarjetaValida = tarjetaDigits.length === 16;
   const direccionValida = direccion.trim().length >= 5;
-  const formOk = tarjetaValida && direccionValida;
+  const nombreValido = nombre.trim().length >= 3;
+  const telefonoDigits = extractDigits(telefono);
+  const telefonoValido = telefonoDigits.length >= 8;
+  const formOk = tarjetaValida && direccionValida && nombreValido && telefonoValido;
 
-  async function confirmar() {
-    if (!formOk || confirming) return;
-    setConfirming(true);
+  async function onConfirmar(e?: React.MouseEvent) {
+    e?.preventDefault();
+    if (!formOk || saving) return;
+    setSaving(true);
     try {
-      const res = await checkout(direccion.trim(), tarjetaDigits);
-      if (!res.ok) {
-        toast.error('No se pudo confirmar la compra');
-        return;
-      }
+      const payload = {
+        nombre: nombre.trim(),
+        direccion: direccion.trim(),
+        telefono: telefonoDigits,
+        // metodo_pago: 'tarjeta', // opcional: el backend puede asumir tarjeta por defecto
+      };
+      const { compra_id } = await confirmarCompra(payload as any);
       toast.success('Compra confirmada');
-      setTimeout(() => router.push('/compras'), 900);
+      window.location.href = `/compras/${compra_id}`;
+    } catch (err: any) {
+      toast.error(err.message || 'Error al confirmar');
     } finally {
-      setConfirming(false);
+      setSaving(false);
     }
   }
 
@@ -98,17 +113,18 @@ export default function CheckoutPage() {
                 const img = toImageUrl(it.imagen_url ?? it.imagen);
                 const unit = Number(it.precio || 0);
                 const line = unit * it.cantidad;
+                const name = it.nombre || (it as any).titulo || `Producto ${it.producto_id}`;
                 return (
                   <li key={it.producto_id} className="flex items-center gap-3">
                     <div className="w-16 h-16 bg-muted/60 rounded overflow-hidden flex-shrink-0">
                       {img ? (
-                        <img src={img} alt={it.nombre} className="w-full h-full object-cover" />
+                        <img src={img} alt={name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full grid place-items-center text-[10px] text-muted-foreground">Sin imagen</div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{it.nombre}</div>
+                      <div className="text-sm font-bold whitespace-normal break-words">{name}</div>
                       <div className="text-xs text-muted-foreground">
                         Precio: ${unit.toFixed(2)} • Cantidad: {it.cantidad}
                       </div>
@@ -128,6 +144,33 @@ export default function CheckoutPage() {
 
           <div className="border rounded-lg p-4 space-y-4">
             <h2 className="font-medium text-lg">Datos de envío</h2>
+            <label className="text-sm flex flex-col gap-1">
+              Nombre y apellido
+              <input
+                value={nombre}
+                onChange={e=>setNombre(e.target.value)}
+                className="border rounded px-3 py-2 text-sm"
+                placeholder="Juan Pérez"
+                maxLength={80}
+              />
+              {!nombreValido && nombre.length > 0 && (
+                <span className="text-xs text-red-600">Mínimo 3 caracteres</span>
+              )}
+            </label>
+            <label className="text-sm flex flex-col gap-1">
+              Teléfono
+              <input
+                value={telefono}
+                onChange={e=>setTelefono(e.target.value)}
+                inputMode="tel"
+                className="border rounded px-3 py-2 text-sm"
+                placeholder="381 555 1234"
+                maxLength={20}
+              />
+              {!telefonoValido && telefono.length > 0 && (
+                <span className="text-xs text-red-600">Debe tener al menos 8 dígitos</span>
+              )}
+            </label>
             <label className="text-sm flex flex-col gap-1">
               Dirección
               <input
@@ -172,11 +215,11 @@ export default function CheckoutPage() {
               Revisa los datos antes de confirmar la compra.
             </p>
             <button
-              onClick={confirmar}
-              disabled={!formOk || confirming}
-              className="w-full px-4 py-2 rounded text-sm font-medium bg-black text-white disabled:opacity-50"
+              onClick={onConfirmar}
+              disabled={saving || !formOk}
+              className="w-full px-4 py-2 rounded text-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {confirming ? 'Confirmando...' : 'Confirmar compra'}
+              {saving ? 'Confirmando...' : 'Confirmar compra'}
             </button>
             <button
               onClick={()=>router.push('/')}
@@ -188,7 +231,7 @@ export default function CheckoutPage() {
             {msg && <div className="text-xs text-blue-600">{msg}</div>}
             {!formOk && (
               <div className="text-xs text-red-600">
-                Completa dirección y tarjeta válida para continuar.
+                Completa nombre, teléfono, dirección y tarjeta válida para continuar.
               </div>
             )}
           </div>
