@@ -1,6 +1,5 @@
-import { useAuth } from './useAuth';
-
 "use client";
+import { useAuth } from './useAuth';
 
 export function useCarrito() {
   const { token, isAuthenticated } = useAuth();

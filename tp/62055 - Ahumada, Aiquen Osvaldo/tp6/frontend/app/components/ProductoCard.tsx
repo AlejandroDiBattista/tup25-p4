@@ -1,14 +1,13 @@
+"use client";
+
 import { Producto } from '../types';
 import Image from 'next/image';
+import { useState } from 'react';
+import { useCarrito } from '../hooks/useCarrito';
 
 interface ProductoCardProps {
   producto: Producto;
 }
-
-"use client";
-
-import { useState } from 'react';
-import { useCarrito } from '../hooks/useCarrito';
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -69,6 +68,9 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
         </div>
         {error && <div className="bg-red-100 text-red-700 p-2 rounded mb-2">{error}</div>}
         {success && <div className="bg-green-100 text-green-700 p-2 rounded mb-2">Agregado al carrito</div>}
+        {producto.existencia <= 0 && (
+          <div className="bg-red-100 text-red-700 p-2 rounded mb-2 text-center font-semibold">No hay stock disponible</div>
+        )}
         <button
           className="w-full bg-blue-900 text-white py-2 rounded font-bold mt-2 disabled:bg-gray-400"
           onClick={handleAgregar}

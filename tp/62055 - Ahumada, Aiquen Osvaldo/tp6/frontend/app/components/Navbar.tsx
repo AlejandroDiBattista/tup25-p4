@@ -2,25 +2,32 @@
 
 import Link from 'next/link';
 import { useAuth } from '../hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const { user, signOut, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  function handleSignOut() {
+    signOut();
+    router.push('/login');
+  }
 
   return (
     <nav className="bg-white border-b shadow-sm px-4 py-2 flex items-center justify-between">
       <div className="font-bold text-lg">TP6 Shop</div>
       <div className="flex items-center gap-4">
-        <Link href="/productos" className="hover:underline">Productos</Link>
+        <Link href="/productos" className="text-blue-900 font-semibold px-3 py-1 rounded hover:bg-blue-100 transition">Productos</Link>
         {isAuthenticated ? (
           <>
-            <Link href="/compras" className="hover:underline">Mis compras</Link>
-            <span className="text-gray-700">{user?.nombre}</span>
-            <button onClick={signOut} className="bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">Salir</button>
+            <Link href="/compras" className="text-blue-900 font-semibold px-3 py-1 rounded hover:bg-blue-100 transition">Mis compras</Link>
+            <span className="text-gray-700 font-semibold">{user?.nombre}</span>
+            <button onClick={handleSignOut} className="bg-blue-900 text-white px-3 py-1 rounded hover:bg-blue-700 transition font-semibold">Salir</button>
           </>
         ) : (
           <>
-            <Link href="/login" className="hover:underline">Ingresar</Link>
-            <Link href="/register" className="bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">Crear cuenta</Link>
+            <Link href="/login" className="text-blue-900 font-semibold px-3 py-1 rounded hover:bg-blue-100 transition">Ingresar</Link>
+            <Link href="/register" className="bg-blue-900 text-white px-3 py-1 rounded hover:bg-blue-700 transition font-semibold">Crear cuenta</Link>
           </>
         )}
       </div>

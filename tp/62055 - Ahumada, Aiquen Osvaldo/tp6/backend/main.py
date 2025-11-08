@@ -1,3 +1,60 @@
+# ----------------------------
+# Endpoints de Carrito
+# ----------------------------
+from fastapi import Path
+
+# Ejemplo básico de almacenamiento en memoria (debes adaptar a tu modelo y DB)
+carritos = {}
+
+@app.post("/carrito")
+def agregar_al_carrito(data: dict = Body(...), user: Usuario = Depends(get_current_user)):
+    producto_id = data.get("producto_id")
+    cantidad = data.get("cantidad", 1)
+    if not producto_id:
+        raise HTTPException(status_code=400, detail="Falta producto_id")
+    # Validar existencia y stock
+    from pathlib import Path
+    import json
+    ruta_productos = Path(__file__).parent / "productos.json"
+    with open(ruta_productos, "r", encoding="utf-8") as archivo:
+        productos = json.load(archivo)
+    producto = next((p for p in productos if p["id"] == producto_id), None)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    if producto["existencia"] < cantidad:
+        raise HTTPException(status_code=400, detail="No hay stock disponible para este producto")
+    carrito = carritos.get(user.id, {})
+    carrito[producto_id] = carrito.get(producto_id, 0) + cantidad
+    carritos[user.id] = carrito
+    return {"mensaje": "Producto agregado al carrito", "carrito": carrito}
+
+@app.get("/carrito")
+def ver_carrito(user: Usuario = Depends(get_current_user)):
+    carrito = carritos.get(user.id, {})
+    return {"carrito": carrito}
+
+@app.delete("/carrito/{producto_id}")
+def quitar_del_carrito(producto_id: int = Path(...), user: Usuario = Depends(get_current_user)):
+    carrito = carritos.get(user.id, {})
+    if producto_id in carrito:
+        del carrito[producto_id]
+        carritos[user.id] = carrito
+        return {"mensaje": "Producto quitado del carrito", "carrito": carrito}
+    raise HTTPException(status_code=404, detail="Producto no está en el carrito")
+
+@app.post("/carrito/finalizar")
+def finalizar_compra(user: Usuario = Depends(get_current_user)):
+    carrito = carritos.get(user.id, {})
+    if not carrito:
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
+    # Aquí deberías crear la compra y vaciar el carrito
+    carritos[user.id] = {}
+    return {"mensaje": "Compra finalizada", "carrito": {}}
+
+@app.post("/carrito/cancelar")
+def cancelar_compra(user: Usuario = Depends(get_current_user)):
+    carritos[user.id] = {}
+    return {"mensaje": "Carrito cancelado", "carrito": {}}
 # backend/main.py
 from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +64,7 @@ from pathlib import Path
 import json
 from typing import Optional
 
-from passlib.hash import bcrypt
+from passlib.hash import argon2
 from uuid import uuid4
 
 # SQLModel / DB
@@ -122,7 +179,8 @@ def registrar(usuario_in: UsuarioCreate = Body(...), session: Session = Depends(
     if existing:
         raise HTTPException(status_code=400, detail="Email ya registrado")
     # Hash password
-    hashed = bcrypt.hash(usuario_in.password)
+    # Usar argon2 para hashear la contraseña (sin límite de longitud)
+    hashed = argon2.hash(usuario_in.password)
     nuevo = Usuario(nombre=usuario_in.nombre, email=usuario_in.email, hashed_password=hashed)
     session.add(nuevo)
     session.commit()
@@ -143,8 +201,8 @@ def iniciar_sesion(payload: dict = Body(...), session: Session = Depends(get_db_
     user = get_user_by_email(session, email)
     if not user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    # Verificar password
-    if not bcrypt.verify(password, user.hashed_password):
+    # Verificar password con argon2
+    if not argon2.verify(password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     # Crear token de sesión
     token = str(uuid4())

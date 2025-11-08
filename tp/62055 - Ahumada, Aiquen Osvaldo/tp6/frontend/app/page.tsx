@@ -1,16 +1,33 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
 
-export default async function Home() {
-  let productos = [];
-  let errorMessage = '';
+export default function Home() {
+  const [productos, setProductos] = useState<any[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  try {
-    productos = await obtenerProductos();
-  } catch (err: any) {
-    // Capturamos el error para evitar que Next devuelva 500 sin contexto
-    console.error('Home: error al obtener productos', err);
-    errorMessage = err?.message || 'Error desconocido al cargar productos';
+  useEffect(() => {
+    async function cargarProductos() {
+      try {
+        const data = await obtenerProductos();
+        setProductos(data);
+      } catch (err: any) {
+        console.error('Home: error al obtener productos', err);
+        setErrorMessage(err?.message || 'Error desconocido al cargar productos');
+      } finally {
+        setLoading(false);
+      }
+    }
+    cargarProductos();
+  }, []);
+
+  if (loading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-gray-600">Cargando productos...</div>
+    </div>;
   }
 
   return (
