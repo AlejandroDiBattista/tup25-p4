@@ -85,3 +85,27 @@ class Compra(SQLModel, table=True):
     # Relaciones
     usuario: Optional["Usuario"] = Relationship(back_populates="compras")
     productos: List["CompraItem"] = Relationship(back_populates="compra")
+
+#<<<<< Modelos de la API >>>>>
+class UsuarioCreate(SQLModel):
+    nombre: str
+    email: str
+    password: str
+
+class UsuarioRead(SQLModel):
+    id: int
+    nombre: str
+    email: str
+
+class UsuarioLogin(SQLModel):
+    email: str
+    password: str
+
+# <<<< Modelo p/la respuesta del token >>>>>
+class Token(SQLModel):
+    access_token: str
+    token_type: str = "bearer"
+
+# <<<< Modelo p/los datos contenidos en el token >>>>>
+class TokenData(SQLModel):
+    email: str | None = None
