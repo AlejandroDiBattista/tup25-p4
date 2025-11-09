@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 # Patrón de Regex para validar emails
 EMAIL_REGEX = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -25,6 +26,23 @@ class UsuarioRespuesta(UsuarioBase):
     class Config:
         from_attributes = True
 
+class ProductoBase(BaseModel):
+    """Modelo base que comparte campos comunes."""
+    titulo: str
+    descripcion: str
+    precio: float
+    categoria: str
+    existencia: int
+    imagen: str
+    valoracion: float
+
+class ProductoRespuesta(ProductoBase):
+    """El modelo que se envía como respuesta cuando se pide un producto."""
+    id: int
+
+    class Config:
+        from_attributes = True
+
 class UsuarioLogin(BaseModel):
     """El modelo que espera recibir del frontend al iniciar sesión."""
     email: str = Field(
@@ -37,3 +55,26 @@ class Token(BaseModel):
     """Modelo para el token JWT."""
     access_token: str
     token_type: str = "bearer"
+
+class CarritoItemRespuesta(BaseModel):
+    """Modelo para representar un ítem en el carrito."""
+    id: int
+    cantidad: int
+    producto_id: int
+
+    # Se incluyen los detalles del producto
+    producto: ProductoRespuesta
+
+    class Config:
+        from_attributes = True
+
+class CarritoRespuesta(BaseModel):
+    """Modelo para representar el carrito de un usuario."""
+    id: int
+    usuario_id: int
+
+    # Se incluyen los ítems del carrito
+    items: list[CarritoItemRespuesta] = []
+
+    class Config:
+        from_attributes = True
