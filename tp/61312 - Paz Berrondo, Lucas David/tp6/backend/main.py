@@ -98,12 +98,58 @@ def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 
+# ========================================
+# ENDPOINTS DE PRODUCTOS
+# ========================================
+
 @app.get("/productos")
-def obtener_productos():
-    """Obtener todos los productos de la base de datos."""
+def obtener_productos(
+    categoria: Optional[str] = None,
+    buscar: Optional[str] = None
+):
+    """
+    Obtener productos con filtros opcionales.
+    
+    - categoria: Filtrar por categoría (búsqueda parcial, case-insensitive)
+    - buscar: Buscar en nombre y descripción (búsqueda parcial, case-insensitive)
+    - Ambos filtros se pueden combinar
+    """
     with Session(engine) as session:
-        productos = session.exec(select(Producto)).all()
+        query = select(Producto)
+        
+        # Filtrar por categoría si se proporciona
+        if categoria:
+            query = query.where(Producto.categoria.ilike(f"%{categoria}%"))
+        
+        # Buscar en nombre y descripción si se proporciona
+        if buscar:
+            query = query.where(
+                (Producto.nombre.ilike(f"%{buscar}%")) | 
+                (Producto.descripcion.ilike(f"%{buscar}%"))
+            )
+        
+        productos = session.exec(query).all()
         return productos
+
+
+@app.get("/productos/{producto_id}")
+def obtener_producto_por_id(producto_id: int):
+    """
+    Obtener un producto específico por ID.
+    
+    - Retorna el producto si existe
+    - Error 404 si el producto no existe
+    """
+    with Session(engine) as session:
+        producto = session.get(Producto, producto_id)
+        
+        if not producto:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Producto con ID {producto_id} no encontrado"
+            )
+        
+        return producto
 
 
 # ========================================

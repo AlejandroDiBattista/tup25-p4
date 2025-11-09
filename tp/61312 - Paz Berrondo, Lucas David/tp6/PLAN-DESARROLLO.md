@@ -151,16 +151,36 @@
 
 ---
 
-### **COMMIT 4: Endpoints de productos (detalle + filtros)**
-**Archivo:** `backend/main.py`
-**Tareas:**
-- GET `/productos` - Agregar parámetros `categoria` y `busqueda`
-- GET `/productos/{id}` - Retornar producto específico
-- Filtrar por categoría usando query params
-- Buscar en título/descripción usando query params
-- Manejar error 404 si producto no existe
+### **✅ COMMIT 4: Endpoints de productos (detalle + filtros)** [COMPLETADO]
+**Archivo modificado:** `backend/main.py`
+**Archivo de prueba:** `backend/test_productos.py`
 
-**Validación:** Probar búsquedas y filtros en `api-tests.http`
+**Tareas completadas:**
+- ✅ Modificar GET `/productos` - Agregar parámetros opcionales `categoria` y `buscar`
+  - Parámetro `categoria`: Filtrar por categoría (búsqueda parcial, case-insensitive)
+  - Parámetro `buscar`: Buscar en nombre y descripción (búsqueda parcial, case-insensitive)
+  - Ambos filtros se pueden combinar
+  - Sin parámetros: retorna todos los productos (20 productos)
+
+- ✅ Implementar GET `/productos/{id}` - Retornar producto específico
+  - Recibe ID como parámetro de ruta
+  - Retorna producto si existe
+  - Error 404 con mensaje descriptivo si no existe
+
+**Implementación técnica:**
+- Uso de `Optional[str]` para parámetros de query opcionales
+- Uso de `.ilike()` de SQLModel para búsquedas case-insensitive
+- Uso de operador `|` para OR en búsqueda (nombre OR descripción)
+- Uso de `session.get()` para obtener por ID (más eficiente)
+- HTTPException con status 404 para producto no encontrado
+
+**Limpieza de proyecto:**
+- ❌ Eliminado `test_auth.py` (prueba temporal de desarrollo)
+- ❌ Eliminado `verificar_modelos.py` (prueba temporal de desarrollo)
+- ✅ Mantenido `test_auth_endpoints.py` (pruebas finales de autenticación)
+- ✅ Mantenido `test_productos.py` (pruebas finales de productos)
+
+**Validación:** ✅ Endpoints implementados según `api-tests.http` secciones 2.1 a 2.6
 
 ---
 
