@@ -1,21 +1,77 @@
+
+# --- IMPORTS Y APP ---
+from fastapi import FastAPI, Path, Body, Depends, HTTPException, status, Header, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+import pathlib
+import json
+from typing import Optional
+from passlib.hash import argon2
+from uuid import uuid4
+from sqlmodel import select, Session
+from database import engine, create_db_and_tables
+from models.productos import Producto
+from models.usuarios import Usuario, UsuarioCreate, SessionToken
+
+app = FastAPI(title="API E-Commerce (TP6)")
+
+carritos = {}
+
+app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# --- Dependencias y utilidades para autenticación ---
+def get_db_session():
+    with Session(engine) as session:
+        yield session
+
+def get_user_by_email(session: Session, email: str) -> Optional[Usuario]:
+    statement = select(Usuario).where(Usuario.email == email)
+    result = session.exec(statement).first()
+    return result
+
+def get_user_by_token(session: Session, token: str) -> Optional[Usuario]:
+    if not token:
+        return None
+    statement = select(SessionToken).where(SessionToken.token == token)
+    ses = session.exec(statement).first()
+    if not ses:
+        return None
+    statement_u = select(Usuario).where(Usuario.id == ses.user_id)
+    user = session.exec(statement_u).first()
+    return user
+
+# Dependencia para obtener usuario actual desde header Authorization: Bearer <token>
+def get_current_user(authorization: Optional[str] = Header(None), session: Session = Depends(get_db_session)) -> Usuario:
+    if not authorization:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Falta header Authorization")
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Formato de Authorization inválido")
+    token = parts[1]
+    user = get_user_by_token(session, token)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido o expirado")
+    return user
+
 # ----------------------------
 # Endpoints de Carrito
 # ----------------------------
-from fastapi import Path
-
-# Ejemplo básico de almacenamiento en memoria (debes adaptar a tu modelo y DB)
-carritos = {}
-
 @app.post("/carrito")
 def agregar_al_carrito(data: dict = Body(...), user: Usuario = Depends(get_current_user)):
     producto_id = data.get("producto_id")
     cantidad = data.get("cantidad", 1)
     if not producto_id:
         raise HTTPException(status_code=400, detail="Falta producto_id")
-    # Validar existencia y stock
-    from pathlib import Path
-    import json
-    ruta_productos = Path(__file__).parent / "productos.json"
+    ruta_productos = pathlib.Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         productos = json.load(archivo)
     producto = next((p for p in productos if p["id"] == producto_id), None)
@@ -23,6 +79,12 @@ def agregar_al_carrito(data: dict = Body(...), user: Usuario = Depends(get_curre
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     if producto["existencia"] < cantidad:
         raise HTTPException(status_code=400, detail="No hay stock disponible para este producto")
+    # Descontar stock
+    for p in productos:
+        if p["id"] == producto_id:
+            p["existencia"] -= cantidad
+    with open(ruta_productos, "w", encoding="utf-8") as archivo:
+        json.dump(productos, archivo, ensure_ascii=False, indent=4)
     carrito = carritos.get(user.id, {})
     carrito[producto_id] = carrito.get(producto_id, 0) + cantidad
     carritos[user.id] = carrito
@@ -31,10 +93,42 @@ def agregar_al_carrito(data: dict = Body(...), user: Usuario = Depends(get_curre
 @app.get("/carrito")
 def ver_carrito(user: Usuario = Depends(get_current_user)):
     carrito = carritos.get(user.id, {})
-    return {"carrito": carrito}
+    ruta_productos = pathlib.Path(__file__).parent / "productos.json"
+    with open(ruta_productos, "r", encoding="utf-8") as archivo:
+        productos = json.load(archivo)
+    items = []
+    subtotal = 0
+    iva = 0
+    for pid, cantidad in carrito.items():
+        prod = next((p for p in productos if p["id"] == pid), None)
+        if prod:
+            precio = prod["precio"]
+            categoria = prod.get("categoria", "")
+            items.append({
+                "id": pid,
+                "titulo": prod["titulo"],
+                "precio_unitario": precio,
+                "cantidad": cantidad,
+                "subtotal": round(precio * cantidad, 2)
+            })
+            subtotal += precio * cantidad
+            if "Electrónica" in categoria:
+                iva += precio * cantidad * 0.10
+            else:
+                iva += precio * cantidad * 0.21
+    envio = 0 if subtotal > 1000 else 50
+    total = subtotal + iva + envio
+    resumen = {
+        "subtotal": round(subtotal, 2),
+        "iva": round(iva, 2),
+        "envio": round(envio, 2),
+        "total": round(total, 2)
+    }
+    return {"carrito": items, "resumen": resumen}
 
 @app.delete("/carrito/{producto_id}")
-def quitar_del_carrito(producto_id: int = Path(...), user: Usuario = Depends(get_current_user)):
+@app.delete("/carrito/{producto_id}")
+def quitar_del_carrito(producto_id: int = Path(..., description="ID del producto"), user: Usuario = Depends(get_current_user)):
     carrito = carritos.get(user.id, {})
     if producto_id in carrito:
         del carrito[producto_id]
@@ -55,57 +149,23 @@ def finalizar_compra(user: Usuario = Depends(get_current_user)):
 def cancelar_compra(user: Usuario = Depends(get_current_user)):
     carritos[user.id] = {}
     return {"mensaje": "Carrito cancelado", "carrito": {}}
-# ----------------------------
-# Endpoints de Carrito
-# ----------------------------
-from fastapi import Path
 
-# Ejemplo básico de almacenamiento en memoria (debes adaptar a tu modelo y DB)
-carritos = {}
+@app.post("/carrito/finalizar")
+def finalizar_compra(user: Usuario = Depends(get_current_user)):
+    carrito = carritos.get(user.id, {})
+    if not carrito:
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
+    # Aquí deberías crear la compra y vaciar el carrito
+    carritos[user.id] = {}
+    return {"mensaje": "Compra finalizada", "carrito": {}}
 
-# Los endpoints de carrito deben ir después de la definición de app:
-# ...definición de app y modelos...
-# ...luego los endpoints de carrito...
-# backend/main.py
-from fastapi import FastAPI, Depends, HTTPException, status, Header
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
-from pathlib import Path
-import json
-from typing import Optional
-
-from passlib.hash import argon2
-from uuid import uuid4
-
-# SQLModel / DB
-from sqlmodel import select
-from database import engine, create_db_and_tables
-from sqlmodel import Session
-
-# Models
-from models.productos import Producto  # tu modelo existente
-from models.usuarios import Usuario, UsuarioCreate, SessionToken
-
-app = FastAPI(title="API E-Commerce (TP6)")
-
-# Montar directorio de imágenes como archivos estáticos
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
-
-# CORS (permite todo por simplicidad; en producción restringir)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# ----------------------------
-# Utilidades DB / Productos
+@app.post("/carrito/cancelar")
+def cancelar_compra(user: Usuario = Depends(get_current_user)):
+    carritos[user.id] = {}
+    return {"mensaje": "Carrito cancelado", "carrito": {}}
 # ----------------------------
 def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
+    ruta_productos = pathlib.Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 

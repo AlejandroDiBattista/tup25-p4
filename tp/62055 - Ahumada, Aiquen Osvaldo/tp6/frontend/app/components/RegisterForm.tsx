@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { registrar, iniciarSesion } from '../services/auth';
 
 export default function RegisterForm({ onRegister }: { onRegister?: (token: string, user: any) => void }) {
+  const router = useRouter();
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,6 +38,10 @@ export default function RegisterForm({ onRegister }: { onRegister?: (token: stri
       const { access_token, user } = await iniciarSesion(email, password);
       if (onRegister) {
         onRegister(access_token, user);
+      }
+      // Redirigir solo si no hay onRegister (comportamiento anterior)
+      if (!onRegister) {
+        router.push('/productos');
       }
     } catch (err: any) {
       setError(err.message);

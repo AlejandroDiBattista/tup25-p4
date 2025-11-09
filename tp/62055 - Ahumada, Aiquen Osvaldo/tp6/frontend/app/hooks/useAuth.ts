@@ -8,8 +8,17 @@ export function useAuth() {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    setToken(getToken());
-    setUser(getUser());
+    const syncAuth = () => {
+      setToken(getToken());
+      setUser(getUser());
+    };
+    syncAuth();
+    const interval = setInterval(syncAuth, 500);
+    window.addEventListener('storage', syncAuth);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', syncAuth);
+    };
   }, []);
 
   function signOut() {

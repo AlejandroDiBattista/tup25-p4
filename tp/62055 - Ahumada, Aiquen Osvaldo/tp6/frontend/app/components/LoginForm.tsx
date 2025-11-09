@@ -33,8 +33,10 @@ export default function LoginForm({ onLogin }: { onLogin?: (token: string, user:
       if (onLogin) {
         onLogin(access_token, user);
       }
-      // Redirigir al home de productos tras login
-      router.push('/productos');
+      // Redirigir solo si no hay onLogin (comportamiento anterior)
+      if (!onLogin) {
+        router.push('/productos');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
