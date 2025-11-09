@@ -36,3 +36,7 @@ def iniciar_sesion(email: str, password: str):
             raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
         return {"mensaje": "Inicio de sesión exitoso", "usuario_id": usuario.id, "usuario": usuario.nombre}
+    
+@router.post("/cerrar-sesion")
+def cerrar_sesion():
+    return {"mensaje": "Sesión cerrada"}    

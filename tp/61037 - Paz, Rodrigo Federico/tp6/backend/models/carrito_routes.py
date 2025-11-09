@@ -6,13 +6,31 @@ from models.productos import Producto
 
 router = APIRouter()
 
+def _armar_carrito(session: Session, carrito_id: int):
+    items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito_id)).all()
+    resultado = []
+    for it in items:
+        prod = session.get(Producto, it.producto_id)
+        if not prod: 
+            
+            continue
+        resultado.append({
+            "producto_id": prod.id,
+            "nombre": prod.nombre,
+            "precio": prod.precio,
+            "categoria": prod.categoria,
+            "existencia": prod.existencia,
+            "cantidad": it.cantidad,
+            "subtotal": round(prod.precio * it.cantidad, 2)
+        })
+    return resultado
+
 @router.post("/carrito")
 def agregar_al_carrito(usuario_id: int, producto_id: int):
     with Session(engine) as session:
-       
-        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
-        
-        
+        carrito = session.exec(
+            select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")
+        ).first()
         if not carrito:
             carrito = Carrito(usuario_id=usuario_id)
             session.add(carrito)
@@ -23,39 +41,58 @@ def agregar_al_carrito(usuario_id: int, producto_id: int):
         if not producto or producto.existencia <= 0:
             raise HTTPException(status_code=400, detail="Producto no disponible")
 
-        item = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)).first()
+        item = session.exec(
+            select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)
+        ).first()
         if item:
             item.cantidad += 1
         else:
-            item = ItemCarrito(carrito_id=carrito.id, producto_id=producto_id, cantidad=1)
-            session.add(item)
+            session.add(ItemCarrito(carrito_id=carrito.id, producto_id=producto_id, cantidad=1))
 
         session.commit()
-        return {"mensaje": "Producto agregado al carrito"}
-
+        return {"mensaje": "Producto agregado", "items": _armar_carrito(session, carrito.id)}
 
 @router.get("/carrito")
 def ver_carrito(usuario_id: int):
     with Session(engine) as session:
-        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        carrito = session.exec(
+            select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")
+        ).first()
         if not carrito:
-            return {"productos": []}
-        
-        items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
-        return items
-
+            return {"items": []}
+        return {"items": _armar_carrito(session, carrito.id)}
 
 @router.delete("/carrito/{producto_id}")
 def quitar_producto(usuario_id: int, producto_id: int):
     with Session(engine) as session:
-        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        carrito = session.exec(
+            select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")
+        ).first()
         if not carrito:
             raise HTTPException(status_code=400, detail="No hay carrito activo")
 
-        item = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)).first()
+        item = session.exec(
+            select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)
+        ).first()
         if not item:
             raise HTTPException(status_code=404, detail="Producto no está en el carrito")
 
         session.delete(item)
         session.commit()
-        return {"mensaje": "Producto eliminado del carrito"}
+        return {"mensaje": "Producto eliminado", "items": _armar_carrito(session, carrito.id)}
+
+@router.post("/carrito/cancelar")
+def cancelar_compra(usuario_id: int):
+    with Session(engine) as session:
+        carrito = session.exec(
+            select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")
+        ).first()
+        if not carrito:
+            return {"mensaje": "No hay carrito activo", "items": []}
+       
+        items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
+        for it in items:
+            session.delete(it)
+        carrito.estado = "cancelado"
+        session.commit()
+        return {"mensaje": "Carrito cancelado", "items": []}

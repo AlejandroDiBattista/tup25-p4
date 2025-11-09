@@ -3,6 +3,7 @@ import { Producto } from '../types';
 import Image from 'next/image';
 import { agregarAlCarrito } from "../services/productos";
 
+
 interface ProductoCardProps {
   producto: Producto;
 }

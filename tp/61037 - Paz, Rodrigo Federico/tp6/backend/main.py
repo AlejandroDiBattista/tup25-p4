@@ -1,50 +1,40 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import json
-from pathlib import Path
 from models.database import init_db
 from models.cargar_datos import cargar_productos_iniciales
+
+# Importar routers
 from models.auth import router as auth_router
 from models.carrito_routes import router as carrito_router
 from models.compras_routes import router as compras_router
+from models.productos_routes import router as productos_router  # <-- IMPORTANTE
 
+app = FastAPI(title="TP6 Shop API")
 
-
-
-app = FastAPI(title="API Productos")
-
-# Montar directorio de imágenes como archivos estáticos
+# Servir imágenes estáticas para los productos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
-# Configurar CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],   # Si tu frontend está en Vite, dejar así
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
-
 @app.get("/")
 def root():
-    return {"mensaje": "API de Productos - use /productos para obtener el listado"}
+    return {"mensaje": "API de la tienda funcionando"}
 
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
-
+# Inicializar base + cargar productos al iniciar
 init_db()
 cargar_productos_iniciales()
 
+# Registrar routers
 app.include_router(auth_router)
+app.include_router(productos_router)   # <-- AHORA SÍ
 app.include_router(carrito_router)
 app.include_router(compras_router)
 
