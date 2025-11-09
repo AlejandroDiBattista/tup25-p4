@@ -442,6 +442,16 @@ def agregar_al_carrito(
         )
 
 
+# Alias para compatibilidad con el frontend
+@app.post("/carrito/agregar", response_model=MensajeResponse, status_code=status.HTTP_201_CREATED)
+def agregar_al_carrito_alias(
+    datos: AgregarCarritoRequest,
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    """Alias de POST /carrito para agregar productos al carrito."""
+    return agregar_al_carrito(datos, usuario_actual)
+
+
 @app.delete("/carrito/{producto_id}", response_model=MensajeResponse)
 def quitar_del_carrito(
     producto_id: int,
@@ -490,6 +500,23 @@ def quitar_del_carrito(
         return MensajeResponse(
             mensaje=f"Producto eliminado del carrito"
         )
+
+
+# Alias para compatibilidad con el frontend
+@app.delete("/carrito/quitar/{producto_id}", response_model=MensajeResponse)
+def quitar_del_carrito_alias(
+    producto_id: int,
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    """Alias de DELETE /carrito/{producto_id} para eliminar productos del carrito."""
+    return quitar_del_carrito(producto_id, usuario_actual)
+
+
+# Alias para compatibilidad - vaciar carrito
+@app.delete("/carrito/vaciar", response_model=MensajeResponse)
+def vaciar_carrito(usuario_actual: Usuario = Depends(get_current_user)):
+    """Alias de POST /carrito/cancelar para vaciar el carrito."""
+    return cancelar_carrito(usuario_actual)
 
 
 @app.post("/carrito/cancelar", response_model=MensajeResponse)
@@ -696,6 +723,13 @@ def listar_compras(usuario_actual: Usuario = Depends(get_current_user)):
         compras_resumen.sort(key=lambda x: x.fecha, reverse=True)
         
         return compras_resumen
+
+
+# Alias para compatibilidad con el frontend
+@app.get("/compras/historial", response_model=list[CompraResumenResponse])
+def listar_compras_historial(usuario_actual: Usuario = Depends(get_current_user)):
+    """Alias de GET /compras para obtener el historial de compras."""
+    return listar_compras(usuario_actual)
 
 
 @app.get("/compras/{compra_id}", response_model=CompraDetalleResponse)
