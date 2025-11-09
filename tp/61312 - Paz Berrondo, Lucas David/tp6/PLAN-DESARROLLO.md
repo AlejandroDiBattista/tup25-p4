@@ -258,14 +258,36 @@
 
 ---
 
-### **COMMIT 8: Endpoints de historial de compras**
+### ✅ **COMMIT 8: Endpoints de historial de compras** - COMPLETADO
 **Archivo:** `backend/main.py`
-**Tareas:**
-- GET `/compras` - Listar compras del usuario (resumen)
-- GET `/compras/{id}` - Detalle completo de una compra
-- Validar que la compra pertenezca al usuario autenticado
 
-**Validación:** Probar visualización de historial en `api-tests.http`
+**Modelos Pydantic creados:**
+- ✅ `ItemCompraResponse` - Para item de compra en respuesta
+- ✅ `CompraResumenResponse` - Para resumen en listado
+- ✅ `CompraDetalleResponse` - Para detalle completo de compra
+
+**Tareas completadas:**
+- ✅ GET `/compras` - Listar compras del usuario (resumen)
+  - Retorna: id, fecha, total, envío, cantidad_items
+  - Ordenamiento por fecha descendente (más reciente primero)
+  - Solo compras del usuario autenticado
+  
+- ✅ GET `/compras/{id}` - Detalle completo de una compra
+  - Retorna: toda la información + lista de items
+  - Validación de propiedad (403 si no pertenece al usuario)
+  - Error 404 si no existe
+  - Cálculo de subtotal basado en items
+
+**Validaciones implementadas:**
+- ✅ Requiere autenticación (401 Unauthorized)
+- ✅ Error 404 para compras inexistentes
+- ✅ Error 403 Forbidden si la compra no pertenece al usuario
+- ✅ Cálculo correcto de subtotales
+
+**Archivos creados:**
+- `backend/test_compras.py` - Tests de validación (7 casos de prueba)
+
+**Validación:** ✅ Probado con test_compras.py - Todos los tests pasan
 
 ---
 
