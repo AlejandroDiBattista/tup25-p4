@@ -1,29 +1,35 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+type User = { id: number; nombre: string };
+
 export default function AuthGate({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [ready, setReady] = useState(false);
-  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
-    const t = localStorage.getItem('token');
-    setAuthed(!!t);
-    setReady(true);
-    if (!t) router.replace('/auth/login');
-  }, [router]);
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Aquí podrías validar el token con el backend
+      setUser({ id: 1, nombre: 'Usuario' }); // Placeholder
+    }
+    setLoading(false);
+  }, []);
 
-  // Mientras carga, devolver un contenedor estable (sin null) para evitar mismatch
-  if (!ready) {
-    return <div className="max-w-7xl mx-auto px-4 py-8 text-sm text-muted-foreground">Cargando…</div>;
-  }
+  // Nuevo: useEffect para redirigir cuando !user (después del render)
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+  }, [loading, user, router]);
 
-  if (!authed) {
-    // Ya se hará redirect; devolvemos markup estable
-    return <div className="max-w-7xl mx-auto px-4 py-8 text-sm">Redirigiendo…</div>;
-  }
+  if (loading) return <div>Cargando...</div>;
+
+  // Removido: No redirigir aquí, solo retornar null si no hay user (temporalmente)
+  if (!user) return null;
 
   return <>{children}</>;
 }
