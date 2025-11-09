@@ -18,7 +18,34 @@ from models.schemas import UsuarioRegistro, UsuarioRespuesta, UsuarioLogin, Toke
 from models.usuarios import Usuario
 
 # Se trae la función para hashear contraseñas
-from security import obtener_hash_contrasenia, verificar_contrasenia, crear_token_sesion
+from security import obtener_hash_contrasenia, verificar_contrasenia, crear_token_sesion, obtener_usuario_desde_token
+
+from typing import Optional
+
+def get_usuario_actual(
+    token: Optional[str] = Cookie(default=None),
+    session: Session = Depends(get_session)
+) -> Usuario:
+    """Dependencia para obtener el usuario autenticado desde el token en la cookie."""
+    if not token:
+        # Si no hay token, no está autenticado
+        raise HTTPException(
+            status_code=401,
+            detail="No autenticado."
+        )
+
+    # Se usa la función de seguridad para validar el token
+    usuario = obtener_usuario_desde_token(token, session)
+
+    if not usuario:
+        # Si el token no es válido o expiró
+        raise HTTPException(
+            status_code=401,
+            detail="Token inválido o expirado."
+        )
+
+    # Se devuelve el usuario autenticado
+    return usuario
 
 # Función lifespan para inicializar la base de datos al iniciar la aplicación
 @asynccontextmanager
@@ -173,6 +200,11 @@ def iniciar_sesion(
 
     # Se devuelve el token también en el JSON
     return Token(access_token=token)
+
+@app.get("/perfil", response_model=UsuarioRespuesta)
+def obtener_perfil(usuario_actual: Usuario = Depends(get_usuario_actual)):
+    """Endpoint para obtener el perfil del usuario autenticado."""
+    return usuario_actual
 
 if __name__ == "__main__":
     import uvicorn
