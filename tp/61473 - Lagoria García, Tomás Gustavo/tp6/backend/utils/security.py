@@ -49,6 +49,10 @@ def validar_password(password: str, password_hash: str) -> bool:
     return crear_hash_password(password) == password_hash
 
 
+# Alias para mantener consistencia con el código existente
+verificar_password = validar_password
+
+
 # ==================== TOKENS ====================
 
 def generar_token() -> str:

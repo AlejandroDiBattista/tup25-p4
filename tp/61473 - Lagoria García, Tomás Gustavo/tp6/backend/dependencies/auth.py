@@ -1,125 +1,76 @@
 """
-Dependencias de autenticación para proteger endpoints.
-
-Basado en las prácticas de clase (24.login/login.py y 21.agenda-front-back)
+Dependencias de autenticación para proteger endpoints
 """
-from fastapi import Depends, HTTPException, status, Cookie
+from fastapi import Depends, HTTPException, Header
 from sqlmodel import Session, select
 from typing import Annotated, Optional
+from datetime import datetime
 
 from database import get_session
 from models import Usuario
-from utils.security import token_vigente
 
-
-# ==================== FUNCIONES AUXILIARES ====================
-
-def buscar_usuario_por_token(token: str, session: Session) -> Optional[Usuario]:
-    """
-    Busca un usuario por su token de autenticación.
-    
-    Args:
-        token: Token de autenticación
-        session: Sesión de base de datos
-        
-    Returns:
-        Usuario si se encuentra y el token es válido, None en caso contrario
-    """
-    cmd = select(Usuario).where(Usuario.token == token)
-    usuario = session.exec(cmd).first()
-    
-    if usuario and usuario.token_expiration:
-        if token_vigente(usuario.token_expiration):
-            return usuario
-    
-    return None
-
-
-def buscar_usuario_por_email(email: str, session: Session) -> Optional[Usuario]:
-    """
-    Busca un usuario por su email.
-    
-    Args:
-        email: Email del usuario
-        session: Sesión de base de datos
-        
-    Returns:
-        Usuario si existe, None en caso contrario
-    """
-    cmd = select(Usuario).where(Usuario.email == email)
-    return session.exec(cmd).first()
-
-
-# ==================== DEPENDENCIAS ====================
 
 def get_usuario_actual(
-    token: Annotated[str | None, Cookie()] = None,
+    authorization: Annotated[str | None, Header()] = None,
     session: Session = Depends(get_session)
 ) -> Usuario:
     """
-    Dependencia que obtiene el usuario autenticado desde el token en cookie.
+    Obtiene el usuario autenticado actual desde el header Authorization.
     
-    Lanza HTTPException 401 si:
-    - No hay token
-    - Token inválido
-    - Token expirado
-    - Usuario no encontrado
-    - Usuario inactivo
+    Formato esperado: Authorization: Bearer <token>
     
-    Uso:
-        @app.get("/perfil")
-        def get_perfil(usuario: Usuario = Depends(get_usuario_actual)):
-            return {"nombre": usuario.nombre, "email": usuario.email}
+    Raises:
+        HTTPException 401: Si no hay token o es inválido
+        HTTPException 401: Si el token expiró
     """
-    if not token:
+    if not authorization:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No hay sesión activa. Por favor inicie sesión."
+            status_code=401,
+            detail="No autenticado - Token requerido"
         )
     
+    # Extraer el token del header "Bearer <token>"
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(
+            status_code=401,
+            detail="Formato de token inválido. Use: Bearer <token>"
+        )
+    
+    token = parts[1]
+    
     # Buscar usuario por token
-    usuario = buscar_usuario_por_token(token, session)
+    statement = select(Usuario).where(Usuario.token == token)
+    usuario = session.exec(statement).first()
     
     if not usuario:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o sesión expirada."
+            status_code=401,
+            detail="Token inválido"
         )
     
-    # Verificar que el usuario esté activo
-    if not usuario.activo:
+    # Verificar que el token no haya expirado
+    if usuario.token_expiration and usuario.token_expiration < datetime.now():
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Usuario inactivo. Contacte al administrador."
+            status_code=401,
+            detail="Token expirado"
         )
     
     return usuario
 
 
 def get_usuario_opcional(
-    token: Annotated[str | None, Cookie()] = None,
+    authorization: Annotated[str | None, Header()] = None,
     session: Session = Depends(get_session)
 ) -> Optional[Usuario]:
     """
-    Dependencia que obtiene el usuario si está autenticado, sino None.
-    
-    Útil para endpoints que funcionan con y sin autenticación.
-    No lanza excepciones.
-    
-    Uso:
-        @app.get("/productos")
-        def get_productos(usuario: Optional[Usuario] = Depends(get_usuario_opcional)):
-            if usuario:
-                # Mostrar productos personalizados
-                pass
-            else:
-                # Mostrar productos públicos
-                pass
+    Obtiene el usuario autenticado si existe, None si no.
+    Útil para endpoints que funcionan con o sin autenticación.
     """
-    if not token:
+    if not authorization:
         return None
     
     try:
-        return get_usuario_actual(token, session)
+        return get_usuario_actual(authorization, session)
     except HTTPException:
         return None

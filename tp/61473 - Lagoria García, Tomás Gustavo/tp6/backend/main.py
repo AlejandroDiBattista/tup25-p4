@@ -6,12 +6,16 @@ from pathlib import Path
 
 from database import crear_tablas, get_session
 from models import Producto, ProductoResponse
+from routers import auth
 
 app = FastAPI(
     title="API E-Commerce",
     description="API para e-commerce con autenticación y carrito de compras",
     version="1.0.0"
 )
+
+# Incluir routers
+app.include_router(auth.router)
 
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")

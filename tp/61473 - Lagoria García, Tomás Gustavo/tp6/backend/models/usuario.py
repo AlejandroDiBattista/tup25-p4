@@ -61,6 +61,5 @@ class UsuarioResponse(SQLModel):
 
 class TokenResponse(SQLModel):
     """Schema para respuesta de login exitoso."""
-    message: str
+    access_token: str
     usuario: UsuarioResponse
-    expiration: datetime
