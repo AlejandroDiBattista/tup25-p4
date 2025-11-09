@@ -1,6 +1,10 @@
+'use client';
+
 import { FormEvent, useState } from 'react'
 import useAuthStore from '../store/auth'
 import { useRouter } from 'next/navigation'
+import { API_URL } from '../config'
+import Link from 'next/link'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
@@ -18,20 +22,31 @@ export default function LoginPage() {
             formData.append('username', email)
             formData.append('password', password)
 
-            const response = await fetch('http://localhost:8000/token', {
+            const response = await fetch(`${API_URL}/token`, {
                 method: 'POST',
-                body: formData
+                body: formData,
+                signal: AbortSignal.timeout(5000) // Timeout de 5 segundos
             })
 
             if (!response.ok) {
-                throw new Error('Credenciales incorrectas')
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.detail || 'Credenciales incorrectas')
             }
 
             const data = await response.json()
             setAuth(data.access_token, data.user)
+            
+            // Mostrar mensaje de éxito
+            console.log('✅ Login exitoso:', data.user.nombre)
+            
             router.push('/')
-        } catch (err) {
-            setError('Error al iniciar sesión')
+        } catch (err: any) {
+            console.error('❌ Error en login:', err)
+            if (err.name === 'TimeoutError' || err.message.includes('fetch')) {
+                setError('Servidor no disponible. Intenta más tarde.')
+            } else {
+                setError(err.message || 'Error al iniciar sesión')
+            }
         }
     }
 
@@ -77,9 +92,9 @@ export default function LoginPage() {
                     </button>
                 </form>
                 <div className="mt-4 text-center">
-                    <a href="/registro" className="text-blue-600 hover:underline">
+                    <Link href="/registro" className="text-blue-600 hover:underline">
                         ¿No tienes cuenta? Regístrate
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

@@ -3,12 +3,18 @@
 import { useState, useEffect } from 'react';
 import { obtenerProductos, Producto } from './services/productos';
 import ProductoCard from './components/ProductoCard';
+import useAuthStore, { loadAuthFromStorage } from './store/auth';
+import Link from 'next/link';
 
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user, clearAuth } = useAuthStore();
 
   useEffect(() => {
+    // Cargar sesión desde localStorage
+    loadAuthFromStorage();
+    
     const cargarProductos = async () => {
       try {
         const data = await obtenerProductos();
@@ -26,13 +32,50 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">TP6 Shop</h1>
+              <p className="text-gray-600 mt-1">
+                {productos.length} productos disponibles
+              </p>
+            </div>
+            
+            <nav className="flex items-center gap-4">
+              <Link href="/" className="text-gray-700 hover:text-blue-600">
+                Productos
+              </Link>
+              
+              {user ? (
+                <>
+                  <Link href="/mis-compras" className="text-gray-700 hover:text-blue-600">
+                    Mis compras
+                  </Link>
+                  <span className="text-gray-700">
+                    Hola, {user.nombre}
+                  </span>
+                  <button
+                    onClick={() => clearAuth()}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    Salir
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-blue-600 hover:text-blue-800">
+                    Ingresar
+                  </Link>
+                  <Link 
+                    href="/registro" 
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Crear cuenta
+                  </Link>
+                </>
+              )}
+            </nav>
+          </div>
         </div>
       </header>
 
