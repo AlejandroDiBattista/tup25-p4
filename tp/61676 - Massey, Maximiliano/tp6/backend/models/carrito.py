@@ -1,17 +1,17 @@
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from datetime import datetime
 
-class CarritoItem(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    carrito_id: int = Field(foreign_key="carrito.id")
-    producto_id: int = Field(foreign_key="producto.id")
-    cantidad: int
-    carrito: "Carrito" = Relationship(back_populates="items")
+if TYPE_CHECKING:
+    from .usuarios import Usuario
+    from .productos import Producto
 
-class Carrito(SQLModel, table=True):
+class ItemCarrito(SQLModel, table=True):
+    __tablename__ = "item_carrito"
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int = Field(foreign_key="usuario.id")
-    estado: str  # "activo", "completado", "cancelado"
+    producto_id: int = Field(foreign_key="producto.id") 
+    cantidad: int = Field(default=1, ge=1)
+    
+    # Relaciones
     usuario: "Usuario" = Relationship(back_populates="carrito")
-    items: List[CarritoItem] = Relationship(back_populates="carrito")
+    producto: "Producto" = Relationship()

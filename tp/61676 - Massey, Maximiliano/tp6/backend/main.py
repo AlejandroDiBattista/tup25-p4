@@ -2,35 +2,44 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlmodel import Session, SQLModel, create_engine
-from passlib.context import CryptContext
+from sqlmodel import Session, SQLModel, create_engine, select
 from datetime import datetime, timedelta
-from jose import JWTError, jwt
 from typing import Optional
+from pydantic import BaseModel
 import json
 from pathlib import Path
+import bcrypt
 
-from models import Usuario, Carrito, CarritoItem, Compra, CompraItem
+from models.usuarios import Usuario
+from models.carrito import ItemCarrito
+from models.compras import Compra, CompraItem
+
+# Esquemas Pydantic
+class UsuarioRegistro(BaseModel):
+    nombre: str
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 # Configuración de la base de datos
 DATABASE_URL = "sqlite:///./tienda.db"
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=False)
 
-# Configuración de JWT
-SECRET_KEY = "tu_clave_secreta_aqui"  # En producción usar variable de entorno
+# Configuración de JWT (simplificada)
+SECRET_KEY = "clave_secreta_super_segura_cambiar_en_produccion_123"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Configuración de password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Configuración de OAuth2
+# OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Configuración de la aplicación
-app = FastAPI(title="API Productos")
+# Crear aplicación
+app = FastAPI(title="TP6 Shop API")
 
-# Configuración de CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -39,159 +48,117 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Montar directorio de imágenes como archivos estáticos
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
-
-# Inicializar la base de datos
+# Crear tablas
 @app.on_event("startup")
-def create_db_and_tables():
+def on_startup():
     SQLModel.metadata.create_all(engine)
 
-# Función para obtener sesión de la base de datos
+# Montar imágenes
+try:
+    app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+except:
+    pass
+
+# Dependencias
 def get_db():
     with Session(engine) as session:
         yield session
 
-# Cargar productos desde el archivo JSON
+# Funciones auxiliares para passwords usando bcrypt directamente
+def hash_password(password: str) -> str:
+    """Hash de password usando bcrypt"""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verificar password"""
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+# Función para crear token JWT (simplificada sin jose)
+def create_access_token(email: str) -> str:
+    """Crear token simple (en producción usar JWT real)"""
+    import base64
+    token_data = f"{email}:{SECRET_KEY}:{datetime.utcnow().isoformat()}"
+    return base64.b64encode(token_data.encode()).decode()
+
+def verify_token(token: str) -> Optional[str]:
+    """Verificar token y retornar email"""
+    try:
+        import base64
+        decoded = base64.b64decode(token.encode()).decode()
+        parts = decoded.split(':')
+        if len(parts) >= 2 and parts[1] == SECRET_KEY:
+            return parts[0]  # email
+    except:
+        pass
+    return None
+
+# Obtener usuario actual
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Usuario:
+    email = verify_token(token)
+    if not email:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    
+    usuario = db.exec(select(Usuario).where(Usuario.email == email)).first()
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    return usuario
+
+# Cargar productos
 def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+    try:
+        ruta = Path(__file__).parent / "productos.json"
+        with open(ruta, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
+
+# RUTAS
+
+@app.get("/")
+def root():
+    return {"mensaje": "API TP6 Shop - Backend funcionando"}
 
 @app.get("/productos")
 async def obtener_productos(search: str = None, categoria: str = None):
     productos = cargar_productos()
     
-    # Filtrar por búsqueda
     if search:
         search = search.lower()
-        productos = [p for p in productos if search in p["nombre"].lower() or search in p["descripcion"].lower()]
+        productos = [p for p in productos if search in str(p.get("nombre", "")).lower() or search in str(p.get("descripcion", "")).lower()]
     
-    # Filtrar por categoría
     if categoria:
-        productos = [p for p in productos if p["categoria"].lower() == categoria.lower()]
+        productos = [p for p in productos if str(p.get("categoria", "")).lower() == categoria.lower()]
     
     return productos
 
-# Configuración de OAuth2
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-def get_db():
-    with Session(engine) as session:
-        yield session
-
-def get_password_hash(password: str):
-    return pwd_context.hash(password)
-
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-) -> Usuario:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No se pudo validar las credenciales",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-
-    usuario = db.query(Usuario).filter(Usuario.email == email).first()
-    if usuario is None:
-        raise credentials_exception
-    return usuario
-
-# Montar directorio de imágenes como archivos estáticos
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
-
-# Configurar CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
-
-# Middleware de autenticación
-async def get_current_active_user(current_user: Usuario = Depends(get_current_user)):
-    if not current_user:
-        raise HTTPException(status_code=400, detail="Usuario inactivo")
-    return current_user
-
 @app.post("/registrar")
-async def registrar_usuario(
-    nombre: str,
-    email: str,
-    password: str,
-    db: Session = Depends(get_db)
-):
-    # Verificar si el usuario ya existe
-    usuario_existe = db.query(Usuario).filter(Usuario.email == email).first()
-    if usuario_existe:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El email ya está registrado"
-        )
+async def registrar_usuario(usuario_data: UsuarioRegistro, db: Session = Depends(get_db)):
+    """Registrar nuevo usuario"""
+    # Verificar si existe
+    existe = db.exec(select(Usuario).where(Usuario.email == usuario_data.email)).first()
+    if existe:
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
     
-    # Crear nuevo usuario
+    # Crear usuario
     usuario = Usuario(
-        nombre=nombre,
-        email=email,
-        password_hash=get_password_hash(password)
+        nombre=usuario_data.nombre,
+        email=usuario_data.email,
+        password_hash=hash_password(usuario_data.password)
     )
     db.add(usuario)
     db.commit()
     db.refresh(usuario)
     
-    return {"mensaje": "Usuario registrado exitosamente"}
+    return {"mensaje": "Usuario registrado exitosamente", "id": usuario.id}
 
 @app.post("/token")
-async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
-):
-    usuario = db.query(Usuario).filter(Usuario.email == form_data.username).first()
-    if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales incorrectas"
-        )
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """Login de usuario"""
+    usuario = db.exec(select(Usuario).where(Usuario.email == form_data.username)).first()
+    if not usuario or not verify_password(form_data.password, usuario.password_hash):
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
     
-    if not verify_password(form_data.password, usuario.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales incorrectas"
-        )
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": usuario.email},
-        expires_delta=access_token_expires
-    )
+    access_token = create_access_token(usuario.email)
     
     return {
         "access_token": access_token,
@@ -203,28 +170,8 @@ async def login(
         }
     }
 
-@app.get("/")
-def root():
-    return {"mensaje": "API de Productos - use /productos para obtener el listado"}
-
-@app.get("/productos")
-async def obtener_productos(search: str = None, categoria: str = None):
-    productos = cargar_productos()
-    
-    # Filtrar por búsqueda
-    if search:
-        search = search.lower()
-        productos = [p for p in productos if search in p["nombre"].lower() or search in p["descripcion"].lower()]
-    
-    # Filtrar por categoría
-    if categoria:
-        productos = [p for p in productos if p["categoria"].lower() == categoria.lower()]
-    
-    return productos
-
 @app.get("/user/me")
 async def obtener_usuario_actual(current_user: Usuario = Depends(get_current_user)):
-    """Ruta protegida que requiere autenticación"""
     return {
         "id": current_user.id,
         "email": current_user.email,
@@ -233,169 +180,47 @@ async def obtener_usuario_actual(current_user: Usuario = Depends(get_current_use
 
 @app.get("/carrito")
 async def obtener_carrito(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
-    carrito = db.query(Carrito).filter(
-        Carrito.usuario_id == current_user.id,
-        Carrito.estado == "activo"
-    ).first()
-    
-    if not carrito:
-        carrito = Carrito(usuario_id=current_user.id, estado="activo")
-        db.add(carrito)
-        db.commit()
-        db.refresh(carrito)
-    
-    return carrito
+    items = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)).all()
+    return {"items": [{"id": i.id, "producto_id": i.producto_id, "cantidad": i.cantidad} for i in items]}
 
 @app.post("/carrito/agregar/{producto_id}")
-async def agregar_al_carrito(
-    producto_id: int,
-    cantidad: int,
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    # Verificar existencia del producto
+async def agregar_al_carrito(producto_id: int, cantidad: int, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Verificar producto
     productos = cargar_productos()
     producto = next((p for p in productos if p["id"] == producto_id), None)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     
-    if producto["existencia"] < cantidad:
-        raise HTTPException(status_code=400, detail="No hay suficiente stock")
+    if producto.get("existencia", 0) < cantidad:
+        raise HTTPException(status_code=400, detail="Stock insuficiente")
     
-    # Obtener o crear carrito
-    carrito = db.query(Carrito).filter(
-        Carrito.usuario_id == current_user.id,
-        Carrito.estado == "activo"
-    ).first()
+    # Buscar item existente
+    item = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id, ItemCarrito.producto_id == producto_id)).first()
     
-    if not carrito:
-        carrito = Carrito(usuario_id=current_user.id, estado="activo")
-        db.add(carrito)
-        db.commit()
+    if item:
+        item.cantidad += cantidad
+    else:
+        item = ItemCarrito(usuario_id=current_user.id, producto_id=producto_id, cantidad=cantidad)
+        db.add(item)
     
-    # Agregar item al carrito
-    item = CarritoItem(
-        carrito_id=carrito.id,
-        producto_id=producto_id,
-        cantidad=cantidad
-    )
-    db.add(item)
     db.commit()
-    
     return {"mensaje": "Producto agregado al carrito"}
 
 @app.delete("/carrito/quitar/{producto_id}")
-async def quitar_del_carrito(
-    producto_id: int,
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    carrito = db.query(Carrito).filter(
-        Carrito.usuario_id == current_user.id,
-        Carrito.estado == "activo"
-    ).first()
+async def quitar_del_carrito(producto_id: int, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    item = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id, ItemCarrito.producto_id == producto_id)).first()
     
-    if not carrito:
-        raise HTTPException(status_code=404, detail="Carrito no encontrado")
+    if not item:
+        raise HTTPException(status_code=404, detail="Item no encontrado")
     
-    db.query(CarritoItem).filter(
-        CarritoItem.carrito_id == carrito.id,
-        CarritoItem.producto_id == producto_id
-    ).delete()
-    
+    db.delete(item)
     db.commit()
-    return {"mensaje": "Producto eliminado del carrito"}
-
-@app.post("/carrito/finalizar")
-async def finalizar_compra(
-    direccion: str,
-    tarjeta: str,
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    # Obtener carrito activo
-    carrito = db.query(Carrito).filter(
-        Carrito.usuario_id == current_user.id,
-        Carrito.estado == "activo"
-    ).first()
-    
-    if not carrito or not carrito.items:
-        raise HTTPException(status_code=400, detail="Carrito vacío")
-    
-    # Validar stock
-    productos = cargar_productos()
-    for item in carrito.items:
-        producto = next((p for p in productos if p["id"] == item.producto_id), None)
-        if not producto or producto["existencia"] < item.cantidad:
-            raise HTTPException(status_code=400, detail=f"Stock insuficiente para {producto['nombre']}")
-    
-    # Calcular totales
-    subtotal = sum(item.cantidad * next(p["precio"] for p in productos if p["id"] == item.producto_id)
-                  for item in carrito.items)
-    
-    # Aplicar IVA según categoría
-    iva_total = 0
-    for item in carrito.items:
-        producto = next(p for p in productos if p["id"] == item.producto_id)
-        iva_tasa = 0.10 if producto["categoria"] == "electronicos" else 0.21
-        iva_total += item.cantidad * producto["precio"] * iva_tasa
-    
-    # Calcular envío
-    envio = 0 if subtotal > 1000 else 50
-    total = subtotal + iva_total + envio
-    
-    # Crear compra
-    compra = Compra(
-        usuario_id=current_user.id,
-        direccion=direccion,
-        tarjeta=tarjeta[-4:],  # Guardar solo últimos 4 dígitos
-        total=total,
-        envio=envio
-    )
-    db.add(compra)
-    
-    # Crear items de compra
-    for item in carrito.items:
-        producto = next(p for p in productos if p["id"] == item.producto_id)
-        compra_item = CompraItem(
-            compra_id=compra.id,
-            producto_id=item.producto_id,
-            cantidad=item.cantidad,
-            nombre=producto["nombre"],
-            precio_unitario=producto["precio"]
-        )
-        db.add(compra_item)
-    
-    # Marcar carrito como completado
-    carrito.estado = "completado"
-    
-    db.commit()
-    
-    return {"mensaje": "Compra finalizada exitosamente", "total": total}
+    return {"mensaje": "Producto eliminado"}
 
 @app.get("/compras")
-async def obtener_compras(
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    compras = db.query(Compra).filter(Compra.usuario_id == current_user.id).all()
-    return compras
-
-@app.get("/compras/{compra_id}")
-async def obtener_compra(
-    compra_id: int,
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    compra = db.query(Compra).filter(
-        Compra.id == compra_id,
-        Compra.usuario_id == current_user.id
-    ).first()
-    
-    if not compra:
-        raise HTTPException(status_code=404, detail="Compra no encontrada")
-    
-    return compra
+async def obtener_compras(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    compras = db.exec(select(Compra).where(Compra.usuario_id == current_user.id)).all()
+    return [{"id": c.id, "total": c.total, "fecha": c.fecha_creacion, "direccion": c.direccion} for c in compras]
 
 if __name__ == "__main__":
     import uvicorn
