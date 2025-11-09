@@ -1,5 +1,5 @@
 # from enunciados.tp6.backend import models
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Response, Cookie
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
@@ -12,13 +12,13 @@ from sqlmodel import Session, select
 from models.productos import Producto
 
 # Se trae los "contratos" que se definieron
-from models.schemas import UsuarioRegistro, UsuarioRespuesta
+from models.schemas import UsuarioRegistro, UsuarioRespuesta, UsuarioLogin, Token
 
 # Se trae el modelo de la base de datos de Usuario
 from models.usuarios import Usuario
 
 # Se trae la función para hashear contraseñas
-from security import obtener_hash_contrasenia
+from security import obtener_hash_contrasenia, verificar_contrasenia, crear_token_sesion
 
 # Función lifespan para inicializar la base de datos al iniciar la aplicación
 @asynccontextmanager
@@ -134,6 +134,45 @@ def registrar_usuario(usuario_data: UsuarioRegistro, session: Session = Depends(
 
     # 5. Devolver la respuesta
     return nuevo_usuario
+
+@app.post("/iniciar-sesion", response_model=Token)
+def iniciar_sesion(
+    from_data: UsuarioLogin,
+    response: Response,
+    session: Session = Depends(get_session)
+):
+    # 1. Buscar el usuario por email
+    statement = select(Usuario).where(Usuario.email == from_data.email)
+    usuario = session.exec(statement).first()
+
+    # 2. Verificar que el usuario exista y la contraseña sea correcta
+    if not usuario or not verificar_contrasenia(from_data.contrasenia, usuario.contrasenia):
+        raise HTTPException(
+            status_code=401,
+            detail="Credenciales inválidas."
+        )
+
+    # 3. Crear un token de sesión
+    token, expiracion = crear_token_sesion()
+
+    # 4. Guardar el token y su expiración en la base de datos
+    usuario.token = token
+    usuario.token_expiration = expiracion
+    session.add(usuario)
+    session.commit()
+
+    # 5. Enviar el token como una cookie
+    response.set_cookie(
+        key="token",
+        value=token,
+        httponly=True,
+        samesite="none",
+        secure=True,
+        expires=expiracion
+    )
+
+    # Se devuelve el token también en el JSON
+    return Token(access_token=token)
 
 if __name__ == "__main__":
     import uvicorn
