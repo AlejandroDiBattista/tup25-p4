@@ -1,18 +1,46 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import ProductoCard from "./components/ProductoCard";
 import type { Producto } from "./types";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AUTH_USER_UPDATED_EVENT } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type LoadState = "idle" | "loading" | "error";
+
+type CarritoItem = {
+  producto_id: number;
+  titulo: string;
+  precio_unitario: number;
+  cantidad: number;
+  subtotal: number;
+  categoria: string;
+  imagen: string;
+};
+
+type CarritoDetalle = {
+  items: CarritoItem[];
+  subtotal: number;
+  iva: number;
+  envio: number;
+  total: number;
+};
+
+const mapCarritoDetalle = (payload: any): CarritoDetalle => ({
+  items: Array.isArray(payload?.items) ? (payload.items as CarritoItem[]) : [],
+  subtotal: Number(payload?.subtotal ?? 0),
+  iva: Number(payload?.iva ?? 0),
+  envio: Number(payload?.envio ?? 0),
+  total: Number(payload?.total ?? 0),
+});
 
 export default function ProductsPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -20,11 +48,45 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState("todas");
   const [token, setToken] = useState<string | null>(null);
+  const [carrito, setCarrito] = useState<CarritoDetalle | null>(null);
+  const [estadoCarrito, setEstadoCarrito] = useState<LoadState>("idle");
+  const [accionCarritoId, setAccionCarritoId] = useState<number | null>(null);
+  const [cancelandoCarrito, setCancelandoCarrito] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const [mensajeTipo, setMensajeTipo] = useState<"info" | "error">("info");
   const [addingId, setAddingId] = useState<number | null>(null);
 
+  const updateMensaje = (texto: string | null, tipo: "info" | "error" = "info") => {
+    setMensaje(texto);
+    if (texto) {
+      setMensajeTipo(tipo);
+    }
+  };
+
   useEffect(() => {
-    setToken(localStorage.getItem("token"));
+    const syncToken = () => {
+      if (typeof window === "undefined") {
+        return;
+      }
+      setToken(localStorage.getItem("token"));
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === "token" || event.key === "usuario") {
+        syncToken();
+      }
+    };
+
+    const handleAuthEvent = (_event: Event) => syncToken();
+
+    syncToken();
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener(AUTH_USER_UPDATED_EVENT, handleAuthEvent);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener(AUTH_USER_UPDATED_EVENT, handleAuthEvent);
+    };
   }, []);
 
   useEffect(() => {
@@ -48,6 +110,45 @@ export default function ProductsPage() {
 
     obtenerProductos();
   }, []);
+
+  const fetchCarrito = useCallback(async () => {
+    if (!token) {
+      setCarrito(null);
+      return;
+    }
+
+    setEstadoCarrito("loading");
+    try {
+      const response = await fetch(`${API_BASE_URL}/carrito`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudo obtener el carrito");
+      }
+
+      const data = await response.json();
+      setCarrito(mapCarritoDetalle(data));
+      setEstadoCarrito("idle");
+    } catch (error) {
+      console.error(error);
+      setEstadoCarrito("error");
+      const message =
+        error instanceof Error ? error.message : "No se pudo cargar tu carrito";
+      updateMensaje(message, "error");
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      setCarrito(null);
+      return;
+    }
+    fetchCarrito();
+  }, [token, fetchCarrito]);
 
   const categorias = useMemo(() => {
     const unique = Array.from(
@@ -73,12 +174,12 @@ export default function ProductsPage() {
 
   const handleAgregarAlCarrito = async (productoId: number) => {
     if (!token) {
-      setMensaje("Inicia sesion para agregar productos al carrito.");
+      updateMensaje("Inicia sesion para agregar productos al carrito.", "error");
       return;
     }
 
     setAddingId(productoId);
-    setMensaje(null);
+    updateMensaje(null);
     try {
       const response = await fetch(`${API_BASE_URL}/carrito`, {
         method: "POST",
@@ -92,13 +193,77 @@ export default function ProductsPage() {
       if (!response.ok) {
         throw new Error(data.detail ?? "No se pudo agregar el producto");
       }
-      setMensaje("Producto agregado al carrito.");
+      setCarrito(mapCarritoDetalle(data));
+      setEstadoCarrito("idle");
+      updateMensaje("Producto agregado al carrito.");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Ocurrio un error inesperado";
-      setMensaje(message);
+      updateMensaje(message, "error");
     } finally {
       setAddingId(null);
+    }
+  };
+
+  const handleQuitarDelCarrito = async (productoId: number) => {
+    if (!token) {
+      return;
+    }
+
+    setAccionCarritoId(productoId);
+    updateMensaje(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/carrito/${productoId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail ?? "No se pudo quitar el producto");
+      }
+
+      setCarrito(mapCarritoDetalle(data));
+      updateMensaje(data.mensaje ?? "Producto eliminado del carrito.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Ocurrio un error inesperado";
+      updateMensaje(message, "error");
+    } finally {
+      setAccionCarritoId(null);
+    }
+  };
+
+  const handleCancelarCarrito = async () => {
+    if (!token) {
+      return;
+    }
+
+    setCancelandoCarrito(true);
+    updateMensaje(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/carrito/cancelar`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail ?? "No se pudo cancelar el carrito");
+      }
+
+      setCarrito(mapCarritoDetalle(data));
+      updateMensaje(data.mensaje ?? "Tu carrito fue vaciado.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Ocurrio un error inesperado";
+      updateMensaje(message, "error");
+    } finally {
+      setCancelandoCarrito(false);
     }
   };
 
@@ -179,30 +344,142 @@ export default function ProductsPage() {
 
         <aside className="hidden w-72 flex-shrink-0 lg:block">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">
-              {token
-                ? "Selecciona un producto para agregarlo a tu carrito."
-                : "Inicia sesion para ver y editar tu carrito."}
-            </p>
+            {!token ? (
+              <>
+                <p className="text-sm text-slate-500">
+                  Inicia sesion para ver y editar tu carrito.
+                </p>
+                <Button
+                  asChild
+                  className="mt-6 w-full rounded-full bg-slate-900 py-2 text-sm text-white hover:bg-slate-800"
+                >
+                  <Link href="/login">Iniciar sesion</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <p className="text-base font-semibold text-slate-900">Tu carrito</p>
+                  <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
+                    {carrito?.items.length ?? 0} items
+                  </span>
+                </div>
+                {estadoCarrito === "loading" && (
+                  <p className="mt-6 text-sm text-slate-500">Cargando tu carrito...</p>
+                )}
+                {estadoCarrito === "error" && (
+                  <p className="mt-6 text-sm text-red-600">
+                    No pudimos cargar tu carrito. Intenta nuevamente.
+                  </p>
+                )}
+                {estadoCarrito === "idle" && carrito && carrito.items.length === 0 && (
+                  <p className="mt-6 text-sm text-slate-500">
+                    Todavia no tienes productos en tu carrito.
+                  </p>
+                )}
+
+                {carrito && carrito.items.length > 0 && (
+                  <>
+                    <ul className="mt-6 space-y-4">
+                      {carrito.items.map((item) => (
+                        <li
+                          key={item.producto_id}
+                          className="flex gap-3 rounded-xl border border-slate-100 p-3"
+                        >
+                          <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-slate-100">
+                            <Image
+                              src={`${API_BASE_URL}/${item.imagen}`}
+                              alt={item.titulo}
+                              fill
+                              sizes="64px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                          <div className="flex-1 text-sm">
+                            <p className="font-semibold text-slate-900">{item.titulo}</p>
+                            <p className="text-xs text-slate-500">
+                              ${item.precio_unitario.toFixed(2)} c/u
+                            </p>
+                            <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
+                              <span>Cantidad: {item.cantidad}</span>
+                              <span className="font-semibold text-slate-900">
+                                ${item.subtotal.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-slate-400 hover:text-slate-900"
+                            onClick={() => handleQuitarDelCarrito(item.producto_id)}
+                            disabled={accionCarritoId === item.producto_id}
+                            aria-label={`Quitar ${item.titulo}`}
+                          >
+                            X
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-6 space-y-3 text-sm text-slate-600">
+                      <div className="flex justify-between">
+                        <span>Subtotal</span>
+                        <span className="font-semibold text-slate-900">
+                          ${carrito.subtotal.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>IVA</span>
+                        <span className="font-semibold text-slate-900">
+                          ${carrito.iva.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Envio</span>
+                        <span className="font-semibold text-slate-900">
+                          ${carrito.envio.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-base font-semibold text-slate-900">
+                        <span>Total</span>
+                        <span>${carrito.total.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex gap-3">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={handleCancelarCarrito}
+                        disabled={cancelandoCarrito}
+                      >
+                        {cancelandoCarrito ? "Cancelando..." : "Cancelar"}
+                      </Button>
+                      <Button
+                        className="flex-1 bg-slate-900 text-white hover:bg-slate-800"
+                        disabled={carrito.items.length === 0}
+                        type="button"
+                      >
+                        Continuar compra
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
             {mensaje && (
               <p
                 className={cn(
                   "mt-4 rounded-xl px-4 py-3 text-sm",
-                  mensaje.includes("agregado")
-                    ? "bg-emerald-50 text-emerald-600"
-                    : "bg-slate-100 text-slate-600"
+                  mensajeTipo === "error"
+                    ? "bg-red-50 text-red-600"
+                    : "bg-emerald-50 text-emerald-600"
                 )}
               >
                 {mensaje}
               </p>
-            )}
-            {!token && (
-              <Button
-                asChild
-                className="mt-6 w-full rounded-full bg-slate-900 py-2 text-sm text-white hover:bg-slate-800"
-              >
-                <Link href="/login">Iniciar sesion</Link>
-              </Button>
             )}
           </div>
         </aside>

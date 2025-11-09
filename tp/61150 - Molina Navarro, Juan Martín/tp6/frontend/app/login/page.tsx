@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { SiteHeader } from "@/components/site-header";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { notifyUsuarioUpdated } from "@/lib/auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -23,6 +25,7 @@ type Status =
   | { type: "error"; message: string };
 
 export default function LoginPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [status, setStatus] = useState<Status>({ type: "idle" });
 
@@ -44,11 +47,13 @@ export default function LoginPage() {
 
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("usuario", JSON.stringify(data.usuario));
+      notifyUsuarioUpdated();
 
       setStatus({
         type: "success",
         message: `Bienvenido/a ${data.usuario.nombre}!`,
       });
+      router.push("/");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Ocurrió un error inesperado";
@@ -128,4 +133,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
