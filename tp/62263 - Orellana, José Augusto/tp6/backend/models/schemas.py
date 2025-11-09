@@ -83,3 +83,7 @@ class CarritoAgregarProducto(BaseModel):
     """Modelo para agregar un producto al carrito."""
     producto_id: int
     cantidad: int = Field(default=1, ge=1)
+
+class CarritoEliminarItem(BaseModel):
+    """Modelo para eliminar un producto del carrito."""
+    carrito_item_id: int
