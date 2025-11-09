@@ -2,19 +2,25 @@ import { Producto } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+interface FiltrosProductos {
+  categoria?: string;
+  buscar?: string;
+}
+
 /**
  * Obtener lista de productos con filtros opcionales
  */
 export async function obtenerProductos(
-  categoria?: string,
-  busqueda?: string
+  filtros?: FiltrosProductos
 ): Promise<Producto[]> {
   const params = new URLSearchParams();
-  if (categoria && categoria !== 'todas') {
-    params.append('categoria', categoria);
+  
+  if (filtros?.categoria && filtros.categoria !== 'todas') {
+    params.append('categoria', filtros.categoria);
   }
-  if (busqueda && busqueda.trim()) {
-    params.append('buscar', busqueda.trim());
+  
+  if (filtros?.buscar && filtros.buscar.trim()) {
+    params.append('busqueda', filtros.buscar.trim());
   }
   
   const url = `${API_URL}/productos${params.toString() ? '?' + params.toString() : ''}`;

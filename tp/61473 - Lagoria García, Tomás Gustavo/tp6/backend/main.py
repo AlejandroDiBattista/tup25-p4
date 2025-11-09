@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from pathlib import Path
+import unicodedata
 
 from database import crear_tablas, get_session
 from models import Producto, ProductoResponse
@@ -33,6 +34,15 @@ app.add_middleware(
 
 
 # ==================== EVENTOS ====================
+
+def normalizar_texto(texto: str) -> str:
+    """Normaliza texto removiendo acentos y convirtiéndolo a minúsculas."""
+    # Descomponer caracteres acentuados (ó -> o + acento)
+    texto_nfd = unicodedata.normalize('NFD', texto)
+    # Filtrar solo caracteres que no sean marcas diacríticas
+    texto_sin_acentos = ''.join(char for char in texto_nfd if unicodedata.category(char) != 'Mn')
+    return texto_sin_acentos.lower()
+
 
 @app.on_event("startup")
 def on_startup():
@@ -74,19 +84,24 @@ def obtener_productos(
     # Query base
     query = select(Producto)
     
-    # Filtrar por categoría si se especifica
+    # Filtrar por categoría si se especifica (case-insensitive)
     if categoria:
-        query = query.where(Producto.categoria == categoria)
+        query = query.where(Producto.categoria.ilike(categoria))
     
-    # Buscar en título y descripción si se especifica
+    # Buscar en título, descripción y categoría si se especifica (sin acentos)
     if busqueda:
-        busqueda_lower = f"%{busqueda.lower()}%"
-        query = query.where(
-            (Producto.titulo.ilike(busqueda_lower)) |
-            (Producto.descripcion.ilike(busqueda_lower))
-        )
-    
-    productos = session.exec(query).all()
+        # Obtener todos los productos y filtrar en memoria para ignorar acentos
+        productos_temp = session.exec(query).all()
+        busqueda_normalizada = normalizar_texto(busqueda)
+        
+        productos = [
+            p for p in productos_temp
+            if busqueda_normalizada in normalizar_texto(p.titulo) or
+               busqueda_normalizada in normalizar_texto(p.descripcion) or
+               busqueda_normalizada in normalizar_texto(p.categoria)
+        ]
+    else:
+        productos = session.exec(query).all()
     
     # Convertir a response model con propiedad disponible
     return [

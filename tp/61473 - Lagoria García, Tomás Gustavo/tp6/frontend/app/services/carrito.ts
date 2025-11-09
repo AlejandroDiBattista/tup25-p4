@@ -46,6 +46,9 @@ export async function agregarAlCarrito(
   });
   
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Tu sesión ha expirado. Por favor inicia sesión nuevamente.');
+    }
     const error = await response.json();
     throw new Error(error.detail || 'Error al agregar producto al carrito');
   }
