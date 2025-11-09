@@ -22,13 +22,7 @@ export default function CarritoLateral() {
             return
         }
 
-        try {
-            await procesarCarrito(token)
-            toast.success("Compra realizada con éxito")
-            vaciar()
-        } catch {
-            toast.error("Ocurrió un error al procesar la compra")
-        }
+        router.push("/finalizar-compra")
     }
 
     const subtotal = items.reduce(
@@ -121,7 +115,10 @@ export default function CarritoLateral() {
                         </div>
                     </div>
                     <div className="flex justify-between mt-4">
-                        <Button variant="outline" onClick={vaciar}>
+                        <Button 
+                            variant="outline"
+                            onClick={vaciar}
+                        >
                             Cancelar
                         </Button>
                         <Button 

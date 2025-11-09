@@ -1,6 +1,8 @@
 import {create} from "zustand"
 import {persist} from "zustand/middleware"
 import { Producto } from "../types"
+import { eliminarProducto, cancelarCarrito, verCarrito } from "../services/carrito"
+import { useAuthStore } from "./useAuthStore"
 
 interface ItemCarrito {
     producto: Producto
@@ -9,16 +11,33 @@ interface ItemCarrito {
 
 interface CarritoState {
     items: ItemCarrito[]
+    ver: (token: string) => Promise<void>
     agregar: (producto: Producto) => void
     disminuir: (id: number) => void
-    eliminar: (id: number) => void
-    vaciar: () => void
+    eliminar: (id: number) => Promise<void>
+    vaciar: () => Promise<void>
+    limpiarLocal: () => void
 }
 
 export const useCarritoStore = create<CarritoState>() (
     persist (
-        (set) => ({
+        (set, get) => ({
             items: [],
+
+            ver: async (token) => {
+                try {
+                    const data = await verCarrito(token)
+                    if (data && Array.isArray(data.productos)) {
+                        const items = data.productos.map((item: any) => ({
+                            producto: item.producto || item,
+                            cantidad: item.cantidad ?? 1
+                        }))
+                        set({items})
+                    }
+                } catch (error) {
+                    console.error("Error al obtener el carrito: ", error)
+                }
+            },
 
             agregar: (producto) =>
                 set((state) => {
@@ -51,12 +70,28 @@ export const useCarritoStore = create<CarritoState>() (
                     }
                 }),
 
-            eliminar: (id) =>
+            eliminar: async (id) => {
+                const {token} = useAuthStore.getState()
+                if (token) {
+                    await eliminarProducto(id, token)
+                }
                 set((state) => ({
                     items: state.items.filter((i) => i.producto.id !== id)
-                })),
+                }))
+            },
 
-            vaciar: () => set({items: []})
+            vaciar: async () => {
+                const {token} = useAuthStore.getState()
+                if (token) {
+                    await cancelarCarrito(token)
+                }
+                set({items: []})
+            },
+            
+            limpiarLocal: () => {
+                localStorage.removeItem("carrito-storage")
+                set({items: []})
+            }
         }),
         {
             name: "carrito-storage"

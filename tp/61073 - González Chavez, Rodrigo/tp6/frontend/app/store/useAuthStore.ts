@@ -13,9 +13,10 @@ export const useAuthStore = create<AuthState>() (
         (set) => ({
             token: null,
             usuario: null,
-            iniciarSesion: (token, usuario) =>
-                set({token, usuario}),
-
+            iniciarSesion: (token, usuario) => {
+                if (!token || !usuario) return
+                set({token, usuario})
+            },
             cerrarSesion: () => set({token: null, usuario: null}),
         }),
         {

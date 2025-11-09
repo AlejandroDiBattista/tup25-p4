@@ -203,6 +203,7 @@ Authorization: Bearer {{token}}
 ### 7.1 - Intentar acceder al carrito sin autenticación (debe devolver 401)
 GET {{baseUrl}}/carrito
 Accept: {{contentType}}
+Authorization: Bearer {{token}}
 
 ### 7.2 - Intentar agregar al carrito sin autenticación (debe devolver 401)
 POST {{baseUrl}}/carrito
