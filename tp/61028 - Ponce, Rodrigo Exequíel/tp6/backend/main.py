@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm
@@ -7,11 +7,11 @@ from pathlib import Path
 from datetime import timedelta
 from sqlmodel import Session, select
 from models.database import create_db_and_tables, engine, get_session
-from models import Usuario, Producto
+from models.models import Usuario, Producto # <--- Esta corrección SÍ es necesaria
 from typing import List, Optional
 from schemas.producto_schema import ProductoResponse, ProductoFilter
 from services.producto_service import ProductoService
-from auth.schemas import UsuarioCreate, Token, UsuarioResponse
+from auth.schemas import UsuarioCreate, Token, UsuarioResponse # <--- ¡Esta es la línea corregida!
 from auth.security import (
     get_password_hash,
     crear_token_acceso,
@@ -26,6 +26,11 @@ from schemas.carrito_schema import (
     ItemCarritoResponse
 )
 from services.carrito_service import CarritoService
+
+# --- Importaciones para Commit 5 ---
+from schemas.compra_schema import CompraCreate, CompraResponse
+from services.compra_service import CompraService
+# ---
 
 app = FastAPI(title="Tienda API")
 
@@ -45,62 +50,59 @@ app.add_middleware(
 async def startup_event():
     create_db_and_tables()
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+# --- Endpoints de Autenticación ---
 
-@app.post("/registrar", response_model=UsuarioResponse)
-async def registrar_usuario(usuario: UsuarioCreate):
-    with Session(engine) as session:
-        # Verificar si el email ya existe
-        existe = session.exec(
-            select(Usuario).where(Usuario.email == usuario.email)
-        ).first()
-        if existe:
-            raise HTTPException(
-                status_code=400,
-                detail="El email ya está registrado"
-            )
-        
-        # Crear nuevo usuario
-        nuevo_usuario = Usuario(
-            nombre=usuario.nombre,
-            email=usuario.email,
-            password_hash=get_password_hash(usuario.password)
+@app.post("/registrar", response_model=UsuarioResponse, tags=["Autenticación"])
+async def registrar_usuario(
+    usuario: UsuarioCreate, 
+    session: Session = Depends(get_session)
+):
+    existe = session.exec(
+        select(Usuario).where(Usuario.email == usuario.email)
+    ).first()
+    if existe:
+        raise HTTPException(
+            status_code=400,
+            detail="El email ya está registrado"
         )
-        session.add(nuevo_usuario)
-        session.commit()
-        session.refresh(nuevo_usuario)
-        
-        return nuevo_usuario
+    
+    nuevo_usuario = Usuario(
+        nombre=usuario.nombre,
+        email=usuario.email,
+        password_hash=get_password_hash(usuario.password)
+    )
+    session.add(nuevo_usuario)
+    session.commit()
+    session.refresh(nuevo_usuario)
+    
+    return nuevo_usuario
 
-@app.post("/token", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    with Session(engine) as session:
-        usuario = session.exec(
-            select(Usuario).where(Usuario.email == form_data.username)
-        ).first()
-        if not usuario or not verificar_password(form_data.password, usuario.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Email o contraseña incorrectos",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = crear_token_acceso(
-            data={"sub": usuario.email}, expires_delta=access_token_expires
+@app.post("/iniciar-sesion", response_model=Token, tags=["Autenticación"])
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session)
+):
+    usuario = session.exec(
+        select(Usuario).where(Usuario.email == form_data.username)
+    ).first()
+    if not usuario or not verificar_password(form_data.password, usuario.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-        return {"access_token": access_token, "token_type": "bearer"}
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = crear_token_acceso(
+        data={"sub": usuario.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/cerrar-sesion")
+@app.post("/cerrar-sesion", tags=["Autenticación"])
 async def cerrar_sesion(usuario_actual: Usuario = Depends(get_usuario_actual)):
-    # En una implementación real, aquí se invalidaría el token
     return {"mensaje": "Sesión cerrada exitosamente"}
 
-@app.get("/me", response_model=UsuarioResponse)
+@app.get("/me", response_model=UsuarioResponse, tags=["Autenticación"])
 async def obtener_usuario_actual(usuario_actual: Usuario = Depends(get_usuario_actual)):
     return usuario_actual
 
@@ -108,59 +110,51 @@ async def obtener_usuario_actual(usuario_actual: Usuario = Depends(get_usuario_a
 def root():
     return {"mensaje": "API de la Tienda - Bienvenido"}
 
-from typing import List
-from schemas.producto_schema import ProductoResponse, ProductoFilter
-from services.producto_service import ProductoService
+# --- Endpoints de Productos ---
 
-@app.get("/productos", response_model=List[ProductoResponse])
+@app.get("/productos", response_model=List[ProductoResponse], tags=["Productos"])
 async def obtener_productos(
     filtros: ProductoFilter = Depends(),
     session: Session = Depends(get_session)
 ):
-    """
-    Obtiene lista de productos con filtros opcionales:
-    - busqueda: Búsqueda por nombre o descripción
-    - categoria: Filtrar por categoría
-    - precio_min: Precio mínimo
-    - precio_max: Precio máximo
-    - disponibles: Solo productos con existencia > 0
-    """
     await ProductoService.cargar_productos_iniciales(session)
     return await ProductoService.obtener_productos(session, filtros)
 
-@app.get("/productos/{producto_id}", response_model=ProductoResponse)
+@app.get("/productos/{producto_id}", response_model=ProductoResponse, tags=["Productos"])
 async def obtener_producto(
     producto_id: int,
     session: Session = Depends(get_session)
 ):
-    """Obtiene un producto específico por su ID"""
     producto = await ProductoService.obtener_producto(session, producto_id)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return producto
 
-@app.get("/categorias", response_model=List[str])
+@app.get("/categorias", response_model=List[str], tags=["Productos"])
 async def obtener_categorias(session: Session = Depends(get_session)):
-    """Obtiene la lista de categorías disponibles"""
     await ProductoService.cargar_productos_iniciales(session)
     return await ProductoService.obtener_categorias(session)
 
-# Endpoints del carrito
-@app.get("/carrito", response_model=CarritoResponse)
+# --- Endpoints del Carrito (Commit 4) ---
+
+@app.get("/carrito", response_model=CarritoResponse, tags=["Carrito"])
 async def obtener_carrito(
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    """Obtiene el contenido del carrito del usuario"""
     return await CarritoService.obtener_carrito(session, usuario)
 
-@app.post("/carrito/productos", response_model=ItemCarritoResponse)
+@app.post(
+    "/carrito",
+    response_model=ItemCarritoResponse, 
+    status_code=status.HTTP_201_CREATED, 
+    tags=["Carrito"]
+)
 async def agregar_al_carrito(
     item: ItemCarritoCreate,
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    """Agrega un producto al carrito"""
     return await CarritoService.agregar_producto(
         session, 
         usuario, 
@@ -168,24 +162,35 @@ async def agregar_al_carrito(
         item.cantidad
     )
 
-@app.delete("/carrito/productos/{producto_id}")
+@app.delete(
+    "/carrito/{producto_id}",
+    status_code=status.HTTP_204_NO_CONTENT, 
+    tags=["Carrito"]
+)
 async def quitar_del_carrito(
     producto_id: int,
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    """Quita un producto del carrito"""
-    await CarritoService.quitar_producto(session, usuario, producto_id)
-    return {"message": "Producto eliminado del carrito"}
+    exito = await CarritoService.quitar_producto(session, usuario, producto_id)
+    if not exito:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Producto no encontrado en el carrito"
+        )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-@app.put("/carrito/productos/{producto_id}", response_model=ItemCarritoResponse)
+@app.put(
+    "/carrito/{producto_id}",
+    response_model=ItemCarritoResponse, 
+    tags=["Carrito"]
+)
 async def actualizar_cantidad_carrito(
     producto_id: int,
     item: ItemCarritoUpdate,
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    """Actualiza la cantidad de un producto en el carrito"""
     return await CarritoService.actualizar_cantidad(
         session, 
         usuario, 
@@ -193,15 +198,31 @@ async def actualizar_cantidad_carrito(
         item.cantidad
     )
 
-@app.post("/carrito/cancelar")
+# --- Endpoints de Compra (Commit 5) ---
+
+@app.post("/carrito/cancelar", tags=["Carrito"])
 async def cancelar_carrito(
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    """Cancela y vacía el carrito actual"""
     await CarritoService.vaciar_carrito(session, usuario)
     return {"message": "Carrito cancelado"}
 
+@app.post("/carrito/finalizar", response_model=CompraResponse, tags=["Compra"])
+async def finalizar_compra(
+    datos_compra: CompraCreate,
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    compra_realizada = await CompraService.finalizar_compra(
+        session, 
+        usuario, 
+        datos_compra
+    )
+    return compra_realizada
+
+# ---
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
