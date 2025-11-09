@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from pathlib import Path
 import hashlib, secrets, json
 import time
-from sqlalchemy import text  # <-- agregar
+from sqlalchemy import text
 
 # ------------------ DB / ENGINE ------------------
 BASE_DIR = Path(__file__).parent
@@ -51,11 +51,17 @@ class CarritoItem(SQLModel, table=True):
 class Compra(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int = Field(foreign_key="usuario.id")
+    # totales y desglose
+    subtotal: float = 0
+    iva_total: float = 0
+    envio: float = 0
     total: float = 0
+    # datos
     fecha_iso: str = ""
     nombre: str = ""
     direccion: str = ""
     telefono: str = ""
+    tarjeta_mask: str = ""          # últimos 4 dígitos
     metodo_pago: str = "tarjeta"
     estado: str = "confirmada"
 
@@ -68,15 +74,27 @@ class CompraItem(SQLModel, table=True):
     subtotal: float = 0
     titulo: str = ""
     imagen: Optional[str] = None
+    categoria: Optional[str] = None
+    iva_rate: float = 0.0
+
+# --- helper: validar carrito abierto ---
+def _ensure_cart_open(c: Carrito) -> None:
+    if c.estado != "abierto":
+        raise HTTPException(status_code=400, detail="Carrito finalizado")
 
 # ------------------ APP / CORS / STATIC ------------------
 app = FastAPI()
+
+# CORS (frontend en localhost:3000)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"],  # incluye Authorization
 )
 app.mount("/imagenes", StaticFiles(directory=str(BASE_DIR / "imagenes"), check_dir=False), name="imagenes")
 
@@ -98,8 +116,32 @@ def _img_url(img: str | None) -> str | None:
     if img.startswith("imagenes/"): return f"/{img}"
     return f"/imagenes/{img}"
 
+# Helpers IVA, tarjeta y validación de carrito
+def _iva_rate_for(categoria: Optional[str]) -> float:
+    c = (categoria or "").lower()
+    return 0.10 if "electr" in c else 0.21
+
+def _mask_tarjeta(t: str) -> str:
+    d = "".join(ch for ch in t if ch.isdigit())
+    return f"**** **** **** {d[-4:]}" if len(d) >= 4 else ""
+
+def _ensure_cart_open(c: Carrito) -> None:
+    if c.estado != "abierto":
+        raise HTTPException(status_code=400, detail="Carrito finalizado")
+
 # ------------------ CARGA / REPARACIÓN DE PRODUCTOS ------------------
 def _ensure_schema():
+    with engine.begin() as conn:
+        cols = {row[1] for row in conn.execute(text("PRAGMA table_info('compra')")).fetchall()}
+        def ensure(table: str, name: str, type_sql: str):
+            if name not in cols and table == "compra":
+                conn.execute(text(f"ALTER TABLE compra ADD COLUMN {name} {type_sql}"))
+                cols.add(name)
+        ensure("compra","subtotal","REAL")
+        ensure("compra","iva_total","REAL")
+        ensure("compra","envio","REAL")
+        ensure("compra","tarjeta_mask","TEXT")
+
     # crea columnas faltantes y sincroniza nombre desde titulo
     with engine.begin() as conn:
         cols = {row[1] for row in conn.execute(text("PRAGMA table_info('producto')")).fetchall()}
@@ -202,10 +244,10 @@ def reparar_nombres_desde_json(s: Session):
 @app.on_event("startup")
 def on_startup():
     SQLModel.metadata.create_all(engine)
-    _ensure_schema()                 # <-- nuevo: migración segura
+    _ensure_schema()
     with Session(engine) as s:
-        cargar_productos_json(s)     # carga inicial si la tabla está vacía
-        reparar_nombres_desde_json(s)# corrige nombres desde productos.json
+        cargar_productos_json(s)
+        reparar_nombres_desde_json(s)
 
 # ------------------ AUTH ------------------
 def hash_password(p: str) -> str:
@@ -242,12 +284,13 @@ class ConfirmCheckoutRequest(BaseModel):
     nombre: str
     direccion: str
     telefono: str
+    tarjeta: str
     metodo_pago: Optional[str] = None
 
 @app.post("/registrar", status_code=201)
 def registrar(req: RegisterRequest, s: Session = Depends(get_session)):
     if s.exec(select(Usuario).where(Usuario.email == req.email)).first():
-        raise HTTPException(status_code=400, detail="Email ya registrado")
+        raise HTTPException(400, "Email ya registrado")
     u = Usuario(nombre=req.nombre, email=req.email, password_hash=hash_password(req.password))
     s.add(u); s.commit(); s.refresh(u)
     return {"id": u.id, "email": u.email}
@@ -256,7 +299,7 @@ def registrar(req: RegisterRequest, s: Session = Depends(get_session)):
 def login(req: LoginRequest, s: Session = Depends(get_session)):
     u = s.exec(select(Usuario).where(Usuario.email == req.email)).first()
     if not u or not verify_password(req.password, u.password_hash):
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+        raise HTTPException(401, "Credenciales inválidas")
     token = secrets.token_hex(16)
     active_tokens[token] = u.id
     return {"access_token": token, "token_type": "bearer", "user": {"id": u.id, "nombre": u.nombre}}
@@ -278,18 +321,18 @@ def listar_productos(buscar: Optional[str] = None, categoria: Optional[str] = No
     try:
         prods = s.exec(select(Producto)).all()
     except Exception as e:
-        print("ERROR DB /productos:", e)
+        print("ERROR BD:", e)
         prods = []
 
     # Fallback si la BD no responde o está vacía
     if not prods:
         data = _leer_productos_json()
         if buscar:
-            b = (buscar or "").lower()
-            data = [d for d in data if b in (d.get("titulo","").lower() or "") or b in (d.get("descripcion","").lower() or "")]
+            b = buscar.lower()
+            data = [d for d in data if b in (d.get("titulo","")+d.get("descripcion","")).lower()]
         if categoria:
-            c = (categoria or "").lower()
-            data = [d for d in data if c in (d.get("categoria","").lower() or "")]
+            c = categoria.lower()
+            data = [d for d in data if c in (d.get("categoria","")).lower()]
         return [{
             "id": d.get("id"),
             "titulo": d.get("titulo"),
@@ -327,7 +370,7 @@ def listar_productos(buscar: Optional[str] = None, categoria: Optional[str] = No
 def detalle_producto(producto_id: int, s: Session = Depends(get_session)):
     p = s.get(Producto, producto_id)
     if not p:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
+        raise HTTPException(404, "Producto no encontrado")
     return {
         "id": p.id,
         "titulo": p.nombre,                # <- idem
@@ -349,30 +392,16 @@ def get_or_create_cart(s: Session, uid: int) -> Carrito:
     s.add(c); s.commit(); s.refresh(c)
     return c
 
-@app.get("/carrito")
-def carrito(uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
-    c = get_or_create_cart(s, uid)
-    items = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id)).all()
-    data = []
-    for it in items:
-        p = s.get(Producto, it.producto_id)
-        if not p: continue
-        data.append({
-            "producto_id": p.id,
-            "titulo": p.nombre,            # <- titulo en carrito
-            "cantidad": it.cantidad,
-            "precio": p.precio,
-            "imagen": p.imagen,
-            "imagen_url": _img_url(p.imagen),
-        })
-    return {"carrito_id": c.id, "items": data}
+
 
 @app.post("/carrito")
 def carrito_agregar(body: CartAdd, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
     p = s.get(Producto, body.producto_id)
-    if not p: raise HTTPException(404, "Producto no encontrado")
-    if p.existencia <= 0: raise HTTPException(400, "Producto agotado")
-    c = get_or_create_cart(s, uid)
+    if not p:
+        raise HTTPException(404, "Producto no encontrado")
+    if p.existencia <= 0:
+        raise HTTPException(400, "Producto agotado")
+    c = get_or_create_cart(s, uid); _ensure_cart_open(c)
     it = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id, CarritoItem.producto_id == p.id)).first()
     if it:
         if it.cantidad + body.cantidad > p.existencia:
@@ -388,117 +417,150 @@ def carrito_agregar(body: CartAdd, uid: int = Depends(current_user_id), s: Sessi
 @app.post("/carrito/restar")
 def carrito_restar(body: CartAdd, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
     c = get_or_create_cart(s, uid)
+    _ensure_cart_open(c)
     it = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id, CarritoItem.producto_id == body.producto_id)).first()
-    if not it: raise HTTPException(status_code=404, detail="No está en el carrito")
-    it.cantidad -= max(1, int(body.cantidad or 1))
+    if not it:
+        raise HTTPException(404, "No está en el carrito")
+    it.cantidad -= max(1, body.cantidad)
     if it.cantidad <= 0: s.delete(it)
-    s.commit()
-    return {"ok": True}
-
-@app.post("/carrito/cancelar")
-def carrito_cancelar(uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
-    c = s.exec(select(Carrito).where(Carrito.usuario_id == uid, Carrito.estado == "abierto")).first()
-    if not c: return {"ok": True}
-    items = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id)).all()
-    for it in items: s.delete(it)
     s.commit()
     return {"ok": True}
 
 @app.delete("/carrito/{product_id}")
 def carrito_quitar(product_id: int, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
-    c = get_or_create_cart(s, uid)
+    c = get_or_create_cart(s, uid); _ensure_cart_open(c)
     it = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id, CarritoItem.producto_id == product_id)).first()
     if not it:
-        raise HTTPException(status_code=404, detail="No está en el carrito")
-    s.delete(it)
-    s.commit()
+        raise HTTPException(404, "No está en el carrito")
+    s.delete(it); s.commit()
     return {"ok": True}
 
-# ------------------ CHECKOUT ------------------
+@app.get("/carrito")
+def carrito(uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
+    c = get_or_create_cart(s, uid)
+    items = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id)).all()
+    data = []
+    for it in items:
+        p = s.get(Producto, it.producto_id)
+        if not p: continue
+        data.append({
+            "producto_id": p.id,
+            "titulo": p.nombre,
+            "cantidad": it.cantidad,
+            "precio": p.precio,
+            "imagen": p.imagen,
+            "imagen_url": _img_url(p.imagen),
+            "categoria": p.categoria,
+        })
+    return {"carrito_id": c.id, "estado": c.estado, "items": data}
+
 @app.post("/checkout/confirm", status_code=201)
 def checkout_confirm(req: ConfirmCheckoutRequest, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
+    return carrito_finalizar(req, uid, s)
+
+@app.post("/carrito/finalizar", status_code=201)
+def carrito_finalizar(req: ConfirmCheckoutRequest, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
     carrito = get_or_create_cart(s, uid)
+    _ensure_cart_open(carrito)
+
     items = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
     if not items:
         raise HTTPException(400, "Carrito vacío")
-    # validar stock
+
+    # Validar stock antes
     for it in items:
         p = s.get(Producto, it.producto_id)
         if not p or p.existencia < it.cantidad:
-            raise HTTPException(400, f"Stock insuficiente para id {it.producto_id}")
+            raise HTTPException(400, f"Stock insuficiente producto {it.producto_id}")
 
+    # Crear compra
     compra = Compra(
         usuario_id=uid,
         fecha_iso=datetime.utcnow().isoformat(),
-        nombre=req.nombre,
-        direccion=req.direccion,
-        telefono=req.telefono,
-        metodo_pago=req.metodo_pago or "tarjeta",
+        nombre=req.nombre.strip(),
+        direccion=req.direccion.strip(),
+        telefono=req.telefono.strip(),
+        tarjeta_mask=_mask_tarjeta(req.tarjeta),
+        metodo_pago="tarjeta",
         estado="confirmada",
-        total=0
+        subtotal=0.0, iva_total=0.0, envio=0.0, total=0.0,
     )
     s.add(compra); s.commit(); s.refresh(compra)
 
-    total = 0.0
+    # Cargar items y calcular totales
+    subtotal = 0.0
+    iva_total = 0.0
     for it in items:
         p = s.get(Producto, it.producto_id)
-        price = float(p.precio)
-        sub = price * it.cantidad
-        total += sub
+        rate = _iva_rate_for(p.categoria)
+        sub = p.precio * it.cantidad
+        subtotal += sub
+        iva_total += sub * rate
+
         p.existencia -= it.cantidad
         s.add(p)
+
         s.add(CompraItem(
             compra_id=compra.id,
             producto_id=p.id,
             cantidad=it.cantidad,
-            precio_unit=price,
+            precio_unit=p.precio,
             subtotal=sub,
             titulo=p.nombre,
-            imagen=p.imagen
+            imagen=p.imagen,
+            categoria=p.categoria,
+            iva_rate=rate
         ))
         s.delete(it)
+
+    envio = 0 if (subtotal + iva_total) > 1000 else (50 if items else 0)
+    compra.subtotal = subtotal
+    compra.iva_total = iva_total
+    compra.envio = envio
+    compra.total = subtotal + iva_total + envio
     carrito.estado = "cerrado"
-    compra.total = total
+
     s.add(compra); s.add(carrito); s.commit()
     return {"ok": True, "compra_id": compra.id}
 
-# ------------------ HEALTH ------------------
-@app.get("/health")
-def health():
-    return {"ok": True}
-
 @app.get("/compras")
 def compras_usuario(uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
-    print("DEBUG /compras uid", uid)
     compras = s.exec(select(Compra).where(Compra.usuario_id == uid).order_by(Compra.id.desc())).all()
-    resultado = []
+    out = []
     for c in compras:
-        its = s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all()
-        resultado.append({
+        items_cant = len(s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all())
+        out.append({
             "id": c.id,
             "fecha_iso": c.fecha_iso,
             "total": c.total,
-            "items_cantidad": len(its),
+            "subtotal": c.subtotal,
+            "iva_total": c.iva_total,
+            "envio": c.envio,
+            "items_cantidad": items_cant,
             "estado": c.estado,
             "metodo_pago": c.metodo_pago
         })
-    return resultado
+    return out
 
 @app.get("/compras/{compra_id}")
 def compra_detalle(compra_id: int, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
     c = s.get(Compra, compra_id)
     if not c or c.usuario_id != uid:
-        raise HTTPException(status_code=404, detail="Compra no encontrada")
+        raise HTTPException(404, "Compra no encontrada")
     its = s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all()
     return {
         "id": c.id,
         "fecha_iso": c.fecha_iso,
-        "total": c.total,
         "estado": c.estado,
         "metodo_pago": c.metodo_pago,
         "nombre": c.nombre,
         "direccion": c.direccion,
         "telefono": c.telefono,
+        "tarjeta_mask": c.tarjeta_mask,
+        "subtotal": c.subtotal,
+        "iva_total": c.iva_total,
+        "envio": c.envio,
+        "total": c.total,
         "items": [{
             "id": it.id,
             "producto_id": it.producto_id,
@@ -506,7 +568,25 @@ def compra_detalle(compra_id: int, uid: int = Depends(current_user_id), s: Sessi
             "cantidad": it.cantidad,
             "precio_unit": it.precio_unit,
             "subtotal": it.subtotal,
+            "iva": it.subtotal * it.iva_rate,
+            "categoria": it.categoria,
             "imagen_url": _img_url(it.imagen)
         } for it in its]
     }
+
+@app.post("/carrito/cancelar")
+def carrito_cancelar(uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
+    c = get_or_create_cart(s, uid)
+    if c.estado != "abierto":
+        raise HTTPException(400, "Carrito finalizado")
+    items = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id)).all()
+    for it in items:
+        s.delete(it)
+    s.commit()
+    return {"ok": True}
+
+# ------------------ HEALTH ------------------
+@app.get("/health")
+def health():
+    return {"ok": True}
 

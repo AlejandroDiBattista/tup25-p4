@@ -81,15 +81,14 @@ export default function CheckoutPage() {
     if (!formOk || saving) return;
     setSaving(true);
     try {
-      const payload = {
+      const res = await confirmarCompra({
         nombre: nombre.trim(),
         direccion: direccion.trim(),
         telefono: telefonoDigits,
-        // metodo_pago: 'tarjeta', // opcional: el backend puede asumir tarjeta por defecto
-      };
-      const { compra_id } = await confirmarCompra(payload as any);
+        tarjeta: tarjetaDigits
+      });
       toast.success('Compra confirmada');
-      window.location.href = `/compras/${compra_id}`;
+      router.push('/compras');
     } catch (err: any) {
       toast.error(err.message || 'Error al confirmar');
     } finally {

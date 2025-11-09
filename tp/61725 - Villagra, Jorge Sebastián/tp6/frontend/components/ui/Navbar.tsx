@@ -1,32 +1,21 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
-  const pathname = usePathname();
   const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
   const [nombre, setNombre] = useState<string | null>(null);
 
-  if (pathname !== '/') return null;
-
   useEffect(() => {
-    const load = () => {
+    try {
       const t = localStorage.getItem('token');
-      const nom =
-        localStorage.getItem('usuario_nombre') ||
-        JSON.parse(localStorage.getItem('user') || 'null')?.nombre ||
-        null;
+      const nom = localStorage.getItem('usuario_nombre');
       setIsAuth(!!t);
       setNombre(nom);
-    };
-    load();
-    const onStorage = () => load();
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, [pathname]);
+    } catch {}
+  }, []);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -40,22 +29,19 @@ export default function Navbar() {
   return (
     <nav className="w-full border-b bg-white">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-semibold">Parcial Ecommerce</Link>
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm">Inicio</Link>
-          <Link href="/compras" className="text-sm hover:text-blue-600">Mis compras</Link>
-
+        <a href="/" className="font-semibold">Parcial Ecommerce</a>
+        <div className="flex items-center gap-4 text-sm">
+          <a href="/" className="hover:text-blue-600">Inicio</a>
+            <a href="/compras" className="hover:text-blue-600">Mis compras</a>
           {!isAuth ? (
             <>
-              <Link href="/auth/login" className="text-sm">Iniciar sesión</Link>
-              <Link href="/auth/registro" className="text-sm">Registrarse</Link>
+              <a href="/auth/login" className="hover:text-blue-600">Iniciar sesión</a>
+              <a href="/auth/registro" className="hover:text-blue-600">Registrarse</a>
             </>
           ) : (
             <>
-              <span className="text-sm text-gray-700">
-                Bienvenido{nombre ? `, ${nombre}` : ''}!
-              </span>
-              <button onClick={logout} className="text-sm text-red-600">Cerrar sesión</button>
+              <span className="text-gray-700">Hola{nombre ? `, ${nombre}` : ''}</span>
+              <button onClick={logout} className="text-red-600">Cerrar sesión</button>
             </>
           )}
         </div>

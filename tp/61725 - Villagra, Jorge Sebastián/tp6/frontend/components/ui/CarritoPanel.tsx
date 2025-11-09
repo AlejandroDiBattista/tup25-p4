@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 
 type Item = {
   producto_id: number;
-  nombre: string;
+  nombre?: string;
+  titulo?: string;
   cantidad: number;
   precio?: number;
   imagen?: string | null;
   imagen_url?: string | null;
+  categoria?: string | null;
 };
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
@@ -28,10 +30,12 @@ export default function CarritoPanel() {
 
   function calcTotals(list: Item[]) {
     const base = list.reduce((a, it) => a + (Number(it.precio || 0) * it.cantidad), 0);
-    const iva = base * 0.21;
-    const envio = base > 1000 ? 0 : (list.length ? 50 : 0);
-    const total = base + iva + envio;
-    return { total_base: base, iva, envio, total };
+    const iva = list.reduce((a, it) => {
+      const rate = (it.categoria || '').toLowerCase().includes('electr') ? 0.10 : 0.21;
+      return a + (Number(it.precio || 0) * it.cantidad * rate);
+    }, 0);
+    const envio = (base + iva) > 1000 ? 0 : (list.length ? 50 : 0);
+    return { total_base: base, iva, envio, total: base + iva + envio };
   }
 
   const totals = calcTotals(items);

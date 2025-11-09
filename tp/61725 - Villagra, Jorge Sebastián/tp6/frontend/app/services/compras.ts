@@ -1,54 +1,29 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-export type CheckoutPayload = {
-  nombre: string;
-  direccion: string;
-  telefono: string;
-  metodo_pago?: string; // opcional, el backend asume 'tarjeta'
-};
-
-function getToken() {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
+function authHeaders() {
+  const t = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  if (!t) throw new Error("401 No autenticado");
+  return { Authorization: `Bearer ${t}`, "Content-Type": "application/json" };
 }
 
-async function authFetch(path: string, init: RequestInit = {}) {
-  const token = getToken();
-  if (!token) {
-    const e: any = new Error('No autenticado');
-    e.status = 401;
-    throw e;
-  }
-  const res = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...(init.headers || {}),
-    },
-    cache: 'no-store',
-  });
+async function authFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(API + path, { ...init, headers: { ...(init?.headers||{}), ...authHeaders() } });
   if (!res.ok) {
-    let detail = '';
-    try { detail = (await res.json()).detail || ''; } catch {}
-    const e: any = new Error(detail || `HTTP ${res.status}`);
-    e.status = res.status;
-    throw e;
+    let detail = "";
+    try { detail = (await res.json()).detail || ""; } catch {}
+    const err: any = new Error(detail || `HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
   }
   return res.json();
 }
 
-export async function confirmarCompra(payload: CheckoutPayload): Promise<{ ok: boolean; compra_id: number }> {
-  return authFetch('/checkout/confirm', {
-    method: 'POST',
+export const comprasUsuario = () => authFetch<any[]>('/compras');
+export const compraPorId = (id: number) => authFetch<any>(`/compras/${id}`);
+
+export function confirmarCompra(payload: { nombre: string; direccion: string; telefono: string; tarjeta: string }) {
+  return authFetch<{ ok: boolean; compra_id: number }>("/carrito/finalizar", {
+    method: "POST",
     body: JSON.stringify(payload),
   });
-}
-
-export function comprasUsuario() {
-  return authFetch('/compras');
-}
-
-export function compraPorId(id: number) {
-  return authFetch(`/compras/${id}`);
 }
