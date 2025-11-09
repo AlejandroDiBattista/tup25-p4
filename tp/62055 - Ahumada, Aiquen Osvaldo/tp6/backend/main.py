@@ -55,6 +55,17 @@ def finalizar_compra(user: Usuario = Depends(get_current_user)):
 def cancelar_compra(user: Usuario = Depends(get_current_user)):
     carritos[user.id] = {}
     return {"mensaje": "Carrito cancelado", "carrito": {}}
+# ----------------------------
+# Endpoints de Carrito
+# ----------------------------
+from fastapi import Path
+
+# Ejemplo básico de almacenamiento en memoria (debes adaptar a tu modelo y DB)
+carritos = {}
+
+# Los endpoints de carrito deben ir después de la definición de app:
+# ...definición de app y modelos...
+# ...luego los endpoints de carrito...
 # backend/main.py
 from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
