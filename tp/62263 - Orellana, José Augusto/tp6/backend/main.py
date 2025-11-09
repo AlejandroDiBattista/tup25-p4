@@ -11,6 +11,9 @@ from database import create_db_and_tables, engine, get_session
 from sqlmodel import Session, select
 from models.productos import Producto
 
+from models.carrito import Carrito, CarritoItem
+from models.schemas import CarritoRespuesta
+
 # Se trae los "contratos" que se definieron
 from models.schemas import UsuarioRegistro, UsuarioRespuesta, UsuarioLogin, Token
 
@@ -22,6 +25,7 @@ from security import obtener_hash_contrasenia, verificar_contrasenia, crear_toke
 
 from typing import Optional
 
+# Dependencia para obtener el usuario autenticado desde el token en la cookie
 def get_usuario_actual(
     token: Optional[str] = Cookie(default=None),
     session: Session = Depends(get_session)
@@ -46,6 +50,29 @@ def get_usuario_actual(
 
     # Se devuelve el usuario autenticado
     return usuario
+
+# Dependencia del carrito
+def get_carrito_actual(
+    usuario_actual: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+) -> Carrito:
+    """Dependencia para obtener el carrito del usuario autenticado."""
+    # Se crea la consulta para buscar el carrito por usuario_id
+    statement = select(Carrito).where(Carrito.usuario_id == usuario_actual.id)
+
+    carrito = session.exec(statement).first()
+
+    if not carrito:
+        # Si no existe, se crea uno nuevo
+        print(f"Usuario {usuario_actual.email} no tiene carrito. Creando uno...")
+        nuevo_carrito = Carrito(usuario_id=usuario_actual.id)
+        session.add(nuevo_carrito)
+        session.commit()
+        session.refresh(nuevo_carrito)
+        return nuevo_carrito
+
+    # Si existe, se devuelve
+    return carrito
 
 # Función lifespan para inicializar la base de datos al iniciar la aplicación
 @asynccontextmanager
@@ -227,6 +254,11 @@ def cerrar_sesion(
     )
 
     return {"mensaje": "Sesión cerrada correctamente."}
+
+@app.get("/carrito", response_model=CarritoRespuesta)
+def obtener_carrito(carrito_actual: Carrito = Depends(get_carrito_actual)):
+    """Endpoint para obtener el carrito del usuario autenticado."""
+    return carrito_actual
 
 if __name__ == "__main__":
     import uvicorn
