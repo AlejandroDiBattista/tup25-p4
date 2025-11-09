@@ -1,5 +1,5 @@
 from typing import Optional, List
-from sqlmodel import Field, SQLModel, Relationship, JSON, Column
+from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 
 
@@ -97,4 +97,4 @@ class Compra(SQLModel, table=True):
     items: List[ItemCompra] = Relationship(
         back_populates="compra",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
-    ) 
+    )
