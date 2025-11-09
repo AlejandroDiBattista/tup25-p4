@@ -1,17 +1,18 @@
-from fastapi import FastAPI, Query, Path, Body, HTTPException, status
+from fastapi import FastAPI, Query, Path, Body, HTTPException, status, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from sqlmodel import SQLModel, Session, create_engine, select
 from sqlalchemy import or_
 from pydantic import BaseModel, Field as PydanticField
-from pydantic import field_validator
+from pydantic import field_validator, AliasChoices
 
 from typing import Optional
 
 import json
 from pathlib import Path as PathlibPath
 from passlib.context import CryptContext
+from passlib.exc import UnknownHashError
 
 
 from models.usuario import Usuario
@@ -65,7 +66,7 @@ app.add_middleware(
 
 # Cargar productos desde el archivo JSON
 def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
+    ruta_productos = PathlibPath(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
@@ -87,7 +88,10 @@ def hash_contraseña(contraseña: str) -> str:
 
 
 def verificar_contraseña(contraseña: str, hashed: str) -> bool:
-    return pwd_context.verify(contraseña, hashed)
+    try:
+        return pwd_context.verify(contraseña, hashed)
+    except UnknownHashError:
+        return False
 
 
 # Generar Token
@@ -110,22 +114,38 @@ def crear_token(datos: dict, expires_delta: int | None = None):
 class UsuarioCreate(BaseModel):
     nombre: str
     email: str
-    # bcrypt acepta hasta 72 bytes; validamos para evitar ValueError
-    contraseña: str = PydanticField(min_length=8, max_length=72)
+    # Acepta "password" o "contraseña" (para compatibilidad con clientes)
+    contraseña: str = PydanticField(
+        min_length=8,
+        max_length=72,
+        validation_alias=AliasChoices("contraseña", "password"),
+    )
 
     # Validación por bytes para casos con caracteres multibyte (UTF-8)
     @field_validator("contraseña")
     @classmethod
     def validar_longitud_bytes(cls, v: str) -> str:
         if len(v.encode("utf-8")) > 72:
-            raise ValueError("La contraseña no puede superar 72 bytes (considera caracteres especiales)")
+            raise ValueError(
+                "La contraseña no puede superar 72 bytes (considera caracteres especiales)"
+            )
         return v
 
 
 @app.post("/registrar")
 def registrar_usuario(usuario: UsuarioCreate):
+    
     with Session(engine) as session:
         nuevo_usuario = Usuario(**usuario.dict())
+        
+        # Validar si el usuario ya existe
+        usuario_existe = session.exec(
+            select(Usuario).where(Usuario.email == usuario.email)
+        ).first()
+
+        if usuario_existe:
+            raise HTTPException(status_code=400, detail="El usuario ya existe")
+
         # Hashear contraseña con manejo de errores por longitud
         try:
             nuevo_usuario.contraseña = hash_contraseña(usuario.contraseña)
@@ -137,17 +157,38 @@ def registrar_usuario(usuario: UsuarioCreate):
         return nuevo_usuario
 
 
-@app.post("/iniciar-sesion")
-def iniciar_sesion(usuario: UsuarioCreate):
-    with Session(engine) as session:
-        usuario_db = session.exec(
-            select(Usuario).where(
-                or_(
-                    Usuario.nombre == usuario.nombre,
-                    Usuario.email == usuario.email,
-                )
+class UsuarioLogin(BaseModel):
+    nombre: str | None = None
+    email: str | None = None
+    contraseña: str = PydanticField(
+        min_length=8,
+        max_length=72,
+        validation_alias=AliasChoices("contraseña", "password"),
+    )
+
+    @field_validator("contraseña")
+    @classmethod
+    def validar_longitud_bytes(cls, v: str) -> str:
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError(
+                "La contraseña no puede superar 72 bytes (considera caracteres especiales)"
             )
-        ).first()
+        return v
+
+
+@app.post("/iniciar-sesion")
+def iniciar_sesion(usuario: UsuarioLogin):
+    with Session(engine) as session:
+        if not usuario.email and not usuario.nombre:
+            raise HTTPException(status_code=400, detail="Debe enviar email o nombre")
+
+        condiciones = []
+        if usuario.email:
+            condiciones.append(Usuario.email == usuario.email)
+        if usuario.nombre:
+            condiciones.append(Usuario.nombre == usuario.nombre)
+
+        usuario_db = session.exec(select(Usuario).where(or_(*condiciones))).first()
 
         if not usuario_db or not verificar_contraseña(
             usuario.contraseña, usuario_db.contraseña
@@ -156,28 +197,30 @@ def iniciar_sesion(usuario: UsuarioCreate):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Credenciales inválidas",
             )
-
         token = crear_token({"usuario_id": usuario_db.id, "email": usuario_db.email})
-
         return {"access_token": token, "token_type": "bearer"}
 
 
-@app.post("/cerrar-sesion")
-def cerrar_sesion(token: str = Body(..., embed=True)):
+def get_current_user_id(authorization: str | None = Header(None)) -> int:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Falta token de autorización")
+    token = authorization.split(" ", 1)[1].strip()
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        usuario_id: int = payload.get("usuario_id")
+        usuario_id: int | None = payload.get("usuario_id")
+        if not usuario_id:
+            raise HTTPException(status_code=401, detail="Token inválido")
+        return int(usuario_id)
     except JWTError as e:
         detalle = (
             "Token expirado" if "Signature has expired" in str(e) else "Token inválido"
         )
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detalle)
+        raise HTTPException(status_code=401, detail=detalle)
 
-    if not usuario_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido"
-        )
-    return {"mensaje": "Sesión cerrada", "usuario_id": usuario_id}
+
+@app.post("/cerrar-sesion")
+def cerrar_sesion(current_user_id: int = Depends(get_current_user_id)):
+    return {"mensaje": "Sesión cerrada", "usuario_id": current_user_id}
 
 
 # Endpoints de Productos
@@ -211,19 +254,21 @@ def obtener_producto(id: int):
 
 
 class CarritoItemCreate(BaseModel):
-    usuario_id: int | None = None
     producto_id: int
     cantidad: int
 
 
 @app.post("/carrito", response_model=CarritoItem)
-def agregar_al_carrito(payload: CarritoItemCreate = Body(...)):
+def agregar_al_carrito(
+    payload: CarritoItemCreate = Body(...),
+    current_user_id: int = Depends(get_current_user_id),
+):
     with Session(engine) as session:
         carrito = session.exec(
-            select(Carrito).where(Carrito.usuario_id == payload.usuario_id)
+            select(Carrito).where(Carrito.usuario_id == current_user_id)
         ).first()
         if not carrito:
-            carrito = Carrito(usuario_id=payload.usuario_id)
+            carrito = Carrito(usuario_id=current_user_id)
             session.add(carrito)
             session.commit()
             session.refresh(carrito)
@@ -253,11 +298,11 @@ def agregar_al_carrito(payload: CarritoItemCreate = Body(...)):
 @app.delete("/carrito/{producto_id}")
 def eliminar_del_carrito(
     producto_id: int = Path(..., description="ID del producto a eliminar"),
-    usuario_id: int = Query(..., description="ID del usuario"),
+    current_user_id: int = Depends(get_current_user_id),
 ):
     with Session(engine) as session:
         carrito = session.exec(
-            select(Carrito).where(Carrito.usuario_id == usuario_id)
+            select(Carrito).where(Carrito.usuario_id == current_user_id)
         ).first()
 
         if not carrito:
@@ -278,10 +323,12 @@ def eliminar_del_carrito(
 
 
 @app.get("/carrito")
-def ver_carrito():
+def ver_carrito(current_user_id: int = Depends(get_current_user_id)):
 
     with Session(engine) as session:
-        carrito = session.exec(select(Carrito)).first()
+        carrito = session.exec(
+            select(Carrito).where(Carrito.usuario_id == current_user_id)
+        ).first()
 
         if not carrito:
             return {"mensaje": "Carrito no encontrado"}, 404
