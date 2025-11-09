@@ -484,6 +484,26 @@ def finalizar_compra(
 
     return nueva_compra
 
+@app.post("/carrito/cancelar", response_model=CarritoRespuesta)
+def vaciar_carrito(
+    carrito_actual: Carrito = Depends(get_carrito_actual),
+    session: Session = Depends(get_session)
+):
+    """Endpoint para vaciar el carrito del usuario autenticado."""
+    # Se eliminan todos los items del carrito
+    statement_vaciar = delete(CarritoItem).where(
+        CarritoItem.carrito_id == carrito_actual.id
+    )
+
+    # Se ejecuta el borrado
+    session.exec(statement_vaciar)
+    session.commit()
+
+    # Se refresca el carrito
+    session.refresh(carrito_actual)
+
+    return carrito_actual
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
