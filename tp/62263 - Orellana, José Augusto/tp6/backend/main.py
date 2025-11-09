@@ -206,6 +206,28 @@ def obtener_perfil(usuario_actual: Usuario = Depends(get_usuario_actual)):
     """Endpoint para obtener el perfil del usuario autenticado."""
     return usuario_actual
 
+@app.post("/cerrar-sesion")
+def cerrar_sesion(
+    response: Response,
+    usuario_actual: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Endpoint para cerrar sesión del usuario autenticado."""
+    # Se elimina el token del usuario
+    usuario_actual.token = None
+    usuario_actual.token_expiration = None
+    session.add(usuario_actual)
+    session.commit()
+
+    # Se elimina la cookie del token
+    response.delete_cookie(
+        key="token",
+        samesite="none",
+        secure=True
+    )
+
+    return {"mensaje": "Sesión cerrada correctamente."}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
