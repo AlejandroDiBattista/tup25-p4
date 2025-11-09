@@ -1,14 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
-import { addItem, cancelarCarrito, getCart, removeItem, finalizarCompra } from '../services/carrito';
+import { addItem, cancelarCarrito, getCart, removeItem } from '../services/carrito';
 import type { CartView } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function CartPanel() {
+    const router = useRouter();
     const { session, hydrated } = useAuth();
+
     const [cart, setCart] = useState<CartView | null>(null);
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState<string | null>(null);
@@ -98,29 +101,15 @@ export default function CartPanel() {
         }
     }
 
-    async function checkout() {
-        if (!usuarioId) return;
-        setLoading(true);
-        setErr(null);
-        try {
-        const compra = await finalizarCompra(usuarioId, {
-            direccion: 'Calle Falsa 123',
-            tarjeta: '4111111111111111',
-        });
-        await refresh();
-        window.dispatchEvent(new CustomEvent('cart:updated'));
-        alert(`Compra #${compra.id} realizada. Total: $${compra.total}`);
-        } catch (e: any) {
-        setErr(e?.message ?? 'No se pudo finalizar la compra');
-        } finally {
-        setLoading(false);
-        }
-    }
-
     const isEmpty = !cart || cart.items.length === 0;
 
+    // No mostrar mensajes hasta que AuthProvider haya leído localStorage
     if (!hydrated) {
-        return <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-600">Cargando…</div>;
+        return (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-600">
+            Cargando…
+        </div>
+        );
     }
 
     if (!usuarioId) {
@@ -192,9 +181,9 @@ export default function CartPanel() {
                 Cancelar
                 </button>
                 <button
-                onClick={checkout}
+                onClick={() => router.push('/finalizar-compra')}
                 className="ml-auto px-3 py-2 rounded-md bg-gray-900 text-white text-sm"
-                disabled={loading}
+                disabled={loading || isEmpty}
                 >
                 Continuar compra
                 </button>
