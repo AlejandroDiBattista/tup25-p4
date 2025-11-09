@@ -13,7 +13,10 @@ export interface Usuario {
   id: number;
   nombre: string;
   email: string;
-  fecha_creacion: string;
+  telefono?: string;
+  direccion?: string;
+  fecha_creacion?: string;
+  fecha_registro?: string;
 }
 
 export interface ItemCarrito {

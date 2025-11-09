@@ -55,6 +55,9 @@ export default function Navbar() {
               <Link href="/compras">
                 <Button variant="ghost">Mis Compras</Button>
               </Link>
+              <Link href="/perfil">
+                <Button variant="ghost">Mi Perfil</Button>
+              </Link>
               <Button onClick={handleLogout} variant="destructive">
                 Cerrar Sesión
               </Button>
