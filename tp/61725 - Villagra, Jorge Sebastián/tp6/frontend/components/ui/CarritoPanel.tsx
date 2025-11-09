@@ -70,7 +70,15 @@ export default function CarritoPanel() {
   async function cancelar() {
     if (busy) return;
     setBusy(true);
-    try { await cancelCart(); await load(); } finally { setBusy(false); }
+    try {
+      const ok = await cancelCart(); // Captura el resultado
+      if (ok) {
+        window.dispatchEvent(new CustomEvent('cart:cancelled')); // Nuevo: Disparar evento si canceló exitosamente
+      }
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
   async function pagar() {
     if (busy || items.length === 0) return;

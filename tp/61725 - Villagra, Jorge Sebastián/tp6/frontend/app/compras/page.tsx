@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { comprasUsuario, compraPorId } from '../services/compras';
+import Navbar from '@/components/ui/Navbar';
 
 type CompraResumen = {
   id: number;
@@ -64,47 +65,49 @@ export default function ComprasPage() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-7xl p-6">
-      <h1 className="text-2xl font-semibold mb-6">Mis compras</h1>
-      {error && <div className="text-sm text-red-600 mb-4">{error}</div>}
-      <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-        <div className="space-y-3">
-          {loadingLista && <div className="h-24 rounded border bg-neutral-100 animate-pulse" />}
-          {!loadingLista && lista.length === 0 && (
-            <div className="text-sm text-neutral-500 border rounded p-4">Aún no realizaste compras.</div>
-          )}
-          {lista.map(c => {
-            const active = detalle?.id === c.id;
-            return (
-              <button
-                key={c.id}
-                onClick={() => cargarDetalle(c.id)}
-                className={`w-full text-left border rounded px-4 py-3 transition ${
-                  active ? 'bg-neutral-50 shadow-sm border-neutral-400' : 'hover:bg-neutral-50'
-                }`}
-              >
-                <div className="text-xs text-neutral-500">
-                  {c.fecha_iso ? new Date(c.fecha_iso).toLocaleString('es-AR') : '—'}
-                </div>
-                <div className="font-medium mt-1">Compra #{c.id}</div>
-                <div className="flex justify-between mt-1 text-sm">
-                  <span>{c.items_cantidad} ítems</span>
-                  <span className="font-semibold">{currency(c.total)}</span>
-                </div>
-                <div className="text-xs mt-1 uppercase tracking-wide text-neutral-500">{c.estado}</div>
-              </button>
-            );
-          })}
-        </div>
+    <>
+      <Navbar />
+      <main className="mx-auto max-w-7xl p-6">
+        <h1 className="text-2xl font-semibold mb-6">Mis compras</h1>
+        {error && <div className="text-sm text-red-600 mb-4">{error}</div>}
+        <div className="grid lg:grid-cols-[280px_1fr] gap-6">
+          <div className="space-y-3">
+            {loadingLista && <div className="h-24 rounded border bg-neutral-100 animate-pulse" />}
+            {!loadingLista && lista.length === 0 && (
+              <div className="text-sm text-neutral-500 border rounded p-4">Aún no realizaste compras.</div>
+            )}
+            {lista.map(c => {
+              const active = detalle?.id === c.id;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => cargarDetalle(c.id)}
+                  className={`w-full text-left border rounded px-4 py-3 transition ${
+                    active ? 'bg-neutral-50 shadow-sm border-neutral-400' : 'hover:bg-neutral-50'
+                  }`}
+                >
+                  <div className="text-xs text-neutral-500">
+                    {c.fecha_iso ? new Date(c.fecha_iso).toLocaleString('es-AR') : '—'}
+                  </div>
+                  <div className="font-medium mt-1">Compra #{c.id}</div>
+                  <div className="flex justify-between mt-1 text-sm">
+                    <span>{c.items_cantidad} ítems</span>
+                    <span className="font-semibold">{currency(c.total)}</span>
+                  </div>
+                  <div className="text-xs mt-1 uppercase tracking-wide text-neutral-500">{c.estado}</div>
+                </button>
+              );
+            })}
+          </div>
 
-        <div className="border rounded-lg bg-white shadow-sm p-6 flex flex-col">
-          {loadingDet && (
-            <div className="space-y-3 animate-pulse">
-              <div className="h-6 bg-neutral-200 rounded" />
-              <div className="h-4 bg-neutral-200 rounded w-1/2" />
-              <div className="h-32 bg-neutral-200 rounded" />
-            </div>
-          )}
+          <div className="border rounded-lg bg-white shadow-sm p-6 flex flex-col">
+            {loadingDet && (
+              <div className="space-y-3 animate-pulse">
+                <div className="h-6 bg-neutral-200 rounded" />
+                <div className="h-4 bg-neutral-200 rounded w-1/2" />
+                <div className="h-32 bg-neutral-200 rounded" />
+              </div>
+            )}
 
             {!loadingDet && detalle && (
               <>
@@ -158,11 +161,12 @@ export default function ComprasPage() {
               </>
             )}
 
-          {!loadingDet && !detalle && !error && (
-            <div className="text-sm text-neutral-500">Selecciona una compra para ver el detalle.</div>
-          )}
+            {!loadingDet && !detalle && !error && (
+              <div className="text-sm text-neutral-500">Selecciona una compra para ver el detalle.</div>
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

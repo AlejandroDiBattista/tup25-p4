@@ -6,9 +6,11 @@ from sqlmodel import SQLModel, Field, Session, create_engine, select
 from typing import Optional
 from pydantic import BaseModel
 from pathlib import Path
-import hashlib, secrets, json
-import time
 from sqlalchemy import text
+import time
+import hashlib
+import secrets
+import json
 
 # ------------------ DB / ENGINE ------------------
 BASE_DIR = Path(__file__).parent
@@ -26,10 +28,9 @@ class Usuario(SQLModel, table=True):
     email: str
     password_hash: str
 
-# IMPORTANTE: la columna real en la DB es 'nombre'; vamos a guardar ahí el título.
 class Producto(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str                                      # aquí guardamos el "titulo" del JSON
+    nombre: str
     descripcion: Optional[str] = ""
     precio: float = 0
     categoria: Optional[str] = ""
@@ -51,17 +52,15 @@ class CarritoItem(SQLModel, table=True):
 class Compra(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int = Field(foreign_key="usuario.id")
-    # totales y desglose
     subtotal: float = 0
     iva_total: float = 0
     envio: float = 0
     total: float = 0
-    # datos
     fecha_iso: str = ""
     nombre: str = ""
     direccion: str = ""
     telefono: str = ""
-    tarjeta_mask: str = ""          # últimos 4 dígitos
+    tarjeta_mask: str = ""
     metodo_pago: str = "tarjeta"
     estado: str = "confirmada"
 
@@ -94,7 +93,7 @@ app.add_middleware(
     ],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],  # incluye Authorization
+    allow_headers=["*"],
 )
 app.mount("/imagenes", StaticFiles(directory=str(BASE_DIR / "imagenes"), check_dir=False), name="imagenes")
 
@@ -125,36 +124,27 @@ def _mask_tarjeta(t: str) -> str:
     d = "".join(ch for ch in t if ch.isdigit())
     return f"**** **** **** {d[-4:]}" if len(d) >= 4 else ""
 
-def _ensure_cart_open(c: Carrito) -> None:
-    if c.estado != "abierto":
-        raise HTTPException(status_code=400, detail="Carrito finalizado")
-
 # ------------------ CARGA / REPARACIÓN DE PRODUCTOS ------------------
 def _ensure_schema():
     with engine.begin() as conn:
         cols = {row[1] for row in conn.execute(text("PRAGMA table_info('compra')")).fetchall()}
         def ensure(table: str, name: str, type_sql: str):
             if name not in cols and table == "compra":
-                conn.execute(text(f"ALTER TABLE compra ADD COLUMN {name} {type_sql}"))
-                cols.add(name)
-        ensure("compra","subtotal","REAL")
-        ensure("compra","iva_total","REAL")
-        ensure("compra","envio","REAL")
-        ensure("compra","tarjeta_mask","TEXT")
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {type_sql}"))
+        ensure("compra", "subtotal", "REAL")
+        ensure("compra", "iva_total", "REAL")
+        ensure("compra", "envio", "REAL")
+        ensure("compra", "tarjeta_mask", "TEXT")
 
-    # crea columnas faltantes y sincroniza nombre desde titulo
     with engine.begin() as conn:
         cols = {row[1] for row in conn.execute(text("PRAGMA table_info('producto')")).fetchall()}
-
         def ensure_col(name: str, type_sql: str, default_sql: str | None = None):
             nonlocal cols
             if name not in cols:
-                conn.execute(text(f"ALTER TABLE producto ADD COLUMN {name} {type_sql}"))
-                if default_sql is not None:
-                    conn.execute(text(f"UPDATE producto SET {name} = {default_sql} WHERE {name} IS NULL"))
-                cols.add(name)
-
-        # asegurar columnas que usamos en el modelo
+                alter = f"ALTER TABLE producto ADD COLUMN {name} {type_sql}"
+                if default_sql:
+                    alter += f" DEFAULT {default_sql}"
+                conn.execute(text(alter))
         ensure_col("nombre", "TEXT")
         ensure_col("descripcion", "TEXT", "''")
         ensure_col("precio", "REAL", "0")
@@ -163,14 +153,12 @@ def _ensure_schema():
         ensure_col("existencia", "INTEGER", "0")
         ensure_col("imagen", "TEXT")
 
-        # copiar titulo -> nombre cuando esté vacío (si existe columna titulo)
         if "titulo" in cols:
             conn.execute(text("""
                 UPDATE producto
                 SET nombre = COALESCE(NULLIF(nombre, ''), NULLIF(titulo, ''))
                 WHERE (nombre IS NULL OR nombre = '') AND titulo IS NOT NULL AND titulo <> ''
             """))
-        # fallback "Producto {id}" si sigue vacío
         conn.execute(text("""
             UPDATE producto
             SET nombre = 'Producto ' || id
@@ -181,14 +169,13 @@ def cargar_productos_json(s: Session):
     ruta = BASE_DIR / "productos.json"
     if not ruta.exists():
         return
-    # Si ya hay productos, no recargar
     if s.exec(select(Producto.id)).first():
         return
     data = json.loads(ruta.read_text(encoding="utf-8"))
     for it in data:
         p = Producto(
             id=it.get("id"),
-            nombre=(it.get("titulo") or "").strip(),    # guardamos titulo en 'nombre'
+            nombre=(it.get("titulo") or "").strip(),
             descripcion=it.get("descripcion") or "",
             precio=float(it.get("precio") or 0),
             categoria=it.get("categoria") or "",
@@ -211,12 +198,10 @@ def reparar_nombres_desde_json(s: Session):
         src = by_id.get(int(p.id)) if p.id is not None else None
         if not src:
             continue
-        # NUNCA usar descripcion como nombre: solo 'titulo' del JSON
         new_nombre = (src.get("titulo") or "").strip()
         if new_nombre and new_nombre != (p.nombre or ""):
             p.nombre = new_nombre
             changed += 1
-        # Sincronizamos los demás campos para mantener consistencia
         if (p.descripcion or "") != (src.get("descripcion") or ""):
             p.descripcion = src.get("descripcion") or ""
             changed += 1
@@ -314,6 +299,12 @@ def _leer_productos_json() -> list[dict]:
         print("ERROR leyendo productos.json:", e)
         return []
 
+# ------------------ ENDPOINTS ------------------
+
+@app.get("/")
+def root():
+    return {"message": "API E-Commerce funcionando"}
+
 # ------------------ PRODUCTOS ------------------
 @app.get("/productos")
 def listar_productos(buscar: Optional[str] = None, categoria: Optional[str] = None, s: Session = Depends(get_session)):
@@ -324,35 +315,19 @@ def listar_productos(buscar: Optional[str] = None, categoria: Optional[str] = No
         print("ERROR BD:", e)
         prods = []
 
-    # Fallback si la BD no responde o está vacía
     if not prods:
         data = _leer_productos_json()
         if buscar:
-            b = buscar.lower()
-            data = [d for d in data if b in (d.get("titulo","")+d.get("descripcion","")).lower()]
+            data = [p for p in data if buscar.lower() in (p.get("titulo", "") + p.get("descripcion", "")).lower()]
         if categoria:
-            c = categoria.lower()
-            data = [d for d in data if c in (d.get("categoria","")).lower()]
-        return [{
-            "id": d.get("id"),
-            "titulo": d.get("titulo"),
-            "precio": d.get("precio"),
-            "descripcion": d.get("descripcion") or "",
-            "categoria": d.get("categoria") or "",
-            "valoracion": d.get("valoracion"),
-            "existencia": int(d.get("existencia") or 0),
-            "imagen": d.get("imagen"),
-            "imagen_url": _img_url(d.get("imagen")),
-            "agotado": int(d.get("existencia") or 0) <= 0
-        } for d in data]
+            data = [p for p in data if categoria.lower() in p.get("categoria", "").lower()]  # Cambiado a 'in' para coincidencia parcial
+        return data
 
-    # Respuesta normal desde BD
     if buscar:
-        b = buscar.lower()
-        prods = [p for p in prods if b in (p.nombre or "").lower() or b in (p.descripcion or "").lower()]
+        prods = [p for p in prods if buscar.lower() in (p.nombre or "" + p.descripcion or "").lower()]
     if categoria:
-        c = categoria.lower()
-        prods = [p for p in prods if c in (p.categoria or "").lower()]
+        prods = [p for p in prods if categoria.lower() in (p.categoria or "").lower()]  # Cambiado a 'in' para coincidencia parcial
+
     return [{
         "id": p.id,
         "titulo": p.nombre,
@@ -373,7 +348,7 @@ def detalle_producto(producto_id: int, s: Session = Depends(get_session)):
         raise HTTPException(404, "Producto no encontrado")
     return {
         "id": p.id,
-        "titulo": p.nombre,                # <- idem
+        "titulo": p.nombre,
         "precio": p.precio,
         "descripcion": p.descripcion,
         "categoria": p.categoria,
@@ -392,8 +367,6 @@ def get_or_create_cart(s: Session, uid: int) -> Carrito:
     s.add(c); s.commit(); s.refresh(c)
     return c
 
-
-
 @app.post("/carrito")
 def carrito_agregar(body: CartAdd, uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
     p = s.get(Producto, body.producto_id)
@@ -401,16 +374,15 @@ def carrito_agregar(body: CartAdd, uid: int = Depends(current_user_id), s: Sessi
         raise HTTPException(404, "Producto no encontrado")
     if p.existencia <= 0:
         raise HTTPException(400, "Producto agotado")
+    if body.cantidad > p.existencia:  # Nueva verificación: stock insuficiente
+        raise HTTPException(400, f"Stock insuficiente: solo hay {p.existencia} unidades disponibles")
     c = get_or_create_cart(s, uid); _ensure_cart_open(c)
     it = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id, CarritoItem.producto_id == p.id)).first()
     if it:
-        if it.cantidad + body.cantidad > p.existencia:
-            raise HTTPException(400, "Stock insuficiente")
         it.cantidad += body.cantidad
     else:
-        if body.cantidad > p.existencia:
-            raise HTTPException(400, "Stock insuficiente")
-        s.add(CarritoItem(carrito_id=c.id, producto_id=p.id, cantidad=body.cantidad))
+        it = CarritoItem(carrito_id=c.id, producto_id=p.id, cantidad=body.cantidad)
+        s.add(it)
     s.commit()
     return {"ok": True}
 
@@ -420,9 +392,10 @@ def carrito_restar(body: CartAdd, uid: int = Depends(current_user_id), s: Sessio
     _ensure_cart_open(c)
     it = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id, CarritoItem.producto_id == body.producto_id)).first()
     if not it:
-        raise HTTPException(404, "No está en el carrito")
+        raise HTTPException(404, "Item no encontrado en carrito")
     it.cantidad -= max(1, body.cantidad)
-    if it.cantidad <= 0: s.delete(it)
+    if it.cantidad <= 0:
+        s.delete(it)
     s.commit()
     return {"ok": True}
 
@@ -431,7 +404,7 @@ def carrito_quitar(product_id: int, uid: int = Depends(current_user_id), s: Sess
     c = get_or_create_cart(s, uid); _ensure_cart_open(c)
     it = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id, CarritoItem.producto_id == product_id)).first()
     if not it:
-        raise HTTPException(404, "No está en el carrito")
+        raise HTTPException(404, "Item no encontrado en carrito")
     s.delete(it); s.commit()
     return {"ok": True}
 
@@ -442,16 +415,15 @@ def carrito(uid: int = Depends(current_user_id), s: Session = Depends(get_sessio
     data = []
     for it in items:
         p = s.get(Producto, it.producto_id)
-        if not p: continue
-        data.append({
-            "producto_id": p.id,
-            "titulo": p.nombre,
-            "cantidad": it.cantidad,
-            "precio": p.precio,
-            "imagen": p.imagen,
-            "imagen_url": _img_url(p.imagen),
-            "categoria": p.categoria,
-        })
+        if p:
+            data.append({
+                "producto_id": it.producto_id,
+                "titulo": p.nombre,
+                "cantidad": it.cantidad,
+                "precio": p.precio,
+                "subtotal": it.cantidad * p.precio,
+                "imagen_url": _img_url(p.imagen)
+            })
     return {"carrito_id": c.id, "estado": c.estado, "items": data}
 
 @app.post("/checkout/confirm", status_code=201)
@@ -467,13 +439,11 @@ def carrito_finalizar(req: ConfirmCheckoutRequest, uid: int = Depends(current_us
     if not items:
         raise HTTPException(400, "Carrito vacío")
 
-    # Validar stock antes
     for it in items:
         p = s.get(Producto, it.producto_id)
         if not p or p.existencia < it.cantidad:
-            raise HTTPException(400, f"Stock insuficiente producto {it.producto_id}")
+            raise HTTPException(400, f"Stock insuficiente para {p.nombre if p else 'producto'}")
 
-    # Crear compra
     compra = Compra(
         usuario_id=uid,
         fecha_iso=datetime.utcnow().isoformat(),
@@ -487,31 +457,30 @@ def carrito_finalizar(req: ConfirmCheckoutRequest, uid: int = Depends(current_us
     )
     s.add(compra); s.commit(); s.refresh(compra)
 
-    # Cargar items y calcular totales
     subtotal = 0.0
     iva_total = 0.0
     for it in items:
         p = s.get(Producto, it.producto_id)
-        rate = _iva_rate_for(p.categoria)
-        sub = p.precio * it.cantidad
-        subtotal += sub
-        iva_total += sub * rate
-
-        p.existencia -= it.cantidad
-        s.add(p)
-
-        s.add(CompraItem(
+        precio_unit = p.precio
+        iva_rate = _iva_rate_for(p.categoria)
+        item_subtotal = it.cantidad * precio_unit
+        item_iva = item_subtotal * iva_rate
+        subtotal += item_subtotal
+        iva_total += item_iva
+        ci = CompraItem(
             compra_id=compra.id,
-            producto_id=p.id,
+            producto_id=it.producto_id,
             cantidad=it.cantidad,
-            precio_unit=p.precio,
-            subtotal=sub,
+            precio_unit=precio_unit,
+            subtotal=item_subtotal,
             titulo=p.nombre,
             imagen=p.imagen,
             categoria=p.categoria,
-            iva_rate=rate
-        ))
-        s.delete(it)
+            iva_rate=iva_rate
+        )
+        s.add(ci)
+        p.existencia -= it.cantidad
+        s.add(p)
 
     envio = 0 if (subtotal + iva_total) > 1000 else (50 if items else 0)
     compra.subtotal = subtotal
@@ -528,7 +497,7 @@ def compras_usuario(uid: int = Depends(current_user_id), s: Session = Depends(ge
     compras = s.exec(select(Compra).where(Compra.usuario_id == uid).order_by(Compra.id.desc())).all()
     out = []
     for c in compras:
-        items_cant = len(s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all())
+        items_count = s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all()
         out.append({
             "id": c.id,
             "fecha_iso": c.fecha_iso,
@@ -536,7 +505,7 @@ def compras_usuario(uid: int = Depends(current_user_id), s: Session = Depends(ge
             "subtotal": c.subtotal,
             "iva_total": c.iva_total,
             "envio": c.envio,
-            "items_cantidad": items_cant,
+            "items_cantidad": len(items_count),
             "estado": c.estado,
             "metodo_pago": c.metodo_pago
         })
@@ -578,11 +547,18 @@ def compra_detalle(compra_id: int, uid: int = Depends(current_user_id), s: Sessi
 def carrito_cancelar(uid: int = Depends(current_user_id), s: Session = Depends(get_session)):
     c = get_or_create_cart(s, uid)
     if c.estado != "abierto":
-        raise HTTPException(400, "Carrito finalizado")
+        raise HTTPException(400, "Carrito ya cerrado")
     items = s.exec(select(CarritoItem).where(CarritoItem.carrito_id == c.id)).all()
     for it in items:
         s.delete(it)
     s.commit()
+    return {"ok": True}
+
+@app.post("/cerrar-sesion")
+def cerrar_sesion(authorization: str | None = Header(None)):
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1]
+        active_tokens.pop(token, None)
     return {"ok": True}
 
 # ------------------ HEALTH ------------------
