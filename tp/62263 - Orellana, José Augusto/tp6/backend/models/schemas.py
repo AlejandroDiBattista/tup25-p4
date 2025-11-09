@@ -24,3 +24,16 @@ class UsuarioRespuesta(UsuarioBase):
     # Configuración para decirle a Pydantic que puede leer datos desde un objeto de SQLModel
     class Config:
         from_attributes = True
+
+class UsuarioLogin(BaseModel):
+    """El modelo que espera recibir del frontend al iniciar sesión."""
+    email: str = Field(
+        pattern=EMAIL_REGEX,
+        example="usuario@mail.com"
+    )
+    contrasenia: str
+
+class Token(BaseModel):
+    """Modelo para el token JWT."""
+    access_token: str
+    token_type: str = "bearer"
