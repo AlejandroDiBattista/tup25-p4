@@ -9,7 +9,8 @@ dependencies = [
     "sqlmodel>=0.0.27",
     "uvicorn[standard]>=0.32.1",
     "bcrypt",
-    "python-jose[cryptography]"
+    "python-jose[cryptography]",
+    "unidecode"
 ]
 
 [dependency-groups]

@@ -6,11 +6,15 @@ from pathlib import Path
 import json
 import bcrypt
 from datetime import datetime, timedelta, timezone
-
 from jose import JWTError, jwt
 
 from sqlmodel import SQLModel, create_engine, Session, select
-from typing import List
+from typing import List, Optional
+
+import sqlite3
+from unidecode import unidecode
+from sqlalchemy import event, func
+from sqlalchemy.engine import Engine
 
 from models.productos import (
     Producto, Usuario, Carrito, CarritoItem, Compra, CompraItem,
@@ -27,6 +31,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="iniciar-sesion")
 DATABASE_FILE = "database.db"
 DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 engine = create_engine(DATABASE_URL, echo=True)
+
+@event.listens_for(Engine, "connect")
+def on_connect(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        dbapi_connection.create_function("unaccent", 1, unidecode)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
@@ -125,9 +134,43 @@ def root():
     return {"mensaje": "API de E-Commerce - use /docs para ver la documentación"}
 
 @app.get("/productos", response_model=List[Producto])
-def obtener_productos(session: Session = Depends(get_session)):
-    productos = session.exec(select(Producto)).all()
+def obtener_productos(
+    session: Session = Depends(get_session),
+    buscar: Optional[str] = None,
+    categoria: Optional[str] = None
+):
+    query = select(Producto)
+
+    if buscar:
+        search_term = f"%{unidecode(buscar)}%"
+        query = query.where(
+            (func.unaccent(Producto.nombre).ilike(search_term)) |
+            (func.unaccent(Producto.descripcion).ilike(search_term))
+        )
+
+    if categoria:
+        category_term = f"%{unidecode(categoria)}%"
+        query = query.where(
+            func.unaccent(Producto.categoria).ilike(category_term)
+        )
+
+    productos = session.exec(query).all()
     return productos
+
+@app.get("/productos/{id}", response_model=Producto)
+def obtener_producto_por_id(
+    id: int,
+    session: Session = Depends(get_session)
+):
+    producto = session.get(Producto, id)
+
+    if not producto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Producto no encontrado"
+        )
+
+    return producto
 
 @app.post("/registrar", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
 def registrar_usuario(usuario_data: UsuarioCreate, session: Session = Depends(get_session)):
