@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends
 from sqlmodel import Session, select
 from models.productos import Producto
 from models.usuarios import Usuario
+from schemas import UsuarioCreate
 from models.carrito import CarritoItem
 from models.compras import Compra
 from database import create_db_and_tables, get_session
@@ -10,6 +11,12 @@ from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
 from auth import registrar_usuario, iniciar_sesion, get_current_user
+from fastapi import Depends, HTTPException, status, Form
+from fastapi.security import OAuth2PasswordRequestForm
+from auth import create_access_token, verify_password
+from datetime import datetime
+from typing import List
+
 
 app = FastAPI(title="API Productos")
 
@@ -61,35 +68,56 @@ def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 # Productos
-@app.get("/productos")
-def cargar_productos_desde_json():
-    """Carga productos desde productos.json si la base está vacía."""
-    ruta = Path(__file__).parent / "productos.json"
-    if ruta.exists():
-        with open(ruta, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
-
 @app.get("/productos/", response_model=list[Producto])
 def listar_productos(session: Session = Depends(get_session)):
     productos = session.exec(select(Producto)).all()
     # Si no hay productos en la BD, cargamos los del JSON
     if not productos:
-        data = cargar_productos_desde_json()
+        data = cargar_productos()
         for p in data:
             session.add(Producto(**p))
         session.commit()
         productos = session.exec(select(Producto)).all()
     return productos
 
+# Obtener detalle de un producto por ID
+@app.get("/productos/{producto_id}", response_model=Producto)
+def detalle_producto(producto_id: int, session: Session = Depends(get_session)):
+    producto = session.get(Producto, producto_id)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return producto
+
 # Autentificacion
 @app.post("/registrar")
-def registrar(usuario: Usuario, session: Session = Depends(get_session)):
+def registrar(usuario: UsuarioCreate, session: Session = Depends(get_session)):
     return registrar_usuario(usuario, session)
 
+# Iniciar sesion
 @app.post("/iniciar-sesion")
-def login(usuario: Usuario, session: Session = Depends(get_session)):
-    return iniciar_sesion(usuario, session)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+    user = session.exec(select(Usuario).where(Usuario.email == form_data.username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(status_code=401, detail="Contraseña incorrecta")
+
+    access_token = create_access_token(data={"sub": user.email})
+    return {
+        "mensaje": "Inicio de sesión exitoso",
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+# Cerrar sesión
+@app.post("/cerrar-sesion")
+def cerrar_sesion():
+    return {"mensaje": "Sesión cerrada. El token ya no es válido en el cliente."}
+
+# Endpoint de prueba protegido con JWT
+@app.get("/protegido")
+def endpoint_protegido(usuario: Usuario = Depends(get_current_user)):
+    return {"mensaje": f"Hola {usuario.nombre}, estás autenticado"}
 
 # Usuarios
 @app.post("/usuarios/", response_model=Usuario)
@@ -99,14 +127,23 @@ def crear_usuario(usuario: Usuario, session: Session = Depends(get_session)):
     session.refresh(usuario)
     return usuario
 
+@app.get("/usuarios/", response_model=List[Usuario])
+def listar_usuarios(session: Session = Depends(get_session)):
+    return session.exec(select(Usuario)).all()
+
 #  Carrito 
 @app.post("/carrito/", response_model=CarritoItem)
 def agregar_al_carrito(
     item: CarritoItem,
     session: Session = Depends(get_session),
-    usuario: Usuario = Depends(get_current_user)  # Solo si está logueado el usuario
+    usuario: Usuario = Depends(get_current_user)
 ):
-    # Asigna el usuario logueado al carrito
+    # Validar que el usuario logueado sea válido
+    if not usuario or not usuario.id:
+        raise HTTPException(status_code=403, detail="Usuario no válido")
+
+    # Asignar el usuario logueado al carrito
+    print("Usuario logueado:", usuario)
     item.usuario_id = usuario.id
 
     session.add(item)
@@ -114,20 +151,11 @@ def agregar_al_carrito(
     session.refresh(item)
     return item
 
-# Compras
-@app.post("/compras/", response_model=Compra)
-def registrar_compra(compra: Compra, session: Session = Depends(get_session)):
-    session.add(compra)
-    session.commit()
-    session.refresh(compra)
-    return compra
-
 # Ver contenido del carrito
 @app.get("/carrito/", response_model=list[CarritoItem])
-def ver_carrito(session: Session = Depends(get_session)):
-    items = session.exec(select(CarritoItem)).all()
+def ver_carrito(usuario: Usuario = Depends(get_current_user), session: Session = Depends(get_session)):
+    items = session.exec(select(CarritoItem).where(CarritoItem.usuario_id == usuario.id)).all()
     return items
-
 
 # Quitar producto del carrito
 @app.delete("/carrito/{producto_id}")
@@ -139,6 +167,21 @@ def eliminar_del_carrito(producto_id: int, session: Session = Depends(get_sessio
     session.commit()
     return {"mensaje": f"Producto con ID {producto_id} eliminado del carrito"}
 
+# Historial compras
+@app.get("/compras/", response_model=list[Compra])
+def ver_compras(usuario: Usuario = Depends(get_current_user), session: Session = Depends(get_session)):
+    compras = session.exec(select(Compra).where(Compra.usuario_id == usuario.id)).all()
+    return compras
+
+# Ver detalle de una compra especifica
+@app.get("/compras/{compra_id}", response_model=Compra)
+def detalle_compra(compra_id: int, usuario: Usuario = Depends(get_current_user), session: Session = Depends(get_session)):
+    compra = session.get(Compra, compra_id)
+    if not compra:
+        raise HTTPException(status_code=404, detail="Compra no encontrada")
+    if compra.usuario_id != usuario.id:
+        raise HTTPException(status_code=403, detail="No tienes permiso para ver esta compra")
+    return compra
 
 # Cancelar compra (vaciar carrito)
 @app.post("/carrito/cancelar")
@@ -152,29 +195,55 @@ def cancelar_carrito(session: Session = Depends(get_session)):
     return {"mensaje": "Compra cancelada, carrito vaciado"}
 
 
-# Finalizar compra
+# Finalizar compra con IVA y envío
 @app.post("/carrito/finalizar")
-def finalizar_compra(session: Session = Depends(get_session)):
-    items = session.exec(select(CarritoItem)).all()
+def finalizar_compra(
+    session: Session = Depends(get_session),
+    usuario: Usuario = Depends(get_current_user)  
+):
+    items = session.exec(select(CarritoItem).where(CarritoItem.usuario_id == usuario.id)).all()
     if not items:
         return {"mensaje": "El carrito está vacío"}
 
-    total = 0
+    subtotal = 0
     for item in items:
         producto = session.get(Producto, item.producto_id)
         if producto:
-            total += producto.precio * item.cantidad
+            subtotal += producto.precio * item.cantidad
             producto.existencia -= item.cantidad  # Actualiza el stock
 
-    compra = Compra(total=total, fecha="2025-11-06")  # fecha temporal
+    # Calcular IVA según categoría
+    iva = 0
+    for item in items:
+        producto = session.get(Producto, item.producto_id)
+        if producto:
+            tasa_iva = 0.10 if producto.categoria.lower() == "electrónica" else 0.21
+            iva += producto.precio * item.cantidad * tasa_iva
+
+    total = subtotal + iva
+    envio = 0 if total > 1000 else 50
+    total += envio
+
+    # Crear compra asociada al usuario
+    compra = Compra(
+        total=total,
+        fecha=datetime.utcnow(),
+        usuario_id=usuario.id
+    )
     session.add(compra)
 
-    # Vaciar carrito después de finalizar compra
+    # Vaciar carrito
     for item in items:
         session.delete(item)
 
     session.commit()
-    return {"mensaje": "Compra finalizada con exito", "total": total}
+    return {
+        "mensaje": "Compra finalizada con éxito",
+        "subtotal": subtotal,
+        "iva": iva,
+        "envio": envio,
+        "total": total
+    }
 
 if __name__ == "__main__":
     import uvicorn

@@ -6,13 +6,19 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
 from models.usuarios import Usuario
 from database import engine
+from schemas import UsuarioCreate
+from fastapi.security import HTTPAuthorizationCredentials
+
 
 SECRET_KEY = "contraseña_secreta"  
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="iniciar-sesion")
+from fastapi.security import HTTPBearer
+
+oauth2_scheme = HTTPBearer()
+
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -32,7 +38,8 @@ def get_user(email: str):
         user = session.exec(select(Usuario).where(Usuario.email == email)).first()
         return user
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme)):
+    token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
@@ -46,17 +53,23 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
 
 # REGISTRO DE USUARIO
-def registrar_usuario(usuario: Usuario, session: Session):
+def registrar_usuario(usuario: UsuarioCreate, session: Session):
     # Verificar si el email ya está registrado
     existe = session.exec(select(Usuario).where(Usuario.email == usuario.email)).first()
     if existe:
         raise HTTPException(status_code=400, detail="El correo ya está registrado")
 
-# Guardar la contraseña en forma encriptada para mayor seguridad
-    usuario.contraseña = get_password_hash(usuario.contraseña)
-    session.add(usuario)
+    # Crear instancia del modelo para guardar en la base de datos
+    usuario_db = Usuario(
+        nombre=usuario.nombre,
+        email=usuario.email,
+        password=get_password_hash(usuario.password)
+    )
+
+    session.add(usuario_db)
     session.commit()
-    session.refresh(usuario)
+    session.refresh(usuario_db)
+
     return {"mensaje": "Usuario registrado correctamente", "usuario": usuario.email}
 
 
@@ -68,7 +81,7 @@ def iniciar_sesion(usuario: Usuario, session: Session):
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
     # Verificar la contraseña
-    if not verify_password(usuario.contraseña, db_usuario.contraseña):
+    if not verify_password(usuario.password, db_usuario.password):
         raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
     # Crear token JWT
