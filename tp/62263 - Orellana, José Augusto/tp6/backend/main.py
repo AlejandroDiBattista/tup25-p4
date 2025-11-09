@@ -269,7 +269,7 @@ def obtener_carrito(carrito_actual: Carrito = Depends(get_carrito_actual)):
     """Endpoint para obtener el carrito del usuario autenticado."""
     return carrito_actual
 
-@app.post("/carrito/agregar", response_model=CarritoRespuesta)
+@app.post("/carrito", response_model=CarritoRespuesta)
 def agregar_al_carrito(
     datos_item: CarritoAgregarProducto,
     carrito_actual: Carrito = Depends(get_carrito_actual),
