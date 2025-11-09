@@ -1,75 +1,51 @@
 "use client";
-import { Producto } from '../types';
-import Image from 'next/image';
-import { agregarAlCarrito } from "../services/productos";
-import { useCarrito } from "../../context/CarritoContext";
 
-
-interface ProductoCardProps {
-  producto: Producto;
-}
-
-export default function ProductoCard({ producto }: ProductoCardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-const { actualizarCarrito } = useCarrito();
-
-  function handleAgregar() {
-    const usuario_id = Number(localStorage.getItem("usuario_id"));
-    if (!usuario_id) {
-      alert("Debes iniciar sesión primero");
-      window.location.href = "/ingresar";
-      return;
-    }
-
-    agregarAlCarrito(usuario_id, producto.id)
-      .then(() => actualizarCarrito()) 
-      .catch(() => alert("No se pudo agregar el producto"));
-  }
-
+export default function ProductoCard({ producto }: any) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-64 bg-gray-100">
-        <Image
-  src={`${API_URL}/${producto.imagen}`}  // <-- CAMBIO AQUÍ
-  alt={producto.nombre}
-  fill
-  className="object-contain p-4"
-  unoptimized
-/>
+<div className="flex gap-4 bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition">
+      
+      {/* Imagen */}
+      <img
+        src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/imagenes/${producto.id
+          .toString()
+          .padStart(4, "0")}.png`}
+        alt={producto.nombre}
+        className="w-32 h-32 object-cover rounded-md"
+      />
+
+      {/* Información */}
+      <div className="flex flex-col justify-between flex-1">
+
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{producto.nombre}</h3>
+          <p className="text-sm text-gray-700 mt-1 leading-snug">{producto.descripcion}</p>
+          <p className="text-xs text-gray-400 mt-1">Categoría: {producto.categoria}</p>
+        </div>
+
+        <p className="text-lg font-semibold text-gray-900">${producto.precio}</p>
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.nombre}
-        </h3>
 
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {producto.descripcion}
-        </p>
+      {/* Botón y Stock */}
+      <div className="flex flex-col items-end justify-between">
+        <p className="text-gray-700 font-medium">Disponible: {producto.existencia}</p>
 
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
-          </span>
-        </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio}
-          </span>
+        <button
+          className="bg-[#0A2540] hover:bg-[#0D3158] text-white py-2 px-4 rounded-md text-sm transition"
 
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
-        </div>
+          onClick={() => {
+            const usuarioId = localStorage.getItem("usuario_id");
+            if (!usuarioId) return alert("Debe iniciar sesión para agregar al carrito.");
 
-     <button
-          onClick={handleAgregar}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-colors"
-          >
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/carrito?usuario_id=${usuarioId}&producto_id=${producto.id}`, {
+              method: "POST",
+            }).then(() => window.location.reload());
+          }}
+        >
           Agregar al carrito
         </button>
       </div>
+
     </div>
   );
 }

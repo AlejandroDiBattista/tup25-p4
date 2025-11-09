@@ -53,7 +53,7 @@ export default function Navbar() {
 
     <Link
       href="/registrar"
-      className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+      className="bg-neutral-900 hover:bg-neutral-800 text-white px-4 py-1.5 rounded-md transition"
     >
       Crear cuenta
     </Link>
