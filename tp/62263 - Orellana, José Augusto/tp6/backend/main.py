@@ -504,6 +504,25 @@ def vaciar_carrito(
 
     return carrito_actual
 
+@app.get("/compras", response_model=list[CompraRespuesta])
+def obtener_historial_compras(
+    usuario_actual: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Endpoint para obtener el historial de compras del usuario autenticado."""
+    # Se crea la consulta para obtener las compras del usuario
+    statement = select(Compra).where(
+        Compra.usuario_id == usuario_actual.id
+    )
+
+    # Se ordenan por fecha de la más nueva a la más vieja
+    statement = statement.order_by(Compra.fecha.desc())
+
+    compras = session.exec(statement).all()
+
+    # Se devuelve la lista de compras
+    return compras
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
