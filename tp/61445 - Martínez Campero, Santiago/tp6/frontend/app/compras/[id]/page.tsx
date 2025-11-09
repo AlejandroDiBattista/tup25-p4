@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Navbar from '@/app/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { obtenerCompraDetalle } from '@/app/services/compras';
 import { Compra } from '@/app/types';
@@ -45,7 +44,6 @@ export default function CompraDetallePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
             <p className="text-xl text-gray-600">Cargando compra...</p>
@@ -58,7 +56,6 @@ export default function CompraDetallePage() {
   if (error || !compra) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
             <p className="text-xl text-red-600 mb-4">{error || 'Compra no encontrada'}</p>
@@ -73,8 +70,6 @@ export default function CompraDetallePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto px-4 py-8">
         <Link href="/compras" className="text-primary hover:underline mb-6 inline-block">
           ← Volver a Mis Compras

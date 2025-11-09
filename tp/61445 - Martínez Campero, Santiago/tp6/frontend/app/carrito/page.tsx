@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/app/components/Navbar';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/app/hooks/useToast';
 import { obtenerCarrito, actualizarCantidad, removerDelCarrito, cancelarCarrito } from '@/app/services/carrito';
 import { Carrito } from '@/app/types';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import Image from 'next/image';
 
 export default function CarritoPage() {
   const router = useRouter();
+  const { agregarToast } = useToast();
   const [carrito, setCarrito] = useState<Carrito | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +31,9 @@ export default function CarritoPage() {
         const datos = await obtenerCarrito();
         setCarrito(datos);
       } catch (err) {
-        setError('No se pudo cargar el carrito');
+        const msg = 'No se pudo cargar el carrito';
+        setError(msg);
+        agregarToast(msg, 'error', 3000);
         console.error('Error:', err);
       } finally {
         setLoading(false);
@@ -38,7 +41,7 @@ export default function CarritoPage() {
     };
 
     cargarCarrito();
-  }, [router]);
+  }, [router, agregarToast]);
 
   const handleCambiarCantidad = async (itemId: number, nuevaCantidad: number) => {
     if (nuevaCantidad < 1) return;
@@ -48,8 +51,11 @@ export default function CarritoPage() {
       setError(null);
       const actualizado = await actualizarCantidad(itemId, nuevaCantidad);
       setCarrito(actualizado);
+      agregarToast('Cantidad actualizada', 'success', 2000);
     } catch (err) {
-      setError('Error al actualizar cantidad');
+      const msg = 'Error al actualizar cantidad';
+      setError(msg);
+      agregarToast(msg, 'error', 3000);
       console.error('Error:', err);
     } finally {
       setActualizando(null);
@@ -62,8 +68,11 @@ export default function CarritoPage() {
       setError(null);
       const actualizado = await removerDelCarrito(itemId);
       setCarrito(actualizado);
+      agregarToast('Producto eliminado del carrito', 'success', 2000);
     } catch (err) {
-      setError('Error al eliminar del carrito');
+      const msg = 'Error al eliminar del carrito';
+      setError(msg);
+      agregarToast(msg, 'error', 3000);
       console.error('Error:', err);
     } finally {
       setActualizando(null);
@@ -77,20 +86,23 @@ export default function CarritoPage() {
       setError(null);
       const actualizado = await cancelarCarrito();
       setCarrito(actualizado);
+      agregarToast('Carrito vaciado correctamente', 'success', 2000);
     } catch (err) {
-      setError('Error al vaciar el carrito');
+      const msg = 'Error al vaciar el carrito';
+      setError(msg);
+      agregarToast(msg, 'error', 3000);
       console.error('Error:', err);
     }
   };
 
   const handleCheckout = () => {
+    agregarToast('Procédiendo al checkout...', 'info', 2000);
     router.push('/checkout');
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
             <p className="text-xl text-gray-600">Cargando carrito...</p>
@@ -102,8 +114,6 @@ export default function CarritoPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <Link href="/productos" className="text-primary hover:underline inline-block">

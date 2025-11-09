@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/app/hooks/useToast';
 import { registrar } from '@/app/services/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { agregarToast } = useToast();
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,12 +24,16 @@ export default function RegisterPage() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      const msg = 'Las contraseñas no coinciden';
+      setError(msg);
+      agregarToast(msg, 'error', 3000);
       return;
     }
 
     if (password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres');
+      const msg = 'La contraseña debe tener al menos 8 caracteres';
+      setError(msg);
+      agregarToast(msg, 'error', 3000);
       return;
     }
 
@@ -35,10 +41,12 @@ export default function RegisterPage() {
 
     try {
       await registrar(nombre || email.split('@')[0], email, password);
+      agregarToast('¡Registro exitoso! Redirigiendo...', 'success', 3000);
       router.push('/productos');
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Error al registrar';
       setError(errorMsg);
+      agregarToast(errorMsg, 'error', 3000);
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { UsuarioData, UsuarioUpdate, actualizarUsuario } from '@/app/services/usuarios';
+import { useToast } from '@/app/hooks/useToast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +14,7 @@ interface PerfilFormProps {
 }
 
 export default function PerfilForm({ usuario, onActualizado }: PerfilFormProps) {
+  const { agregarToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,7 +36,6 @@ export default function PerfilForm({ usuario, onActualizado }: PerfilFormProps) 
     setSuccess('');
 
     try {
-      // Validaciones
       if (!formData.nombre.trim()) {
         throw new Error('El nombre es requerido');
       }
@@ -50,17 +51,18 @@ export default function PerfilForm({ usuario, onActualizado }: PerfilFormProps) 
       };
 
       const usuarioActualizado = await actualizarUsuario(datosActualizacion);
-      setSuccess('Perfil actualizado correctamente');
+      agregarToast('Perfil actualizado correctamente', 'success', 3000);
       
       if (onActualizado) {
         onActualizado(usuarioActualizado);
       }
 
-      // Limpiar mensaje de éxito después de 3 segundos
+
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       const mensaje = err instanceof Error ? err.message : 'Error al actualizar el perfil';
       setError(mensaje);
+      agregarToast(mensaje, 'error', 3000);
     } finally {
       setIsLoading(false);
     }

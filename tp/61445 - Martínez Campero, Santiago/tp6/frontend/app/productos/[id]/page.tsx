@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Navbar from '@/app/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { obtenerProducto } from '@/app/services/productos';
 import { Producto } from '@/app/types';
@@ -78,7 +77,6 @@ export default function ProductoDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
             <p className="text-xl text-gray-600">Cargando producto...</p>
@@ -91,7 +89,6 @@ export default function ProductoDetailPage() {
   if (error || !producto) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
             <p className="text-xl text-red-600 mb-4">{error || 'Producto no encontrado'}</p>
@@ -106,8 +103,6 @@ export default function ProductoDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto px-4 py-8">
         <Link href="/productos" className="text-primary hover:underline mb-6 inline-block">
           ← Volver a Productos

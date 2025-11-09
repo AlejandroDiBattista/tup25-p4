@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/app/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { obtenerCarrito } from '@/app/services/carrito';
 import { Carrito } from '@/app/types';
@@ -80,7 +79,6 @@ export default function CheckoutPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
             <p className="text-xl text-gray-600">Cargando información de checkout...</p>
@@ -93,7 +91,6 @@ export default function CheckoutPage() {
   if (!carrito || carrito.items.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="bg-white rounded-lg shadow-lg p-12 text-center">
             <p className="text-2xl text-gray-600 mb-6">Tu carrito está vacío</p>
@@ -108,8 +105,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <Link href="/carrito" className="text-primary hover:underline inline-block">

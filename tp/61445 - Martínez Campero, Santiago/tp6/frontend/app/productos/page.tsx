@@ -1,4 +1,3 @@
-import Navbar from "@/app/components/Navbar";
 import ProductoCard from "@/app/components/ProductoCard";
 import SearchFilter from "@/app/components/SearchFilter";
 import { obtenerProductos, obtenerCategorias } from "@/app/services/productos";
@@ -32,8 +31,6 @@ export default async function ProductosPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">

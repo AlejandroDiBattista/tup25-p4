@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/app/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { obtenerCompras } from '@/app/services/compras';
 import { Compra } from '@/app/types';
@@ -41,7 +40,6 @@ function ComprasContent({ success }: { success: boolean }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <main className="max-w-7xl mx-auto px-4 py-8">
           <p className="text-center text-gray-600">Cargando compras...</p>
         </main>
@@ -51,7 +49,6 @@ function ComprasContent({ success }: { success: boolean }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <Link href="/productos" className="text-primary hover:underline inline-block mb-4">
           ← Volver
