@@ -29,7 +29,7 @@ export function ProductCard({ producto, onAddToCart }: ProductCardProps) {
     : '/placeholder.jpg';
 
   return (
-    <Card className="group hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+    <Card className="group hover:shadow-lg transition-shadow duration-300 flex flex-col h-full max-w-sm mx-auto w-full">
       <Link href={`/productos/${producto.id}`} className="flex-1 flex flex-col">
         {/* Imagen */}
         <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">
@@ -38,7 +38,7 @@ export function ProductCard({ producto, onAddToCart }: ProductCardProps) {
             alt={producto.titulo}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
             unoptimized
           />
           

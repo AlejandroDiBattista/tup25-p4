@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import { useCarrito } from '../hooks/useCarrito';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +16,13 @@ import {
 import { ShoppingCart, User, LogOut, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function Header() {
+interface HeaderProps {
+  onCartToggle?: () => void;
+}
+
+export function Header({ onCartToggle }: HeaderProps) {
   const { usuario, isAuthenticated, logout } = useAuth();
+  const { cantidadTotal } = useCarrito();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -55,6 +62,24 @@ export function Header() {
                   <Package className="h-4 w-4" />
                   Mis compras
                 </Link>
+
+                {/* Cart Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  onClick={onCartToggle}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {cantidadTotal > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                    >
+                      {cantidadTotal}
+                    </Badge>
+                  )}
+                </Button>
 
                 {/* User Menu */}
                 <DropdownMenu>
