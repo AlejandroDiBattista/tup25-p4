@@ -217,10 +217,28 @@ def obtener_productos(
 ):
     with Session(engine) as session:
         query = select(Producto)
+        # Filtro por categoría: coincidencia parcial y case-insensitive
         if categoria:
-            query = query.where(Producto.categoria == categoria)
+            cat = categoria.strip()
+            if cat:
+                # Normalizar casos comunes (electro -> electr) para cubrir tildes/variantes
+                cat_norm = cat.lower()
+                if "electro" in cat_norm:
+                    cat_like = "electr"
+                else:
+                    cat_like = cat
+                query = query.where(Producto.categoria.ilike(f"%{cat_like}%"))
+
+        # Búsqueda por texto: en título y descripción, parcial y case-insensitive
         if buscar:
-            query = query.where(Producto.titulo.ilike(f"%{buscar}%"))
+            q = buscar.strip()
+            if q:
+                query = query.where(
+                    or_(
+                        Producto.titulo.ilike(f"%{q}%"),
+                        Producto.descripcion.ilike(f"%{q}%"),
+                    )
+                )
         productos = session.exec(query).all()
         return productos
 
