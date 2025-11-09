@@ -20,6 +20,7 @@ Para iniciar el servidor: cd backend && uv run uvicorn main:app --reload
 
 import requests
 import json
+import time
 
 BASE_URL = "http://localhost:8000"
 
@@ -128,10 +129,13 @@ def main():
     print_test("Servidor respondiendo correctamente", True)
     print()
     
+    # Usar timestamp para emails únicos en cada ejecución
+    timestamp = int(time.time())
+    
     # Registrar usuarios para las pruebas
-    email1 = "comprador1@test.com"
-    email2 = "comprador2@test.com"
-    email3 = "comprador3@test.com"
+    email1 = f"comprador1_{timestamp}@test.com"
+    email2 = f"comprador2_{timestamp}@test.com"
+    email3 = f"comprador3_{timestamp}@test.com"
     password = "password123"
     
     registrar_usuario(email1, password, "Comprador 1")
@@ -240,7 +244,7 @@ def main():
     # TEST 5: Error al finalizar carrito vacío
     # ========================================
     print(f"{Color.YELLOW}TEST 5: Error al intentar finalizar carrito vacío{Color.END}")
-    email_vacio = "vacio@test.com"
+    email_vacio = f"vacio_{timestamp}@test.com"
     registrar_usuario(email_vacio, password, "Usuario Vacío")
     token_vacio = iniciar_sesion(email_vacio, password)
     
@@ -275,7 +279,7 @@ def main():
     # TEST 7: Verificar que el stock se actualiza
     # ========================================
     print(f"{Color.YELLOW}TEST 7: Verificar actualización de stock{Color.END}")
-    email_stock = "stock@test.com"
+    email_stock = f"stock_{timestamp}@test.com"
     registrar_usuario(email_stock, password, "Comprador Stock")
     token_stock = iniciar_sesion(email_stock, password)
     
@@ -305,7 +309,7 @@ def main():
     # TEST 8: Error si no hay stock suficiente
     # ========================================
     print(f"{Color.YELLOW}TEST 8: Error al intentar comprar sin stock suficiente{Color.END}")
-    email_nostock = "nostock@test.com"
+    email_nostock = f"nostock_{timestamp}@test.com"
     registrar_usuario(email_nostock, password, "Comprador Sin Stock")
     token_nostock = iniciar_sesion(email_nostock, password)
     
