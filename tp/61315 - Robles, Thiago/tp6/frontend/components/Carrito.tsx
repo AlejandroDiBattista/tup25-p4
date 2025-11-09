@@ -84,7 +84,6 @@ export default function Carrito() {
       }
       window.dispatchEvent(new CustomEvent("cart:changed"));
     } catch (e) {
-      console.error(e);
       setError(e instanceof Error ? e.message : "Error al actualizar");
     }
   }
@@ -95,7 +94,6 @@ export default function Carrito() {
       setItems((prev) => prev.filter((p) => p.producto_id !== producto_id));
       window.dispatchEvent(new CustomEvent("cart:changed"));
     } catch (e) {
-      console.error(e);
       setError(e instanceof Error ? e.message : "Error al eliminar");
     }
   }
@@ -209,7 +207,7 @@ export default function Carrito() {
               )}
               {error && (
                 <div className="p-4 text-center text-sm text-red-600">
-                  {error}
+                  Inicia sesion para comprar
                 </div>
               )}
             </div>

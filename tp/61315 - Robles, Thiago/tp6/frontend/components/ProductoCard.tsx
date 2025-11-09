@@ -103,7 +103,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudo agregar al carrito. Inicia sesión y verifica stock.",
+        text: "No se pudo agregar al carrito.",
       });
     }
   }

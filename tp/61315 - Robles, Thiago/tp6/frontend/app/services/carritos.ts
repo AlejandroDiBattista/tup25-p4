@@ -1,5 +1,4 @@
 import { Carrito } from "../types";
-import { cache } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -13,7 +12,7 @@ function getAuthHeaders() {
 // ------------------------------------------------------------------
 // GET /carrito → obtener carrito activo
 // ------------------------------------------------------------------
-export const obtenerCarrito = cache(async (): Promise<Carrito> => {
+export const obtenerCarrito = async (): Promise<Carrito> => {
   const res = await fetch(`${API_URL}/carrito`, {
     headers: {
       "Content-Type": "application/json",
@@ -95,7 +94,7 @@ export const obtenerCarrito = cache(async (): Promise<Carrito> => {
       carritoRaw.total ??
       productos.reduce((acc: number, p) => acc + (p.subtotal ?? 0), 0),
   };
-});
+};
 
 // ------------------------------------------------------------------
 // POST /carrito → agregar producto al carrito
@@ -104,16 +103,15 @@ export async function agregarProductoAlCarrito(
   producto_id: number,
   cantidad: number = 1
 ): Promise<{ message: string }> {
-  const res = await fetch(
-    `${API_URL}/carrito?producto_id=${producto_id}&cantidad=${cantidad}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(),
-      },
-    }
-  );
+  const body = { producto_id, cantidad };
+  const res = await fetch(`${API_URL}/carrito`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(body),
+  });
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));
@@ -172,14 +170,14 @@ export async function finalizarCompra(
   direccion: string,
   tarjeta: string
 ): Promise<{ message: string; compra_id: number; total: number }> {
-  const params = new URLSearchParams({ direccion, tarjeta });
-
-  const res = await fetch(`${API_URL}/carrito/finalizar?${params.toString()}`, {
+  const body = { direccion, tarjeta };
+  const res = await fetch(`${API_URL}/carrito/finalizar`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...getAuthHeaders(),
     },
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
