@@ -523,6 +523,33 @@ def obtener_historial_compras(
     # Se devuelve la lista de compras
     return compras
 
+@app.get("/compras/{id}", response_model=CompraRespuesta)
+def obtener_detalle_compra(
+    id: int,
+    usuario_actual: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Endpoint para obtener el detalle de una compra específica del usuario autenticado."""
+    # Se busca la compra por ID
+    compra = session.get(Compra, id)
+
+    # Se valida que la compra exista
+    if not compra:
+        raise HTTPException(
+            status_code=404,
+            detail="Compra no encontrada."
+        )
+    
+    # Se valida que la compra pertenezca al usuario autenticado
+    if compra.usuario_id != usuario_actual.id:
+        raise HTTPException(
+            status_code=403,
+            detail="No autorizado para ver esta compra."
+        )
+
+    # Se devuelve la compra encontrada
+    return compra
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
