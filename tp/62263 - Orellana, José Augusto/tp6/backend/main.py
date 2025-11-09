@@ -8,7 +8,7 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 from database import create_db_and_tables, engine, get_session
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from models.productos import Producto
 
 from models.carrito import Carrito, CarritoItem
@@ -30,7 +30,20 @@ from models.schemas import (
 from models.usuarios import Usuario
 
 # Se trae la función para hashear contraseñas
-from security import obtener_hash_contrasenia, verificar_contrasenia, crear_token_sesion, obtener_usuario_desde_token
+from security import (
+    obtener_hash_contrasenia,
+    verificar_contrasenia,
+    crear_token_sesion,
+    obtener_usuario_desde_token
+)
+
+#
+from models.compras import Compra, ItemCompra
+from models.schemas import (
+    CompraFinalizar,
+    CompraRespuesta,
+    ItemCompraRespuesta
+)
 
 from typing import Optional
 
@@ -381,6 +394,95 @@ def quitar_del_carrito(
     # Se devuelve el carrito actualizado
     session.refresh(carrito_actual)
     return carrito_actual
+
+@app.post("/carrito/finalizar", response_model=CompraRespuesta)
+def finalizar_compra(
+    datos_compra: CompraFinalizar,
+    carrito_actual: Carrito = Depends(get_carrito_actual),
+    usuario_actual: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Endpoint para finalizar la compra del carrito del usuario autenticado."""
+    # Se valida que el carrito no esté vacío
+    if not carrito_actual.items:
+        raise HTTPException(
+            status_code=400,
+            detail="El carrito está vacío."
+        )
+    
+    subtotal = 0.0
+    total_iva = 0.0
+
+    # Se calculan totales y se verifica stock
+    for item in carrito_actual.items:
+        producto = item.producto
+
+        # Se valida el stock
+        if producto.existencia < item.cantidad:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Stock insuficiente para {producto.titulo}."
+            )
+        
+        # Se calcula el subtotal
+        item_total = producto.precio * item.cantidad
+        subtotal += item_total
+
+        # Se calcula el IVA
+        if producto.categoria.lower() == 'electrónica':
+            total_iva += item_total * 0.10
+        else:
+            total_iva += item_total * 0.21
+
+    # Se calcula envío y total final
+    costo_envio = 0
+    if subtotal <= 1000:
+        costo_envio = 50.0
+
+    total_final = subtotal + total_iva + costo_envio
+
+    # Se crea la compra y se ocultan los datos de la tarjeta
+    tarjeta_oculta = f"xxxx-xxxx-xxxx-{datos_compra.tarjeta[-4:]}"
+
+    nueva_compra = Compra(
+        usuario_id=usuario_actual.id,
+        direccion=datos_compra.direccion,
+        tarjeta=tarjeta_oculta,
+        total=total_final,
+        envio=costo_envio,
+        iva=total_iva
+    )
+    session.add(nueva_compra)
+    session.commit()
+    session.refresh(nueva_compra)
+
+    # Se mueven los items y se actualiza el stock
+    for item in carrito_actual.items:
+        # Se crea el ItemCompra "congelado"
+        item_compra_nuevo = ItemCompra(
+            compra_id=nueva_compra.id,
+            producto_id=item.producto.id,
+            nombre=item.producto.titulo,
+            cantidad=item.cantidad,
+            precio_unitario=item.producto.precio
+        )
+        session.add(item_compra_nuevo)
+
+        # Se actualiza el stock del producto
+        item.producto.existencia -= item.cantidad
+        session.add(item.producto)
+
+    # Se vacía el carrito
+    statement_vaciar = delete(CarritoItem).where(
+        CarritoItem.carrito_id == carrito_actual.id
+    )
+    session.exec(statement_vaciar)
+
+    # Se guardan todos los cambios
+    session.commit()
+    session.refresh(nueva_compra)
+
+    return nueva_compra
 
 if __name__ == "__main__":
     import uvicorn
