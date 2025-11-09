@@ -1,6 +1,6 @@
 """
 Routers de la aplicación
 """
-from . import auth, carrito
+from . import auth, carrito, compras
 
-__all__ = ["auth", "carrito"]
+__all__ = ["auth", "carrito", "compras"]

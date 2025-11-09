@@ -44,6 +44,10 @@ from .compra import (
     CompraDetalleResponse
 )
 
+# Alias para compatibilidad
+CompraResumen = CompraResumenResponse
+CompraResponse = CompraDetalleResponse
+
 # Exportar todo
 __all__ = [
     # Modelos de tablas
@@ -77,5 +81,7 @@ __all__ = [
     "ItemCompraResponse",
     "CompraResumenResponse",
     "CompraDetalleResponse",
+    "CompraResumen",  # Alias
+    "CompraResponse",  # Alias
 ]
 
