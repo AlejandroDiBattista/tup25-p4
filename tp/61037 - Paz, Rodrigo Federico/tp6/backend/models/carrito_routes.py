@@ -31,6 +31,7 @@ def agregar_al_carrito(usuario_id: int, producto_id: int):
         carrito = session.exec(
             select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")
         ).first()
+
         if not carrito:
             carrito = Carrito(usuario_id=usuario_id)
             session.add(carrito)
@@ -42,9 +43,15 @@ def agregar_al_carrito(usuario_id: int, producto_id: int):
             raise HTTPException(status_code=400, detail="Producto no disponible")
 
         item = session.exec(
-            select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)
+            select(ItemCarrito).where(
+                ItemCarrito.carrito_id == carrito.id,
+                ItemCarrito.producto_id == producto_id
+            )
         ).first()
+
         if item:
+            if item.cantidad >= producto.existencia:
+                raise HTTPException(status_code=400, detail="No hay más stock disponible")
             item.cantidad += 1
         else:
             session.add(ItemCarrito(carrito_id=carrito.id, producto_id=producto_id, cantidad=1))

@@ -37,5 +37,6 @@ export async function obtenerCarrito(usuario_id: number) {
     throw new Error("No se pudo obtener el carrito");
   }
 
-  return response.json();
+  const data = await response.json();
+  return data.items; 
 }

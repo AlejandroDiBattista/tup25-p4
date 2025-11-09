@@ -28,6 +28,7 @@ def cargar_productos_iniciales():
                 precio=p.get("precio"),
                 categoria=p.get("categoria"),
                 existencia=p.get("existencia"),
+                imagen=p.get("imagen")
             )
             session.add(nuevo_producto)
 

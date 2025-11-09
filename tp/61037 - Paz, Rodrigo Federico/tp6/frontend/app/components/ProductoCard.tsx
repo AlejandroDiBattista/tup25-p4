@@ -2,6 +2,7 @@
 import { Producto } from '../types';
 import Image from 'next/image';
 import { agregarAlCarrito } from "../services/productos";
+import { useCarrito } from "../../context/CarritoContext";
 
 
 interface ProductoCardProps {
@@ -10,6 +11,8 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+const { actualizarCarrito } = useCarrito();
 
   function handleAgregar() {
     const usuario_id = Number(localStorage.getItem("usuario_id"));
@@ -20,7 +23,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     }
 
     agregarAlCarrito(usuario_id, producto.id)
-      .then(() => alert("Producto agregado al carrito"))
+      .then(() => actualizarCarrito()) 
       .catch(() => alert("No se pudo agregar el producto"));
   }
 
@@ -28,13 +31,12 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
         <Image
-          src={`${API_URL}/${producto.imagen}`}
-          alt={`${producto.nombre}`}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain p-4"
-          unoptimized
-        />
+  src={`${API_URL}/${producto.imagen}`}  // <-- CAMBIO AQUÍ
+  alt={producto.nombre}
+  fill
+  className="object-contain p-4"
+  unoptimized
+/>
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
