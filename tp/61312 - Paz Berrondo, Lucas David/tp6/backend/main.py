@@ -91,6 +91,36 @@ class CompraResponse(BaseModel):
     compra_id: int
 
 
+class ItemCompraResponse(BaseModel):
+    """Modelo para item de compra en respuesta."""
+    producto_id: int
+    nombre: str
+    precio_unitario: float
+    cantidad: int
+    subtotal: float
+
+
+class CompraResumenResponse(BaseModel):
+    """Modelo para resumen de compra en lista."""
+    id: int
+    fecha: str
+    total: float
+    envio: float
+    cantidad_items: int
+
+
+class CompraDetalleResponse(BaseModel):
+    """Modelo para detalle completo de una compra."""
+    id: int
+    fecha: str
+    direccion: str
+    tarjeta: str
+    items: list[ItemCompraResponse]
+    subtotal: float
+    envio: float
+    total: float
+
+
 # Evento de inicio: crear tablas y cargar datos iniciales
 @app.on_event("startup")
 def on_startup():
@@ -625,6 +655,109 @@ def finalizar_compra(
         session.commit()
         
         return CompraResponse(compra_id=compra.id)
+
+
+# ========================================
+# ENDPOINTS DE HISTORIAL DE COMPRAS
+# ========================================
+
+@app.get("/compras", response_model=list[CompraResumenResponse])
+def listar_compras(usuario_actual: Usuario = Depends(get_current_user)):
+    """
+    Listar todas las compras del usuario autenticado (resumen).
+    
+    Retorna:
+    - Lista de compras con: id, fecha, total, envío, cantidad de items
+    - Ordenadas por fecha descendente (más reciente primero)
+    - Solo compras del usuario autenticado
+    - Requiere autenticación
+    """
+    with Session(engine) as session:
+        # Obtener todas las compras del usuario
+        compras = session.exec(
+            select(Compra).where(Compra.usuario_id == usuario_actual.id)
+        ).all()
+        
+        # Construir respuesta con resumen
+        compras_resumen = []
+        for compra in compras:
+            # Contar cantidad de items en la compra
+            items_count = len(compra.items)
+            
+            compras_resumen.append(CompraResumenResponse(
+                id=compra.id,
+                fecha=compra.fecha.isoformat(),
+                total=compra.total,
+                envio=compra.envio,
+                cantidad_items=items_count
+            ))
+        
+        # Ordenar por fecha descendente (más recientes primero)
+        compras_resumen.sort(key=lambda x: x.fecha, reverse=True)
+        
+        return compras_resumen
+
+
+@app.get("/compras/{compra_id}", response_model=CompraDetalleResponse)
+def obtener_detalle_compra(
+    compra_id: int,
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    """
+    Obtener detalle completo de una compra específica.
+    
+    Retorna:
+    - Información completa de la compra
+    - Lista de items con productos, cantidades y precios
+    - Subtotal, envío y total
+    - Solo si la compra pertenece al usuario autenticado
+    - Error 404 si la compra no existe
+    - Error 403 si la compra no pertenece al usuario
+    - Requiere autenticación
+    """
+    with Session(engine) as session:
+        # Obtener la compra
+        compra = session.get(Compra, compra_id)
+        
+        if not compra:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Compra con ID {compra_id} no encontrada"
+            )
+        
+        # Validar que la compra pertenezca al usuario actual
+        if compra.usuario_id != usuario_actual.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tienes permiso para ver esta compra"
+            )
+        
+        # Construir lista de items con detalles
+        items_response = []
+        subtotal = 0.0
+        
+        for item in compra.items:
+            item_subtotal = item.precio_unitario * item.cantidad
+            subtotal += item_subtotal
+            
+            items_response.append(ItemCompraResponse(
+                producto_id=item.producto_id,
+                nombre=item.nombre,
+                precio_unitario=item.precio_unitario,
+                cantidad=item.cantidad,
+                subtotal=item_subtotal
+            ))
+        
+        return CompraDetalleResponse(
+            id=compra.id,
+            fecha=compra.fecha.isoformat(),
+            direccion=compra.direccion,
+            tarjeta=compra.tarjeta,
+            items=items_response,
+            subtotal=subtotal,
+            envio=compra.envio,
+            total=compra.total
+        )
 
 
 if __name__ == "__main__":
