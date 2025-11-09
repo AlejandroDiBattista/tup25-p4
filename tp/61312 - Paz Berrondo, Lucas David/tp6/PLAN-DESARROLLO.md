@@ -113,16 +113,41 @@
 
 ---
 
-### **COMMIT 3: Endpoints de autenticación (registrar, login, logout)**
-**Archivo:** `backend/main.py`
-**Tareas:**
-- POST `/registrar` - Crear usuario con contraseña hasheada
-- POST `/iniciar-sesion` - Validar credenciales y retornar JWT
-- POST `/cerrar-sesion` - Invalidar token (blacklist o expiración)
-- Inicializar base de datos al inicio
-- Cargar productos iniciales desde JSON
+### **✅ COMMIT 3: Endpoints de autenticación (registrar, login, logout)** [COMPLETADO]
+**Archivo modificado:** `backend/main.py`
+**Archivos de prueba:** `backend/test_auth_endpoints.py`
 
-**Validación:** Probar con `api-tests.http` registro y login
+**Dependencias agregadas:**
+- ✅ `email-validator>=2.0.0` - Para validación de EmailStr en Pydantic
+
+**Modelos Pydantic creados:**
+- ✅ `RegistroRequest` - Para registro de usuario (nombre, email, password)
+- ✅ `LoginRequest` - Para inicio de sesión (email, password)
+- ✅ `TokenResponse` - Para respuesta de token JWT
+- ✅ `MensajeResponse` - Para mensajes generales
+
+**Tareas completadas:**
+- ✅ Implementar POST `/registrar` - Crear usuario con contraseña hasheada
+  - Valida email único (error 400 si existe)
+  - Hashea contraseña con bcrypt
+  - Crea usuario en base de datos
+  - Crea carrito activo automáticamente
+  - Retorna status 201 Created
+
+- ✅ Implementar POST `/iniciar-sesion` - Validar credenciales y retornar JWT
+  - Busca usuario por email
+  - Verifica contraseña con bcrypt
+  - Genera token JWT con 30 min de expiración
+  - Retorna access_token y token_type
+  - Error 401 Unauthorized si credenciales inválidas
+
+- ✅ Implementar POST `/cerrar-sesion` - Invalidar token (requiere autenticación)
+  - Usa dependency `get_current_user`
+  - Requiere Bearer token en headers
+  - Retorna mensaje de confirmación
+  - Error 401 si no hay token
+
+**Validación:** ✅ Endpoints implementados según especificaciones de GUIAPROYECTO.md - Código validado contra `api-tests.http`
 
 ---
 
