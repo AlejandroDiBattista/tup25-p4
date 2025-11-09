@@ -1,11 +1,16 @@
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from datetime import datetime
+
+if TYPE_CHECKING:
+    from .carrito import ItemCarrito
+    from .compras import Compra
 
 class Usuario(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str
-    email: str = Field(unique=True)
-    password_hash: str
+    nombre: str = Field(max_length=100)
+    email: str = Field(unique=True, max_length=255)
+    password_hash: str = Field(max_length=255)
+    
+    # Relaciones
     compras: List["Compra"] = Relationship(back_populates="usuario")
-    carrito: Optional["Carrito"] = Relationship(back_populates="usuario")
+    carrito: List["ItemCarrito"] = Relationship(back_populates="usuario")
