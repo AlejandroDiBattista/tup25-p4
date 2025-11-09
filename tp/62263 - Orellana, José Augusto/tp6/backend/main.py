@@ -15,7 +15,16 @@ from models.carrito import Carrito, CarritoItem
 from models.schemas import CarritoRespuesta
 
 # Se trae los "contratos" que se definieron
-from models.schemas import UsuarioRegistro, UsuarioRespuesta, UsuarioLogin, Token
+from models.schemas import (
+    UsuarioRegistro,
+    UsuarioRespuesta,
+    UsuarioLogin,
+    Token,
+    ProductoRespuesta,
+    CarritoRespuesta,
+    CarritoItemRespuesta,
+    CarritoAgregarProducto
+)
 
 # Se trae el modelo de la base de datos de Usuario
 from models.usuarios import Usuario
@@ -258,6 +267,58 @@ def cerrar_sesion(
 @app.get("/carrito", response_model=CarritoRespuesta)
 def obtener_carrito(carrito_actual: Carrito = Depends(get_carrito_actual)):
     """Endpoint para obtener el carrito del usuario autenticado."""
+    return carrito_actual
+
+@app.post("/carrito/agregar", response_model=CarritoRespuesta)
+def agregar_al_carrito(
+    datos_item: CarritoAgregarProducto,
+    carrito_actual: Carrito = Depends(get_carrito_actual),
+    session: Session = Depends(get_session)
+):
+    """Endpoint para agregar un producto al carrito del usuario autenticado."""
+    # Validar que el producto exista y tenga stock
+    producto = session.get(Producto, datos_item.producto_id)
+
+    if not producto:
+        raise HTTPException(
+            status_code=404,
+            detail="Producto no encontrado."
+        )
+    
+    if producto.existencia < datos_item.cantidad:
+        raise HTTPException(
+            status_code=400,
+            detail="Stock insuficiente."
+        )
+    
+    # Borrar si el item ya existe en el carrito
+    item_existente = None
+
+    # Verificar si el producto ya está en el carrito
+    for item in carrito_actual.items:
+        if item.producto_id == datos_item.producto_id:
+            item_existente = item
+            break
+
+    # 
+    if item_existente:
+        # Si ya está, actualizar la cantidad
+        item_existente.cantidad += datos_item.cantidad
+        session.add(item_existente)
+    else:
+        # Si no está, crear un nuevo CarritoItem
+        nuevo_item = CarritoItem(
+            carrito_id=carrito_actual.id,
+            producto_id=datos_item.producto_id,
+            cantidad=datos_item.cantidad
+        )
+        session.add(nuevo_item)
+
+    # Se guardan los cambios y se devuelve el carrito actualizado
+    session.commit()
+    # Se refresca el carrito para obtener los items actualizados
+    session.refresh(carrito_actual)
+
     return carrito_actual
 
 if __name__ == "__main__":
