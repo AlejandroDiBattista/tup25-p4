@@ -19,7 +19,9 @@ from sqlalchemy.engine import Engine
 from models.productos import (
     Producto, Usuario, Carrito, CarritoItem, Compra, CompraItem,
     UsuarioCreate, UsuarioRead, UsuarioLogin,
-    Token, TokenData
+    Token, TokenData,
+    CarritoItemCreate,
+    CarritoItemRead, CarritoRead
 )
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -223,6 +225,168 @@ def cerrar_sesion(
 ):
     print(f"Usuario {usuario_actual.email} cerrando sesión.")
     return {"mensaje": f"Sesión cerrada para {usuario_actual.email}. Adios!"}
+
+
+@app.post("/carrito", status_code=status.HTTP_201_CREATED)
+def agregar_producto_al_carrito(
+    item_data: CarritoItemCreate,
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    carrito = session.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario_actual.id, Carrito.estado == "activo")
+    ).first()
+
+    if not carrito:
+        carrito = Carrito(usuario_id=usuario_actual.id, estado="activo")
+        session.add(carrito)
+        session.commit()
+        session.refresh(carrito)
+
+    producto = session.get(Producto, item_data.producto_id)
+    if not producto:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+
+    if producto.existencia < item_data.cantidad:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"No hay suficiente existencia. Disponibles: {producto.existencia}"
+        )
+
+    item_existente = session.exec(
+        select(CarritoItem).where(
+            CarritoItem.carrito_id == carrito.id,
+            CarritoItem.producto_id == item_data.producto_id
+        )
+    ).first()
+
+    if item_existente:
+        nueva_cantidad = item_existente.cantidad + item_data.cantidad
+        if producto.existencia < nueva_cantidad:
+             raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"No hay suficiente existencia para agregar más. Disponibles: {producto.existencia}, en carrito: {item_existente.cantidad}"
+            )
+        item_existente.cantidad = nueva_cantidad
+
+    else:
+        item_existente = CarritoItem(
+            carrito_id=carrito.id,
+            producto_id=item_data.producto_id,
+            cantidad=item_data.cantidad
+        )
+
+    session.add(item_existente)
+    session.commit()
+    session.refresh(item_existente)
+
+    return {"mensaje": "Producto agregado al carrito", "item": item_existente}
+
+@app.get("/carrito", response_model=CarritoRead)
+def ver_carrito(
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    carrito = session.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario_actual.id, Carrito.estado == "activo")
+    ).first()
+
+    if not carrito:
+        return CarritoRead(id=0, estado="inactivo")
+
+    items_con_productos = session.exec(
+        select(CarritoItem, Producto)
+        .join(Producto, CarritoItem.producto_id == Producto.id)
+        .where(CarritoItem.carrito_id == carrito.id)
+    ).all()
+
+    subtotal = 0.0
+    iva = 0.0
+    productos_leidos: List[CarritoItemRead] = []
+
+    for item, producto in items_con_productos:
+        productos_leidos.append(
+            CarritoItemRead(cantidad=item.cantidad, producto=producto)
+        )
+
+        item_total = producto.precio * item.cantidad
+        subtotal += item_total
+
+        if "electrónica" in producto.categoria.lower():
+            iva += item_total * 0.10 # 10% para electrónica
+        else:
+            iva += item_total * 0.21 # 21% para el resto
+
+    envio = 0.0
+    if subtotal <= 1000.0:
+        envio = 50.0
+
+    total = subtotal + iva + envio
+
+    return CarritoRead(
+        id=carrito.id,
+        estado=carrito.estado,
+        productos=productos_leidos,
+        subtotal=round(subtotal, 2), # Redondeamos a 2 decimales
+        iva=round(iva, 2),
+        envio=envio,
+        total=round(total, 2)
+    )
+
+@app.delete("/carrito/{producto_id}", status_code=status.HTTP_204_NO_CONTENT)
+def quitar_producto_del_carrito(
+    producto_id: int, # El ID viene de la URL
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    carrito = session.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario_actual.id, Carrito.estado == "activo")
+    ).first()
+
+    if not carrito:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró un carrito activo")
+
+    item_a_borrar = session.exec(
+        select(CarritoItem).where(
+            CarritoItem.carrito_id == carrito.id,
+            CarritoItem.producto_id == producto_id
+        )
+    ).first()
+
+    if not item_a_borrar:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado en el carrito")
+
+    session.delete(item_a_borrar)
+    session.commit()
+
+    return None
+
+@app.post("/carrito/cancelar", status_code=status.HTTP_200_OK)
+def cancelar_compra_vaciar_carrito(
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    carrito = session.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario_actual.id, Carrito.estado == "activo")
+    ).first()
+
+    if not carrito:
+        return {"mensaje": "El carrito ya está vacío"}
+
+    items_a_borrar = session.exec(
+        select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)
+    ).all()
+
+    if not items_a_borrar:
+        return {"mensaje": "El carrito ya está vacío"}
+
+    print(f"Borrando {len(items_a_borrar)} items del carrito {carrito.id}...")
+    for item in items_a_borrar:
+        session.delete(item)
+
+    session.commit()
+
+    return {"mensaje": "Carrito vaciado exitosamente"}
 
 
 if __name__ == "__main__":
