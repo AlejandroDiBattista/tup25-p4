@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from typing import Optional
+from fastapi import Query
 
 from pathlib import Path
 import json
@@ -46,30 +48,27 @@ def root() -> Dict[str, str]:
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 
+from typing import Optional
+from fastapi import Query
+
 @app.get("/productos")
 def obtener_productos(
-    categoria: Optional[str] = None,
-    q: Optional[str] = None,
-) -> List[Dict[str, Any]]:
-    """
-    Devuelve productos. Filtros opcionales:
-    - categoria: filtra por categoría (case-insensitive). Si es 'todas', no filtra.
-    - q: busca texto en título o descripción.
-    """
+    search: Optional[str] = Query(None, description="Texto a buscar en título o descripción"),
+    categoria: Optional[str] = Query(None, description="Categoría exacta (ej: 'Ropa de hombre')")
+):
     productos = cargar_productos()
 
-    if categoria and categoria.lower() != "todas":
+    # Filtro por texto (título o descripción)
+    if search:
+        s = search.lower()
         productos = [
             p for p in productos
-            if p.get("categoria", "").lower() == categoria.lower()
+            if s in p["titulo"].lower() or s in p["descripcion"].lower()
         ]
 
-    if q:
-        q_lower = q.lower()
-        productos = [
-            p for p in productos
-            if q_lower in p.get("titulo", "").lower() or q_lower in p.get("descripcion", "").lower()
-        ]
+    # Filtro por categoría (exacta, ignorando mayúsculas)
+    if categoria and categoria.lower() != "todas":
+        productos = [p for p in productos if p["categoria"].lower() == categoria.lower()]
 
     return productos
 
