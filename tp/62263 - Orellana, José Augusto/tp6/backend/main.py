@@ -102,7 +102,7 @@ def obtener_productos(session: Session = Depends(get_session)):
     productos = session.exec(statement).all()
 
     # 3. Se retorna la lista de productos
-    return 
+    return productos
 
 @app.post("/registrar", response_model=UsuarioRespuesta)
 def registrar_usuario(usuario_data: UsuarioRegistro, session: Session = Depends(get_session)):
