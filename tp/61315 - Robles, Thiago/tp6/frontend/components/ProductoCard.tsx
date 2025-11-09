@@ -1,28 +1,24 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { ShoppingCart, Star } from "lucide-react";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Producto } from "../app/types";
+import { Producto } from "@/app/types";
+import {
+  agregarProductoAlCarrito,
+  obtenerCarrito,
+} from "@/app/services/carritos";
 
-import { useMemo } from "react";
-import { useCarritoStore } from "@/store/useCarritoStore";
+import Swal from "sweetalert2";
 
 interface ProductoCardProps {
   producto: Producto;
 }
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
-  const agregarArticulo = useCarritoStore((state) => state.agregarArticulo);
-
-  // Busca en el carrito el articulo correspondiente a este producto
-  const articuloEnCarrito = useCarritoStore((state) =>
-    state.articulos.find((item) => item.id === producto.id)
-  );
-
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
   const formatearPrecio = new Intl.NumberFormat("es-AR", {
@@ -31,28 +27,86 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     minimumFractionDigits: 2,
   });
 
-  const relativePath = producto.imagen.includes("/")
-    ? producto.imagen
-    : `imagenes/${producto.imagen}`;
-
-  const imageSrc = producto.imagen.startsWith("http")
-    ? producto.imagen
+  const imagenBase = producto.imagen || "imagenes/placeholder-producto.svg";
+  const relativePath = imagenBase.includes("/")
+    ? imagenBase
+    : `imagenes/${imagenBase}`;
+  const imageSrc = imagenBase.startsWith("http")
+    ? imagenBase
     : `${API_URL}/${relativePath.replace(/^\//, "")}`;
 
-  const disponible = Math.max(producto.existencia, 0);
+  // Cantidad de este producto presente en el carrito actual
+  const [enCarrito, setEnCarrito] = useState<number>(0);
 
-  const cantidadEnCarrito = articuloEnCarrito?.cantidad ?? 0;
+  // Disponible = stock base del producto - cantidad que ya está en el carrito
+  const disponible = Math.max((producto.existencia ?? 0) - enCarrito, 0);
 
+  // Carga inicial y suscripción a cambios del carrito
+  useEffect(() => {
+    let cancelado = false;
+    const cargar = async () => {
+      try {
+        const data = await obtenerCarrito();
+        const item = data.productos?.find((p) => p.producto_id === producto.id);
+        if (!cancelado) setEnCarrito(item?.cantidad ?? 0);
+      } catch {
+        if (!cancelado) setEnCarrito(0);
+      }
+    };
+    cargar();
+    const handler = () => cargar();
+    window.addEventListener("cart:changed", handler);
+    return () => {
+      cancelado = true;
+      window.removeEventListener("cart:changed", handler);
+    };
+  }, [producto.id]);
 
-  // useMemo nos permite memorizar el cálculo de los restantes en función de las dependencias
-  // disponibles, evitando cálculos innecesarios en cada renderizado
+  const tieneToken =
+    typeof window !== "undefined" && !!localStorage.getItem("token");
+  const puedeAgregar = disponible > 0 && tieneToken;
 
-  const restantes = useMemo(
-    () => Math.max(disponible - cantidadEnCarrito, 0),
-    [disponible, cantidadEnCarrito]
-  );
+  async function onAgregar() {
+    try {
+      const usuarioId =
+        typeof window !== "undefined"
+          ? localStorage.getItem("usuarioId")
+          : null;
+      if (!usuarioId) {
+        Swal.fire({
+          icon: "warning",
+          title: "Inicia sesión",
+          text: "Necesitas iniciar sesión para agregar productos.",
+        });
+        return;
+      }
 
-  const puedeAgregar = restantes > 0;
+      // Validar stock antes de intentar
+      if (disponible <= 0) {
+        Swal.fire({
+          icon: "info",
+          title: "Sin stock",
+          text: "Este producto está agotado.",
+        });
+        return;
+      }
+
+      await agregarProductoAlCarrito(producto.id!, 1);
+      // Optimista: reflejar al instante
+      setEnCarrito((n) => n + 1);
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("cart:changed"));
+      }
+    } catch (e) {
+      console.error(e);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo agregar al carrito. Inicia sesión y verifica stock.",
+      });
+    }
+  }
 
   return (
     <Card className="mt-3 overflow-hidden border-border/50 bg-card shadow-sm transition hover:shadow-md">
@@ -60,7 +114,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
         <div className="relative h-36 w-full overflow-hidden rounded-md bg-muted/40 sm:h-auto sm:w-40">
           <Image
             src={imageSrc}
-            alt={producto.titulo}
+            alt={producto.nombre}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-contain"
@@ -80,23 +134,18 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
               />
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium text-foreground">
-                  {producto.valoracion?.toFixed?.(1) ?? "-"}
-                </span>
+                <span className="font-medium text-foreground"></span>
               </div>
               <Separator
                 orientation="vertical"
                 className="hidden h-4 sm:block"
               />
-              <span>
-                Stock total: {disponible}
-                {cantidadEnCarrito > 0 && ` · En carrito: ${cantidadEnCarrito}`}
-              </span>
+              <span>Stock total: {disponible}</span>
             </div>
 
             <div className="space-y-2">
               <h3 className="text-lg font-semibold leading-tight text-foreground">
-                {producto.titulo}
+                {producto.nombre}
               </h3>
               <p className="line-clamp-2 text-sm text-muted-foreground">
                 {producto.descripcion}
@@ -121,31 +170,16 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
                     : "bg-red-100 text-red-600"
                 }`}
               >
-                {puedeAgregar
-                  ? `Quedan: ${restantes}`
-                  : cantidadEnCarrito > 0
-                  ? "Sin stock disponible"
-                  : "Agotado"}
+                {disponible ? `Stock: ${disponible}` : "Agotado"}
               </span>
+
               <Button
-                className="w-full sm:w-auto"
-                variant={puedeAgregar ? "secondary" : "outline"}
                 disabled={!puedeAgregar}
-                onClick={() =>
-                  puedeAgregar &&
-                  agregarArticulo({
-                    id: producto.id,
-                    nombre: producto.titulo,
-                    categoria:producto.categoria,
-                    precio: producto.precio,
-                    cantidad: 1,
-                    imagen: imageSrc,
-                    stock: producto.existencia,
-                  })
-                }
+                onClick={onAgregar}
+                title={!tieneToken ? "Inicia sesión para comprar" : undefined}
               >
                 <ShoppingCart className="mr-2 h-4 w-4" />
-                {puedeAgregar ? "Agregar al carrito" : "Sin stock"}
+                Agregar
               </Button>
             </div>
           </div>

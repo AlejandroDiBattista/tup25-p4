@@ -1,70 +1,61 @@
-
-// Productos
-export interface Producto {
-  id: number;
-  titulo: string;
-  precio: number;
-  descripcion: string;
-  categoria: string;
-  valoracion: number;
-  existencia: number;
-  imagen: string;
+export interface Usuario {
+  id?: number;
+  nombre: string;
+  email: string;
+  contraseña?: string;
 }
 
+export interface Producto {
+  id?: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  categoria: string;
+  existencia: number;
+  imagen?: string;
+  activo?: boolean;
+}
 
-// Carrito
+export interface CarritoItem {
+  id?: number;
+  carrito_id: number;
+  producto_id: number;
+  cantidad: number;
+  producto?: Producto;
+}
 
 export interface Carrito {
   id: number;
   usuario_id: number;
-  estado: string;
+  estado: "activo" | "finalizado" | "cancelado";
+  productos?: {
+    producto_id: number;
+    nombre: string;
+    precio: number;
+    cantidad: number;
+    subtotal: number;
+    imagen?: string;
+    existencia?: number;
+  }[];
+  total?: number;
 }
 
-
- export interface CarritoItem {
-  id: number;
-  carrito_id: number;
+export interface CompraItem {
+  id?: number;
+  compra_id: number;
   producto_id: number;
+  nombre: string;
   cantidad: number;
- }
+  precio_unitario: number;
+}
 
- // Compra
-
-
- export interface Compra{
+export interface Compra {
   id: number;
   usuario_id: number;
   fecha: string;
   direccion: string;
-  tarjeta : string;
+  tarjeta: string;
   total: number;
-  envio: number;
-  estado: string;
- }
-
-export interface CompraItem{
-  id: number;
-  compra_id: number;
-  producto_id: number;
-  cantidad: number;
-  precio_unitario: number;
- }
-
- // Usuario
-
-export interface UsuarioRegistro {
-  nombre: string;
-  email: string;
-  contraseña: string;
-}
-
-export interface UsuarioLogin {
-  email: string;
-  contraseña: string;
-}
-
-export interface Usuario {
-  id: number;
-  nombre: string;
-  email: string;
+  envio: string;
+  items?: CompraItem[];
 }

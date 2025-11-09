@@ -111,33 +111,25 @@ def crear_token(datos: dict, expires_delta: int | None = None):
     return token
 
 
-class UsuarioCreate(BaseModel):
+class UsuarioRegistroIn(BaseModel):
     nombre: str
     email: str
-    # Acepta "password" o "contraseña" (para compatibilidad con clientes)
+    # Acepta tanto "password" como "contraseña" desde el cuerpo JSON
     contraseña: str = PydanticField(
-        min_length=8,
-        max_length=72,
-        validation_alias=AliasChoices("contraseña", "password"),
+        ..., validation_alias=AliasChoices("password", "contraseña")
     )
 
-    # Validación por bytes para casos con caracteres multibyte (UTF-8)
-    @field_validator("contraseña")
-    @classmethod
-    def validar_longitud_bytes(cls, v: str) -> str:
-        if len(v.encode("utf-8")) > 72:
-            raise ValueError(
-                "La contraseña no puede superar 72 bytes (considera caracteres especiales)"
-            )
-        return v
 
+@app.post("/registrar", status_code=201)
+def registrar_usuario(usuario: UsuarioRegistroIn):
 
-@app.post("/registrar")
-def registrar_usuario(usuario: UsuarioCreate):
-    
     with Session(engine) as session:
-        nuevo_usuario = Usuario(**usuario.dict())
-        
+        nuevo_usuario = Usuario(
+            nombre=usuario.nombre,
+            email=usuario.email,
+            contraseña=usuario.contraseña,
+        )
+
         # Validar si el usuario ya existe
         usuario_existe = session.exec(
             select(Usuario).where(Usuario.email == usuario.email)
@@ -157,27 +149,18 @@ def registrar_usuario(usuario: UsuarioCreate):
         return nuevo_usuario
 
 
-class UsuarioLogin(BaseModel):
-    nombre: str | None = None
-    email: str | None = None
+class UsuarioLoginIn(BaseModel):
+    email: Optional[str] = None
+    nombre: Optional[str] = None
+    # Acepta "password" o "contraseña" como clave del JSON
     contraseña: str = PydanticField(
-        min_length=8,
-        max_length=72,
-        validation_alias=AliasChoices("contraseña", "password"),
+        ..., validation_alias=AliasChoices("password", "contraseña")
     )
-
-    @field_validator("contraseña")
-    @classmethod
-    def validar_longitud_bytes(cls, v: str) -> str:
-        if len(v.encode("utf-8")) > 72:
-            raise ValueError(
-                "La contraseña no puede superar 72 bytes (considera caracteres especiales)"
-            )
-        return v
 
 
 @app.post("/iniciar-sesion")
-def iniciar_sesion(usuario: UsuarioLogin):
+def iniciar_sesion(usuario: UsuarioLoginIn):
+
     with Session(engine) as session:
         if not usuario.email and not usuario.nombre:
             raise HTTPException(status_code=400, detail="Debe enviar email o nombre")
@@ -197,8 +180,8 @@ def iniciar_sesion(usuario: UsuarioLogin):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Credenciales inválidas",
             )
-        token = crear_token({"usuario_id": usuario_db.id, "email": usuario_db.email})
-        return {"access_token": token, "token_type": "bearer"}
+    token = crear_token({"usuario_id": usuario_db.id, "email": usuario_db.email})
+    return {"access_token": token, "token_type": "bearer", "usuario_id": usuario_db.id}
 
 
 def get_current_user_id(authorization: str | None = Header(None)) -> int:
@@ -226,6 +209,7 @@ def cerrar_sesion(current_user_id: int = Depends(get_current_user_id)):
 # Endpoints de Productos
 
 
+@app.get("/productos", response_model=list[Producto])
 @app.get("/productos/", response_model=list[Producto])
 def obtener_productos(
     categoria: Optional[str] = Query(None, description="Filtrar por categoria"),
@@ -247,96 +231,130 @@ def obtener_producto(id: int):
         producto = session.get(Producto, id)
         if producto:
             return producto
-        return {"mensaje": "Producto no encontrado"}, 404
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
 
 
 # Endpoints de Carrito
 
 
-class CarritoItemCreate(BaseModel):
+# 🧩 Helper: obtener o crear carrito activo
+def obtener_o_crear_carrito_activo(session: Session, usuario_id: int) -> Carrito:
+    carrito = session.exec(
+        select(Carrito).where(
+            Carrito.usuario_id == usuario_id, Carrito.estado == "activo"
+        )
+    ).first()
+
+    if not carrito:
+        carrito = Carrito(usuario_id=usuario_id, estado="activo")
+        session.add(carrito)
+        session.commit()
+        session.refresh(carrito)
+
+    return carrito
+
+
+# ------------------------------
+# POST /carrito → agregar producto
+# ------------------------------
+class AgregarCarritoIn(BaseModel):
     producto_id: int
-    cantidad: int
+    cantidad: int = 1
 
 
-@app.post("/carrito", response_model=CarritoItem)
-def agregar_al_carrito(
-    payload: CarritoItemCreate = Body(...),
+@app.post("/carrito")
+def agregar_producto(
+    body: AgregarCarritoIn = Body(...),
     current_user_id: int = Depends(get_current_user_id),
 ):
     with Session(engine) as session:
-        carrito = session.exec(
-            select(Carrito).where(Carrito.usuario_id == current_user_id)
-        ).first()
-        if not carrito:
-            carrito = Carrito(usuario_id=current_user_id)
-            session.add(carrito)
-            session.commit()
-            session.refresh(carrito)
+        producto = session.get(Producto, body.producto_id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+        if producto.existencia < body.cantidad:
+            raise HTTPException(status_code=400, detail="Stock insuficiente")
+
+        carrito = obtener_o_crear_carrito_activo(session, current_user_id)
 
         item = session.exec(
-            select(CarritoItem)
-            .where(CarritoItem.carrito_id == carrito.id)
-            .where(CarritoItem.producto_id == payload.producto_id)
+            select(CarritoItem).where(
+                CarritoItem.carrito_id == carrito.id,
+                CarritoItem.producto_id == body.producto_id,
+            )
         ).first()
 
         if item:
-            item.cantidad += payload.cantidad
+            nueva_cantidad = item.cantidad + body.cantidad
+            if nueva_cantidad > producto.existencia:
+                raise HTTPException(status_code=400, detail="No hay stock suficiente")
+            item.cantidad = nueva_cantidad
         else:
             item = CarritoItem(
                 carrito_id=carrito.id,
-                producto_id=payload.producto_id,
-                cantidad=payload.cantidad,
+                producto_id=producto.id,
+                cantidad=body.cantidad,
             )
             session.add(item)
 
         session.commit()
-        session.refresh(item)
-        return item
+        return {"message": "Producto agregado al carrito correctamente"}
 
 
-# Eliminar carrito e insertar compra correspondiente
+# ------------------------------
+# DELETE /carrito/{producto_id} → quitar producto
+# ------------------------------
 @app.delete("/carrito/{producto_id}")
-def eliminar_del_carrito(
-    producto_id: int = Path(..., description="ID del producto a eliminar"),
+def quitar_producto(
+    producto_id: int,
     current_user_id: int = Depends(get_current_user_id),
 ):
     with Session(engine) as session:
         carrito = session.exec(
-            select(Carrito).where(Carrito.usuario_id == current_user_id)
+            select(Carrito).where(
+                Carrito.usuario_id == current_user_id, Carrito.estado == "activo"
+            )
         ).first()
 
         if not carrito:
-            return {"mensaje": "Carrito no encontrado"}, 404
+            raise HTTPException(status_code=404, detail="No hay carrito activo")
 
         item = session.exec(
-            select(CarritoItem)
-            .where(CarritoItem.carrito_id == carrito.id)
-            .where(CarritoItem.producto_id == producto_id)
+            select(CarritoItem).where(
+                CarritoItem.carrito_id == carrito.id,
+                CarritoItem.producto_id == producto_id,
+            )
         ).first()
 
         if not item:
-            return {"mensaje": "Producto no encontrado en el carrito"}, 404
+            raise HTTPException(
+                status_code=404, detail="El producto no está en el carrito"
+            )
 
         session.delete(item)
         session.commit()
-        return {"mensaje": "Producto eliminado del carrito"}
+        return {"message": "Producto eliminado del carrito"}
 
 
+# ------------------------------
+# GET /carrito → ver contenido
+# ------------------------------
 @app.get("/carrito")
 def ver_carrito(current_user_id: int = Depends(get_current_user_id)):
-
     with Session(engine) as session:
         carrito = session.exec(
-            select(Carrito).where(Carrito.usuario_id == current_user_id)
+            select(Carrito).where(
+                Carrito.usuario_id == current_user_id, Carrito.estado == "activo"
+            )
         ).first()
 
         if not carrito:
-            return {"mensaje": "Carrito no encontrado"}, 404
+            return {"carrito": None, "items": []}
 
         resultados = session.exec(
             select(CarritoItem, Producto)
             .where(CarritoItem.carrito_id == carrito.id)
-            .join(Producto, Producto.id == CarritoItem.producto_id)
+            .join(Producto, CarritoItem.producto_id == Producto.id)
         ).all()
 
         items = []
@@ -344,16 +362,212 @@ def ver_carrito(current_user_id: int = Depends(get_current_user_id)):
             items.append(
                 {
                     "id": item.id,
-                    "producto_id": item.producto_id,
+                    "producto_id": producto.id,
+                    "nombre": producto.titulo,
+                    "precio": producto.precio,
                     "cantidad": item.cantidad,
-                    "producto": producto,
+                    "subtotal": producto.precio * item.cantidad,
+                    # opcionales útiles para el frontend
+                    "imagen": producto.imagen,
+                    "existencia": producto.existencia,
+                    "categoria": producto.categoria,
                 }
             )
-        return {"carrito": carrito, "items": items}
+
+        total = sum(i["subtotal"] for i in items)
+
+        return {
+            "carrito": {
+                "id": carrito.id,
+                "usuario_id": current_user_id,
+                "estado": carrito.estado,
+            },
+            "items": items,
+            "total": total,
+        }
 
 
-# @app.post("/carrito/finalizar")
-# @app.post("/carrito/cancelar")
+# ------------------------------
+# POST /carrito/cancelar → vaciar carrito
+# ------------------------------
+@app.post("/carrito/cancelar")
+def cancelar_carrito(current_user_id: int = Depends(get_current_user_id)):
+    with Session(engine) as session:
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == current_user_id, Carrito.estado == "activo"
+            )
+        ).first()
+
+        if not carrito:
+            raise HTTPException(status_code=404, detail="No hay carrito activo")
+
+        items = session.exec(
+            select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)
+        ).all()
+
+        for it in items:
+            session.delete(it)
+
+        carrito.estado = "cancelado"
+        session.commit()
+        return {"message": "Carrito cancelado y vaciado"}
+
+
+# ------------------------------
+# POST /carrito/finalizar → confirmar compra
+# ------------------------------
+class FinalizarCompraIn(BaseModel):
+    direccion: str
+    tarjeta: str
+
+
+@app.post("/carrito/finalizar")
+def finalizar_compra(
+    body: FinalizarCompraIn = Body(...),
+    current_user_id: int = Depends(get_current_user_id),
+):
+    with Session(engine) as session:
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == current_user_id, Carrito.estado == "activo"
+            )
+        ).first()
+
+        if not carrito:
+            raise HTTPException(status_code=400, detail="No hay carrito activo")
+
+        resultados = session.exec(
+            select(CarritoItem, Producto)
+            .where(CarritoItem.carrito_id == carrito.id)
+            .join(Producto, CarritoItem.producto_id == Producto.id)
+        ).all()
+
+        if not resultados:
+            raise HTTPException(status_code=400, detail="El carrito está vacío")
+
+        # Calcular subtotal y IVA, verificar stock
+        total = 0  # subtotal sin IVA
+        iva_total = 0
+        for item, producto in resultados:
+            if producto.existencia < item.cantidad:
+                raise HTTPException(
+                    status_code=400, detail=f"Stock insuficiente de {producto.titulo}"
+                )
+            subtotal_item = producto.precio * item.cantidad
+            total += subtotal_item
+            # IVA por categoría: electrónicos 10%, resto 21%
+            categoria = (producto.categoria or "").lower()
+            es_electronico = (
+                "electr" in categoria
+            )  # cubre electronico/electro/electronica
+            tasa_iva = 0.10 if es_electronico else 0.21
+            iva_total += subtotal_item * tasa_iva
+
+        # Criterio de envío: gratis si (subtotal + IVA) > 1000, si no $50
+        total_con_iva = total + iva_total
+
+        # Crear registro de compra
+        compra = Compras(
+            usuario_id=current_user_id,
+            fecha=datetime.now(timezone.utc).isoformat(),
+            direccion=body.direccion,
+            tarjeta_ult4=body.tarjeta[-4:] if body.tarjeta else "",
+            total=total,  # guardamos subtotal; devolvemos IVA por separado
+            envio=0 if total_con_iva > 1000 else 50,
+            estado="procesando",
+        )
+        session.add(compra)
+        session.commit()
+        session.refresh(compra)
+
+        # Crear items de compra y descontar stock
+        for item, producto in resultados:
+            producto.existencia -= item.cantidad
+            nuevo_item = CompraItem(
+                compra_id=compra.id,
+                producto_id=producto.id,
+                cantidad=item.cantidad,
+                nombre_producto=producto.titulo,
+                precio_unitario=producto.precio,
+            )
+            session.add(nuevo_item)
+
+        carrito.estado = "finalizado"
+        for item, _ in resultados:
+            session.delete(item)
+
+        session.commit()
+
+        return {
+            "message": "Compra finalizada correctamente",
+            "compra_id": compra.id,
+            # Subtotal sin IVA
+            "subtotal": round(compra.total, 2),
+            # IVA calculado por categorías
+            "iva": round(iva_total, 2),
+            # Costo de envío aplicado
+            "envio": compra.envio,
+            # Total final a pagar (subtotal + IVA + envío)
+            "total": round(compra.total + iva_total + compra.envio, 2),
+        }
+
+
+# 📦 Compras: resumen y detalle (historial)
+@app.get("/compras")
+def listar_compras(current_user_id: int = Depends(get_current_user_id)):
+    with Session(engine) as session:
+        compras = session.exec(
+            select(Compras).where(Compras.usuario_id == current_user_id)
+        ).all()
+        compras = sorted(compras, key=lambda c: c.fecha or "", reverse=True)
+        return [
+            {
+                "id": c.id,
+                "usuario_id": c.usuario_id,
+                "fecha": c.fecha,
+                "direccion": c.direccion,
+                "tarjeta": f"**** {c.tarjeta_ult4}" if c.tarjeta_ult4 else "",
+                "total": c.total,
+                "envio": c.envio,
+                "estado": c.estado,
+            }
+            for c in compras
+        ]
+
+
+@app.get("/compras/{compra_id}")
+def detalle_compra(compra_id: int, current_user_id: int = Depends(get_current_user_id)):
+    with Session(engine) as session:
+        compra = session.get(Compras, compra_id)
+        if not compra or compra.usuario_id != current_user_id:
+            raise HTTPException(status_code=404, detail="Compra no encontrada")
+
+        items = session.exec(
+            select(CompraItem).where(CompraItem.compra_id == compra.id)
+        ).all()
+        return {
+            "id": compra.id,
+            "usuario_id": compra.usuario_id,
+            "fecha": compra.fecha,
+            "direccion": compra.direccion,
+            "tarjeta": f"**** {compra.tarjeta_ult4}" if compra.tarjeta_ult4 else "",
+            "total": compra.total,
+            "envio": compra.envio,
+            "estado": compra.estado,
+            "items": [
+                {
+                    "id": it.id,
+                    "compra_id": it.compra_id,
+                    "producto_id": it.producto_id,
+                    "nombre": it.nombre_producto,
+                    "cantidad": it.cantidad,
+                    "precio_unitario": it.precio_unitario,
+                }
+                for it in items
+            ],
+        }
+
 
 # #Endpoints de Compras
 # @app.get("/compras")
