@@ -184,32 +184,61 @@
 
 ---
 
-### **COMMIT 5: Endpoints de carrito (agregar, quitar, ver)**
-**Archivo:** `backend/main.py`
-**Tareas:**
-- POST `/carrito` - Agregar producto (validar existencia)
-- DELETE `/carrito/{product_id}` - Quitar producto
-- GET `/carrito` - Ver carrito con productos y cantidades
-- Validar que usuario esté autenticado
-- Validar que haya stock disponible
-- Crear carrito si no existe
+### **✅ COMMIT 5: Endpoints de carrito (agregar, quitar, ver, cancelar)** [COMPLETADO]
+**Archivo modificado:** `backend/main.py`
+**Archivo de prueba:** `backend/test_carrito.py`
 
-**Validación:** Probar flujo completo de carrito en `api-tests.http`
+**Modelos Pydantic creados:**
+- ✅ `AgregarCarritoRequest` - Para agregar producto (producto_id, cantidad)
+- ✅ `ItemCarritoResponse` - Para item en respuesta (producto_id, nombre, precio, cantidad, subtotal)
+- ✅ `CarritoResponse` - Para respuesta de carrito (items[], total)
+
+**Tareas completadas:**
+- ✅ Implementar GET `/carrito` - Ver carrito del usuario autenticado
+  - Retorna lista de items con producto, cantidad y subtotal
+  - Calcula y retorna total del carrito
+  - Retorna carrito vacío si no existe (items=[], total=0)
+  - Requiere autenticación (Bearer token)
+
+- ✅ Implementar POST `/carrito` - Agregar producto al carrito
+  - Valida que el producto exista (404 si no existe)
+  - Valida que haya stock suficiente (400 si no hay)
+  - Si el producto ya está, suma la cantidad
+  - Si no existe carrito activo, lo crea automáticamente
+  - Retorna status 201 Created
+  - Requiere autenticación
+
+- ✅ Implementar DELETE `/carrito/{producto_id}` - Quitar producto
+  - Elimina completamente el item del carrito
+  - Error 404 si el producto no está en el carrito
+  - Error 404 si no hay carrito activo
+  - Requiere autenticación
+
+- ✅ Implementar POST `/carrito/cancelar` - Cancelar/vaciar carrito
+  - Cambia estado del carrito a "cancelado"
+  - Items se eliminan automáticamente por CASCADE (modelo)
+  - Error 404 si no hay carrito activo
+  - Requiere autenticación
+
+**Validaciones implementadas:**
+- ✅ Stock suficiente al agregar (compara con existencia del producto)
+- ✅ Stock suficiente al sumar cantidad (valida cantidad total)
+- ✅ Producto existe antes de agregar
+- ✅ Usuario autenticado en todos los endpoints
+- ✅ Carrito activo del usuario correcto
+- ✅ Producto está en el carrito antes de eliminar
+
+**Lógica de negocio:**
+- Al registrar usuario → se crea carrito activo automáticamente
+- Al agregar producto existente → suma cantidad (no duplica item)
+- Al cancelar → estado "cancelado", items borrados por CASCADE
+- Carrito por usuario → filtrado por usuario_id y estado="activo"
+
+**Validación:** ✅ Endpoints implementados según `api-tests.http` sección 4 (4.1 a 4.6)
 
 ---
 
-### **COMMIT 6: Endpoint de cancelar compra**
-**Archivo:** `backend/main.py`
-**Tareas:**
-- POST `/carrito/cancelar` - Vaciar carrito del usuario
-- Validar que el carrito exista
-- Cambiar estado del carrito a "cancelado"
-
-**Validación:** Probar cancelación en `api-tests.http`
-
----
-
-### **COMMIT 7: Endpoint de finalizar compra con lógica de negocio**
+### **COMMIT 6: Endpoint de finalizar compra con lógica de negocio**
 **Archivo:** `backend/main.py`
 **Tareas:**
 - POST `/carrito/finalizar` - Recibir dirección y tarjeta

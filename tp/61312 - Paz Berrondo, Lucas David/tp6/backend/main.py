@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Optional
 
 # Importar modelos y database
-from models import Producto, Usuario, Carrito
+from models import Producto, Usuario, Carrito, ItemCarrito
 from database import create_db_and_tables, get_session, engine
 from sqlmodel import Session, select
 
@@ -57,6 +57,27 @@ class TokenResponse(BaseModel):
 class MensajeResponse(BaseModel):
     """Modelo para mensajes generales."""
     mensaje: str
+
+
+class AgregarCarritoRequest(BaseModel):
+    """Modelo para agregar producto al carrito."""
+    producto_id: int
+    cantidad: int
+
+
+class ItemCarritoResponse(BaseModel):
+    """Modelo para item de carrito en respuesta."""
+    producto_id: int
+    nombre: str
+    precio: float
+    cantidad: int
+    subtotal: float
+
+
+class CarritoResponse(BaseModel):
+    """Modelo para respuesta de carrito."""
+    items: list[ItemCarritoResponse]
+    total: float
 
 
 # Evento de inicio: crear tablas y cargar datos iniciales
@@ -243,6 +264,226 @@ def cerrar_sesion(usuario_actual: Usuario = Depends(get_current_user)):
     return MensajeResponse(
         mensaje=f"Sesión cerrada exitosamente para {usuario_actual.nombre}"
     )
+
+
+# ========================================
+# ENDPOINTS DE CARRITO
+# ========================================
+
+@app.get("/carrito", response_model=CarritoResponse)
+def ver_carrito(usuario_actual: Usuario = Depends(get_current_user)):
+    """
+    Ver el carrito actual del usuario autenticado.
+    
+    - Retorna lista de items con producto, cantidad y subtotal
+    - Retorna total del carrito
+    - Requiere autenticación
+    """
+    with Session(engine) as session:
+        # Obtener carrito activo del usuario
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == usuario_actual.id,
+                Carrito.estado == "activo"
+            )
+        ).first()
+        
+        if not carrito:
+            # Si no hay carrito activo, retornar carrito vacío
+            return CarritoResponse(items=[], total=0.0)
+        
+        # Obtener items del carrito con información de productos
+        items_carrito = session.exec(
+            select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
+        ).all()
+        
+        items_response = []
+        total = 0.0
+        
+        for item in items_carrito:
+            producto = session.get(Producto, item.producto_id)
+            if producto:
+                subtotal = producto.precio * item.cantidad
+                total += subtotal
+                
+                items_response.append(ItemCarritoResponse(
+                    producto_id=producto.id,
+                    nombre=producto.nombre,
+                    precio=producto.precio,
+                    cantidad=item.cantidad,
+                    subtotal=subtotal
+                ))
+        
+        return CarritoResponse(items=items_response, total=total)
+
+
+@app.post("/carrito", response_model=MensajeResponse, status_code=status.HTTP_201_CREATED)
+def agregar_al_carrito(
+    datos: AgregarCarritoRequest,
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    """
+    Agregar producto al carrito del usuario.
+    
+    - Valida que el producto exista
+    - Valida que haya stock suficiente
+    - Si el producto ya está en el carrito, suma la cantidad
+    - Si no existe carrito activo, lo crea
+    - Requiere autenticación
+    """
+    with Session(engine) as session:
+        # Validar que el producto existe
+        producto = session.get(Producto, datos.producto_id)
+        if not producto:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Producto con ID {datos.producto_id} no encontrado"
+            )
+        
+        # Validar que hay stock suficiente
+        if producto.existencia < datos.cantidad:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Stock insuficiente. Disponible: {producto.existencia}, solicitado: {datos.cantidad}"
+            )
+        
+        # Obtener o crear carrito activo
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == usuario_actual.id,
+                Carrito.estado == "activo"
+            )
+        ).first()
+        
+        if not carrito:
+            # Crear nuevo carrito
+            carrito = Carrito(
+                usuario_id=usuario_actual.id,
+                estado="activo"
+            )
+            session.add(carrito)
+            session.commit()
+            session.refresh(carrito)
+        
+        # Verificar si el producto ya está en el carrito
+        item_existente = session.exec(
+            select(ItemCarrito).where(
+                ItemCarrito.carrito_id == carrito.id,
+                ItemCarrito.producto_id == datos.producto_id
+            )
+        ).first()
+        
+        if item_existente:
+            # Validar stock para la suma
+            nueva_cantidad = item_existente.cantidad + datos.cantidad
+            if producto.existencia < nueva_cantidad:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Stock insuficiente. Disponible: {producto.existencia}, en carrito: {item_existente.cantidad}, solicitado: {datos.cantidad}"
+                )
+            
+            # Actualizar cantidad
+            item_existente.cantidad = nueva_cantidad
+            session.add(item_existente)
+        else:
+            # Crear nuevo item en el carrito
+            nuevo_item = ItemCarrito(
+                carrito_id=carrito.id,
+                producto_id=datos.producto_id,
+                cantidad=datos.cantidad
+            )
+            session.add(nuevo_item)
+        
+        session.commit()
+        
+        return MensajeResponse(
+            mensaje=f"Producto '{producto.nombre}' agregado al carrito (cantidad: {datos.cantidad})"
+        )
+
+
+@app.delete("/carrito/{producto_id}", response_model=MensajeResponse)
+def quitar_del_carrito(
+    producto_id: int,
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    """
+    Quitar un producto del carrito.
+    
+    - Elimina completamente el item del carrito
+    - Error 404 si el producto no está en el carrito
+    - Requiere autenticación
+    """
+    with Session(engine) as session:
+        # Obtener carrito activo
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == usuario_actual.id,
+                Carrito.estado == "activo"
+            )
+        ).first()
+        
+        if not carrito:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No tienes un carrito activo"
+            )
+        
+        # Buscar el item en el carrito
+        item = session.exec(
+            select(ItemCarrito).where(
+                ItemCarrito.carrito_id == carrito.id,
+                ItemCarrito.producto_id == producto_id
+            )
+        ).first()
+        
+        if not item:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Producto con ID {producto_id} no está en tu carrito"
+            )
+        
+        # Eliminar el item
+        session.delete(item)
+        session.commit()
+        
+        return MensajeResponse(
+            mensaje=f"Producto eliminado del carrito"
+        )
+
+
+@app.post("/carrito/cancelar", response_model=MensajeResponse)
+def cancelar_carrito(usuario_actual: Usuario = Depends(get_current_user)):
+    """
+    Cancelar el carrito actual (vaciar carrito).
+    
+    - Cambia el estado del carrito a "cancelado"
+    - Los items del carrito se eliminan automáticamente por CASCADE
+    - Error 404 si no hay carrito activo
+    - Requiere autenticación
+    """
+    with Session(engine) as session:
+        # Obtener carrito activo
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == usuario_actual.id,
+                Carrito.estado == "activo"
+            )
+        ).first()
+        
+        if not carrito:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No tienes un carrito activo para cancelar"
+            )
+        
+        # Cambiar estado a cancelado
+        carrito.estado = "cancelado"
+        session.add(carrito)
+        session.commit()
+        
+        return MensajeResponse(
+            mensaje="Carrito cancelado exitosamente"
+        )
 
 if __name__ == "__main__":
     import uvicorn
