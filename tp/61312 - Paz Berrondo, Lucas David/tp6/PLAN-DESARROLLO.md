@@ -307,16 +307,62 @@
 
 ---
 
-### **COMMIT 10: Frontend - Pantalla de registro y login**
-**Archivos:** `frontend/app/login/page.tsx`, `frontend/app/registro/page.tsx`
-**Tareas:**
-- Crear formulario de registro (nombre, email, contraseña)
-- Crear formulario de login (email, contraseña)
-- Guardar JWT en localStorage
-- Redirigir a productos después de login
-- Manejar errores de autenticación
+### ✅ **COMMIT 10: Frontend - Autenticación y páginas principales** - COMPLETADO
+**Archivos creados:**
+- `frontend/app/services/auth.ts` - Servicio de autenticación
+- `frontend/app/auth/page.tsx` - Pantalla de login/registro
+- `frontend/app/carrito/page.tsx` - Pantalla de carrito
+- `frontend/app/compras/page.tsx` - Historial de compras
 
-**Validación:** Probar flujo de registro → login → productos
+**Archivos modificados:**
+- `frontend/app/page.tsx` - Integración con autenticación
+- `frontend/app/components/ProductoCard.tsx` - Botón de agregar al carrito
+
+**Tareas completadas:**
+- ✅ Crear servicio de autenticación con JWT
+  - `registrarUsuario()` - Registro de usuario
+  - `iniciarSesion()` - Login con guardar token en localStorage
+  - `cerrarSesion()` - Logout con limpieza de token
+  - `estaAutenticado()` - Verificar si hay sesión activa
+  - `getAuthHeaders()` - Headers con Bearer token
+
+- ✅ Crear pantalla de login/registro (`/auth`)
+  - Formulario dual (toggle entre login/registro)
+  - Validación de campos (email, password min 6 caracteres)
+  - Manejo de errores con mensajes visuales
+  - Redirección automática a productos después de login
+  - Link para volver al catálogo
+
+- ✅ Actualizar página principal con autenticación
+  - Botón "Iniciar Sesión" si no autenticado
+  - Botones "Mi Carrito" + "Cerrar Sesión" si autenticado
+  - Componente convertido a client-side con useEffect
+  - Estado de autenticación reactivo
+
+- ✅ Agregar funcionalidad al carrito en ProductoCard
+  - Botón "Agregar al carrito" con llamada a API
+  - Validación de autenticación antes de agregar
+  - Mensajes de feedback (agregado/error)
+  - Deshabilitado si no hay stock
+
+- ✅ Crear página de carrito (`/carrito`)
+  - Protección con redirección si no autenticado
+  - Lista de productos con imágenes
+  - Cálculo automático de subtotal, IVA, envío y total
+  - Botón "Finalizar compra" con llamada a API
+  - Botón "Vaciar carrito"
+  - Botón eliminar individual por producto
+  - Mensaje de envío gratis >$5000
+
+- ✅ Crear página de historial de compras (`/compras`)
+  - Protección con redirección si no autenticado
+  - Lista de compras con fecha formateada
+  - Vista expandible por compra (detalles clickeables)
+  - Detalle de productos comprados
+  - Resumen de totales (subtotal, IVA, envío, total)
+  - Formateo de fechas en español
+
+**Validación:** ✅ Frontend completo con todas las funcionalidades principales
 
 ---
 
