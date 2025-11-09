@@ -8,7 +8,8 @@ from typing import Annotated
 from database import get_session
 from models import (
     Usuario, Carrito, ItemCarrito, Producto,
-    ItemCarritoCreate, ItemCarritoResponse, CarritoResponse, EstadoCarrito
+    ItemCarritoCreate, ItemCarritoResponse, CarritoResponse, EstadoCarrito,
+    CompraCreate, CompraResponse, ItemCompraResponse
 )
 from dependencies.auth import get_usuario_actual
 from services.carrito_service import (
@@ -191,3 +192,67 @@ def cancelar_carrito(
     session.commit()
     
     return None  # 204 No Content
+
+
+@router.post("/finalizar", response_model=CompraResponse, status_code=201)
+def finalizar_compra(
+    datos_compra: CompraCreate,
+    usuario: Annotated[Usuario, Depends(get_usuario_actual)],
+    session: Annotated[Session, Depends(get_session)]
+):
+    """
+    Finaliza la compra del carrito actual.
+    
+    Requiere autenticación.
+    
+    - **direccion**: Dirección de envío (mínimo 10 caracteres)
+    - **tarjeta**: Número de tarjeta de crédito (se enmascarará)
+    
+    Crea un registro de Compra con:
+    - Snapshot de productos (nombre, precio al momento de compra)
+    - Descuenta el stock de los productos
+    - Cambia el estado del carrito a FINALIZADO
+    - Calcula totales (subtotal, IVA, envío)
+    """
+    from services.carrito_service import (
+        validar_carrito_no_vacio,
+        crear_compra_desde_carrito
+    )
+    
+    # Obtener carrito activo
+    carrito = obtener_o_crear_carrito_activo(usuario, session)
+    validar_carrito_activo(carrito)
+    validar_carrito_no_vacio(carrito)
+    
+    # Crear la compra
+    compra = crear_compra_desde_carrito(
+        carrito=carrito,
+        direccion=datos_compra.direccion,
+        tarjeta=datos_compra.tarjeta,
+        session=session
+    )
+    
+    # Construir respuesta
+    return CompraResponse(
+        id=compra.id,
+        fecha=compra.fecha,
+        direccion=compra.direccion,
+        tarjeta=compra.tarjeta,
+        items=[
+            ItemCompraResponse(
+                id=item.id,
+                producto_id=item.producto_id,
+                nombre=item.nombre,
+                precio_unitario=item.precio_unitario,
+                cantidad=item.cantidad,
+                subtotal=item.precio_unitario * item.cantidad,
+                categoria=item.categoria
+            )
+            for item in compra.items
+        ],
+        cantidad_items=len(compra.items),
+        subtotal=compra.subtotal,
+        iva=compra.iva,
+        envio=compra.envio,
+        total=compra.total
+    )
