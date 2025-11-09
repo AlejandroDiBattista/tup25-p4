@@ -156,15 +156,29 @@ app.add_middleware(
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
-@app.get("/productos")
-def obtener_productos(session: Session = Depends(get_session)):
-    # Se crea la consulta para seleccionar todos los productos
+@app.get("/productos", response_model=list[ProductoRespuesta])
+def obtener_productos(
+    session: Session = Depends(get_session),
+    categoria: Optional[str] = None,
+    busqueda: Optional[str] = None
+):
+    # Se crea la consulta base
     statement = select(Producto)
 
-    # 2. Se ejecuta la consulta usando la sesión inyectada
+    # Filtros opcionales
+    if categoria:
+        statement = statement.where(Producto.categoria == categoria)
+    
+    if busqueda:
+        statement = statement.where(
+            (Producto.titulo.ilike(f"%{busqueda}%")) |
+            (Producto.descripcion.ilike(f"%{busqueda}%"))
+        )
+
+    # Se ejecuta la consulta
     productos = session.exec(statement).all()
 
-    # 3. Se retorna la lista de productos
+    # Se devuelve la lista de productos
     return productos
 
 @app.get("/productos/{id}", response_model=ProductoRespuesta)
