@@ -321,6 +321,35 @@ def agregar_al_carrito(
 
     return carrito_actual
 
+@app.delete("/carrito/{producto_id}", response_model=CarritoRespuesta)
+def quitar_del_carrito(
+    producto_id: int,
+    carrito_actual: Carrito = Depends(get_carrito_actual),
+    session: Session = Depends(get_session)
+):
+    """Endpoint para quitar un producto del carrito del usuario autenticado."""
+    # Buscar el item que coincida con el carrito y el producto
+    statement = select(CarritoItem).where(
+        CarritoItem.carrito_id == carrito_actual.id,
+        CarritoItem.producto_id == producto_id
+    )
+    item_a_eliminar = session.exec(statement).first()
+
+    # Se valida que exista el item
+    if not item_a_eliminar:
+        raise HTTPException(
+            status_code=404,
+            detail="Producto no encontrado en el carrito."
+        )
+    
+    # Se elimina el item
+    session.delete(item_a_eliminar)
+    session.commit()
+
+    # Se devuelve el carrito actualizado
+    session.refresh(carrito_actual)
+    return carrito_actual
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
