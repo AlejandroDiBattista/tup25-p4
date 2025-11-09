@@ -1,16 +1,22 @@
-from fastapi import FastAPI
+# backend/main.py
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from typing import Optional
-from fastapi import Query
-
-from pathlib import Path
-import json
-from typing import List, Dict, Any, Optional
+from typing import Optional, List, Dict, Any
 
 from db import create_db_and_tables
-from routers import auth as auth_router
 
+# Fuerza el registro de las tablas nuevas antes de create_all
+from models import carrito as _carrito_models  # noqa: F401
+from models import compras as _compras_models  # noqa: F401
+
+# Routers
+from routers import auth as auth_router
+from routers import carrito as carrito_router
+from routers import compras as compras_router
+
+# Utilidad para leer productos (moved from main.py → utils/products.py)
+from utils.products import cargar_productos
 
 app = FastAPI(title="TP6 Shop API")
 
@@ -20,36 +26,22 @@ app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 # CORS (abrimos para el frontend local)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # podés ajustar a ["http://localhost:3000"] si querés
+    allow_origins=["*"],  # Podés ajustar a ["http://localhost:3000"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# ---------- Utilidades ----------
-def cargar_productos() -> List[Dict[str, Any]]:
-    """Carga el listado de productos desde productos.json."""
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with ruta_productos.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
 # ---------- Eventos de app ----------
 @app.on_event("startup")
 def on_startup() -> None:
-    # Crea las tablas (Usuario, etc.) si no existen
+    # Crea las tablas si no existen
     create_db_and_tables()
-
 
 # ---------- Rutas base ----------
 @app.get("/")
 def root() -> Dict[str, str]:
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
-
-
-from typing import Optional
-from fastapi import Query
 
 @app.get("/productos")
 def obtener_productos(
@@ -72,11 +64,10 @@ def obtener_productos(
 
     return productos
 
-
 # ---------- Routers ----------
-# Auth (registrar / iniciar-sesion)
 app.include_router(auth_router.router, tags=["auth"])
-
+app.include_router(carrito_router.router, tags=["carrito"])
+app.include_router(compras_router.router, tags=["compras"])
 
 # ---------- Modo script (opcional) ----------
 if __name__ == "__main__":

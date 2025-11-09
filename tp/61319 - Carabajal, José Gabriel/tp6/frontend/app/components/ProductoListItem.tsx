@@ -1,18 +1,39 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { Producto } from '../types';
+import { useAuth } from './AuthProvider';
+import { addItem } from '../services/carrito';
 
 interface Props {
     producto: Producto;
-    onAdd?: (id: number) => void;
+    onAdd?: (id: number) => void; // opcional
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 export default function ProductoListItem({ producto, onAdd }: Props) {
-const agotado = producto.existencia <= 0;
+    const agotado = producto.existencia <= 0;
+    const { session } = useAuth();
+    const [adding, setAdding] = useState(false);
+
+    async function handleAdd() {
+        if (agotado) return;
+        if (!session) {
+        alert('Inicia sesión para agregar productos al carrito');
+        return;
+        }
+        try {
+        setAdding(true);
+        await addItem(session.user.id, producto.id, 1);
+        onAdd?.(producto.id);
+        window.dispatchEvent(new CustomEvent('cart:updated'));
+        } finally {
+        setAdding(false);
+        }
+    }
 
     return (
         <div className="flex items-center gap-4 bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
@@ -52,14 +73,17 @@ const agotado = producto.existencia <= 0;
             </div>
             <button
             className={`mt-3 w-full rounded-md px-3 py-2 text-sm font-medium transition
-                ${agotado ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        : 'bg-gray-900 text-white hover:bg-gray-800'}`}
-            disabled={agotado}
-            onClick={() => onAdd?.(producto.id)}
+                ${
+                agotado || adding
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                }`}
+            disabled={agotado || adding}
+            onClick={handleAdd}
             >
-            Agregar al carrito
+            {agotado ? 'Sin stock' : adding ? 'Agregando…' : 'Agregar al carrito'}
             </button>
-            </div>
+        </div>
         </div>
     );
 }

@@ -6,20 +6,19 @@ import type { Producto } from '../types';
 import ProductoListItem from './ProductoListItem';
 
 export default function ProductosBrowser() {
-const [productos, setProductos] = useState<Producto[]>([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState<string | null>(null);
+    const [productos, setProductos] = useState<Producto[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-const [search, setSearch] = useState('');
-const [categoria, setCategoria] = useState<'todas' | string>('todas');
+    const [search, setSearch] = useState('');
+    const [categoria, setCategoria] = useState<'todas' | string>('todas');
 
-const [categorias, setCategorias] = useState<string[]>([]);
-const [loadingCategorias, setLoadingCategorias] = useState(true);
+    const [categorias, setCategorias] = useState<string[]>([]);
+    const [loadingCategorias, setLoadingCategorias] = useState(true);
 
     // Cargar categorías una vez
     useEffect(() => {
         let cancelado = false;
-
         (async () => {
         try {
             setLoadingCategorias(true);
@@ -31,17 +30,14 @@ const [loadingCategorias, setLoadingCategorias] = useState(true);
             if (!cancelado) setLoadingCategorias(false);
         }
         })();
-
         return () => {
         cancelado = true;
         };
     }, []);
 
-    // Buscar productos con debounce + cancelación
+    // Buscar productos con debounce
     useEffect(() => {
-        const controller = new AbortController();
         let cancelado = false;
-
         async function fetchData() {
         setLoading(true);
         setError(null);
@@ -52,7 +48,7 @@ const [loadingCategorias, setLoadingCategorias] = useState(true);
             });
             if (!cancelado) setProductos(data);
         } catch (err: any) {
-            if (!cancelado && err?.name !== 'AbortError') {
+            if (!cancelado) {
             setError(err?.message ?? 'Ocurrió un error al cargar productos');
             setProductos([]);
             }
@@ -60,25 +56,21 @@ const [loadingCategorias, setLoadingCategorias] = useState(true);
             if (!cancelado) setLoading(false);
         }
         }
-
         const t = setTimeout(fetchData, 250);
         return () => {
         cancelado = true;
-        controller.abort();
         clearTimeout(t);
         };
     }, [search, categoria]);
 
     const opcionesCategorias = useMemo(() => {
-        // Mostramos "todas" primero; si el fetch de categorías falló, igualmente hay opción "todas".
         const base = ['todas', ...categorias];
-        // Evitar duplicados en caso de que 'todas' viniera por error
         return Array.from(new Set(base));
     }, [categorias]);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Barra de filtros */}
+        <div className="w-full">
+        {/* Fila de filtros (coincide con la altura del placeholder del panel) */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_220px] mb-4">
             <div className="relative">
             <input
@@ -113,33 +105,21 @@ const [loadingCategorias, setLoadingCategorias] = useState(true);
                 {c === 'todas' ? 'Todas las categorías' : c}
                 </option>
             ))}
-            {loadingCategorias && (
-                <option disabled>Cargando categorías…</option>
-            )}
+            {loadingCategorias && <option disabled>Cargando categorías…</option>}
             </select>
         </div>
 
-        {/* Layout principal: lista + sidebar */}
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-            {/* Lista */}
-            <div className="space-y-4">
+        {/* Lista de productos (SIN sidebar propio) */}
+        <div className="space-y-4">
             {error ? (
-                <p className="text-red-600">{error}</p>
+            <p className="text-red-600">{error}</p>
             ) : loading ? (
-                <p className="text-gray-500">Cargando productos…</p>
+            <p className="text-gray-500">Cargando productos…</p>
             ) : productos.length === 0 ? (
-                <p className="text-gray-500">No se encontraron productos.</p>
+            <p className="text-gray-500">No se encontraron productos.</p>
             ) : (
-                productos.map((p) => <ProductoListItem key={p.id} producto={p} />)
+            productos.map((p) => <ProductoListItem key={p.id} producto={p} />)
             )}
-            </div>
-
-            {/* Sidebar (placeholder de carrito no logueado) */}
-            <aside className="hidden lg:block">
-            <div className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
-                Inicia sesión para ver y editar tu carrito.
-            </div>
-            </aside>
         </div>
         </div>
     );

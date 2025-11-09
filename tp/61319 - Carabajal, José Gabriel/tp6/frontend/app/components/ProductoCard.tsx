@@ -1,11 +1,14 @@
 'use client';
 
-import { Producto } from '../types';
+import { useState } from 'react';
 import Image from 'next/image';
+import { Producto } from '../types';
+import { useAuth } from './AuthProvider';
+import { addItem } from '../services/carrito';
 
 interface ProductoCardProps {
   producto: Producto;
-  onAdd?: (productoId: number) => void;
+  onAdd?: (productoId: number) => void; 
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -16,9 +19,26 @@ const fmt = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
-
 export default function ProductoCard({ producto, onAdd }: ProductoCardProps) {
   const agotado = producto.existencia <= 0;
+  const { session } = useAuth();
+  const [adding, setAdding] = useState(false);
+
+  async function handleAdd() {
+    if (agotado) return;
+    if (!session) {
+      alert('Inicia sesión para agregar productos al carrito');
+      return;
+    }
+    try {
+      setAdding(true);
+      await addItem(session.user.id, producto.id, 1);
+      onAdd?.(producto.id); 
+      window.dispatchEvent(new CustomEvent('cart:updated'));
+    } finally {
+      setAdding(false);
+    }
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -68,14 +88,15 @@ export default function ProductoCard({ producto, onAdd }: ProductoCardProps) {
         <div className="pt-1">
           <button
             className={`w-full rounded-md px-4 py-2 text-sm font-medium transition 
-              ${agotado
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-900 text-white hover:bg-gray-800'
+              ${
+                agotado || adding
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-900 text-white hover:bg-gray-800'
               }`}
-            disabled={agotado}
-            onClick={() => onAdd?.(producto.id)}
+            disabled={agotado || adding}
+            onClick={handleAdd}
           >
-            {agotado ? 'Sin stock' : 'Agregar al carrito'}
+            {agotado ? 'Sin stock' : adding ? 'Agregando…' : 'Agregar al carrito'}
           </button>
         </div>
       </div>

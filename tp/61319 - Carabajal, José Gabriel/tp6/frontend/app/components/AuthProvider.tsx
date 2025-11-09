@@ -7,22 +7,21 @@ type Session = { token: string; user: User } | null;
 
 type AuthContextValue = {
     session: Session;
+    hydrated: boolean; 
     login: (auth: { token: string; user: User }) => void;
     loginFromResponse: (res: LoginResponse) => void;
     logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
 const STORAGE_KEY = 'tp6_auth';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session>(null);
+    const [hydrated, setHydrated] = useState(false); 
 
-    // Hidratar desde localStorage (y migrar claves viejas si existieran)
     useEffect(() => {
         try {
-        // Migración automática desde claves antiguas
         const oldToken = localStorage.getItem('tp6_token');
         const oldUserRaw = localStorage.getItem('tp6_user');
         if (oldToken && oldUserRaw) {
@@ -37,10 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(raw ? (JSON.parse(raw) as Session) : null);
         } catch {
         setSession(null);
+        } finally {
+        setHydrated(true); 
         }
     }, []);
 
-    // Sincronizar entre pestañas
     useEffect(() => {
         const onStorage = (e: StorageEvent) => {
         if (e.key === STORAGE_KEY) {
@@ -70,14 +70,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const value = useMemo<AuthContextValue>(
-        () => ({ session, login, loginFromResponse, logout }),
-        [session, login, loginFromResponse, logout]
+        () => ({ session, hydrated, login, loginFromResponse, logout }),
+        [session, hydrated, login, loginFromResponse, logout]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+    }
 
-export function useAuth() {
+    export function useAuth() {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error('useAuth must be used within <AuthProvider>');
     return ctx;
