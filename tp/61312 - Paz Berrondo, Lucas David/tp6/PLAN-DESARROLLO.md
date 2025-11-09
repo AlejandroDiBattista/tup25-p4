@@ -87,16 +87,29 @@
 
 ---
 
-### **COMMIT 2: Implementar sistema de autenticación (JWT + hashing)**
-**Archivos:** `backend/auth.py`, `backend/dependencies.py`
-**Tareas:**
-- Instalar: `python-jose`, `passlib[bcrypt]`, `python-multipart`
-- Crear funciones de hash de contraseñas
-- Crear funciones de generación/validación de JWT
-- Crear dependency `get_current_user`
-- Configurar SECRET_KEY y ALGORITHM
+### **✅ COMMIT 2: Implementar sistema de autenticación (JWT + hashing)** [COMPLETADO]
+**Archivos creados:**
+- `backend/auth.py` - Funciones de hash y JWT
+- `backend/dependencies.py` - Dependency get_current_user
+- `backend/test_auth.py` - Script de pruebas
 
-**Validación:** Probar hash y generación de tokens
+**Dependencias instaladas:**
+- ✅ `python-jose[cryptography]>=3.3.0` - Para JWT
+- ✅ `bcrypt>=4.0.1` - Para hash de contraseñas  
+- ✅ `python-multipart>=0.0.18` - Para formularios OAuth2
+
+**Tareas completadas:**
+- ✅ Instalar dependencias de autenticación
+- ✅ Crear `obtener_hash_contraseña()` con bcrypt
+- ✅ Crear `verificar_contraseña()` para validación
+- ✅ Crear `crear_access_token()` para generar JWT
+- ✅ Crear `verificar_token()` para decodificar JWT
+- ✅ Crear `get_current_user()` dependency con OAuth2
+- ✅ Configurar SECRET_KEY y ALGORITHM (HS256)
+- ✅ Probar hash de contraseñas (✅ funciona)
+- ✅ Probar tokens JWT (✅ funciona)
+
+**Validación:** ✅ Sistema de autenticación probado y funcionando correctamente
 
 ---
 
