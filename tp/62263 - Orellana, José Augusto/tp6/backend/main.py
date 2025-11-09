@@ -167,6 +167,24 @@ def obtener_productos(session: Session = Depends(get_session)):
     # 3. Se retorna la lista de productos
     return productos
 
+@app.get("/productos/{id}", response_model=ProductoRespuesta)
+def obtener_producto_por_id(
+    id: int,
+    session: Session = Depends(get_session)
+):
+    # Se busca el producto por ID
+    producto = session.get(Producto, id)
+
+    # Se valida que exista
+    if not producto:
+        raise HTTPException(
+            status_code=404,
+            detail="Producto no encontrado."
+        )
+
+    # Se devuelve el producto encontrado
+    return producto
+
 @app.post("/registrar", response_model=UsuarioRespuesta)
 def registrar_usuario(usuario_data: UsuarioRegistro, session: Session = Depends(get_session)):
     # 1. Verificar si el usuario ya existe
