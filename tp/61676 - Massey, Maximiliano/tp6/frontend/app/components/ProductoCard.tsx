@@ -1,3 +1,5 @@
+'use client';
+
 import { Producto } from '../types';
 import Image from 'next/image';
 
@@ -12,17 +14,20 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
         <Image
-          src={`${API_URL}/${producto.imagen}`}
-          alt={producto.titulo}
+          src={producto.imagen.startsWith('http') ? producto.imagen : `${API_URL}/${producto.imagen}`}
+          alt={producto.nombre || producto.titulo || "Imagen del producto"}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain p-4"
           unoptimized
+          onError={(e) => {
+            e.currentTarget.src = 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=Producto';
+          }}
         />
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
+          {producto.nombre || producto.titulo}
         </h3>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
           {producto.descripcion}

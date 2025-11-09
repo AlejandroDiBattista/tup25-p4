@@ -30,13 +30,48 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Configuración de la aplicación
 app = FastAPI(title="API Productos")
 
-# Configuración de JWT
-SECRET_KEY = "tu_clave_secreta_aqui"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Configuración de password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Montar directorio de imágenes como archivos estáticos
+app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+
+# Inicializar la base de datos
+@app.on_event("startup")
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+# Función para obtener sesión de la base de datos
+def get_db():
+    with Session(engine) as session:
+        yield session
+
+# Cargar productos desde el archivo JSON
+def cargar_productos():
+    ruta_productos = Path(__file__).parent / "productos.json"
+    with open(ruta_productos, "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
+
+@app.get("/productos")
+async def obtener_productos(search: str = None, categoria: str = None):
+    productos = cargar_productos()
+    
+    # Filtrar por búsqueda
+    if search:
+        search = search.lower()
+        productos = [p for p in productos if search in p["nombre"].lower() or search in p["descripcion"].lower()]
+    
+    # Filtrar por categoría
+    if categoria:
+        productos = [p for p in productos if p["categoria"].lower() == categoria.lower()]
+    
+    return productos
 
 # Configuración de OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -100,6 +135,12 @@ def cargar_productos():
     ruta_productos = Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
+
+# Middleware de autenticación
+async def get_current_active_user(current_user: Usuario = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=400, detail="Usuario inactivo")
+    return current_user
 
 @app.post("/registrar")
 async def registrar_usuario(
@@ -180,6 +221,15 @@ async def obtener_productos(search: str = None, categoria: str = None):
         productos = [p for p in productos if p["categoria"].lower() == categoria.lower()]
     
     return productos
+
+@app.get("/user/me")
+async def obtener_usuario_actual(current_user: Usuario = Depends(get_current_user)):
+    """Ruta protegida que requiere autenticación"""
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "nombre": current_user.nombre
+    }
 
 @app.get("/carrito")
 async def obtener_carrito(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
