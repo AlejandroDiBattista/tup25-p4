@@ -238,17 +238,23 @@
 
 ---
 
-### **COMMIT 6: Endpoint de finalizar compra con lógica de negocio**
+### ✅ **COMMIT 6: Endpoint de finalizar compra con lógica de negocio** - COMPLETADO
 **Archivo:** `backend/main.py`
 **Tareas:**
-- POST `/carrito/finalizar` - Recibir dirección y tarjeta
-- Calcular IVA: 21% general, 10% para "Electrónica"
-- Calcular envío: Gratis si total >$1000, sino $50
-- Crear registro de Compra con items
-- Actualizar stock de productos
-- Vaciar carrito (cambiar estado a "finalizado")
+- ✅ POST `/carrito/finalizar` - Recibir dirección y tarjeta
+- ✅ Calcular IVA: 21% general, 10% para "Electrónica"
+- ✅ Calcular envío: Gratis si total >$1000, sino $50
+- ✅ Crear registro de Compra con items (ItemCompra)
+- ✅ Actualizar stock de productos (disminuir existencia)
+- ✅ Cambiar carrito estado a "finalizado"
+- ✅ Validación de carrito vacío
+- ✅ Validación de stock insuficiente
 
-**Validación:** Probar cálculos de IVA y envío según categorías
+**Archivos creados:**
+- `backend/test_finalizar_compra.py` - Tests de validación
+- `backend/debug_finalizar.py` - Script de depuración
+
+**Validación:** ✅ Probado con test_finalizar_compra.py (8 casos de prueba)
 
 ---
 
