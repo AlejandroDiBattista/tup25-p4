@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
 # Patrón de Regex para validar emails
 EMAIL_REGEX = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -87,3 +88,42 @@ class CarritoAgregarProducto(BaseModel):
 class CarritoEliminarItem(BaseModel):
     """Modelo para eliminar un producto del carrito."""
     carrito_item_id: int
+
+class CompraFinalizar(BaseModel):
+    """Modelo para finalizar una compra."""
+    direccion: str = Field(
+        min_length=5,
+        example="Calle 123"
+    )
+    tarjeta: str = Field(
+        min_length=4,
+        max_length=4,
+    )
+
+class ItemCompraRespuesta(BaseModel):
+    """Modelo para representar un ítem de compra en la respuesta."""
+    id: int
+    producto_id: int
+    nombre: str
+    cantidad: int
+    precio_unitario: float
+
+    class Config:
+        from_attributes = True
+
+class CompraRespuesta(BaseModel):
+    """Modelo para representar una compra en la respuesta."""
+    id: int
+    usuario_id: int
+    fecha: datetime
+    direccion: str
+    tarjeta: str
+    total: float
+    envio: float
+    iva: float
+
+    # Se incluyen los ítems de la compra
+    items: list[ItemCompraRespuesta] = []
+
+    class Config:
+        from_attributes = True

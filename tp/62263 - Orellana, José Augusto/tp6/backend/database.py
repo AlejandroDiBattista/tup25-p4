@@ -4,6 +4,7 @@ from sqlmodel import SQLModel, create_engine, Session
 from models.productos import Producto
 from models.usuarios import Usuario
 from models.carrito import Carrito, CarritoItem
+from models.compras import Compra, ItemCompra
 
 # 1. Se define el archivo de la base de datos
 sqlite_file_name = "database.db"
