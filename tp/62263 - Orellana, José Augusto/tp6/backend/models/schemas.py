@@ -78,3 +78,8 @@ class CarritoRespuesta(BaseModel):
 
     class Config:
         from_attributes = True
+
+class CarritoAgregarProducto(BaseModel):
+    """Modelo para agregar un producto al carrito."""
+    producto_id: int
+    cantidad: int = Field(default=1, ge=1)
