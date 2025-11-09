@@ -2,6 +2,8 @@
 
 import { Producto } from '../types';
 import Image from 'next/image';
+import useCartStore from '../store/cart';
+import { useState } from 'react';
 
 interface ProductoCardProps {
   producto: Producto;
@@ -9,6 +11,14 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const { addItem } = useCartStore();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    addItem(producto, 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
   
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -41,7 +51,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             <span className="text-sm text-gray-700">{producto.valoracion}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-3">
           <span className="text-2xl font-bold text-blue-600">
             ${producto.precio}
           </span>
@@ -49,6 +59,21 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             Stock: {producto.existencia}
           </span>
         </div>
+        
+        {/* Botón Agregar al Carrito */}
+        <button
+          onClick={handleAddToCart}
+          disabled={producto.existencia === 0}
+          className={`w-full py-2 rounded-lg font-semibold transition-colors ${
+            producto.existencia === 0
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : added
+              ? 'bg-green-600 text-white'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {producto.existencia === 0 ? '❌ Agotado' : added ? '✓ Agregado!' : '🛒 Agregar al Carrito'}
+        </button>
       </div>
     </div>
   );

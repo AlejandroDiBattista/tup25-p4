@@ -3,13 +3,17 @@
 import { useState, useEffect } from 'react';
 import { obtenerProductos, Producto } from './services/productos';
 import ProductoCard from './components/ProductoCard';
+import CartSidebar from './components/CartSidebar';
 import useAuthStore, { loadAuthFromStorage } from './store/auth';
+import useCartStore from './store/cart';
 import Link from 'next/link';
 
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cartOpen, setCartOpen] = useState(false);
   const { user, clearAuth } = useAuthStore();
+  const { itemCount } = useCartStore();
 
   useEffect(() => {
     // Cargar sesión desde localStorage
@@ -45,6 +49,19 @@ export default function Home() {
               <Link href="/" className="text-gray-700 hover:text-blue-600">
                 Productos
               </Link>
+              
+              {/* Botón del Carrito */}
+              <button
+                onClick={() => setCartOpen(true)}
+                className="relative bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              >
+                🛒 Carrito
+                {itemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                    {itemCount}
+                  </span>
+                )}
+              </button>
               
               {user ? (
                 <>
@@ -92,6 +109,9 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Cart Sidebar */}
+      <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 }
