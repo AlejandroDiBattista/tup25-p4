@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Optional
 
 # Importar modelos y database
-from models import Producto, Usuario, Carrito, ItemCarrito
+from models import Producto, Usuario, Carrito, ItemCarrito, Compra, ItemCompra
 from database import create_db_and_tables, get_session, engine
 from sqlmodel import Session, select
 
@@ -78,6 +78,17 @@ class CarritoResponse(BaseModel):
     """Modelo para respuesta de carrito."""
     items: list[ItemCarritoResponse]
     total: float
+
+
+class FinalizarCompraRequest(BaseModel):
+    """Modelo para finalizar compra."""
+    direccion: str
+    tarjeta: str
+
+
+class CompraResponse(BaseModel):
+    """Modelo para respuesta de compra finalizada."""
+    compra_id: int
 
 
 # Evento de inicio: crear tablas y cargar datos iniciales
@@ -484,6 +495,137 @@ def cancelar_carrito(usuario_actual: Usuario = Depends(get_current_user)):
         return MensajeResponse(
             mensaje="Carrito cancelado exitosamente"
         )
+
+
+@app.post("/carrito/finalizar", response_model=CompraResponse)
+def finalizar_compra(
+    datos: FinalizarCompraRequest,
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    """
+    Finalizar compra del carrito activo.
+    
+    Lógica de negocio:
+    - Calcula IVA: 21% para productos generales, 10% para categoría "Electrónica"
+    - Calcula envío: Gratis si subtotal > $1000, sino $50
+    - Crea registro de Compra con items
+    - Actualiza stock de productos (disminuye existencia)
+    - Cambia estado del carrito a "finalizado"
+    - Requiere autenticación
+    - Error 404 si no hay carrito activo
+    - Error 400 si el carrito está vacío
+    - Error 400 si no hay stock suficiente
+    """
+    with Session(engine) as session:
+        # Obtener carrito activo con items
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == usuario_actual.id,
+                Carrito.estado == "activo"
+            )
+        ).first()
+        
+        if not carrito:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No tienes un carrito activo"
+            )
+        
+        # Obtener items del carrito con productos
+        items_carrito = session.exec(
+            select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
+        ).all()
+        
+        if not items_carrito:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El carrito está vacío"
+            )
+        
+        # Calcular subtotal y validar stock
+        subtotal = 0.0
+        items_compra_data = []
+        
+        for item in items_carrito:
+            # Obtener producto
+            producto = session.get(Producto, item.producto_id)
+            if not producto:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Producto {item.producto_id} no encontrado"
+                )
+            
+            # Validar stock
+            if producto.existencia < item.cantidad:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Stock insuficiente para {producto.nombre}. Disponible: {producto.existencia}"
+                )
+            
+            # Calcular subtotal del item
+            item_subtotal = producto.precio * item.cantidad
+            subtotal += item_subtotal
+            
+            # Guardar datos para crear ItemCompra después
+            items_compra_data.append({
+                "producto_id": producto.id,
+                "nombre": producto.nombre,
+                "cantidad": item.cantidad,
+                "precio_unitario": producto.precio,
+                "subtotal": item_subtotal,
+                "categoria": producto.categoria
+            })
+        
+        # Calcular IVA (21% general, 10% para Electrónica)
+        iva_total = 0.0
+        for item_data in items_compra_data:
+            if item_data["categoria"] == "Electrónica":
+                iva_total += item_data["subtotal"] * 0.10
+            else:
+                iva_total += item_data["subtotal"] * 0.21
+        
+        # Calcular envío (gratis si subtotal > 1000, sino $50)
+        envio = 0.0 if subtotal > 1000 else 50.0
+        
+        # Calcular total final
+        total = subtotal + iva_total + envio
+        
+        # Crear registro de Compra
+        compra = Compra(
+            usuario_id=usuario_actual.id,
+            direccion=datos.direccion,
+            tarjeta=datos.tarjeta,
+            total=total,
+            envio=envio
+        )
+        session.add(compra)
+        session.commit()
+        session.refresh(compra)
+        
+        # Crear ItemCompra para cada item del carrito
+        for item_data in items_compra_data:
+            item_compra = ItemCompra(
+                compra_id=compra.id,
+                producto_id=item_data["producto_id"],
+                nombre=item_data["nombre"],
+                cantidad=item_data["cantidad"],
+                precio_unitario=item_data["precio_unitario"]
+            )
+            session.add(item_compra)
+            
+            # Actualizar stock del producto
+            producto = session.get(Producto, item_data["producto_id"])
+            producto.existencia -= item_data["cantidad"]
+            session.add(producto)
+        
+        # Cambiar estado del carrito a "finalizado"
+        carrito.estado = "finalizado"
+        session.add(carrito)
+        
+        session.commit()
+        
+        return CompraResponse(compra_id=compra.id)
+
 
 if __name__ == "__main__":
     import uvicorn
