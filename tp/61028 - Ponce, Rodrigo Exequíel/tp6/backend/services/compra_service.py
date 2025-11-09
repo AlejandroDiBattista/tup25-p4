@@ -2,8 +2,9 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from models.models import Carrito, ItemCarrito, Producto, Usuario, Compra, ItemCompra
 from services.carrito_service import CarritoService # Reutilizamos el servicio
-from schemas.compra_schema import CompraCreate
+from schemas.compra_schema import CompraCreate, CompraResumenResponse # <--- Importado
 from datetime import datetime
+from typing import List # <--- Importado
 
 class CompraService:
     @staticmethod
@@ -70,9 +71,16 @@ class CompraService:
         session.refresh(nueva_compra)
 
         # 6. Mover items del carrito a ItemsCompra y actualizar stock
-        for item in carrito.items:
+        # ¡IMPORTANTE! Refrescar el carrito para cargar los items antes de iterar
+        session.refresh(carrito) 
+        
+        items_a_eliminar = list(carrito.items) # Crear una copia de la lista para iterar
+
+        for item in items_a_eliminar:
             producto = session.get(Producto, item.producto_id)
-            
+            if not producto: # Chequeo por si el producto fue eliminado mientras estaba en el carrito
+                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Producto con ID {item.producto_id} no encontrado durante la finalización")
+
             # Crear el item de compra (para el historial)
             item_compra = ItemCompra(
                 compra_id=nueva_compra.id,
@@ -98,3 +106,58 @@ class CompraService:
         session.refresh(nueva_compra) # Cargar los items recién creados
         
         return nueva_compra
+    
+    # --- Métodos para Commit 6 ---
+
+    @staticmethod
+    async def obtener_historial_compras(
+        session: Session,
+        usuario: Usuario
+    ) -> List[CompraResumenResponse]:
+        """
+        Obtiene el historial de compras (resumen) del usuario.
+        """
+        query = select(Compra).where(Compra.usuario_id == usuario.id).order_by(Compra.fecha.desc())
+        compras = session.exec(query).all()
+        
+        # Mapear al esquema de resumen
+        resumenes = []
+        for compra in compras:
+            # Asegurarse de que los items estén cargados (pueden ser lazy-loaded)
+            session.refresh(compra, ["items"]) 
+            resumenes.append(
+                CompraResumenResponse(
+                    id=compra.id,
+                    fecha=compra.fecha,
+                    total=compra.total,
+                    cantidad_items=len(compra.items) # Calcula la cantidad de items
+                )
+            )
+        return resumenes
+
+    @staticmethod
+    async def obtener_detalle_compra(
+        session: Session,
+        usuario: Usuario,
+        compra_id: int
+    ) -> Compra:
+        """
+        Obtiene el detalle de una compra específica.
+        Asegura que la compra pertenezca al usuario.
+        """
+        # SQLModel cargará automáticamente los 'items' gracias a la relación
+        query = select(Compra).where(
+            Compra.id == compra_id,
+            Compra.usuario_id == usuario.id
+        )
+        compra = session.exec(query).first()
+        
+        if not compra:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Compra no encontrada o no pertenece al usuario"
+            )
+        
+        # Refrescar para asegurarse de que los items estén cargados
+        session.refresh(compra, ["items"])
+        return compra

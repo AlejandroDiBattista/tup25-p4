@@ -26,3 +26,12 @@ class CompraResponse(SQLModel):
     total: float
     envio: float
     items: List[ItemCompraResponse]
+
+# --- Esquemas para Historial (Commit 6) ---
+
+class CompraResumenResponse(SQLModel):
+    """Para la lista de 'Mis Compras' (GET /compras)"""
+    id: int
+    fecha: datetime
+    total: float
+    cantidad_items: int # Un campo calculado

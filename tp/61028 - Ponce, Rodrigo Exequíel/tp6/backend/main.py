@@ -7,11 +7,11 @@ from pathlib import Path
 from datetime import timedelta
 from sqlmodel import Session, select
 from models.database import create_db_and_tables, engine, get_session
-from models.models import Usuario, Producto # <--- Esta corrección SÍ es necesaria
+from models.models import Usuario, Producto
 from typing import List, Optional
 from schemas.producto_schema import ProductoResponse, ProductoFilter
 from services.producto_service import ProductoService
-from auth.schemas import UsuarioCreate, Token, UsuarioResponse # <--- ¡Esta es la línea corregida!
+from auth.schemas import UsuarioCreate, Token, UsuarioResponse
 from auth.security import (
     get_password_hash,
     crear_token_acceso,
@@ -27,8 +27,8 @@ from schemas.carrito_schema import (
 )
 from services.carrito_service import CarritoService
 
-# --- Importaciones para Commit 5 ---
-from schemas.compra_schema import CompraCreate, CompraResponse
+# --- Importaciones para Compra (Commit 5 y 6) ---
+from schemas.compra_schema import CompraCreate, CompraResponse, CompraResumenResponse # <--- Añadido
 from services.compra_service import CompraService
 # ---
 
@@ -220,6 +220,31 @@ async def finalizar_compra(
         datos_compra
     )
     return compra_realizada
+
+# --- Endpoints de Historial de Compras (Commit 6) ---
+
+@app.get("/compras", response_model=List[CompraResumenResponse], tags=["Compra"])
+async def obtener_historial_compras(
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """
+    (GET /compras)
+    Ver resumen de compras del usuario.
+    """
+    return await CompraService.obtener_historial_compras(session, usuario)
+
+@app.get("/compras/{id}", response_model=CompraResponse, tags=["Compra"])
+async def obtener_detalle_compra(
+    id: int,
+    usuario: Usuario = Depends(get_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """
+    (GET /compras/{id})
+    Ver detalle de una compra específica.
+    """
+    return await CompraService.obtener_detalle_compra(session, usuario, id)
 
 # ---
 
