@@ -11,6 +11,14 @@ from .carrito import (
     CarritoResponse, 
     ItemCarritoResponse
 )
+from .compras import (
+    Compra,
+    ItemCompra,
+    CompraCreate,
+    CompraResponse,
+    ItemCompraResponse,
+    CompraResumen
+)
 
 __all__ = [
     "Producto", 
@@ -25,5 +33,11 @@ __all__ = [
     "ItemCarritoCreate",
     "ItemCarritoUpdate", 
     "CarritoResponse",
-    "ItemCarritoResponse"
+    "ItemCarritoResponse",
+    "Compra",
+    "ItemCompra",
+    "CompraCreate",
+    "CompraResponse",
+    "ItemCompraResponse",
+    "CompraResumen"
 ]
