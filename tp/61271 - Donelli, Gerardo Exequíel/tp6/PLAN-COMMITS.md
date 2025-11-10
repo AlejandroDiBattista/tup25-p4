@@ -335,15 +335,82 @@
 
 ---
 
-### **COMMIT 8: Implementar pruebas unitarias del backend**
-**Archivos a crear/modificar:**
-- `backend/test_main.py` (nuevo) → Pruebas para todos los endpoints
-- `backend/pytest.ini` → Ya existe, verificar configuración
+### **✅ COMMIT 8: Tests unitarios del backend con pytest - COMPLETADO**
+**Archivos creados:**
+- ✅ `backend/test_main.py` → Suite completa de tests con pytest
 
-**Reglas a cumplir:**
-- Probar todos los endpoints principales
-- Probar casos de error (producto agotado, usuario no encontrado, etc.)
-- Usar pytest y httpx
+**Tests implementados (32 total):**
+
+**Autenticación (6 tests):**
+- ✅ test_registrar_usuario → Registro exitoso con token
+- ✅ test_registrar_email_duplicado → Prevenir emails duplicados
+- ✅ test_iniciar_sesion_exitoso → Login con credenciales correctas
+- ✅ test_iniciar_sesion_credenciales_invalidas → Rechazar credenciales incorrectas
+- ✅ test_cerrar_sesion_requiere_auth → Logout requiere autenticación
+- ✅ test_cerrar_sesion_exitoso → Cerrar sesión correctamente
+
+**Productos (5 tests):**
+- ✅ test_obtener_productos → Listar todos los productos
+- ✅ test_filtrar_productos_por_categoria → Filtro por categoría
+- ✅ test_buscar_productos_por_texto → Búsqueda por texto
+- ✅ test_obtener_producto_por_id → Detalle de producto específico
+- ✅ test_obtener_producto_no_existente → Error 404 para producto inexistente
+
+**Carrito (8 tests):**
+- ✅ test_agregar_al_carrito_requiere_auth → Requiere autenticación
+- ✅ test_agregar_producto_al_carrito → Agregar producto exitosamente
+- ✅ test_agregar_producto_agotado → No permitir productos sin stock
+- ✅ test_agregar_cantidad_excede_stock → Validar stock disponible
+- ✅ test_ver_carrito_vacio → Ver carrito sin items
+- ✅ test_ver_carrito_con_productos → Ver carrito con items
+- ✅ test_eliminar_producto_carrito → Eliminar producto del carrito
+- ✅ test_cancelar_carrito → Cancelar carrito completo
+
+**Compra (5 tests):**
+- ✅ test_finalizar_compra_carrito_vacio → Error al finalizar sin items
+- ✅ test_finalizar_compra_exitosa → Finalización exitosa
+- ✅ test_calculo_iva_electronica → IVA 10% para electrónica
+- ✅ test_calculo_envio_gratis → Envío gratis si subtotal > $1000
+- ✅ test_compra_reduce_stock → Verificar reducción de existencias
+
+**Historial (5 tests):**
+- ✅ test_ver_historial_vacio → Historial sin compras
+- ✅ test_ver_historial_con_compras → Listar compras realizadas
+- ✅ test_ver_detalle_compra → Detalle completo de compra
+- ✅ test_detalle_compra_no_existente → Error 404 para compra inexistente
+- ✅ test_detalle_compra_otro_usuario → Seguridad entre usuarios (403)
+
+**Casos de error (3 tests):**
+- ✅ test_endpoint_sin_autenticacion → Validar auth en endpoints protegidos
+- ✅ test_producto_no_existente_carrito → Error al agregar producto inexistente
+- ✅ test_cantidad_negativa_carrito → Validación de cantidad mínima
+
+**Implementación técnica:**
+- ✅ Uso de fixtures con base de datos en memoria (SQLite :memory:)
+- ✅ Aislamiento completo entre tests
+- ✅ TestClient de FastAPI con dependency override
+- ✅ Helpers para crear usuarios y headers de autenticación
+- ✅ Productos de prueba con diferentes categorías y stock
+
+**Verificación:**
+```bash
+uv run pytest test_main.py -v
+# Resultado: 32 passed, 27 warnings in 8.11s ✅
+```
+
+**Cobertura de endpoints:**
+- ✅ POST /registrar, /iniciar-sesion, /cerrar-sesion
+- ✅ GET /productos, /productos/{id}
+- ✅ POST /carrito, GET /carrito, DELETE /carrito/{id}, POST /carrito/cancelar
+- ✅ POST /carrito/finalizar
+- ✅ GET /compras, /compras/{id}
+
+**Reglas cumplidas:**
+- ✅ Todos los endpoints principales probados
+- ✅ Casos de error cubiertos (404, 400, 403, 422)
+- ✅ Validaciones de negocio testeadas (stock, IVA, envío)
+- ✅ Seguridad verificada (auth, ownership)
+- ✅ 100% de tests pasando
 
 ---
 
