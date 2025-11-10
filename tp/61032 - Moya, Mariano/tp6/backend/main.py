@@ -189,6 +189,53 @@ def finalizar_compra(data: CompraFinalizar, Authorization: Optional[str] = Heade
             "iva": iva,
             "envio": envio
         }
+
+# Endpoint: Ver historial de compras
+@app.get("/compras")
+def ver_compras(Authorization: Optional[str] = Header(None)):
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    with Session(engine) as session:
+        compras = session.exec(select(Compra).where(Compra.usuario_id == usuario_id)).all()
+        resultado = []
+        for compra in compras:
+            resultado.append({
+                "id": compra.id,
+                "fecha": compra.fecha,
+                "total": compra.total,
+                "envio": compra.envio,
+                "direccion": compra.direccion
+            })
+        return resultado
+
+# Endpoint: Ver detalle de una compra
+@app.get("/compras/{id}")
+def ver_detalle_compra(id: int, Authorization: Optional[str] = Header(None)):
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    with Session(engine) as session:
+        compra = session.get(Compra, id)
+        if not compra or compra.usuario_id != usuario_id:
+            raise HTTPException(status_code=404, detail="Compra no encontrada")
+        items = session.exec(select(CompraItem).where(CompraItem.compra_id == compra.id)).all()
+        detalle_items = []
+        for item in items:
+            detalle_items.append({
+                "producto_id": item.producto_id,
+                "nombre": item.nombre,
+                "cantidad": item.cantidad,
+                "precio_unitario": item.precio_unitario
+            })
+        return {
+            "id": compra.id,
+            "fecha": compra.fecha,
+            "total": compra.total,
+            "envio": compra.envio,
+            "direccion": compra.direccion,
+            "items": detalle_items
+        }
 import hashlib
 
 # Montar directorio de imágenes como archivos estáticos
