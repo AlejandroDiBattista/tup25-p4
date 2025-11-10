@@ -117,8 +117,6 @@ def cancelar_carrito(Authorization: Optional[str] = Header(None)):
         return {"mensaje": "Carrito cancelado y vaciado"}
 import hashlib
 
-app = FastAPI(title="API Productos")
-
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
