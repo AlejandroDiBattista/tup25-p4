@@ -54,6 +54,18 @@ export default function SearchFilter({ categorias }: SearchFilterProps) {
     router.push(`/productos?${params.toString()}`);
   };
 
+  const handlePrecioChange = () => {
+    // Ejecutar búsqueda automáticamente cuando cambian los precios
+    const params = new URLSearchParams();
+    if (buscar) params.append('buscar', buscar);
+    if (categoria) params.append('categoria', categoria);
+    if (ordenar && ordenar !== 'nombre') params.append('ordenar', ordenar);
+    if (precioMin) params.append('precioMin', precioMin);
+    if (precioMax) params.append('precioMax', precioMax);
+
+    router.push(`/productos?${params.toString()}`);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Buscar y Filtrar</h2>
@@ -102,7 +114,10 @@ export default function SearchFilter({ categorias }: SearchFilterProps) {
               type="number"
               placeholder="$0"
               value={precioMin}
-              onChange={(e) => setPrecioMin(e.target.value)}
+              onChange={(e) => {
+                setPrecioMin(e.target.value);
+              }}
+              onBlur={handlePrecioChange}
               min="0"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
@@ -117,7 +132,10 @@ export default function SearchFilter({ categorias }: SearchFilterProps) {
               type="number"
               placeholder="$10000"
               value={precioMax}
-              onChange={(e) => setPrecioMax(e.target.value)}
+              onChange={(e) => {
+                setPrecioMax(e.target.value);
+              }}
+              onBlur={handlePrecioChange}
               min="0"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />

@@ -12,6 +12,8 @@ def listar_productos(
     categoria: Optional[str] = Query(None),
     buscar: Optional[str] = Query(None),
     ordenar: Optional[str] = Query(None),
+    precioMin: Optional[float] = Query(None),
+    precioMax: Optional[float] = Query(None),
 ):
     with Session(engine) as session:
         statement = select(Producto)
@@ -24,6 +26,13 @@ def listar_productos(
                 Producto.nombre.ilike(f"%{buscar}%") | 
                 Producto.descripcion.ilike(f"%{buscar}%")
             )
+        
+        # Aplicar filtros de precio
+        if precioMin is not None:
+            statement = statement.where(Producto.precio >= precioMin)
+        
+        if precioMax is not None:
+            statement = statement.where(Producto.precio <= precioMax)
         
         # Aplicar ordenamiento
         if ordenar == "precio-asc":
