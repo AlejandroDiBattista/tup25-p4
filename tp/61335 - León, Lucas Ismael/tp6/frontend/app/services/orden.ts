@@ -17,6 +17,21 @@ export async function cancelarCarrito() {
   return res.json();
 }
 
+export async function actualizarCantidad(producto_id: number, cantidad: number) {
+  const token = getToken();
+  if (!token) throw new Error('No autenticado');
+  const res = await fetch(`${API_URL}/carrito`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ producto_id, cantidad }),
+  });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(msg || 'No se pudo actualizar la cantidad');
+  }
+  return res.json();
+}
+
 export async function finalizarCompra(direccion: string, tarjeta: string) {
   const token = getToken();
   if (!token) throw new Error('No autenticado');

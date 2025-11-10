@@ -137,3 +137,36 @@ def test_checkout_flow_decrements_stock():
     assert r_prod.status_code == 200
     nuevo_stock = r_prod.json()["existencia"]
     assert nuevo_stock == original_stock - 2
+
+
+def test_patch_carrito_actualiza_y_elimina():
+    client = make_client()
+    token = do_register_and_login(client)
+
+    # Tomar un producto con stock
+    productos = client.get("/productos").json()
+    prod = next((p for p in productos if p.get("existencia", 0) >= 3), productos[0])
+
+    # Agregar 1 unidad
+    r = client.post("/carrito", json={"producto_id": prod["id"], "cantidad": 1}, headers=auth_headers(token))
+    assert r.status_code == 201
+
+    # Actualizar a 3 unidades
+    r = client.patch("/carrito", json={"producto_id": prod["id"], "cantidad": 3}, headers=auth_headers(token))
+    assert r.status_code == 200
+
+    # Verificar resumen refleja 3 unidades
+    r = client.get("/carrito", headers=auth_headers(token))
+    assert r.status_code == 200
+    resumen = r.json()
+    item = next((it for it in resumen["items"] if it["producto_id"] == prod["id"]), None)
+    assert item is not None and item["cantidad"] == 3
+
+    # Poner cantidad 0 elimina el item
+    r = client.patch("/carrito", json={"producto_id": prod["id"], "cantidad": 0}, headers=auth_headers(token))
+    assert r.status_code == 200
+
+    r = client.get("/carrito", headers=auth_headers(token))
+    assert r.status_code == 200
+    resumen2 = r.json()
+    assert all(it["producto_id"] != prod["id"] for it in resumen2["items"]) 

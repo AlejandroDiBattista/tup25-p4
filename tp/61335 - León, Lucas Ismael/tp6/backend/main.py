@@ -288,16 +288,23 @@ def calcular_resumen_carrito(session: Session, carrito: Carrito):
     total = subtotal + iva_total + envio
 
     # Representación amigable
-    items_detalle = [
-        {
-            "producto_id": it.producto_id,
-            "titulo": session.get(Producto, it.producto_id).titulo,
-            "cantidad": it.cantidad,
-            "precio_unitario": it.precio_unitario,
-            "subtotal": it.precio_unitario * it.cantidad,
-        }
-        for it in items
-    ]
+    items_detalle = []
+    for it in items:
+        prod = session.get(Producto, it.producto_id)
+        linea_subtotal = it.precio_unitario * it.cantidad
+        aliq = obtener_aliquota_iva(prod.categoria)
+        iva_linea = aliq * it.precio_unitario * it.cantidad
+        items_detalle.append(
+            {
+                "producto_id": it.producto_id,
+                "titulo": prod.titulo,
+                "imagen": prod.imagen,
+                "cantidad": it.cantidad,
+                "precio_unitario": it.precio_unitario,
+                "subtotal": linea_subtotal,
+                "iva": iva_linea,
+            }
+        )
 
     return {
         "items": items_detalle,
@@ -472,6 +479,14 @@ def detalle_compra(compra_id: int, user: Usuario = Depends(get_current_user), se
         raise HTTPException(status_code=404, detail="Compra no encontrada")
     items = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
     return {"compra": compra, "items": items}
+
+
+# =============================
+# Usuario actual
+# =============================
+@app.get("/me")
+def me(user: Usuario = Depends(get_current_user)):
+    return {"id": user.id, "nombre": user.nombre, "email": user.email}
 
 
 if __name__ == "__main__":
