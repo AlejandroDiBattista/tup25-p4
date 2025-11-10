@@ -10,6 +10,7 @@ interface AuthState {
     } | null;
     setAuth: (token: string, user: { id: number; nombre: string; email: string }) => void;
     clearAuth: () => void;
+    logout: () => void;
 }
 
 const useAuthStore = create<AuthState>()(
@@ -24,6 +25,10 @@ const useAuthStore = create<AuthState>()(
             clearAuth: () => {
                 console.log('🚪 Cerrando sesión');
                 set({ token: null, user: null });
+            },
+            logout: () => {
+                console.log('🚪 Cerrando sesión');
+                set({ token: null, user: null });
             }
         }),
         {
@@ -32,4 +37,5 @@ const useAuthStore = create<AuthState>()(
     )
 );
 
+export { useAuthStore };
 export default useAuthStore;

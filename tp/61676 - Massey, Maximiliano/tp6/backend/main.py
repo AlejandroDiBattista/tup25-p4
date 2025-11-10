@@ -182,6 +182,15 @@ async def obtener_usuario_actual(current_user: Usuario = Depends(get_current_use
         "nombre": current_user.nombre
     }
 
+@app.post("/cerrar-sesion")
+async def cerrar_sesion(current_user: Usuario = Depends(get_current_user)):
+    """
+    Endpoint para cerrar sesión.
+    Con JWT simplificado, el token se invalida en el cliente.
+    En producción, se debería usar una lista negra de tokens.
+    """
+    return {"mensaje": "Sesión cerrada exitosamente"}
+
 @app.get("/carrito")
 async def obtener_carrito(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
     items = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)).all()

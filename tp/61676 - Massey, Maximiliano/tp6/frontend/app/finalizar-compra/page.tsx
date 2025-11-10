@@ -15,8 +15,14 @@ export default function FinalizarCompra() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const { items, getTotals, clearCart } = useCartStore();
-  const { token, user } = useAuthStore();
+  const { token, user, logout } = useAuthStore();
   const totals = getTotals();
+
+  const handleLogout = () => {
+    clearCart();
+    logout();
+    router.push('/');
+  };
 
   useEffect(() => {
     // Redirigir si no hay items
@@ -132,13 +138,41 @@ export default function FinalizarCompra() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <Link href="/">
+              <h1 className="text-3xl font-bold text-gray-900 cursor-pointer hover:text-blue-600">
+                TP6 Shop
+              </h1>
+            </Link>
+            
+            <nav className="flex items-center gap-4">
+              <Link href="/" className="text-gray-700 hover:text-blue-600">
+                Productos
+              </Link>
+              <Link href="/mis-compras" className="text-gray-700 hover:text-blue-600">
+                Mis compras
+              </Link>
+              <span className="text-gray-700">
+                {user?.nombre}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="text-gray-700 hover:text-blue-600"
+              >
+                Salir
+              </button>
+            </nav>
+          </div>
+        </div>
+      </header>
+
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Título */}
         <div className="mb-8">
-          <Link href="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
-            ← Volver a la tienda
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Finalizar Compra</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Finalizar compra</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

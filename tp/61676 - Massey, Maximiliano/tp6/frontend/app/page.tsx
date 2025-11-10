@@ -8,6 +8,7 @@ import SearchFilters from './components/SearchFilters';
 import useAuthStore from './store/auth';
 import useCartStore from './store/cart';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -15,8 +16,15 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const { user, clearAuth } = useAuthStore();
-  const { itemCount } = useCartStore();
+  const { user, logout } = useAuthStore();
+  const { itemCount, clearCart } = useCartStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    clearCart();
+    logout();
+    router.push('/');
+  };
 
   useEffect(() => {
     const cargarProductos = async () => {
@@ -105,23 +113,23 @@ export default function Home() {
                     Mis compras
                   </Link>
                   <span className="text-gray-700">
-                    Hola, {user.nombre}
+                    {user.nombre}
                   </span>
                   <button
-                    onClick={() => clearAuth()}
-                    className="text-red-600 hover:text-red-800"
+                    onClick={handleLogout}
+                    className="text-gray-700 hover:text-blue-600"
                   >
                     Salir
                   </button>
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-blue-600 hover:text-blue-800">
+                  <Link href="/login" className="text-gray-700 hover:text-blue-600">
                     Ingresar
                   </Link>
                   <Link 
                     href="/registro" 
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    className="text-gray-700 hover:text-blue-600"
                   >
                     Crear cuenta
                   </Link>

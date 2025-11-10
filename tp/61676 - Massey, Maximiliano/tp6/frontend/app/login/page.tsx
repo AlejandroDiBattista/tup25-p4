@@ -56,50 +56,79 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-between p-24">
-            <div className="w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6">Iniciar sesión</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Correo
-                        </label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
+        <div className="min-h-screen bg-gray-50">
+            {/* Header */}
+            <header className="bg-white shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 py-4">
+                    <div className="flex justify-between items-center">
+                        <Link href="/">
+                            <h1 className="text-3xl font-bold text-gray-900 cursor-pointer hover:text-blue-600">
+                                TP6 Shop
+                            </h1>
+                        </Link>
+                        
+                        <nav className="flex items-center gap-4">
+                            <Link href="/" className="text-gray-700 hover:text-blue-600">
+                                Productos
+                            </Link>
+                            <Link href="/login" className="text-gray-700 hover:text-blue-600">
+                                Ingresar
+                            </Link>
+                            <Link href="/registro" className="text-gray-700 hover:text-blue-600">
+                                Crear cuenta
+                            </Link>
+                        </nav>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Contraseña
-                        </label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                    </div>
-                    {error && (
-                        <div className="text-red-500 text-sm">
-                            {error}
+                </div>
+            </header>
+
+            {/* Contenido */}
+            <div className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center p-8">
+                <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+                    <h2 className="text-2xl font-bold mb-6">Iniciar sesión</h2>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Correo
+                            </label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full p-2 border rounded"
+                                required
+                            />
                         </div>
-                    )}
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-                    >
-                        Entrar
-                    </button>
-                </form>
-                <div className="mt-4 text-center">
-                    <Link href="/registro" className="text-blue-600 hover:underline">
-                        ¿No tienes cuenta? Regístrate
-                    </Link>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Contraseña
+                            </label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full p-2 border rounded"
+                                required
+                            />
+                        </div>
+                        {error && (
+                            <div className="text-red-500 text-sm">
+                                {error}
+                            </div>
+                        )}
+                        <button
+                            type="submit"
+                            className="w-full bg-gray-900 text-white py-2 rounded hover:bg-gray-800"
+                        >
+                            Entrar
+                        </button>
+                    </form>
+                    <div className="mt-4 text-center text-sm">
+                        <span className="text-gray-600">¿No tienes cuenta? </span>
+                        <Link href="/registro" className="text-blue-600 hover:underline">
+                            Regístrate
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

@@ -195,4 +195,5 @@ const useCartStore = create<CartState>((set, get) => ({
     },
 }))
 
+export { useCartStore }
 export default useCartStore

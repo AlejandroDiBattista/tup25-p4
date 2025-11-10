@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import useAuthStore from '../store/auth';
+import useCartStore from '../store/cart';
 import { API_URL } from '../config';
 
 interface Compra {
@@ -18,7 +19,14 @@ export default function MisCompras() {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { token, user } = useAuthStore();
+  const { token, user, logout } = useAuthStore();
+  const { clearCart } = useCartStore();
+
+  const handleLogout = () => {
+    clearCart();
+    logout();
+    router.push('/');
+  };
 
   useEffect(() => {
     // Verificar autenticación
@@ -78,18 +86,41 @@ export default function MisCompras() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
-            ← Volver a la tienda
-          </Link>
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">Mis Compras</h1>
-            <div className="text-sm text-gray-600">
-              👤 {user?.nombre || user?.email}
-            </div>
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <Link href="/">
+              <h1 className="text-3xl font-bold text-gray-900 cursor-pointer hover:text-blue-600">
+                TP6 Shop
+              </h1>
+            </Link>
+            
+            <nav className="flex items-center gap-4">
+              <Link href="/" className="text-gray-700 hover:text-blue-600">
+                Productos
+              </Link>
+              <Link href="/mis-compras" className="text-gray-700 hover:text-blue-600">
+                Mis compras
+              </Link>
+              <span className="text-gray-700">
+                {user?.nombre}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="text-gray-700 hover:text-blue-600"
+              >
+                Salir
+              </button>
+            </nav>
           </div>
+        </div>
+      </header>
+
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Título */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Mis compras</h1>
         </div>
 
         {/* Error */}
