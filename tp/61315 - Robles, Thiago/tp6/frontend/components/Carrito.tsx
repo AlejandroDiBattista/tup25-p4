@@ -23,15 +23,53 @@ import type { Carrito } from "@/app/types";
 
 export default function Carrito() {
   const [items, setItems] = useState<NonNullable<Carrito["productos"]>>([]);
+  const [totales, setTotales] = useState<{
+    subtotal?: number;
+    iva?: number;
+    envio?: number;
+    total?: number;
+  }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+  // Cálculo local inmediato (en centavos) para feedback instantáneo
+  function calcularTotalesLocal(arr: NonNullable<Carrito["productos"]>) {
+    const toCents = (v: number) => Math.round(v * 100);
+    const fromCents = (c: number) => c / 100;
+    const subtotalCents = arr.reduce(
+      (acc, it) => acc + toCents(it.precio) * it.cantidad,
+      0
+    );
+    const ivaCents = arr.reduce((acc, it) => {
+      const cat = it.categoria?.toLowerCase() ?? "";
+      const esElectronico = cat.includes("electr");
+      const rate = esElectronico ? 10 : 21;
+      const baseCents = toCents(it.precio) * it.cantidad;
+      return acc + Math.round((baseCents * rate) / 100);
+    }, 0);
+    const totalSinEnvioCents = subtotalCents + ivaCents;
+    const envioCents = totalSinEnvioCents > 100000 ? 0 : 5000;
+    const totalCents = totalSinEnvioCents + envioCents;
+    return {
+      subtotal: fromCents(subtotalCents),
+      iva: fromCents(ivaCents),
+      envio: fromCents(envioCents),
+      total: fromCents(totalCents),
+    };
+  }
 
   async function cargar() {
     try {
       setError(null);
       const carrito = await obtenerCarrito();
       setItems(carrito.productos ?? []);
+      setTotales({
+        subtotal: carrito.subtotal,
+        iva: carrito.iva,
+        envio: carrito.envio,
+        total: carrito.total,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error desconocido");
     } finally {
@@ -69,18 +107,25 @@ export default function Carrito() {
       // Operación
       if (delta < 0 && itemActual.cantidad <= 1) {
         await quitarProductoDelCarrito(producto_id);
-        // Optimista: remover inmediatamente
-        setItems((prev) => prev.filter((p) => p.producto_id !== producto_id));
+        // Optimista: remover inmediatamente y recalcular totales locales
+        setItems((prev) => {
+          const nuevo = prev.filter((p) => p.producto_id !== producto_id);
+          setTotales(calcularTotalesLocal(nuevo));
+          return nuevo;
+        });
       } else {
         await agregarProductoAlCarrito(producto_id, delta);
-        // Optimista: ajustar cantidad local
-        setItems((prev) =>
-          prev.map((p) =>
-            p.producto_id === producto_id
-              ? { ...p, cantidad: p.cantidad + delta }
-              : p
-          )
-        );
+        // Optimista: ajustar cantidad local y recalcular totales
+        setItems((prev) => {
+          const nuevo = prev.map((p) => {
+            if (p.producto_id !== producto_id) return p;
+            const nuevaCantidad = p.cantidad + delta;
+            const nuevoSubtotal = p.precio * nuevaCantidad;
+            return { ...p, cantidad: nuevaCantidad, subtotal: nuevoSubtotal };
+          });
+          setTotales(calcularTotalesLocal(nuevo));
+          return nuevo;
+        });
       }
       window.dispatchEvent(new CustomEvent("cart:changed"));
     } catch (e) {
@@ -91,7 +136,11 @@ export default function Carrito() {
   async function eliminarArticulo(producto_id: number) {
     try {
       await quitarProductoDelCarrito(producto_id);
-      setItems((prev) => prev.filter((p) => p.producto_id !== producto_id));
+      setItems((prev) => {
+        const nuevo = prev.filter((p) => p.producto_id !== producto_id);
+        setTotales(calcularTotalesLocal(nuevo));
+        return nuevo;
+      });
       window.dispatchEvent(new CustomEvent("cart:changed"));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error al eliminar");
@@ -99,20 +148,35 @@ export default function Carrito() {
   }
 
   const articulosValidos = items ?? [];
-  const subtotal = articulosValidos.reduce(
-    (acc, it) => acc + (it.subtotal ?? it.precio * it.cantidad),
-    0
-  );
-  // IVA por categoría si viene en el item, si no 21% por defecto
-  const iva = articulosValidos.reduce((acc, it) => {
-    const cat = (it as { categoria?: string }).categoria?.toLowerCase() ?? "";
-    const esElectronico = cat.includes("electr");
-    const tasa = esElectronico ? 0.1 : 0.21;
-    return acc + it.precio * it.cantidad * tasa;
-  }, 0);
-  // Envío gratis si subtotal+iva supera 1000 (coincide con backend), sino 50
-  const envio = subtotal + iva > 1000 ? 0 : 50;
-  const total = subtotal + iva + envio;
+  // Preferir totales del backend si están disponibles; si no, calcular localmente (en centavos)
+  const toCents = (v: number) => Math.round(v * 100);
+  const fromCents = (c: number) => c / 100;
+
+  let subtotal = totales.subtotal ?? 0;
+  let iva = totales.iva ?? 0;
+  let envio = totales.envio ?? 0;
+  let total = totales.total ?? 0;
+
+  if (totales.subtotal == null || totales.total == null) {
+    const subtotalCents = articulosValidos.reduce(
+      (acc, it) => acc + toCents(it.precio) * it.cantidad,
+      0
+    );
+    const ivaCents = articulosValidos.reduce((acc, it) => {
+      const cat = it.categoria?.toLowerCase() ?? "";
+      const esElectronico = cat.includes("electr");
+      const rate = esElectronico ? 10 : 21;
+      const baseCents = toCents(it.precio) * it.cantidad;
+      return acc + Math.round((baseCents * rate) / 100);
+    }, 0);
+    const totalSinEnvioCents = subtotalCents + ivaCents;
+    const envioCents = totalSinEnvioCents > 100000 ? 0 : 5000;
+    const totalCents = totalSinEnvioCents + envioCents;
+    subtotal = fromCents(subtotalCents);
+    iva = fromCents(ivaCents);
+    envio = fromCents(envioCents);
+    total = fromCents(totalCents);
+  }
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,0fr)]">
@@ -207,7 +271,17 @@ export default function Carrito() {
               )}
               {error && (
                 <div className="p-4 text-center text-sm text-red-600">
-                  Inicia sesion para comprar
+                  {(() => {
+                    const e = error.toLowerCase();
+                    if (
+                      e.includes("401") ||
+                      e.includes("falta token") ||
+                      e.includes("no autorizado")
+                    ) {
+                      return "Inicia sesión para armar tu carrito";
+                    }
+                    return error;
+                  })()}
                 </div>
               )}
             </div>

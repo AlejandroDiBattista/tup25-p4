@@ -2,7 +2,7 @@ import { Compra, CompraItem } from "../types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-function getAuthHeaders() {
+function getAuthHeaders(): Record<string, string> {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -10,7 +10,7 @@ function getAuthHeaders() {
 
 // Finalizar compra: usa token para identificar usuario
 export const finalizarCompra = async (
-  _usuarioId: number | string, // no se usa, el backend toma el usuario del token
+  _usuarioId: number | string, // mantenido por compatibilidad, ignorado
   direccion: string,
   tarjeta: string
 ): Promise<{
@@ -20,17 +20,15 @@ export const finalizarCompra = async (
   iva: number;
   envio: number;
 }> => {
-  const params = new URLSearchParams({ direccion, tarjeta });
-  const resp = await fetch(
-    `${API_URL}/carrito/finalizar?${params.toString()}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(),
-      },
-    }
-  );
+  const body = { direccion, tarjeta };
+  const resp = await fetch(`${API_URL}/carrito/finalizar`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(body),
+  });
   if (!resp.ok) throw new Error(`Error al finalizar compra (${resp.status})`);
   const data = await resp.json();
   return {

@@ -36,8 +36,13 @@ export interface Carrito {
     subtotal: number;
     imagen?: string;
     existencia?: number;
+    categoria?: string;
   }[];
   total?: number;
+  // Totales detallados devueltos por backend (opcional)
+  subtotal?: number;
+  iva?: number;
+  envio?: number;
 }
 
 export interface CompraItem {

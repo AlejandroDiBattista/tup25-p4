@@ -3,7 +3,7 @@ import { Carrito } from "../types";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 // Helper para incluir el token en el header
-function getAuthHeaders() {
+function getAuthHeaders(): Record<string, string> {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -62,38 +62,55 @@ export const obtenerCarrito = async (): Promise<Carrito> => {
     imagen?: string;
     categoria?: string;
   }
-  const productos = (raw.items ?? []).map((it: RawItem) => {
-    const prod = it.producto ?? ({} as RawProducto);
-    const precio =
-      typeof prod.precio === "number"
-        ? prod.precio
-        : typeof it.precio === "number"
-        ? it.precio
-        : 0;
-    const cantidad = typeof it.cantidad === "number" ? it.cantidad : 0;
-    return {
-      producto_id: it.producto_id ?? prod.id ?? 0,
-      nombre: prod.titulo ?? prod.nombre ?? it.nombre ?? "",
-      precio,
-      cantidad,
-      subtotal:
-        typeof it.subtotal === "number" ? it.subtotal : precio * cantidad,
-      existencia: prod.existencia ?? it.existencia,
-      imagen: prod.imagen ?? it.imagen,
-      categoria: (prod.categoria ?? it.categoria) as string | undefined,
-    };
-  });
+  type CarritoProducto = NonNullable<Carrito["productos"]>[number];
+  const productos: CarritoProducto[] = (raw.items ?? []).map(
+    (it: RawItem): CarritoProducto => {
+      const prod = it.producto ?? ({} as RawProducto);
+      const precio =
+        typeof prod.precio === "number"
+          ? prod.precio
+          : typeof it.precio === "number"
+          ? it.precio
+          : 0;
+      const cantidad = typeof it.cantidad === "number" ? it.cantidad : 0;
+      return {
+        producto_id: it.producto_id ?? prod.id ?? 0,
+        nombre: prod.titulo ?? prod.nombre ?? it.nombre ?? "",
+        precio,
+        cantidad,
+        subtotal:
+          typeof it.subtotal === "number" ? it.subtotal : precio * cantidad,
+        existencia: prod.existencia ?? it.existencia,
+        imagen: prod.imagen ?? it.imagen,
+        // Reintroducir categoría para cálculo de IVA en el frontend
+        categoria: prod.categoria ?? it.categoria,
+      };
+    }
+  );
+
+  // Usar totales del backend si vienen: subtotal, iva, envio, total
+  const subtotal =
+    typeof raw.subtotal === "number"
+      ? raw.subtotal
+      : productos.reduce((acc, p) => acc + (p.subtotal ?? 0), 0);
+  const iva = typeof raw.iva === "number" ? raw.iva : undefined;
+  const envio = typeof raw.envio === "number" ? raw.envio : undefined;
+  const total =
+    typeof raw.total === "number"
+      ? raw.total
+      : subtotal + (iva ?? 0) + (envio ?? 0);
 
   return {
     id: carritoRaw.id,
     usuario_id: carritoRaw.usuario_id,
     estado: carritoRaw.estado,
     productos,
-    total:
-      raw.total ??
-      carritoRaw.total ??
-      productos.reduce((acc: number, p) => acc + (p.subtotal ?? 0), 0),
-  };
+    total,
+    // valores auxiliares no tipados originalmente; se pueden ampliar la interfaz si se desea
+    subtotal,
+    iva,
+    envio,
+  } as Carrito & { subtotal: number; iva?: number; envio?: number };
 };
 
 // ------------------------------------------------------------------

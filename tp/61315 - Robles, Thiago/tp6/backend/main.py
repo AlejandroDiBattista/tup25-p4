@@ -376,15 +376,37 @@ def ver_carrito(current_user_id: int = Depends(get_current_user_id)):
         ).all()
 
         items = []
+        # Helpers de centavos para evitar problemas de flotantes
+        def to_cents(v: float) -> int:
+            return int(round(v * 100))
+
+        def from_cents(c: int) -> float:
+            return round(c / 100.0, 2)
+
+        subtotal_cents = 0
+        iva_cents = 0
+
         for item, producto in resultados:
+            precio_cents = to_cents(producto.precio)
+            cantidad = item.cantidad
+            subtotal_item_cents = precio_cents * cantidad
+            subtotal_cents += subtotal_item_cents
+
+            categoria = (producto.categoria or "").lower()
+            es_electronico = "electr" in categoria
+            tasa = 10 if es_electronico else 21
+            iva_item_cents = int(round((subtotal_item_cents * tasa) / 100))
+            iva_cents += iva_item_cents
+
+            # Item para frontend (mantener subtotales en float para compatibilidad visual)
             items.append(
                 {
                     "id": item.id,
                     "producto_id": producto.id,
                     "nombre": producto.titulo,
                     "precio": producto.precio,
-                    "cantidad": item.cantidad,
-                    "subtotal": producto.precio * item.cantidad,
+                    "cantidad": cantidad,
+                    "subtotal": from_cents(subtotal_item_cents),
                     # opcionales útiles para el frontend
                     "imagen": producto.imagen,
                     "existencia": producto.existencia,
@@ -392,7 +414,9 @@ def ver_carrito(current_user_id: int = Depends(get_current_user_id)):
                 }
             )
 
-        total = sum(i["subtotal"] for i in items)
+        total_sin_envio_cents = subtotal_cents + iva_cents
+        envio_cents = 0 if total_sin_envio_cents > 100000 else 5000
+        total_cents = total_sin_envio_cents + envio_cents
 
         return {
             "carrito": {
@@ -401,7 +425,11 @@ def ver_carrito(current_user_id: int = Depends(get_current_user_id)):
                 "estado": carrito.estado,
             },
             "items": items,
-            "total": total,
+            # Subtotales y totales detallados para unificar con frontend
+            "subtotal": from_cents(subtotal_cents),
+            "iva": from_cents(iva_cents),
+            "envio": from_cents(envio_cents),
+            "total": from_cents(total_cents),
         }
 
 
