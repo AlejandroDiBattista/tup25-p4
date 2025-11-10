@@ -679,7 +679,52 @@ uv run pytest test_main.py -v
 
 ---
 
-### **COMMIT 12: Implementar búsqueda y filtros de productos** (OPCIONAL)
+### **✅ COMMIT 12: Documentación completa del proyecto - COMPLETADO**
+**Archivos modificados:**
+- ✅ `README.md` → Documentación profesional completa del proyecto
+
+**Contenido implementado:**
+
+**Secciones del README.md:**
+- ✅ Descripción general del sistema de e-commerce
+- ✅ Tecnologías utilizadas (backend y frontend)
+- ✅ Estructura del proyecto con árbol de directorios
+- ✅ Requisitos previos (Python, Node.js, uv, npm)
+- ✅ Instrucciones de instalación paso a paso
+- ✅ Guías de ejecución para backend y frontend
+- ✅ URLs de acceso (localhost:8000 y localhost:3000)
+- ✅ Instrucciones de testing con pytest
+- ✅ Listado completo de API endpoints con descripciones
+- ✅ Funcionalidades implementadas por categoría:
+  - Autenticación y Usuarios
+  - Gestión de Productos
+  - Carrito de Compras
+  - Proceso de Compra
+  - Historial de Compras
+- ✅ Reglas de negocio detalladas (stock, IVA, envío, etc)
+- ✅ Resumen de los 11 commits realizados
+- ✅ Información del autor y datos del proyecto
+- ✅ Licencia educativa
+
+**Beneficios de la documentación:**
+- ✅ Facilita la evaluación del proyecto
+- ✅ Proporciona instrucciones claras de instalación
+- ✅ Documenta todas las funcionalidades implementadas
+- ✅ Explica las decisiones técnicas y reglas de negocio
+- ✅ Incluye guías de testing y troubleshooting
+- ✅ Formato profesional con markdown estructurado
+- ✅ Emojis para mejor visualización de secciones
+
+**Verificación:**
+- ✅ README.md con 219 líneas agregadas
+- ✅ Formato markdown correcto y legible
+- ✅ Todas las secciones completas y coherentes
+- ✅ Información técnica precisa y actualizada
+- ✅ Instrucciones probadas y verificadas
+
+---
+
+### **COMMIT 13: Implementar búsqueda y filtros de productos** (OPCIONAL - YA IMPLEMENTADO)
 **Archivos a modificar:**
 - `frontend/app/page.tsx` → Agregar barra de búsqueda y filtros
 - `frontend/app/components/FiltrosProductos.tsx` (nuevo) → Componente de filtros
