@@ -422,7 +422,7 @@ def finalizar_compra(
         if producto.existencia < item.cantidad:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"No hay suficiente stock para '{producto.nombre}'. Pedido: {item.cantidad}, Disponible: {producto.existencia}"
+                detail=f"No hay suficiente stock para '{producto.titulo}'. Pedido: {item.cantidad}, Disponible: {producto.existencia}"
             )
 
     subtotal = 0.0
@@ -436,7 +436,7 @@ def finalizar_compra(
             iva += item_total * 0.21
 
     envio = 0.0
-    if subtotal <= 1000.0:
+    if subtotal <= 1000.0 and subtotal > 0:
         envio = 50.0
 
     total = round(subtotal + iva + envio, 2)
@@ -457,7 +457,7 @@ def finalizar_compra(
             compra_id=nueva_compra.id,
             producto_id=producto.id,
             cantidad=item.cantidad,
-            nombre=producto.nombre,
+            nombre=producto.titulo,
             precio_unitario=producto.precio
         )
 

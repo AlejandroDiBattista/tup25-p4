@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { obtenerCarrito, agregarAlCarrito, quitarDelCarrito } from '../services/cart';
 import { Producto } from '../types';
 
@@ -30,7 +30,6 @@ interface CartContextType {
   closeCart: () => void;
 }
 
-
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -39,11 +38,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const openCart = () => setIsCartOpen(true);
 
-  const closeCart = () => setIsCartOpen(false);
+  const openCart = useCallback(() => setIsCartOpen(true), []);
 
-  const fetchCart = async () => {
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
+
+  const fetchCart = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -57,9 +57,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const addItem = async (producto_id: number, cantidad: number) => {
+  const addItem = useCallback(async (producto_id: number, cantidad: number) => {
     try {
       await agregarAlCarrito(producto_id, cantidad);
       await fetchCart();
@@ -68,9 +68,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setError(err.message);
       alert(`Error: ${err.message}`);
     }
-  };
+  }, [fetchCart, openCart]);
 
-  const removeItem = async (producto_id: number) => {
+  const removeItem = useCallback(async (producto_id: number) => {
     try {
       await quitarDelCarrito(producto_id);
       await fetchCart();
@@ -78,7 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setError(err.message);
       alert(`Error: ${err.message}`);
     }
-  };
+  }, [fetchCart]);
 
   const value = {
     cart,
