@@ -13,6 +13,7 @@ export default function Home() {
   const [busqueda, setBusqueda] = useState("");
   const [categoria, setCategoria] = useState("");
   const [categorias, setCategorias] = useState<string[]>([]);
+  const [addedMsg, setAddedMsg] = useState<string | null>(null);
 
   useEffect(() => {
     obtenerProductos().then((data: Producto[]) => {
@@ -33,6 +34,9 @@ export default function Home() {
       carrito.push({ id, cantidad: 1 });
     }
     localStorage.setItem("carrito", JSON.stringify(carrito));
+    window.dispatchEvent(new Event("carrito:changed"));
+    setAddedMsg("Producto agregado al carrito");
+    setTimeout(() => setAddedMsg(null), 1500);
   };
 
   const productosFiltrados = productos.filter((producto) => {
@@ -65,6 +69,11 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {addedMsg && (
+        <div className="fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded shadow-lg text-sm">
+          {addedMsg}
+        </div>
+      )}
     </div>
   );
 }

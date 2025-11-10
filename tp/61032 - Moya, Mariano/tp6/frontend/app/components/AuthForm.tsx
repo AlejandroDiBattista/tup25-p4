@@ -56,41 +56,47 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow bg-white">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        {isLogin ? "Iniciar Sesión" : "Registrar Usuario"}
-      </h2>
+    <div>
       <form onSubmit={handleSubmit} className="space-y-4">
         {!isLogin && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+            <input
+              type="text"
+              placeholder="Tu nombre"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
+              required
+            />
+          </div>
+        )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <input
-            type="text"
-            placeholder="Nombre"
-            value={nombre}
-            onChange={e => setNombre(e.target.value)}
-            className="w-full p-2 border rounded"
+            type="email"
+            placeholder="tu@email.com"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
             required
           />
-        )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        {error && <div className="text-red-500 text-sm">{error}</div>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
+            required
+          />
+        </div>
+        {error && <div className="rounded bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">{error}</div>}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded font-semibold"
+          className="w-full bg-gray-900 text-white py-2 rounded-lg font-semibold hover:bg-black transition"
           disabled={loading}
         >
           {loading ? "Procesando..." : isLogin ? "Ingresar" : "Registrar"}
@@ -98,7 +104,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       </form>
       <div className="mt-4 text-center">
         <button
-          className="text-blue-600 underline"
+          className="text-gray-700 hover:text-gray-900 underline"
           onClick={() => setIsLogin(!isLogin)}
         >
           {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
