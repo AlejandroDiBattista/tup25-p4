@@ -68,7 +68,7 @@ def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 # Productos
-@app.get("/productos/", response_model=list[Producto])
+@app.get("/productos", response_model=list[Producto])
 def listar_productos(session: Session = Depends(get_session)):
     productos = session.exec(select(Producto)).all()
     # Si no hay productos en la BD, cargamos los del JSON

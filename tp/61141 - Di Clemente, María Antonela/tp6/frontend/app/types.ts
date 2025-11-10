@@ -7,4 +7,5 @@ export interface Producto {
   valoracion: number;
   existencia: number;
   imagen: string;
+  stock:number;
 }
