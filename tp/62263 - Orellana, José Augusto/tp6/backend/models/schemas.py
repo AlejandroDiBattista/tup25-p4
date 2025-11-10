@@ -9,7 +9,7 @@ EMAIL_REGEX = r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
 class UsuarioBase(BaseModel):
     """Modelo base que comparte campos comunes."""
-    nombre: str
+    nombre: str = Field(min_length=1, max_length=255)
     email: str = Field(
         pattern=EMAIL_REGEX,
         example="usuario@mail.com"
@@ -17,7 +17,7 @@ class UsuarioBase(BaseModel):
 
 class UsuarioRegistro(UsuarioBase):
     """El modelo que espera recibir del frontend al registrar un usuario."""
-    contrasenia: str
+    contrasenia: str = Field(min_length=6, max_length=255)
 
 class UsuarioRespuesta(UsuarioBase):
     """El modelo que se envía como respuesta cuando se registra o se pide un usuario."""
@@ -50,7 +50,7 @@ class UsuarioLogin(BaseModel):
         pattern=EMAIL_REGEX,
         example="usuario@mail.com"
     )
-    contrasenia: str
+    contrasenia: str = Field(min_length=1)
 
 class Token(BaseModel):
     """Modelo para el token JWT."""
