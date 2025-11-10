@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { obtenerDetalleCompra, type CompraDetalle } from '../../services/compras';
+import Image from 'next/image';
 
 export default function DetalleCompraPage() {
   const { estaAutenticado, cargando, token } = useAuth();
@@ -14,6 +15,8 @@ export default function DetalleCompraPage() {
   const [compra, setCompra] = useState<CompraDetalle | null>(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(true);
   const [error, setError] = useState('');
+  
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     if (!cargando && !estaAutenticado) {
@@ -162,7 +165,17 @@ export default function DetalleCompraPage() {
             <div className="divide-y divide-gray-200">
               {compra.items.map((item, index) => (
                 <div key={index} className="px-6 py-4">
-                  <div className="flex justify-between items-start">
+                  <div className="flex gap-4 items-start">
+                    <div className="relative w-20 h-20 flex-shrink-0">
+                      <Image
+                        src={`${API_URL}/${item.imagen}`}
+                        alt={item.nombre}
+                        fill
+                        sizes="80px"
+                        className="object-contain rounded"
+                        unoptimized
+                      />
+                    </div>
                     <div className="flex-1">
                       <h3 className="text-base font-medium text-gray-900 mb-1">
                         {item.nombre}

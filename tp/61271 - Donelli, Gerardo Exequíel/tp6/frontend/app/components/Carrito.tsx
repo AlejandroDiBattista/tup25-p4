@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   obtenerCarrito,
   eliminarDelCarrito,
@@ -10,14 +11,30 @@ import {
   finalizarCompra,
   type CarritoResponse,
 } from '../services/carrito';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Separator } from './ui/separator';
+import { Badge } from './ui/badge';
+import { Loader2, Trash2, ShoppingBag, CreditCard, MapPin } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface CarritoProps {
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   actualizarTrigger: number;
   onActualizar: () => void;
 }
 
-export default function Carrito({ onClose, actualizarTrigger, onActualizar }: CarritoProps) {
+export default function Carrito({ open, onOpenChange, actualizarTrigger, onActualizar }: CarritoProps) {
   const { token } = useAuth();
   const router = useRouter();
   const [carrito, setCarrito] = useState<CarritoResponse | null>(null);
@@ -27,6 +44,8 @@ export default function Carrito({ onClose, actualizarTrigger, onActualizar }: Ca
   const [direccion, setDireccion] = useState('');
   const [tarjeta, setTarjeta] = useState('');
   const [procesandoCompra, setProcesandoCompra] = useState(false);
+  
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     cargarCarrito();
@@ -54,8 +73,13 @@ export default function Carrito({ onClose, actualizarTrigger, onActualizar }: Ca
       await eliminarDelCarrito(token, productoId);
       await cargarCarrito();
       onActualizar();
+      toast.success('Producto eliminado', {
+        description: 'El producto se eliminó del carrito',
+      });
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al eliminar producto');
+      toast.error('Error al eliminar', {
+        description: err instanceof Error ? err.message : 'No se pudo eliminar el producto',
+      });
     }
   };
 
@@ -66,8 +90,13 @@ export default function Carrito({ onClose, actualizarTrigger, onActualizar }: Ca
       await cancelarCarrito(token);
       await cargarCarrito();
       onActualizar();
+      toast.success('Carrito vaciado', {
+        description: 'Se eliminaron todos los productos del carrito',
+      });
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al cancelar carrito');
+      toast.error('Error al vaciar carrito', {
+        description: err instanceof Error ? err.message : 'No se pudo vaciar el carrito',
+      });
     }
   };
 
@@ -78,39 +107,42 @@ export default function Carrito({ onClose, actualizarTrigger, onActualizar }: Ca
     setProcesandoCompra(true);
     try {
       const result = await finalizarCompra(token, { direccion, tarjeta });
-      alert(`¡Compra realizada exitosamente! Total: $${result.total.toFixed(2)}`);
+      toast.success('¡Compra realizada!', {
+        description: `Total pagado: $${result.total.toFixed(2)}`,
+      });
       setMostrarCheckout(false);
       setDireccion('');
       setTarjeta('');
       await cargarCarrito();
       onActualizar();
-      onClose();
-      router.push('/compras');
+      
+      // Cerrar el dialog primero
+      onOpenChange(false);
+      
+      // Pequeño delay antes de navegar para que el toast sea visible
+      setTimeout(() => {
+        router.push('/compras');
+      }, 500);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al finalizar compra');
+      toast.error('Error al finalizar compra', {
+        description: err instanceof Error ? err.message : 'No se pudo procesar la compra',
+      });
     } finally {
       setProcesandoCompra(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+        <DialogHeader className="p-6 border-b">
+          <DialogTitle className="text-2xl font-bold">
             {mostrarCheckout ? 'Finalizar Compra' : 'Carrito de Compras'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-          >
-            ×
-          </button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
         {/* Contenido */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 max-h-[60vh]">
           {cargando ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
@@ -124,7 +156,7 @@ export default function Carrito({ onClose, actualizarTrigger, onActualizar }: Ca
             <div className="text-center py-12">
               <p className="text-gray-600 text-lg">Tu carrito está vacío</p>
               <button
-                onClick={onClose}
+                onClick={() => onOpenChange(false)}
                 className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
               >
                 Continuar comprando
@@ -217,11 +249,16 @@ export default function Carrito({ onClose, actualizarTrigger, onActualizar }: Ca
                   key={item.id}
                   className="flex gap-4 border rounded-lg p-4 hover:bg-gray-50"
                 >
-                  <img
-                    src={item.imagen}
-                    alt={item.titulo}
-                    className="w-24 h-24 object-cover rounded"
-                  />
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <Image
+                      src={`${API_URL}/${item.imagen}`}
+                      alt={item.titulo}
+                      fill
+                      sizes="96px"
+                      className="object-contain rounded"
+                      unoptimized
+                    />
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{item.titulo}</h3>
                     <p className="text-sm text-gray-600 mt-1">
@@ -253,30 +290,31 @@ export default function Carrito({ onClose, actualizarTrigger, onActualizar }: Ca
 
         {/* Footer */}
         {!cargando && carrito && carrito.items.length > 0 && !mostrarCheckout && (
-          <div className="border-t p-6 bg-gray-50">
-            <div className="flex justify-between items-center mb-4">
+          <DialogFooter className="border-t p-6 bg-muted/50 flex-col gap-4 sm:flex-row">
+            <div className="flex justify-between items-center w-full mb-2">
               <span className="text-lg font-semibold">Total:</span>
-              <span className="text-2xl font-bold text-indigo-600">
+              <span className="text-2xl font-bold text-primary">
                 ${carrito.total.toFixed(2)}
               </span>
             </div>
-            <div className="flex space-x-4">
-              <button
+            <div className="flex space-x-4 w-full">
+              <Button
                 onClick={handleCancelar}
-                className="flex-1 px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50"
+                variant="outline"
+                className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
               >
                 Vaciar carrito
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setMostrarCheckout(true)}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold"
+                className="flex-1 bg-green-600 hover:bg-green-700"
               >
                 Finalizar compra
-              </button>
+              </Button>
             </div>
-          </div>
+          </DialogFooter>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

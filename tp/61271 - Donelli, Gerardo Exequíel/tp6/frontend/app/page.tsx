@@ -7,6 +7,14 @@ import { obtenerProductos, obtenerCategorias } from './services/productos';
 import { agregarAlCarrito } from './services/carrito';
 import { Producto } from './types';
 import Carrito from './components/Carrito';
+import ProductoCard from './components/ProductoCard';
+import { Button } from './components/ui/button';
+import { Input } from './components/ui/input';
+import { Label } from './components/ui/label';
+import { Card } from './components/ui/card';
+import { Badge } from './components/ui/badge';
+import { Loader2, ShoppingCart, Search, X, Package } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Home() {
   const { estaAutenticado, cargando, token } = useAuth();
@@ -71,9 +79,13 @@ export default function Home() {
     try {
       await agregarAlCarrito(token, { producto_id: productoId, cantidad: 1 });
       setActualizarCarrito(prev => prev + 1);
-      alert('Producto agregado al carrito');
+      toast.success('Producto agregado', {
+        description: 'El producto se agregó al carrito correctamente',
+      });
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al agregar al carrito');
+      toast.error('Error al agregar', {
+        description: err instanceof Error ? err.message : 'No se pudo agregar el producto al carrito',
+      });
     }
   };
 
@@ -81,8 +93,8 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="mt-4 text-muted-foreground">Cargando...</p>
         </div>
       </div>
     );
@@ -97,42 +109,41 @@ export default function Home() {
       {/* Header con título y botón de carrito */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Catálogo de Productos</h1>
-          <p className="text-gray-600 mt-2">{productos.length} productos disponibles</p>
+          <h1 className="text-4xl font-bold tracking-tight">Catálogo de Productos</h1>
+          <p className="text-muted-foreground mt-2 flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            {productos.length} productos disponibles
+          </p>
         </div>
-        <button
-          onClick={() => setCarritoVisible(!carritoVisible)}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          🛒 Ver Carrito
-        </button>
+        <Button onClick={() => setCarritoVisible(true)} size="lg">
+          <ShoppingCart className="h-5 w-5 mr-2" />
+          Ver Carrito
+        </Button>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
+      <Card className="p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="busqueda" className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="space-y-2">
+            <Label htmlFor="busqueda" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
               Buscar productos
-            </label>
-            <input
+            </Label>
+            <Input
               type="text"
               id="busqueda"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar por nombre o descripción..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-          <div>
-            <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-2">
-              Filtrar por categoría
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="categoria">Filtrar por categoría</Label>
             <select
               id="categoria"
               value={categoriaSeleccionada}
               onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="">Todas las categorías</option>
               {categorias.map((cat) => (
@@ -144,87 +155,65 @@ export default function Home() {
           </div>
         </div>
         {(categoriaSeleccionada || busqueda) && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
               setCategoriaSeleccionada('');
               setBusqueda('');
             }}
-            className="mt-4 text-sm text-indigo-600 hover:text-indigo-800"
+            className="mt-4"
           >
+            <X className="h-4 w-4 mr-2" />
             Limpiar filtros
-          </button>
+          </Button>
         )}
-      </div>
+      </Card>
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded mb-6">
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg mb-6">
           {error}
         </div>
       )}
 
       {/* Productos */}
       {cargandoProductos ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando productos...</p>
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="mt-4 text-muted-foreground">Cargando productos...</p>
         </div>
       ) : productos.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">No se encontraron productos</p>
+          <Package className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground text-lg">No se encontraron productos</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {productos.map((producto) => (
-            <div
-              key={producto.id}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden"
-            >
-              <div className="aspect-w-1 aspect-h-1 bg-gray-200">
-                <img
-                  src={producto.imagen}
-                  alt={producto.titulo}
-                  className="w-full h-48 object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {producto.titulo}
-                </h3>
-                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                  {producto.descripcion}
-                </p>
-                <p className="text-xs text-gray-500 mb-3">{producto.categoria}</p>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-2xl font-bold text-indigo-600">
-                    ${producto.precio.toFixed(2)}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    ⭐ {producto.valoracion}
-                  </span>
-                </div>
+            <div key={producto.id} className="flex flex-col">
+              <ProductoCard producto={producto} />
+              <div className="mt-4">
                 {producto.existencia > 0 ? (
                   <>
-                    <p className="text-sm text-green-600 mb-3">
+                    <Badge variant="secondary" className="mb-3">
                       {producto.existencia} disponibles
-                    </p>
-                    <button
+                    </Badge>
+                    <Button
                       onClick={() => handleAgregarAlCarrito(producto.id)}
-                      className="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      className="w-full"
                     >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
                       Agregar al carrito
-                    </button>
+                    </Button>
                   </>
                 ) : (
-                  <div className="text-center">
-                    <p className="text-red-600 font-semibold mb-3">Agotado</p>
-                    <button
-                      disabled
-                      className="w-full bg-gray-300 text-gray-500 px-4 py-2 rounded-md cursor-not-allowed"
-                    >
+                  <>
+                    <Badge variant="destructive" className="mb-3">Agotado</Badge>
+                    <Button disabled className="w-full">
                       No disponible
-                    </button>
-                  </div>
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
@@ -233,13 +222,12 @@ export default function Home() {
       )}
 
       {/* Modal del Carrito */}
-      {carritoVisible && (
-        <Carrito
-          onClose={() => setCarritoVisible(false)}
-          actualizarTrigger={actualizarCarrito}
-          onActualizar={() => setActualizarCarrito(prev => prev + 1)}
-        />
-      )}
+      <Carrito
+        open={carritoVisible}
+        onOpenChange={setCarritoVisible}
+        actualizarTrigger={actualizarCarrito}
+        onActualizar={() => setActualizarCarrito(prev => prev + 1)}
+      />
     </div>
   );
 }
