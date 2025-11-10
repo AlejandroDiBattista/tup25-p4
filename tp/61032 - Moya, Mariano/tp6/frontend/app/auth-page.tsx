@@ -4,9 +4,16 @@ import { AuthForm } from "./components/AuthForm";
 
 export default function Home() {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  interface Usuario {
+    usuario_id: number;
+    nombre: string;
+    email: string;
+    access_token?: string;
+    token_type?: string;
+  }
+  const [user, setUser] = useState<Usuario | null>(null);
 
-  const handleAuthSuccess = (token: string, user: any) => {
+  const handleAuthSuccess = (token: string, user: Usuario) => {
     setToken(token);
     setUser(user);
     if (typeof window !== "undefined") {
