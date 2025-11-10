@@ -2,7 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { estaAutenticado, getAuthHeaders } from '../services/auth';
+import {
+  estaAutenticado,
+  getAuthHeaders,
+  obtenerNombreAlmacenado,
+  obtenerUsuarioActual,
+} from '../services/auth';
 
 interface ItemCarrito {
   producto_id: number;
@@ -62,6 +67,7 @@ export default function FinalizarCompraPage() {
   const [resumenPrevio, setResumenPrevio] = useState<CarritoResponse | null>(null);
   const [direccionConfirmada, setDireccionConfirmada] = useState('');
   const [tarjetaConfirmada, setTarjetaConfirmada] = useState('');
+  const [nombreUsuario, setNombreUsuario] = useState('');
 
   const cargarCarrito = async () => {
     setCargando(true);
@@ -94,6 +100,23 @@ export default function FinalizarCompraPage() {
 
     void cargarCarrito();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!estaAutenticado()) {
+      setNombreUsuario('');
+      return;
+    }
+
+    const almacenado = obtenerNombreAlmacenado();
+    if (almacenado) {
+      setNombreUsuario(almacenado);
+      return;
+    }
+
+    obtenerUsuarioActual()
+      .then((usuario) => setNombreUsuario(usuario.nombre))
+      .catch((err) => console.error('Error al obtener usuario actual:', err));
   }, []);
 
   const validarFormulario = (): string | null => {
@@ -182,17 +205,22 @@ export default function FinalizarCompraPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Finalizar compra</h1>
               <p className="text-gray-600 mt-2">Revisa tu carrito y completa los datos para confirmar.</p>
             </div>
-            <button
-              onClick={() => router.push('/')}
-              className="text-blue-600 hover:text-blue-700"
-            >
-              ← Volver al catálogo
-            </button>
+            <div className="flex items-center gap-4">
+              {nombreUsuario && (
+                <span className="nav-username">Hola, {nombreUsuario}</span>
+              )}
+              <button
+                onClick={() => router.push('/')}
+                className="btn-link"
+              >
+                ← Volver al catálogo
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -211,19 +239,19 @@ export default function FinalizarCompraPage() {
         )}
 
         {!resumenActual || resumenActual.items.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
+          <div className="card-surface p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Tu carrito está vacío</h2>
             <p className="text-gray-600 mb-6">Agrega productos desde el catálogo antes de finalizar la compra.</p>
             <button
               onClick={() => router.push('/')}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+              className="btn-primary"
             >
               Volver al catálogo
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <section className="bg-white rounded-lg shadow p-6 space-y-6">
+            <section className="card-surface p-6 space-y-6">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Productos en tu compra</h2>
                 <p className="text-sm text-gray-500">{resumenActual.items.length} artículo{resumenActual.items.length !== 1 ? 's' : ''}</p>
@@ -264,7 +292,7 @@ export default function FinalizarCompraPage() {
               )}
             </section>
 
-            <section className="bg-white rounded-lg shadow p-6">
+            <section className="card-surface p-6">
               {resultado ? (
                 <div className="space-y-6">
                   <div>
@@ -289,13 +317,13 @@ export default function FinalizarCompraPage() {
                   <div className="flex flex-col gap-3 pt-4 border-t border-gray-200">
                     <button
                       onClick={() => router.push('/compras')}
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+                      className="btn-primary w-full"
                     >
                       Ver historial de compras
                     </button>
                     <button
                       onClick={() => router.push('/')}
-                      className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200"
+                      className="btn-primary w-full"
                     >
                       Seguir comprando
                     </button>
@@ -319,7 +347,7 @@ export default function FinalizarCompraPage() {
                       value={direccion}
                       onChange={(event) => setDireccion(event.target.value)}
                       placeholder="Ej: Av. Siempre Viva 742, Springfield"
-                      className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.direccion ? 'border-red-400' : 'border-gray-200'}`}
+                      className={`input-field ${formErrors.direccion ? 'border-red-400 focus:ring-red-400' : ''}`}
                     />
                     {formErrors.direccion && (
                       <p className="text-sm text-red-600 mt-1">{formErrors.direccion}</p>
@@ -338,7 +366,7 @@ export default function FinalizarCompraPage() {
                       value={tarjeta}
                       onChange={(event) => setTarjeta(formatearTarjeta(event.target.value))}
                       placeholder="1234 5678 9012 3456"
-                      className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.tarjeta ? 'border-red-400' : 'border-gray-200'}`}
+                      className={`input-field ${formErrors.tarjeta ? 'border-red-400 focus:ring-red-400' : ''}`}
                     />
                     {formErrors.tarjeta && (
                       <p className="text-sm text-red-600 mt-1">{formErrors.tarjeta}</p>
@@ -352,7 +380,7 @@ export default function FinalizarCompraPage() {
                   <button
                     type="submit"
                     disabled={procesando}
-                    className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    className="btn-primary w-full disabled:opacity-60"
                   >
                     {procesando ? 'Procesando compra...' : 'Confirmar compra'}
                   </button>

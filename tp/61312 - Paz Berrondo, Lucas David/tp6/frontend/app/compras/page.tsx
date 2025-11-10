@@ -2,7 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { estaAutenticado, getAuthHeaders } from '../services/auth';
+import {
+    estaAutenticado,
+    getAuthHeaders,
+    obtenerNombreAlmacenado,
+    obtenerUsuarioActual,
+} from '../services/auth';
 
 interface ItemCompra {
   producto_id: number;
@@ -42,6 +47,7 @@ export default function ComprasPage() {
   const [detalles, setDetalles] = useState<Record<number, CompraDetalle>>({});
   const [detalleCargando, setDetalleCargando] = useState<number | null>(null);
   const [mensaje, setMensaje] = useState('');
+  const [nombreUsuario, setNombreUsuario] = useState('');
 
   const cargarCompras = async () => {
     try {
@@ -68,6 +74,23 @@ export default function ComprasPage() {
     }
     cargarCompras();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!estaAutenticado()) {
+      setNombreUsuario('');
+      return;
+    }
+
+    const almacenado = obtenerNombreAlmacenado();
+    if (almacenado) {
+      setNombreUsuario(almacenado);
+      return;
+    }
+
+    obtenerUsuarioActual()
+      .then((usuario) => setNombreUsuario(usuario.nombre))
+      .catch((err) => console.error('Error al obtener usuario actual:', err));
   }, []);
 
   const toggleDetalle = async (compraId: number) => {
@@ -123,14 +146,22 @@ export default function ComprasPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">Mis Compras</h1>
-            <button
-              onClick={() => router.push('/')}
-              className="text-blue-600 hover:text-blue-700"
-            >
-              ← Volver al catálogo
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Mis Compras</h1>
+              <p className="text-gray-600 mt-2">Consulta el historial y detalles de tus pedidos.</p>
+            </div>
+            <div className="flex items-center gap-4">
+              {nombreUsuario && (
+                <span className="nav-username">Hola, {nombreUsuario}</span>
+              )}
+              <button
+                onClick={() => router.push('/')}
+                className="btn-link"
+              >
+                ← Volver al catálogo
+              </button>
+            </div>
           </div>
         </div>
       </header>

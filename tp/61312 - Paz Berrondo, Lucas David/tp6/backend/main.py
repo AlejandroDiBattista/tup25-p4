@@ -52,6 +52,8 @@ class TokenResponse(BaseModel):
     """Modelo para respuesta de token."""
     access_token: str
     token_type: str = "bearer"
+    nombre: str
+    email: EmailStr
 
 
 class MensajeResponse(BaseModel):
@@ -134,6 +136,12 @@ class CompraDetalleResponse(BaseModel):
     subtotal: float
     envio: float
     total: float
+
+
+class UsuarioActualResponse(BaseModel):
+    """Modelo para devolver datos del usuario autenticado."""
+    nombre: str
+    email: EmailStr
 
 
 # Evento de inicio: crear tablas y cargar datos iniciales
@@ -302,7 +310,16 @@ def iniciar_sesion(datos: LoginRequest):
         # Crear token JWT
         access_token = crear_access_token(data={"sub": usuario.email})
         
-        return TokenResponse(access_token=access_token)
+        return TokenResponse(
+            access_token=access_token,
+            nombre=usuario.nombre,
+            email=usuario.email
+        )
+@app.get("/usuarios/me", response_model=UsuarioActualResponse)
+def obtener_usuario_actual(usuario_actual: Usuario = Depends(get_current_user)):
+    """Obtener los datos básicos del usuario autenticado."""
+    return UsuarioActualResponse(nombre=usuario_actual.nombre, email=usuario_actual.email)
+
 
 
 @app.post("/cerrar-sesion", response_model=MensajeResponse)

@@ -4,6 +4,9 @@
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const TOKEN_KEY = 'token';
+const NOMBRE_KEY = 'usuario_nombre';
+const EMAIL_KEY = 'usuario_email';
 
 export interface Usuario {
   nombre: string;
@@ -24,6 +27,13 @@ export interface LoginData {
 export interface TokenResponse {
   access_token: string;
   token_type: string;
+  nombre: string;
+  email: string;
+}
+
+export interface UsuarioActual {
+  nombre: string;
+  email: string;
 }
 
 /**
@@ -67,7 +77,9 @@ export async function iniciarSesion(data: LoginData): Promise<TokenResponse> {
   
   // Guardar token en localStorage
   if (typeof window !== 'undefined') {
-    localStorage.setItem('token', tokenData.access_token);
+    localStorage.setItem(TOKEN_KEY, tokenData.access_token);
+    localStorage.setItem(NOMBRE_KEY, tokenData.nombre);
+    localStorage.setItem(EMAIL_KEY, tokenData.email);
   }
 
   return tokenData;
@@ -94,7 +106,9 @@ export async function cerrarSesion(): Promise<void> {
 
   // Limpiar token de localStorage
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('token');
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(NOMBRE_KEY);
+    localStorage.removeItem(EMAIL_KEY);
   }
 }
 
@@ -103,7 +117,7 @@ export async function cerrarSesion(): Promise<void> {
  */
 export function getToken(): string | null {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('token');
+    return localStorage.getItem(TOKEN_KEY);
   }
   return null;
 }
@@ -124,4 +138,38 @@ export function getAuthHeaders(): HeadersInit {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` }),
   };
+}
+
+export function obtenerNombreAlmacenado(): string | null {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(NOMBRE_KEY);
+  }
+  return null;
+}
+
+export function obtenerEmailAlmacenado(): string | null {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(EMAIL_KEY);
+  }
+  return null;
+}
+
+export async function obtenerUsuarioActual(): Promise<UsuarioActual> {
+  const response = await fetch(`${API_URL}/usuarios/me`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error('No se pudo obtener la información del usuario');
+  }
+
+  const data: UsuarioActual = await response.json();
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(NOMBRE_KEY, data.nombre);
+    localStorage.setItem(EMAIL_KEY, data.email);
+  }
+
+  return data;
 }

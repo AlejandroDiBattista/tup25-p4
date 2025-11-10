@@ -24,6 +24,7 @@ export default function ProductoCard({
 
   const stockRestante = producto.existencia - cantidadEnCarrito;
   const sinStock = stockRestante <= 0;
+  const titulo = producto.titulo ?? producto.nombre ?? '';
 
   const agregarAlCarrito = async () => {
     if (!autenticado) {
@@ -72,7 +73,7 @@ export default function ProductoCard({
       <div className="relative h-64 bg-gray-100">
         <Image
           src={`${API_URL}/${producto.imagen}`}
-          alt={`${producto.titulo} - ${producto.categoria}`}
+          alt={`${titulo} - ${producto.categoria}`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain p-4"
@@ -83,7 +84,7 @@ export default function ProductoCard({
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
+          {titulo}
         </h3>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
           {producto.descripcion}
@@ -110,7 +111,7 @@ export default function ProductoCard({
         <button
           onClick={agregarAlCarrito}
           disabled={loading || sinStock}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+          className="btn-primary w-full text-sm"
         >
           {mensaje || (loading ? 'Agregando...' : sinStock ? 'Sin stock' : `Agregar (${stockRestante} disp.)`)}
         </button>

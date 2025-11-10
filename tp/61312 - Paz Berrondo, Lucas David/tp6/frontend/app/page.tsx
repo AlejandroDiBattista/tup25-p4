@@ -3,7 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ProductoCard from './components/ProductoCard';
-import { cerrarSesion, estaAutenticado, getAuthHeaders } from './services/auth';
+import {
+    cerrarSesion,
+    estaAutenticado,
+    getAuthHeaders,
+    obtenerNombreAlmacenado,
+    obtenerUsuarioActual,
+} from './services/auth';
 import { obtenerProductos } from './services/productos';
 import type { Producto } from './types';
 
@@ -36,6 +42,11 @@ export default function Home() {
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const [itemEnProceso, setItemEnProceso] = useState<number | null>(null);
+  const [todosProductos, setTodosProductos] = useState<Producto[]>([]);
+  const [categoriasDisponibles, setCategoriasDisponibles] = useState<string[]>([]);
+  const [busqueda, setBusqueda] = useState('');
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string>('todas');
+  const [nombreUsuario, setNombreUsuario] = useState('');
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -45,12 +56,16 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setAutenticado(estaAutenticado());
-    
+    const autenticadoActual = estaAutenticado();
+    setAutenticado(autenticadoActual);
+
     const cargarProductos = async () => {
       try {
         const data = await obtenerProductos();
+        setTodosProductos(data);
         setProductos(data);
+        const categoriasUnicas = Array.from(new Set(data.map((producto) => producto.categoria))).sort((a, b) => a.localeCompare(b));
+        setCategoriasDisponibles(categoriasUnicas);
       } catch (error) {
         console.error('Error al cargar productos:', error);
       } finally {
@@ -58,8 +73,32 @@ export default function Home() {
       }
     };
 
-    cargarProductos();
+    void cargarProductos();
   }, []);
+
+  useEffect(() => {
+    const texto = busqueda.trim().toLowerCase();
+    const categoriaNormalizada = categoriaSeleccionada.toLowerCase();
+
+    const filtrados = todosProductos.filter((producto) => {
+      const nombreProducto = (producto.titulo ?? producto.nombre ?? '').toLowerCase();
+      const descripcionProducto = (producto.descripcion ?? '').toLowerCase();
+      const categoriaProducto = (producto.categoria ?? '').toLowerCase();
+
+      const coincideBusqueda =
+        texto === '' ||
+        nombreProducto.includes(texto) ||
+        descripcionProducto.includes(texto) ||
+        categoriaProducto.includes(texto);
+
+      const coincideCategoria =
+        categoriaSeleccionada === 'todas' || categoriaProducto === categoriaNormalizada;
+
+      return coincideBusqueda && coincideCategoria;
+    });
+
+    setProductos(filtrados);
+  }, [busqueda, categoriaSeleccionada, todosProductos]);
 
   useEffect(() => {
     if (estaAutenticado()) {
@@ -68,6 +107,23 @@ export default function Home() {
       setCarrito(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autenticado]);
+
+  useEffect(() => {
+    if (!autenticado) {
+      setNombreUsuario('');
+      return;
+    }
+
+    const almacenado = obtenerNombreAlmacenado();
+    if (almacenado) {
+      setNombreUsuario(almacenado);
+      return;
+    }
+
+    obtenerUsuarioActual()
+      .then((usuario) => setNombreUsuario(usuario.nombre))
+      .catch((err) => console.error('Error al obtener usuario actual:', err));
   }, [autenticado]);
 
   const cargarCarrito = async () => {
@@ -201,7 +257,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
                 Catálogo de Productos
@@ -210,29 +266,33 @@ export default function Home() {
                 {productos.length} productos disponibles
               </p>
             </div>
-            
-            <div className="flex gap-4">
+            <div className="flex items-center gap-6">
+              {autenticado && (
+                <span className="nav-username">
+                  {nombreUsuario ? `Hola, ${nombreUsuario}` : 'Hola'}
+                </span>
+              )}
               {autenticado ? (
-                <>
+                <div className="flex items-center gap-4">
                   <button
                     onClick={() => router.push('/compras')}
-                    className="bg-white border border-blue-600 text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+                    className="btn-link font-semibold"
                   >
                     Historial de compras
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                    className="btn-link"
                   >
-                    Cerrar Sesión
+                    Cerrar sesión
                   </button>
-                </>
+                </div>
               ) : (
                 <button
                   onClick={() => router.push('/auth')}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="btn-primary"
                 >
-                  Iniciar Sesión
+                  Iniciar sesión
                 </button>
               )}
             </div>
@@ -253,26 +313,68 @@ export default function Home() {
           </div>
         )}
 
+        <section className="mb-6">
+          <div className="card-surface p-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex-1 w-full">
+              <label htmlFor="buscar-productos" className="block text-sm font-medium text-gray-700 mb-1">
+                Buscar productos
+              </label>
+              <input
+                id="buscar-productos"
+                type="search"
+                value={busqueda}
+                onChange={(event) => setBusqueda(event.target.value)}
+                placeholder="Buscar por nombre, descripción o categoría"
+                className="input-field"
+              />
+            </div>
+            <div className="w-full md:w-64">
+              <label htmlFor="categoria-productos" className="block text-sm font-medium text-gray-700 mb-1">
+                Categoría
+              </label>
+              <select
+                id="categoria-productos"
+                value={categoriaSeleccionada}
+                onChange={(event) => setCategoriaSeleccionada(event.target.value)}
+                className="input-field"
+              >
+                <option value="todas">Todas las categorías</option>
+                {categoriasDisponibles.map((categoria) => (
+                  <option key={categoria} value={categoria}>
+                    {categoria}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <section className="lg:col-span-2 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {productos.map((producto) => (
-                <ProductoCard
-                  key={producto.id}
-                  producto={producto}
-                  autenticado={autenticado}
-                  cantidadEnCarrito={carrito?.items.find((item) => item.producto_id === producto.id)?.cantidad ?? 0}
-                  onAgregado={() => {
-                    mostrarMensaje('Producto agregado al carrito');
-                    void cargarCarrito();
-                  }}
-                />
-              ))}
+              {productos.length === 0 ? (
+                <div className="col-span-full text-center text-gray-600 py-12">
+                  No encontramos productos que coincidan con tu búsqueda.
+                </div>
+              ) : (
+                productos.map((producto) => (
+                  <ProductoCard
+                    key={producto.id}
+                    producto={producto}
+                    autenticado={autenticado}
+                    cantidadEnCarrito={carrito?.items.find((item) => item.producto_id === producto.id)?.cantidad ?? 0}
+                    onAgregado={() => {
+                      mostrarMensaje('Producto agregado al carrito');
+                      void cargarCarrito();
+                    }}
+                  />
+                ))
+              )}
             </div>
           </section>
 
           <aside className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
+            <div className="card-surface p-6 sticky top-6">
               <h2 className="text-xl font-semibold mb-4">Tu carrito</h2>
 
               {!autenticado ? (
@@ -280,7 +382,7 @@ export default function Home() {
                   <p className="mb-4">Inicia sesión para agregar productos y ver tu carrito.</p>
                   <button
                     onClick={() => router.push('/auth')}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    className="btn-primary w-full justify-center"
                   >
                     Iniciar sesión
                   </button>
@@ -372,7 +474,7 @@ export default function Home() {
 
                   <button
                     onClick={() => router.push('/carrito')}
-                    className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 mt-4"
+                    className="btn-primary w-full mt-4"
                   >
                     Finalizar compra
                   </button>
