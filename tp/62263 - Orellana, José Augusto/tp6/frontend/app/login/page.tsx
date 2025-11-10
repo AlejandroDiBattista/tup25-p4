@@ -37,15 +37,14 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        const message = data?.detail ?? 'No se pudo iniciar sesión. Intenta nuevamente.';
-        throw new Error(message);
+        setError('Credenciales inválidas.');
+        return;
       }
 
       router.push('/');
       router.refresh();
-    } catch (submissionError) {
-      setError(submissionError instanceof Error ? submissionError.message : 'Ocurrió un error inesperado.');
+    } catch {
+      setError('Credenciales inválidas.');
     } finally {
       setIsSubmitting(false);
     }
