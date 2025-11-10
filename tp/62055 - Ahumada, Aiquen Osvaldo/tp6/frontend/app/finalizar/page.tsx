@@ -56,13 +56,21 @@ export default function FinalizarCompraPage() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    let nextValue = value;
+    if (name === 'tarjeta') {
+      nextValue = value.replace(/\D/g, '').slice(0, 16);
+    }
+    setForm(prev => ({ ...prev, [name]: nextValue }));
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!form.direccion.trim() || !form.tarjeta.trim()) {
       setError('Completa todos los datos para el envío.');
+      return;
+    }
+    if (form.tarjeta.length !== 16) {
+      setError('La tarjeta debe tener exactamente 16 dígitos.');
       return;
     }
     setLoading(true);
@@ -172,9 +180,12 @@ export default function FinalizarCompraPage() {
                   name="tarjeta"
                   type="text"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 text-gray-900"
-                  placeholder="XXXX XXXX XXXX XXXX"
+                  placeholder="XXXXXXXXXXXXXXXX"
                   value={form.tarjeta}
                   onChange={handleChange}
+                  inputMode="numeric"
+                  pattern="\d{16}"
+                  maxLength={16}
                   required
                 />
               </div>
