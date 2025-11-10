@@ -53,15 +53,42 @@ def registrar_usuario(nombre: str, email: str, password: str):
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
+
 def cargar_productos():
     ruta_productos = Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
+# Endpoint: Listar productos con filtros
 @app.get("/productos")
-def obtener_productos():
+def obtener_productos(categoria: str = None, q: str = None):
     productos = cargar_productos()
+    # Filtrar por categoría si se especifica
+    if categoria:
+        productos = [p for p in productos if p.get("categoria", "").lower() == categoria.lower()]
+    # Filtrar por búsqueda si se especifica
+    if q:
+        productos = [p for p in productos if q.lower() in p.get("titulo", "").lower() or q.lower() in p.get("descripcion", "").lower()]
+    # Marcar productos agotados
+    for p in productos:
+        if p.get("existencia", 0) <= 0:
+            p["agotado"] = True
+        else:
+            p["agotado"] = False
     return productos
+
+# Endpoint: Detalle de producto
+@app.get("/productos/{id}")
+def obtener_producto(id: int):
+    productos = cargar_productos()
+    for p in productos:
+        if p.get("id") == id:
+            if p.get("existencia", 0) <= 0:
+                p["agotado"] = True
+            else:
+                p["agotado"] = False
+            return p
+    raise HTTPException(status_code=404, detail="Producto no encontrado")
 
 if __name__ == "__main__":
     import uvicorn
