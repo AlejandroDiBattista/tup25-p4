@@ -1,11 +1,12 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from typing import List
 
 from database import get_session
-from models import Producto, ProductoResponse
+from models import Producto, ProductoResponse, UsuarioCreate, UsuarioResponse
+from auth import crear_usuario, convertir_a_usuario_response
 
 app = FastAPI(
     title="TP6 Shop API",
@@ -28,12 +29,15 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {
-        "mensaje": "TP6 Shop API",
+        "mensaje": "TP6 Shop API - Tienda de Comercio Electrónico",
         "version": "1.0.0",
         "endpoints": {
             "productos": "/productos",
+            "registro": "/registrar",
+            "usuarios": "/usuarios",
             "documentacion": "/docs"
-        }
+        },
+        "estado": "Registro de usuarios implementado"
     }
 
 @app.get("/productos", response_model=List[ProductoResponse])
@@ -65,6 +69,30 @@ def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
     producto_dict = producto.model_dump()
     producto_dict["disponible"] = producto.disponible
     return ProductoResponse(**producto_dict)
+
+# === ENDPOINTS DE USUARIOS ===
+
+@app.post("/registrar", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
+def registrar_usuario(usuario_data: UsuarioCreate, session: Session = Depends(get_session)):
+    """Registrar un nuevo usuario"""
+    try:
+        usuario = crear_usuario(session, usuario_data)
+        return convertir_a_usuario_response(usuario)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno del servidor: {str(e)}"
+        )
+
+@app.get("/usuarios", response_model=List[UsuarioResponse])
+def listar_usuarios(session: Session = Depends(get_session)):
+    """Listar todos los usuarios registrados (para testing)"""
+    from models import Usuario
+    statement = select(Usuario)
+    usuarios = session.exec(statement).all()
+    return [convertir_a_usuario_response(u) for u in usuarios]
 
 if __name__ == "__main__":
     import uvicorn
