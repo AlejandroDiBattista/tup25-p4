@@ -55,11 +55,13 @@ def cargar_datos_iniciales():
                 for item in datos:
                     producto_nuevo = Producto(
                         id=item.get("id"),
-                        nombre=item["titulo"],
+                        titulo=item["titulo"],
                         descripcion=item["descripcion"],
                         precio=item["precio"],
                         categoria=item["categoria"],
-                        existencia=item["existencia"]
+                        existencia=item["existencia"],
+                        imagen=item.get("imagen", ""),
+                        valoracion=item.get("valoracion", 0.0)
                     )
                     session.add(producto_nuevo)
                 session.commit()
@@ -148,7 +150,7 @@ def obtener_productos(
     if buscar:
         search_term = f"%{unidecode(buscar)}%"
         query = query.where(
-            (func.unaccent(Producto.nombre).ilike(search_term)) |
+            (func.unaccent(Producto.titulo).ilike(search_term)) |
             (func.unaccent(Producto.descripcion).ilike(search_term))
         )
 
