@@ -157,9 +157,42 @@
 
 ---
 
-### **COMMIT 4: Implementar endpoints de productos con filtros**
+### **✅ COMMIT 4: Implementar endpoints de productos con filtros - COMPLETADO**
+**Archivos modificados:**
+- ✅ `backend/main.py` → Endpoints de productos actualizados
+- ✅ `backend/pyproject.toml` → Agregada dependencia `requests` para testing
+
+**Endpoints implementados:**
+- ✅ GET /productos?categoria=X&buscar=Y → Filtros opcionales funcionando
+- ✅ GET /productos/{id} → Detalle de producto específico con manejo de 404
+
+**Implementación:**
+- ✅ Filtrado por categoría exacta con SQLModel where()
+- ✅ Búsqueda case-insensitive en título y descripción usando ilike()
+- ✅ Combinación de ambos filtros (categoría + búsqueda)
+- ✅ Manejo de errores 404 para productos inexistentes
+- ✅ Orden correcto de parámetros en función (session primero)
+
+**Reglas cumplidas:**
+- ✅ Filtrado por categoría exacta
+- ✅ Búsqueda por contenido en título/descripción (case-insensitive)
+- ✅ Devolver productos desde BD usando SQLModel queries
+- ✅ Endpoint GET /productos/{id} retorna producto o 404
+
+**Verificación:**
+- ✅ Test 1: GET /productos → 20 productos
+- ✅ Test 2: GET /productos?categoria=Electrónica → 6 productos
+- ✅ Test 3: GET /productos?buscar=mochila → 1 producto
+- ✅ Test 4: GET /productos?categoria=Ropa de hombre&buscar=mochila → 1 producto
+- ✅ Test 5: GET /productos/1 → Status 200 con datos completos
+- ✅ Test 6: GET /productos/9999 → Status 404 (Not Found)
+- ✅ 6/6 tests exitosos
+
+---
+
+### **COMMIT 5: Implementar endpoints del carrito (backend)**
 **Archivos a modificar:**
-- `backend/main.py` → Actualizar endpoints de productos
+- `backend/main.py` → Endpoints del carrito
 
 **Endpoints a modificar/crear:**
 - GET /productos → Agregar filtros opcionales (categoría, búsqueda)
