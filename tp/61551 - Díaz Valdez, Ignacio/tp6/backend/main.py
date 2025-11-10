@@ -123,6 +123,63 @@ def obtener_productos():
         raise HTTPException(status_code=500, detail=f"No se pudieron obtener productos: {e}")
 
 
+@app.get("/productos/{producto_id}")
+def obtener_producto_por_id(producto_id: int):
+    """Detalle individual de producto por id.
+
+    - Busca primero en la base de datos.
+    - Si falla o no existe, hace fallback al JSON de semillas.
+    - Devuelve 404 si no se encuentra en ninguna fuente.
+    """
+    claves = [
+        "id",
+        "titulo",
+        "precio",
+        "descripcion",
+        "categoria",
+        "valoracion",
+        "existencia",
+        "imagen",
+    ]
+    # Intentar en la BD
+    try:
+        with get_session() as session:
+            p = session.exec(select(Producto).where(Producto.id == producto_id)).first()
+            if p:
+                try:
+                    base = p.model_dump(exclude_none=True)  # type: ignore[attr-defined]
+                except AttributeError:
+                    base = p.dict(exclude_none=True)
+                ordenado = OrderedDict()
+                for k in claves:
+                    if k in base:
+                        ordenado[k] = base[k]
+                for k, v in base.items():
+                    if k not in ordenado:
+                        ordenado[k] = v
+                return ordenado
+    except Exception:
+        # Ignorar y probar con JSON
+        pass
+
+    # Fallback al JSON
+    try:
+        lista = cargar_productos_desde_json()
+        for item in lista:
+            if item.get("id") == producto_id:
+                ordenado = OrderedDict()
+                for k in claves:
+                    if k in item:
+                        ordenado[k] = item[k]
+                for k, v in item.items():
+                    if k not in ordenado:
+                        ordenado[k] = v
+                return ordenado
+    except Exception:
+        pass
+
+    raise HTTPException(status_code=404, detail="Producto no encontrado")
+
 
 @app.post("/registrar", status_code=201)
 def registrar_usuario(payload: UsuarioCreate = Body(...)):
@@ -164,6 +221,16 @@ def iniciar_sesion(form_data: dict = Body(...)):
 @app.get("/me")
 def me(current: Usuario = Depends(get_current_user)):
     return {"id": current.id, "email": current.email, "nombre": current.nombre}
+
+
+@app.post("/cerrar-sesion")
+def cerrar_sesion():
+    """Logout simple sin blacklist del lado servidor.
+
+    Responde 200 para que el frontend elimine el token almacenado.
+    Nota: El token JWT no se invalida en servidor; expira según su "exp".
+    """
+    return {"message": "Sesión cerrada. El token debe eliminarse en el cliente."}
 
 
 if __name__ == "__main__":

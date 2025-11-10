@@ -1,13 +1,13 @@
-import { Producto } from '../types';
-import Image from 'next/image';
+import { Producto } from "@/app/types";
+import Image from "next/image";
 
 interface ProductoCardProps {
   producto: Producto;
 }
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
@@ -37,12 +37,8 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio}
-          </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
+          <span className="text-2xl font-bold text-blue-600">${producto.precio}</span>
+          <span className="text-xs text-gray-500">Stock: {producto.existencia}</span>
         </div>
       </div>
     </div>
