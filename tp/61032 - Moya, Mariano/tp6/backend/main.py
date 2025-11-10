@@ -1,13 +1,120 @@
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
-from models.db_models import Usuario
-from init_db import engine
-import json
-from pathlib import Path
+from models.db_models import Usuario, Carrito, CarritoItem, Producto
+from fastapi import Header
+from typing import Optional
+
+app = FastAPI(title="API Productos")
+
+# Utilidad para obtener usuario desde token
+def get_usuario_id_from_token(token: Optional[str]) -> Optional[int]:
+    if token and token.startswith("fake-token-"):
+        try:
+            return int(token.replace("fake-token-", ""))
+        except:
+            return None
+    return None
+
+# Montar directorio de imágenes como archivos estáticos
+app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+
+# Configurar CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Endpoint: Ver contenido del carrito
+@app.get("/carrito")
+def ver_carrito(Authorization: Optional[str] = Header(None)):
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    with Session(engine) as session:
+        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        if not carrito:
+            return {"productos": []}
+        items = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
+        productos = []
+        for item in items:
+            prod = session.get(Producto, item.producto_id)
+            if prod:
+                productos.append({"id": prod.id, "nombre": prod.nombre, "cantidad": item.cantidad, "precio": prod.precio})
+        return {"productos": productos}
+
+# Modelo para agregar producto al carrito
+class CarritoAdd(BaseModel):
+    producto_id: int
+    cantidad: int
+
+# Endpoint: Agregar producto al carrito
+@app.post("/carrito")
+def agregar_carrito(data: CarritoAdd, Authorization: Optional[str] = Header(None)):
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    with Session(engine) as session:
+        producto = session.get(Producto, data.producto_id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        if producto.existencia < data.cantidad:
+            raise HTTPException(status_code=400, detail="No hay suficiente existencia")
+        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        if not carrito:
+            carrito = Carrito(usuario_id=usuario_id, estado="activo")
+            session.add(carrito)
+            session.commit()
+            session.refresh(carrito)
+        item = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id, CarritoItem.producto_id == data.producto_id)).first()
+        if item:
+            item.cantidad += data.cantidad
+        else:
+            item = CarritoItem(carrito_id=carrito.id, producto_id=data.producto_id, cantidad=data.cantidad)
+            session.add(item)
+        session.commit()
+        return {"mensaje": "Producto agregado al carrito"}
+
+# Endpoint: Quitar producto del carrito
+@app.delete("/carrito/{product_id}")
+def quitar_carrito(product_id: int, Authorization: Optional[str] = Header(None)):
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    with Session(engine) as session:
+        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        if not carrito:
+            raise HTTPException(status_code=404, detail="Carrito no encontrado")
+        item = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id, CarritoItem.producto_id == product_id)).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Producto no está en el carrito")
+        session.delete(item)
+        session.commit()
+        return {"mensaje": "Producto quitado del carrito"}
+
+# Endpoint: Cancelar compra (vaciar carrito)
+@app.post("/carrito/cancelar")
+def cancelar_carrito(Authorization: Optional[str] = Header(None)):
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    with Session(engine) as session:
+        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        if not carrito:
+            return {"mensaje": "No hay carrito activo"}
+        items = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
+        for item in items:
+            session.delete(item)
+        session.commit()
+        return {"mensaje": "Carrito cancelado y vaciado"}
 import hashlib
 
 app = FastAPI(title="API Productos")
