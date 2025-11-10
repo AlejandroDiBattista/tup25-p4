@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDown, Minus, Plus, Search } from 'lucide-react';
 import ProductoCard from './ProductoCard';
 import { Carrito, CarritoItem, Producto, Usuario } from '../types';
-import { ENVIO_FIJO, IVA_TASA } from '../lib/precios';
+import { calcularEnvio, IVA_TASA } from '../lib/precios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const TODAS = 'Todas las categorías';
@@ -79,6 +79,11 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
         return;
       }
 
+      const itemEnCarrito = carritoActual?.items.find((item) => item.producto_id === producto.id);
+      if (itemEnCarrito && itemEnCarrito.cantidad >= producto.existencia) {
+        return;
+      }
+
       setProductoEnProceso(producto.id);
       try {
         const response = await fetch(`${API_URL}/carrito`, {
@@ -104,12 +109,16 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
         setProductoEnProceso(null);
       }
     },
-    [usuario, refrescarCarrito]
+    [usuario, carritoActual, refrescarCarrito]
   );
 
   const manejarActualizarCantidad = useCallback(
     async (item: CarritoItem, nuevaCantidad: number) => {
       if (!usuario || !carritoActual || nuevaCantidad === item.cantidad) {
+        return;
+      }
+
+      if (nuevaCantidad > item.producto.existencia) {
         return;
       }
 
@@ -197,7 +206,7 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
   }, [carritoActual]);
 
   const iva = subtotal * IVA_TASA;
-  const envio = subtotal > 0 ? ENVIO_FIJO : 0;
+  const envio = calcularEnvio(subtotal);
   const total = subtotal + iva + envio;
 
   const manejarContinuarCompra = useCallback(() => {
@@ -254,7 +263,11 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
                       type="button"
                       className="flex size-8 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition hover:border-slate-300 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
                       onClick={() => manejarActualizarCantidad(item, item.cantidad + 1)}
-                      disabled={productoEnProceso === item.producto_id || accionGlobal}
+                      disabled={
+                        productoEnProceso === item.producto_id ||
+                        accionGlobal ||
+                        item.cantidad >= item.producto.existencia
+                      }
                     >
                       <Plus className="size-4" />
                     </button>
@@ -355,14 +368,23 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
               No se encontraron productos que coincidan con la búsqueda.
             </div>
           ) : (
-            productosFiltrados.map((producto) => (
-              <ProductoCard
-                key={producto.id}
-                producto={producto}
-                onAgregar={usuario ? manejarAgregar : undefined}
-                deshabilitarAccion={accionGlobal || productoEnProceso === producto.id}
-              />
-            ))
+            productosFiltrados.map((producto) => {
+              const itemEnCarrito = carritoActual?.items.find((item) => item.producto_id === producto.id);
+              const sinStockDisponible = Boolean(
+                itemEnCarrito && itemEnCarrito.cantidad >= producto.existencia
+              );
+
+              return (
+                <ProductoCard
+                  key={producto.id}
+                  producto={producto}
+                  onAgregar={usuario ? manejarAgregar : undefined}
+                  deshabilitarAccion={
+                    accionGlobal || productoEnProceso === producto.id || sinStockDisponible
+                  }
+                />
+              );
+            })
           )}
         </div>
 

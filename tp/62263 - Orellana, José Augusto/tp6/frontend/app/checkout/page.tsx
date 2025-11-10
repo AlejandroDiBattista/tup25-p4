@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { obtenerCarrito, obtenerPerfil } from '../services/usuarios';
-import { ENVIO_FIJO, IVA_TASA } from '../lib/precios';
+import { calcularEnvio, IVA_TASA } from '../lib/precios';
 import { formatCurrency } from '../lib/format';
 import CheckoutForm from '@/app/checkout/CheckoutForm';
 
@@ -27,7 +27,7 @@ export default async function CheckoutPage() {
 
   const subtotal = carrito.items.reduce((acum, item) => acum + item.producto.precio * item.cantidad, 0);
   const iva = subtotal * IVA_TASA;
-  const envio = ENVIO_FIJO;
+  const envio = calcularEnvio(subtotal);
   const total = subtotal + iva + envio;
 
   return (

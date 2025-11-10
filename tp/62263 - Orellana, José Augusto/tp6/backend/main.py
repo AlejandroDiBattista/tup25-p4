@@ -347,6 +347,13 @@ def agregar_al_carrito(
 
     # 
     if item_existente:
+        # Si ya está, validar que la suma no supere el stock disponible
+        if item_existente.cantidad + datos_item.cantidad > producto.existencia:
+            raise HTTPException(
+                status_code=400,
+                detail="Stock insuficiente."
+            )
+
         # Si ya está, actualizar la cantidad
         item_existente.cantidad += datos_item.cantidad
         session.add(item_existente)
@@ -436,7 +443,7 @@ def finalizar_compra(
 
     # Se calcula envío y total final
     costo_envio = 0
-    if subtotal <= 1000:
+    if 0 < subtotal < 1000:
         costo_envio = 50.0
 
     total_final = subtotal + total_iva + costo_envio

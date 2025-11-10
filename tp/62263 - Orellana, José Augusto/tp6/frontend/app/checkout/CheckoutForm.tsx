@@ -16,15 +16,15 @@ export default function CheckoutForm() {
     event.preventDefault();
 
     const direccionLimpia = direccion.trim();
-    const tarjetaLimpia = tarjeta.trim();
+  const tarjetaLimpia = tarjeta.replace(/\s+/g, '');
 
     if (!direccionLimpia) {
       setError('La dirección es obligatoria.');
       return;
     }
 
-    if (tarjetaLimpia.length !== 4) {
-      setError('Ingresa los últimos 4 dígitos de la tarjeta.');
+    if (tarjetaLimpia.length !== 16) {
+      setError('Ingresa los 16 dígitos de la tarjeta.');
       return;
     }
 
@@ -40,7 +40,7 @@ export default function CheckoutForm() {
         credentials: 'include',
         body: JSON.stringify({
           direccion: direccionLimpia,
-          tarjeta: tarjetaLimpia,
+          tarjeta: tarjetaLimpia.slice(-4),
         }),
       });
 
@@ -89,16 +89,16 @@ export default function CheckoutForm() {
           inputMode="numeric"
           autoComplete="cc-number"
           required
-          value={tarjeta}
+          value={tarjeta.replace(/(\d{4})(?=\d)/g, '$1 ').trim()}
           onChange={(event) => {
-            const soloDigitos = event.target.value.replace(/\D/g, '');
-            setTarjeta(soloDigitos.slice(-4));
+            const soloDigitos = event.target.value.replace(/\D/g, '').slice(0, 16);
+            setTarjeta(soloDigitos);
           }}
-          placeholder="1234"
-          maxLength={4}
+          placeholder="0000 0000 0000 0000"
+          maxLength={19}
           className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-200"
         />
-        <p className="text-xs text-slate-400">Ingresa los últimos 4 dígitos.</p>
+        <p className="text-xs text-slate-400">Ingresa los 16 dígitos de la tarjeta.</p>
       </div>
 
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
