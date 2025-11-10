@@ -2,14 +2,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { obtenerCarrito, obtenerPerfil } from '../services/usuarios';
 import { ENVIO_FIJO, IVA_TASA } from '../lib/precios';
-
-function formatCurrency(value: number) {
-  return value.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  });
-}
+import { formatCurrency } from '../lib/format';
+import CheckoutForm from '@/app/checkout/CheckoutForm';
 
 export default async function CheckoutPage() {
   const cookieStore = await cookies();
@@ -92,44 +86,7 @@ export default async function CheckoutPage() {
 
         <div className="h-fit rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-900">Datos de envío</h2>
-          <form className="mt-6 space-y-4">
-            <div className="space-y-1">
-              <label htmlFor="direccion" className="text-sm font-medium text-slate-600">
-                Dirección
-              </label>
-              <input
-                id="direccion"
-                name="direccion"
-                type="text"
-                required
-                placeholder="Calle 123, Ciudad"
-                className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-200"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label htmlFor="tarjeta" className="text-sm font-medium text-slate-600">
-                Tarjeta
-              </label>
-              <input
-                id="tarjeta"
-                name="tarjeta"
-                type="text"
-                inputMode="numeric"
-                autoComplete="cc-number"
-                required
-                placeholder="0000 0000 0000 0000"
-                className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-200"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="h-11 w-full rounded-lg bg-slate-900 text-sm font-semibold text-white transition hover:bg-slate-900/90"
-            >
-              Confirmar compra
-            </button>
-          </form>
+          <CheckoutForm />
         </div>
       </div>
     </section>
