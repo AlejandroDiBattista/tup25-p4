@@ -1,22 +1,19 @@
+"use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Header() {
   const [error, setError] = useState<string | null>(null);
   const [usuario, setUsuario] = useState<{ nombre?: string; email?: string } | null>(null);
-  const [cartCount, setCartCount] = useState<number>(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const u = localStorage.getItem("user");
     setUsuario(u ? JSON.parse(u) : null);
-    const readCount = () => {
-      const raw = localStorage.getItem("carrito");
-      const list: { id: number; cantidad: number }[] = raw ? JSON.parse(raw) : [];
-      setCartCount(list.reduce((acc, it) => acc + (it?.cantidad || 0), 0));
+    const handler = () => {
+      const u2 = localStorage.getItem("user");
+      setUsuario(u2 ? JSON.parse(u2) : null);
     };
-    readCount();
-    const handler = () => readCount();
     window.addEventListener("storage", handler);
     window.addEventListener("carrito:changed", handler as EventListener);
     return () => {
@@ -37,9 +34,28 @@ export default function Header() {
               <span className="text-gray-900 font-medium">{usuario.nombre || usuario.email}</span>
               <button
                 className="bg-gray-900 text-white px-3 py-1 rounded hover:bg-black"
-                onClick={() => {
+                onClick={async () => {
+                  const token = localStorage.getItem("token");
+                  try {
+                    if (token) {
+                      await fetch("http://localhost:8000/carrito/cancelar", {
+                        method: "POST",
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      await fetch("http://localhost:8000/cerrar-sesion", {
+                        method: "POST",
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                    }
+                  } catch (e) {
+                    // ignorar errores de red al cerrar sesión
+                  }
                   localStorage.removeItem("token");
                   localStorage.removeItem("user");
+                  localStorage.removeItem("carrito");
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event("carrito:changed"));
+                  }
                   location.reload();
                 }}
               >
