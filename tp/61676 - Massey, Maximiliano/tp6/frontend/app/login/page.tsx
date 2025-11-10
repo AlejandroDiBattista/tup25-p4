@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react'
 import useAuthStore from '../store/auth'
+import useCartStore from '../store/cart'
 import { useRouter } from 'next/navigation'
 import { API_URL } from '../config'
 import Link from 'next/link'
@@ -11,6 +12,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const setAuth = useAuthStore(state => state.setAuth)
+    const syncWithBackend = useCartStore(state => state.syncWithBackend)
     const router = useRouter()
 
     const handleSubmit = async (e: FormEvent) => {
@@ -38,6 +40,9 @@ export default function LoginPage() {
             
             // Mostrar mensaje de éxito
             console.log('✅ Login exitoso:', data.user.nombre)
+            
+            // Sincronizar carrito con backend después del login
+            await syncWithBackend()
             
             router.push('/')
         } catch (err: any) {

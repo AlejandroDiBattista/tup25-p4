@@ -5,7 +5,7 @@ import { obtenerProductos, Producto } from './services/productos';
 import ProductoCard from './components/ProductoCard';
 import CartSidebar from './components/CartSidebar';
 import SearchFilters from './components/SearchFilters';
-import useAuthStore, { loadAuthFromStorage } from './store/auth';
+import useAuthStore from './store/auth';
 import useCartStore from './store/cart';
 import Link from 'next/link';
 
@@ -19,9 +19,6 @@ export default function Home() {
   const { itemCount } = useCartStore();
 
   useEffect(() => {
-    // Cargar sesión desde localStorage
-    loadAuthFromStorage();
-    
     const cargarProductos = async () => {
       try {
         const data = await obtenerProductos();
@@ -35,6 +32,14 @@ export default function Home() {
 
     cargarProductos();
   }, []);
+
+  useEffect(() => {
+    // Sincronizar carrito con backend cuando hay usuario
+    if (user) {
+      const { syncWithBackend } = useCartStore.getState();
+      syncWithBackend();
+    }
+  }, [user]);
 
   // Obtener categorías únicas
   const categories = useMemo(() => {

@@ -13,11 +13,20 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
   const { addItem } = useCartStore();
   const [added, setAdded] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleAddToCart = () => {
-    addItem(producto, 1);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  const handleAddToCart = async () => {
+    setLoading(true);
+    try {
+      await addItem(producto, 1);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (error) {
+      console.error('Error al agregar al carrito:', error);
+      alert('Error al agregar al carrito. Por favor, inicia sesión primero.');
+    } finally {
+      setLoading(false);
+    }
   };
   
   return (
@@ -63,16 +72,24 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
         {/* Botón Agregar al Carrito */}
         <button
           onClick={handleAddToCart}
-          disabled={producto.existencia === 0}
+          disabled={producto.existencia === 0 || loading}
           className={`w-full py-2 rounded-lg font-semibold transition-colors ${
             producto.existencia === 0
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : loading
+              ? 'bg-gray-400 text-white cursor-wait'
               : added
               ? 'bg-green-600 text-white'
               : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
         >
-          {producto.existencia === 0 ? '❌ Agotado' : added ? '✓ Agregado!' : '🛒 Agregar al Carrito'}
+          {producto.existencia === 0 
+            ? '❌ Agotado' 
+            : loading 
+            ? '⏳ Agregando...'
+            : added 
+            ? '✓ Agregado!' 
+            : '🛒 Agregar al Carrito'}
         </button>
       </div>
     </div>

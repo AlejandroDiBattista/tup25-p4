@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -13,6 +13,7 @@ import bcrypt
 from models.usuarios import Usuario
 from models.carrito import ItemCarrito
 from models.compras import Compra, CompraItem
+from models.productos import Producto
 
 # Esquemas Pydantic
 class UsuarioRegistro(BaseModel):
@@ -23,6 +24,9 @@ class UsuarioRegistro(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class AgregarCarritoRequest(BaseModel):
+    cantidad: int = 1
 
 # Configuración de la base de datos
 DATABASE_URL = "sqlite:///./tienda.db"
@@ -181,10 +185,38 @@ async def obtener_usuario_actual(current_user: Usuario = Depends(get_current_use
 @app.get("/carrito")
 async def obtener_carrito(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
     items = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)).all()
-    return {"items": [{"id": i.id, "producto_id": i.producto_id, "cantidad": i.cantidad} for i in items]}
+    
+    # Cargar información completa de productos
+    productos = cargar_productos()
+    resultado = []
+    
+    for item in items:
+        producto_data = next((p for p in productos if p["id"] == item.producto_id), None)
+        if producto_data:
+            resultado.append({
+                "id": item.producto_id,
+                "producto_id": item.producto_id,
+                "cantidad": item.cantidad,
+                "nombre": producto_data.get("nombre") or producto_data.get("titulo"),
+                "titulo": producto_data.get("titulo") or producto_data.get("nombre"),
+                "precio": producto_data["precio"],
+                "imagen": producto_data["imagen"],
+                "categoria": producto_data.get("categoria", "general"),
+                "descripcion": producto_data.get("descripcion", ""),
+                "existencia": producto_data.get("existencia", 0),
+                "valoracion": producto_data.get("valoracion", 0)
+            })
+    
+    return resultado
 
 @app.post("/carrito/agregar/{producto_id}")
-async def agregar_al_carrito(producto_id: int, cantidad: int, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+async def agregar_al_carrito(
+    producto_id: int, 
+    request: AgregarCarritoRequest,
+    current_user: Usuario = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    cantidad = request.cantidad
     # Verificar producto
     productos = cargar_productos()
     producto = next((p for p in productos if p["id"] == producto_id), None)
@@ -217,10 +249,91 @@ async def quitar_del_carrito(producto_id: int, current_user: Usuario = Depends(g
     db.commit()
     return {"mensaje": "Producto eliminado"}
 
+@app.post("/carrito/finalizar")
+async def finalizar_compra(
+    direccion: str = Form(...),
+    tarjeta: str = Form(...),
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Obtener items del carrito
+    items_carrito = db.exec(
+        select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)
+    ).all()
+    
+    if not items_carrito:
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
+    
+    # Calcular totales
+    subtotal = 0
+    for item in items_carrito:
+        producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
+        if producto:
+            subtotal += producto.precio * item.cantidad
+    
+    # Calcular IVA (21% general, 10% electrónica)
+    iva = 0
+    for item in items_carrito:
+        producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
+        if producto:
+            precio_item = producto.precio * item.cantidad
+            if producto.categoria == "electronics":
+                iva += precio_item * 0.10
+            else:
+                iva += precio_item * 0.21
+    
+    # Calcular envío
+    envio = 50 if subtotal < 1000 else 0
+    
+    # Total
+    total = subtotal + iva + envio
+    
+    # Guardar solo los últimos 4 dígitos de la tarjeta
+    tarjeta_ultimos_4 = tarjeta[-4:] if len(tarjeta) >= 4 else tarjeta
+    
+    # Crear la compra
+    compra = Compra(
+        usuario_id=current_user.id,
+        direccion=direccion,
+        tarjeta=tarjeta_ultimos_4,
+        total=total,
+        envio=envio
+    )
+    db.add(compra)
+    db.commit()
+    db.refresh(compra)
+    
+    # Crear los items de la compra
+    for item in items_carrito:
+        producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
+        if producto:
+            compra_item = CompraItem(
+                compra_id=compra.id,
+                producto_id=item.producto_id,
+                cantidad=item.cantidad,
+                precio_unitario=producto.precio,
+                nombre=producto.titulo or producto.nombre or "Producto"
+            )
+            db.add(compra_item)
+    
+    # Vaciar el carrito
+    for item in items_carrito:
+        db.delete(item)
+    
+    db.commit()
+    
+    return {
+        "id": compra.id,
+        "total": compra.total,
+        "direccion": compra.direccion,
+        "fecha": compra.fecha,
+        "mensaje": "Compra realizada exitosamente"
+    }
+
 @app.get("/compras")
 async def obtener_compras(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
     compras = db.exec(select(Compra).where(Compra.usuario_id == current_user.id)).all()
-    return [{"id": c.id, "total": c.total, "fecha": c.fecha_creacion, "direccion": c.direccion} for c in compras]
+    return [{"id": c.id, "total": c.total, "fecha": c.fecha, "direccion": c.direccion} for c in compras]
 
 if __name__ == "__main__":
     import uvicorn

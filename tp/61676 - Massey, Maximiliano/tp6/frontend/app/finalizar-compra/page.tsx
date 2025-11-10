@@ -59,12 +59,13 @@ export default function FinalizarCompra() {
       formData.append('direccion', direccion);
       formData.append('tarjeta', tarjeta.replace(/\s/g, ''));
 
-      const response = await fetch(`${API_URL}/carrito/finalizar?${formData.toString()}`, {
+      const response = await fetch(`${API_URL}/carrito/finalizar`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/x-www-form-urlencoded'
         },
+        body: formData.toString(),
       });
 
       if (!response.ok) {
