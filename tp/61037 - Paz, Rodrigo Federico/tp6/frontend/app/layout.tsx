@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
 <html lang="es">
-      <body className="bg-gray-50">
+      <body className="bg-white">
         <Navbar />
         <CarritoProvider>
           {children}

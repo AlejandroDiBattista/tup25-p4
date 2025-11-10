@@ -51,12 +51,9 @@ export default function Navbar() {
       Ingresar
     </Link>
 
-    <Link
-      href="/registrar"
-      className="bg-neutral-900 hover:bg-neutral-800 text-white px-4 py-1.5 rounded-md transition"
-    >
-      Crear cuenta
-    </Link>
+<Link href="/crear-cuenta" className="text-gray-700 hover:text-blue-600">
+  Crear cuenta
+</Link>
   </>
 )}
         </div>

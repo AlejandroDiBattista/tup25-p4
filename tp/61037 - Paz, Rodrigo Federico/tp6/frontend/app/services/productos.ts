@@ -1,42 +1,62 @@
-import { Producto } from '../types';
+import { Producto } from "../types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export async function obtenerProductos(): Promise<Producto[]> {
-  const response = await fetch(`${API_URL}/productos`, {
-    cache: 'no-store'
-  });
-  
-  if (!response.ok) {
-    throw new Error('Error al obtener productos');
-  }
-  
-  return response.json();
+  const res = await fetch(`${API_URL}/productos`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al obtener productos");
+  return res.json();
 }
 
 export async function agregarAlCarrito(usuario_id: number, producto_id: number) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-  const response = await fetch(`${API_URL}/carrito?usuario_id=${usuario_id}&producto_id=${producto_id}`, {
-    method: "POST"
+  const res = await fetch(`${API_URL}/carrito?usuario_id=${usuario_id}&producto_id=${producto_id}`, {
+    method: "POST",
   });
-
-  if (!response.ok) {
-    throw new Error("No se pudo agregar al carrito");
-  }
-
-  return response.json();
+  if (!res.ok) throw new Error("No se pudo agregar al carrito");
+  return res.json();
 }
 
 export async function obtenerCarrito(usuario_id: number) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const res = await fetch(`${API_URL}/carrito?usuario_id=${usuario_id}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("No se pudo obtener el carrito");
+  const data = await res.json();
+  return data.items || [];
+}
 
-  const response = await fetch(`${API_URL}/carrito?usuario_id=${usuario_id}`);
+export async function quitarDelCarrito(usuario_id: number, producto_id: number) {
+  const res = await fetch(`${API_URL}/carrito/${producto_id}?usuario_id=${usuario_id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("No se pudo quitar el producto");
+  return res.json();
+}
 
-  if (!response.ok) {
-    throw new Error("No se pudo obtener el carrito");
+export async function cancelarCarrito(usuario_id: number) {
+  const res = await fetch(`${API_URL}/carrito/cancelar?usuario_id=${usuario_id}`, { method: "POST" });
+  if (!res.ok) throw new Error("No se pudo cancelar el carrito");
+  return res.json();
+}
+
+export async function finalizarCompra(usuario_id: number, direccion: string, tarjeta: string) {
+  const params = new URLSearchParams({ usuario_id: String(usuario_id), direccion, tarjeta });
+  const res = await fetch(`${API_URL}/carrito/finalizar?${params.toString()}`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "No se pudo finalizar la compra");
   }
+  return res.json();
+}
 
-  const data = await response.json();
-  return data.items; 
+export async function obtenerCompras(usuario_id: number) {
+  const res = await fetch(`${API_URL}/compras?usuario_id=${usuario_id}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("No se pudo obtener el historial de compras");
+  return res.json();
+}
+
+export async function obtenerProducto(id: number) {
+  const res = await fetch(`${API_URL}/productos/${id}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Producto no encontrado");
+  return res.json();
 }
