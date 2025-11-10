@@ -1,27 +1,71 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Producto } from "../types";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 
 export default function CartSidebar() {
-  const [items, setItems] = useState<{ id: number; cantidad: number }[]>([]);
+  const [items, setItems] = useState<{ id: number; cantidad: number }[]>(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(localStorage.getItem("carrito") || "[]");
+    }
+    return [];
+  });
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [token, setToken] = useState<string | null>(() => (typeof window !== "undefined" ? localStorage.getItem("token") : null));
+  interface ApiCartItem { id: number; cantidad: number; nombre?: string; precio?: number }
+
+  const updateLocal = (list: { id: number; cantidad: number }[], emit: boolean = true) => {
+    localStorage.setItem("carrito", JSON.stringify(list));
+    setItems(list);
+    if (emit) window.dispatchEvent(new Event("carrito:changed"));
+  };
+
+  const fetchCart = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch("http://localhost:8000/carrito", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const fromApi: { id: number; cantidad: number }[] = (data.productos || []).map((p: ApiCartItem) => ({ id: p.id, cantidad: p.cantidad }));
+      updateLocal(fromApi, false);
+    } catch {}
+  }, [token]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const carrito = JSON.parse(localStorage.getItem("carrito") || "[]");
-    setItems(carrito);
+    const t = localStorage.getItem("token");
     fetch("http://localhost:8000/productos").then(r=>r.json()).then(setProductos);
-    const handler = () => setItems(JSON.parse(localStorage.getItem("carrito") || "[]"));
+    // Si hay token al cargar, sincronizo desde servidor una vez
+    (async () => {
+      if (t) {
+        try {
+          const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${t}` } });
+          if (res.ok) {
+            const data = await res.json();
+            const fromApi: { id: number; cantidad: number }[] = (data.productos || []).map((p: ApiCartItem) => ({ id: p.id, cantidad: p.cantidad }));
+            updateLocal(fromApi, false);
+          }
+        } catch {}
+      }
+    })();
+    const handler = async () => {
+      const ls = JSON.parse(localStorage.getItem("carrito") || "[]");
+      setItems(ls);
+      const tok = localStorage.getItem("token");
+      setToken(tok);
+      await fetchCart();
+    };
     window.addEventListener("storage", handler);
     window.addEventListener("carrito:changed", handler as EventListener);
     return () => {
       window.removeEventListener("storage", handler);
       window.removeEventListener("carrito:changed", handler as EventListener);
     };
-  }, []);
+  }, [fetchCart]);
 
   const enriched = items.map(it => {
     const p = productos.find(pr => pr.id === it.id);
@@ -37,35 +81,62 @@ export default function CartSidebar() {
   const envio = subtotal > 50000 ? 0 : 1000;
   const total = +(subtotal + iva + envio).toFixed(2);
 
-  const updateLocal = (list: { id: number; cantidad: number }[]) => {
-    localStorage.setItem("carrito", JSON.stringify(list));
-    setItems(list);
-    window.dispatchEvent(new Event("carrito:changed"));
-  };
+  
 
-  const inc = (id: number) => {
+  const inc = async (id: number) => {
     const next = items.map(i => ({ ...i }));
     const it = next.find(i => i.id === id);
     const p = productos.find(pr => pr.id === id);
     if (!it || !p) return;
     if (it.cantidad < p.existencia) {
-      it.cantidad += 1;
-      updateLocal(next);
+      if (token) {
+        await fetch("http://localhost:8000/carrito", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ producto_id: id, cantidad: 1 }),
+        });
+        await fetchCart();
+      } else {
+        it.cantidad += 1;
+        updateLocal(next);
+      }
     }
   };
-  const dec = (id: number) => {
+  const dec = async (id: number) => {
     let next = items.map(i => ({ ...i }));
     const it = next.find(i => i.id === id);
     if (!it) return;
-    if (it.cantidad > 1) {
-      it.cantidad -= 1;
-      updateLocal(next);
+    if (token) {
+      if (it.cantidad > 1) {
+        // Reemplazo: DELETE y luego POST con cantidad-1
+        await fetch(`http://localhost:8000/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+        await fetch("http://localhost:8000/carrito", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ producto_id: id, cantidad: it.cantidad - 1 }),
+        });
+      } else {
+        await fetch(`http://localhost:8000/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      }
+      await fetchCart();
     } else {
-      next = next.filter(i => i.id !== id);
-      updateLocal(next);
+      if (it.cantidad > 1) {
+        it.cantidad -= 1;
+        updateLocal(next);
+      } else {
+        next = next.filter(i => i.id !== id);
+        updateLocal(next);
+      }
     }
   };
-  const clear = () => updateLocal([]);
+  const clear = async () => {
+    if (token) {
+      await fetch("http://localhost:8000/carrito/cancelar", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+      await fetchCart();
+    } else {
+      updateLocal([]);
+    }
+  };
 
   return (
     <Card>

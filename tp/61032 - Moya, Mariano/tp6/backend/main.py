@@ -18,6 +18,35 @@ engine = create_engine("sqlite:///database.db")
 SQLModel.metadata.create_all(engine)
 app = FastAPI(title="API Productos")
 
+# Seed inicial de productos desde productos.json si la tabla está vacía
+def seed_productos():
+    from sqlmodel import Session, select
+    try:
+        with Session(engine) as session:
+            existe = session.exec(select(Producto)).first()
+            if existe:
+                return  # Ya hay productos
+            ruta = Path(__file__).parent / "productos.json"
+            if not ruta.exists():
+                return
+            data = json.loads(ruta.read_text(encoding="utf-8"))
+            for p in data:
+                prod = Producto(
+                    id=p.get("id"),
+                    nombre=p.get("titulo", ""),
+                    descripcion=p.get("descripcion", ""),
+                    precio=p.get("precio", 0.0),
+                    categoria=p.get("categoria", ""),
+                    existencia=p.get("existencia", 0),
+                    imagen=p.get("imagen")
+                )
+                session.add(prod)
+            session.commit()
+    except Exception:
+        pass
+
+seed_productos()
+
 # Utilidad para obtener usuario desde token
 def get_usuario_id_from_token(token: Optional[str]) -> Optional[int]:
     if token and token.startswith("fake-token-"):
@@ -134,6 +163,7 @@ def finalizar_compra(data: CompraFinalizar, usuario_id: int = Depends(get_curren
             raise HTTPException(status_code=400, detail="El carrito está vacío")
         total = 0.0
         compra_items = []
+        iva_total = 0.0
         for item in items:
             producto = session.get(Producto, item.producto_id)
             if not producto:
@@ -144,14 +174,17 @@ def finalizar_compra(data: CompraFinalizar, usuario_id: int = Depends(get_curren
             session.add(producto)
             subtotal = producto.precio * item.cantidad
             total += subtotal
+            # IVA 10% si categoria electrónica, 21% resto
+            rate = 0.10 if (producto.categoria or "").lower().startswith("elect") else 0.21
+            iva_total += subtotal * rate
             compra_items.append({
                 "producto_id": producto.id,
                 "cantidad": item.cantidad,
                 "nombre": producto.nombre,
                 "precio_unitario": producto.precio
             })
-        iva = round(total * 0.21, 2)
-        envio = 1200.0 if total < 20000 else 0.0
+        iva = round(iva_total, 2)
+        envio = 0.0 if total > 50000 else 1000.0
         total_final = round(total + iva + envio, 2)
         compra = Compra(
             usuario_id=usuario_id,
@@ -276,6 +309,11 @@ def registrar_usuario(data: UsuarioRegistro):
         session.commit()
         session.refresh(usuario)
         return {"mensaje": "Usuario registrado correctamente."}
+
+    @app.post("/cerrar-sesion")
+    def cerrar_sesion(Authorization: Optional[str] = Header(None)):
+        # Con tokens fake no persistimos estado; respondemos OK para cumplir el contrato.
+        return {"mensaje": "Sesión cerrada"}
 
 @app.get("/")
 def root():
