@@ -9,6 +9,8 @@ from sqlmodel import Session, select
 from models.db_models import Usuario, Carrito, CarritoItem, Producto
 from fastapi import Header
 from typing import Optional
+from pathlib import Path
+import json
 
 app = FastAPI(title="API Productos")
 
@@ -115,6 +117,78 @@ def cancelar_carrito(Authorization: Optional[str] = Header(None)):
             session.delete(item)
         session.commit()
         return {"mensaje": "Carrito cancelado y vaciado"}
+from datetime import datetime
+
+# Modelo para finalizar compra
+class CompraFinalizar(BaseModel):
+    direccion: str
+    tarjeta: str
+
+# Endpoint: Finalizar compra
+@app.post("/carrito/finalizar")
+def finalizar_compra(data: CompraFinalizar, Authorization: Optional[str] = Header(None)):
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    with Session(engine) as session:
+        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        if not carrito:
+            raise HTTPException(status_code=404, detail="No hay carrito activo")
+        items = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
+        if not items:
+            raise HTTPException(status_code=400, detail="El carrito está vacío")
+        total = 0.0
+        compra_items = []
+        for item in items:
+            producto = session.get(Producto, item.producto_id)
+            if not producto:
+                continue
+            if producto.existencia < item.cantidad:
+                raise HTTPException(status_code=400, detail=f"No hay suficiente stock de {producto.nombre}")
+            producto.existencia -= item.cantidad
+            session.add(producto)
+            subtotal = producto.precio * item.cantidad
+            total += subtotal
+            compra_items.append({
+                "producto_id": producto.id,
+                "cantidad": item.cantidad,
+                "nombre": producto.nombre,
+                "precio_unitario": producto.precio
+            })
+        iva = round(total * 0.21, 2)
+        envio = 1200.0 if total < 20000 else 0.0
+        total_final = round(total + iva + envio, 2)
+        compra = Compra(
+            usuario_id=usuario_id,
+            fecha=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            direccion=data.direccion,
+            tarjeta=data.tarjeta,
+            total=total_final,
+            envio=envio
+        )
+        session.add(compra)
+        session.commit()
+        session.refresh(compra)
+        for ci in compra_items:
+            compra_item = CompraItem(
+                compra_id=compra.id,
+                producto_id=ci["producto_id"],
+                cantidad=ci["cantidad"],
+                nombre=ci["nombre"],
+                precio_unitario=ci["precio_unitario"]
+            )
+            session.add(compra_item)
+        # Vaciar carrito
+        for item in items:
+            session.delete(item)
+        session.commit()
+        return {
+            "mensaje": "Compra realizada con éxito",
+            "compra_id": compra.id,
+            "total": total_final,
+            "iva": iva,
+            "envio": envio
+        }
 import hashlib
 
 # Montar directorio de imágenes como archivos estáticos
