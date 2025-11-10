@@ -23,7 +23,7 @@ export default function LogoutButton() {
         throw new Error('No se pudo cerrar sesión.');
       }
 
-      router.push('/');
+  router.push('/login');
       router.refresh();
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
