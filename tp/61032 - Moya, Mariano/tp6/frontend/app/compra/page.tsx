@@ -21,18 +21,50 @@ export default function CompraPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Simulación: cargar productos y carrito desde localStorage
-    const carritoLS = JSON.parse(localStorage.getItem("carrito") || "[]");
-    setCarrito(carritoLS);
+    // Cargar productos
     fetch("http://localhost:8000/productos")
       .then(res => res.json())
       .then(setProductos);
+    // Preferir carrito del backend si hay token; caso contrario usar localStorage
+    const token = localStorage.getItem("token");
+    (async () => {
+      try {
+        if (token) {
+          const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${token}` } });
+          if (res.ok) {
+            const data = await res.json();
+            const list: CarritoProducto[] = (data.productos || []).map((p: any) => ({ id: p.id, cantidad: p.cantidad }));
+            localStorage.setItem("carrito", JSON.stringify(list));
+            setCarrito(list);
+            return;
+          }
+        }
+      } catch {}
+      const carritoLS = JSON.parse(localStorage.getItem("carrito") || "[]");
+      setCarrito(carritoLS);
+    })();
   }, []);
 
-  const handleRemove = (id: number) => {
+  const handleRemove = async (id: number) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        await fetch(`http://localhost:8000/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = await res.json();
+          const list: CarritoProducto[] = (data.productos || []).map((p: any) => ({ id: p.id, cantidad: p.cantidad }));
+          localStorage.setItem("carrito", JSON.stringify(list));
+          if (typeof window !== "undefined") window.dispatchEvent(new Event("carrito:changed"));
+          setCarrito(list);
+          return;
+        }
+      } catch {}
+    }
     const nuevoCarrito = carrito.filter(item => item.id !== id);
     setCarrito(nuevoCarrito);
     localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("carrito:changed"));
   };
 
   const handleFinalizar = async (e: React.FormEvent) => {

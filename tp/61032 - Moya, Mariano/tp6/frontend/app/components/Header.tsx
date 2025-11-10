@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Header() {
-  const [error, setError] = useState<string | null>(null);
   const [usuario, setUsuario] = useState<{ nombre?: string; email?: string } | null>(null);
 
   useEffect(() => {
@@ -70,11 +69,6 @@ export default function Header() {
           )}
         </nav>
       </div>
-      {error && (
-        <div className="bg-red-100 text-red-700 p-2 text-center font-semibold">
-          {error}
-        </div>
-      )}
     </header>
   );
 }

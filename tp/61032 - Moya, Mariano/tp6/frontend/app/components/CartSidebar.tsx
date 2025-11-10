@@ -67,10 +67,19 @@ export default function CartSidebar() {
     };
   }, [fetchCart]);
 
-  const enriched = items.map(it => {
-    const p = productos.find(pr => pr.id === it.id);
-    return p ? { ...p, cantidad: it.cantidad } : null;
-  }).filter(Boolean) as (Producto & { cantidad: number })[];
+  // Merge potential duplicated ids to avoid duplicate keys and inconsistent totals
+  const mergedMap = items.reduce<Map<number, { id: number; cantidad: number }>>((acc, it) => {
+    const prev = acc.get(it.id);
+    acc.set(it.id, { id: it.id, cantidad: (prev?.cantidad || 0) + it.cantidad });
+    return acc;
+  }, new Map());
+  const mergedItems = Array.from(mergedMap.values());
+  const enriched = mergedItems
+    .map((it) => {
+      const p = productos.find((pr) => pr.id === it.id);
+      return p ? { ...p, cantidad: it.cantidad } : null;
+    })
+    .filter(Boolean) as (Producto & { cantidad: number })[];
 
   const subtotal = enriched.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
   const iva = +(enriched.reduce((acc, p) => {
