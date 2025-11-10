@@ -1,8 +1,12 @@
 import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
+import Filtros from './components/Filtros';
 
-export default async function Home() {
-  const productos = await obtenerProductos();
+export default async function Home({ searchParams }: { searchParams?: { buscar?: string; categoria?: string } }) {
+  const productos = await obtenerProductos({
+    buscar: searchParams?.buscar,
+    categoria: searchParams?.categoria,
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -14,6 +18,10 @@ export default async function Home() {
           <p className="text-gray-600 mt-2">
             {productos.length} productos disponibles
           </p>
+          <div className="mt-4">
+            {/* Filtros de búsqueda y categoría */}
+            <Filtros />
+          </div>
         </div>
       </header>
 
