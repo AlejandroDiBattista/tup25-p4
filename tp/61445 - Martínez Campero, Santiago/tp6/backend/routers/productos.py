@@ -11,6 +11,7 @@ router = APIRouter(prefix="/productos", tags=["productos"])
 def listar_productos(
     categoria: Optional[str] = Query(None),
     buscar: Optional[str] = Query(None),
+    ordenar: Optional[str] = Query(None),
 ):
     with Session(engine) as session:
         statement = select(Producto)
@@ -23,6 +24,17 @@ def listar_productos(
                 Producto.nombre.ilike(f"%{buscar}%") | 
                 Producto.descripcion.ilike(f"%{buscar}%")
             )
+        
+        # Aplicar ordenamiento
+        if ordenar == "precio-asc":
+            statement = statement.order_by(Producto.precio.asc())
+        elif ordenar == "precio-desc":
+            statement = statement.order_by(Producto.precio.desc())
+        elif ordenar == "valoracion":
+            statement = statement.order_by(Producto.valoracion.desc())
+        else:
+            # Por defecto, ordenar por nombre
+            statement = statement.order_by(Producto.nombre.asc())
         
         productos = session.exec(statement).all()
         return productos
