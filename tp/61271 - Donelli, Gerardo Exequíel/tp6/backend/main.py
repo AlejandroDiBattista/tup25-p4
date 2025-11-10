@@ -115,18 +115,50 @@ def obtener_usuario_actual(
     return usuario
 
 
+def cargar_productos_iniciales():
+    """
+    Carga los productos desde productos.json a la base de datos.
+    Solo carga si la tabla de productos está vacía.
+    """
+    with Session(engine) as session:
+        # Verificar si ya hay productos en la BD
+        productos_existentes = session.exec(select(Producto)).first()
+        
+        if productos_existentes:
+            print("ℹ️  Los productos ya están cargados en la base de datos")
+            return
+        
+        # Cargar productos desde JSON
+        ruta_productos = Path(__file__).parent / "productos.json"
+        with open(ruta_productos, "r", encoding="utf-8") as archivo:
+            productos_data = json.load(archivo)
+        
+        # Insertar productos en la BD
+        productos_insertados = 0
+        for producto_dict in productos_data:
+            producto = Producto(
+                id=producto_dict["id"],
+                titulo=producto_dict["titulo"],
+                precio=producto_dict["precio"],
+                descripcion=producto_dict["descripcion"],
+                categoria=producto_dict["categoria"],
+                valoracion=producto_dict["valoracion"],
+                existencia=producto_dict["existencia"],
+                imagen=producto_dict["imagen"]
+            )
+            session.add(producto)
+            productos_insertados += 1
+        
+        session.commit()
+        print(f"✅ {productos_insertados} productos cargados desde productos.json a la base de datos")
+
+
 @app.on_event("startup")
 def on_startup():
     """Ejecutar al iniciar la aplicación."""
     crear_tablas()
     print("✅ Base de datos inicializada y tablas creadas")
-
-
-# Cargar productos desde el archivo JSON (temporal, se migrará a BD)
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+    cargar_productos_iniciales()
 
 
 @app.get("/")
@@ -264,9 +296,19 @@ def cerrar_sesion(
 # ==================== ENDPOINTS DE PRODUCTOS ====================
 
 @app.get("/productos")
-def obtener_productos():
-    """Obtener lista de productos (temporal desde JSON)."""
-    productos = cargar_productos()
+def obtener_productos(
+    session: Annotated[Session, Depends(obtener_session)]
+):
+    """
+    Obtener lista de productos desde la base de datos.
+    
+    Args:
+        session: Sesión de base de datos
+        
+    Returns:
+        Lista de productos
+    """
+    productos = session.exec(select(Producto)).all()
     return productos
 
 
