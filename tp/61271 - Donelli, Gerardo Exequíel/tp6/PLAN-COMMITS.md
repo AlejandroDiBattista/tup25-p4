@@ -414,18 +414,73 @@ uv run pytest test_main.py -v
 
 ---
 
-### **COMMIT 9: Implementar autenticación y registro en frontend**
-**Archivos a crear/modificar:**
-- `frontend/app/auth/login/page.tsx` (nuevo) → Pantalla de login
-- `frontend/app/auth/register/page.tsx` (nuevo) → Pantalla de registro
-- `frontend/app/services/auth.ts` (nuevo) → Servicios de autenticación
-- `frontend/app/layout.tsx` → Header con botones login/logout
-- `frontend/app/context/AuthContext.tsx` (nuevo) → Context para estado de autenticación
+### **✅ COMMIT 9: Implementar autenticación y registro en frontend - COMPLETADO**
+**Archivos creados:**
+- ✅ `frontend/app/auth/login/page.tsx` → Página de inicio de sesión
+- ✅ `frontend/app/auth/register/page.tsx` → Página de registro
+- ✅ `frontend/app/services/auth.ts` → Servicios de autenticación
+- ✅ `frontend/app/context/AuthContext.tsx` → Context para estado de autenticación
+- ✅ `frontend/app/components/Header.tsx` → Header con navegación
+- ✅ `frontend/.env.local` → Configuración de API URL
 
-**Reglas a cumplir:**
-- Almacenar token en localStorage o cookies
-- Mostrar estado de usuario (autenticado/no autenticado)
-- Redireccionar después de login exitoso
+**Archivos modificados:**
+- ✅ `frontend/app/layout.tsx` → Integración de AuthProvider y Header
+- ✅ `frontend/app/page.tsx` → Redirección a login si no autenticado
+
+**Funcionalidades implementadas:**
+
+**Autenticación:**
+- ✅ Registro de nuevos usuarios con validación
+- ✅ Inicio de sesión con email y contraseña
+- ✅ Cierre de sesión con llamada al backend
+- ✅ Almacenamiento seguro de token en localStorage
+- ✅ Decodificación de JWT para datos de usuario
+- ✅ Verificación de autenticación en cada carga
+
+**Interfaz de usuario:**
+- ✅ Formulario de registro con validaciones (nombre, email, contraseña min 6 chars)
+- ✅ Formulario de login con manejo de errores
+- ✅ Header responsive con información de usuario
+- ✅ Enlaces entre login y registro
+- ✅ Botón de cerrar sesión visible cuando está autenticado
+- ✅ Mensajes de error claros en formularios
+- ✅ Estados de cargando durante peticiones
+
+**Context de autenticación:**
+- ✅ Hook useAuth() para acceder al estado global
+- ✅ Estado: usuario, token, estaAutenticado, cargando
+- ✅ Funciones: login(), logout()
+- ✅ Persistencia de sesión en localStorage
+- ✅ Carga automática de sesión al iniciar app
+
+**Servicios implementados:**
+- ✅ registrarUsuario() - POST /registrar
+- ✅ iniciarSesion() - POST /iniciar-sesion
+- ✅ cerrarSesion() - POST /cerrar-sesion
+- ✅ guardarToken(), obtenerToken(), eliminarToken()
+- ✅ estaAutenticado(), decodificarToken()
+
+**Reglas cumplidas:**
+- ✅ Token almacenado en localStorage
+- ✅ Estado de usuario visible en header (nombre)
+- ✅ Redirección después de login exitoso (a home)
+- ✅ Redirección a login si no autenticado
+- ✅ Manejo de errores con mensajes claros
+- ✅ Integración completa con backend
+
+**Diseño:**
+- ✅ Estilos con Tailwind CSS
+- ✅ Formularios centrados y responsivos
+- ✅ Header con navegación clara
+- ✅ Botones con estados hover y disabled
+- ✅ Mensajes de error en color rojo
+- ✅ Indicador de carga (spinner)
+
+**Verificación:**
+- ✅ Frontend ejecutándose en http://localhost:3000
+- ✅ Backend ejecutándose en http://localhost:8000
+- ✅ Comunicación frontend-backend funcionando
+- ✅ Flujo completo: registro → login → ver home → logout
 
 ---
 
