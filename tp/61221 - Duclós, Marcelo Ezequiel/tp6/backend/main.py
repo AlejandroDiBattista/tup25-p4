@@ -1,12 +1,20 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlmodel import Session, select
 from typing import List
 
 from database import get_session
-from models import Producto, ProductoResponse, UsuarioCreate, UsuarioResponse
+from models import Producto, ProductoResponse, UsuarioCreate, UsuarioResponse, UsuarioLogin, Usuario
 from auth import crear_usuario, convertir_a_usuario_response
+from jwt_auth import (
+    autenticar_y_crear_token, 
+    obtener_usuario_actual, 
+    invalidar_token, 
+    TokenResponse,
+    security
+)
 
 app = FastAPI(
     title="TP6 Shop API",
@@ -34,10 +42,14 @@ def root():
         "endpoints": {
             "productos": "/productos",
             "registro": "/registrar",
+            "login": "/iniciar-sesion",
+            "logout": "/cerrar-sesion",
+            "perfil": "/perfil",
             "usuarios": "/usuarios",
             "documentacion": "/docs"
         },
-        "estado": "Registro de usuarios implementado"
+        "estado": "Autenticación JWT implementada",
+        "autenticacion": "Bearer Token requerido para endpoints protegidos"
     }
 
 @app.get("/productos", response_model=List[ProductoResponse])
@@ -85,6 +97,44 @@ def registrar_usuario(usuario_data: UsuarioCreate, session: Session = Depends(ge
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error interno del servidor: {str(e)}"
         )
+
+@app.post("/iniciar-sesion")
+def iniciar_sesion(credenciales: UsuarioLogin, session: Session = Depends(get_session)):
+    """Iniciar sesión y obtener token de autenticación"""
+    try:
+        token_response = autenticar_y_crear_token(session, credenciales)
+        return {
+            "access_token": token_response.access_token,
+            "token_type": token_response.token_type,
+            "expires_in": token_response.expires_in,
+            "mensaje": "Sesión iniciada correctamente"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno del servidor: {str(e)}"
+        )
+
+@app.post("/cerrar-sesion")
+def cerrar_sesion(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
+):
+    """Cerrar sesión (invalidar token)"""
+    token = credentials.credentials
+    invalidar_token(token)
+    
+    return {
+        "mensaje": f"Sesión cerrada correctamente para {usuario_actual.nombre}",
+        "usuario": usuario_actual.email
+    }
+
+@app.get("/perfil", response_model=UsuarioResponse)
+def obtener_perfil(usuario_actual: Usuario = Depends(obtener_usuario_actual)):
+    """Obtener información del perfil del usuario autenticado"""
+    return convertir_a_usuario_response(usuario_actual)
 
 @app.get("/usuarios", response_model=List[UsuarioResponse])
 def listar_usuarios(session: Session = Depends(get_session)):
