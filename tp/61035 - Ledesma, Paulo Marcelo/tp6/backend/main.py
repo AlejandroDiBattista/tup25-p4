@@ -1,38 +1,27 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-import json
-from pathlib import Path
+from sqlmodel import SQLModel
+from db import engine
 
-app = FastAPI(title="API Productos")
+from routers.auth import router as auth_router
+from routers.productos import router as productos_router
+from routers.carrito import router as carrito_router
+from routers.compras import router as compras_router
 
-# Montar directorio de imágenes como archivos estáticos
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+app = FastAPI(title="E-Commerce TP6")
 
-# Configurar CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# ✅ Crear tablas al iniciar
+@app.on_event("startup")
+def startup():
+    SQLModel.metadata.create_all(engine)
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+
+# ✅ Registrar rutas
+app.include_router(auth_router)
+app.include_router(productos_router)
+app.include_router(carrito_router)
+app.include_router(compras_router)
+
 
 @app.get("/")
 def root():
-    return {"mensaje": "API de Productos - use /productos para obtener el listado"}
-
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    return {"message": "API funcionando correctamente"}
