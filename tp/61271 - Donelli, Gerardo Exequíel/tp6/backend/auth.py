@@ -5,16 +5,13 @@ Maneja hash de contraseñas, creación y verificación de tokens JWT.
 
 from datetime import datetime, timedelta
 from typing import Optional
-from passlib.context import CryptContext
+import bcrypt
 from jose import JWTError, jwt
 
 # Configuración de seguridad
 SECRET_KEY = "tu-clave-secreta-super-segura-cambiala-en-produccion-2024"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 días
-
-# Contexto para hash de contraseñas con bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hashear_contraseña(contraseña: str) -> str:
@@ -27,7 +24,11 @@ def hashear_contraseña(contraseña: str) -> str:
     Returns:
         Contraseña hasheada
     """
-    return pwd_context.hash(contraseña)
+    # Convertir a bytes y hashear
+    password_bytes = contraseña.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
 
 def verificar_contraseña(contraseña_plana: str, contraseña_hasheada: str) -> bool:
@@ -41,7 +42,9 @@ def verificar_contraseña(contraseña_plana: str, contraseña_hasheada: str) -> 
     Returns:
         True si coinciden, False en caso contrario
     """
-    return pwd_context.verify(contraseña_plana, contraseña_hasheada)
+    password_bytes = contraseña_plana.encode('utf-8')
+    hashed_bytes = contraseña_hasheada.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
 def crear_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

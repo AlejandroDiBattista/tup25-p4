@@ -1,14 +1,33 @@
 """
 Script de prueba para verificar los endpoints de autenticación.
+Ejecutar con: uv run python test_auth.py
 """
 import httpx
 import json
+import sys
 
 BASE_URL = "http://localhost:8000"
 
+
+def verificar_servidor():
+    """Verifica si el servidor está corriendo."""
+    try:
+        response = httpx.get(f"{BASE_URL}/", timeout=5.0)
+        if response.status_code == 200:
+            print("✅ Servidor corriendo correctamente")
+            return True
+    except httpx.ConnectError:
+        print("❌ ERROR: El servidor no está corriendo en http://localhost:8000")
+        print("   Por favor, inicia el servidor con: uv run uvicorn main:app --reload")
+        return False
+    except Exception as e:
+        print(f"❌ ERROR inesperado: {e}")
+        return False
+
+
 def test_registro():
     """Prueba el endpoint de registro."""
-    print("🧪 Probando registro de usuario...")
+    print("\n🧪 Test 1: Probando registro de usuario...")
     
     data = {
         "nombre": "Usuario de Prueba",
@@ -16,68 +35,91 @@ def test_registro():
         "contraseña": "password123"
     }
     
-    response = httpx.post(f"{BASE_URL}/registrar", json=data)
-    print(f"Status: {response.status_code}")
-    print(f"Response text: {response.text}")
-    
     try:
-        print(f"Response JSON: {json.dumps(response.json(), indent=2)}")
-    except:
-        print("No se pudo parsear JSON")
-    
-    if response.status_code == 201:
-        print("✅ Registro exitoso!")
-        return response.json()
-    else:
-        print("❌ Error en registro")
+        response = httpx.post(f"{BASE_URL}/registrar", json=data, timeout=10.0)
+        print(f"   Status: {response.status_code}")
+        
+        if response.status_code == 201:
+            result = response.json()
+            print(f"   ✅ Registro exitoso!")
+            print(f"   Usuario: {result['usuario']['nombre']}")
+            print(f"   Email: {result['usuario']['email']}")
+            print(f"   Token generado: {result['access_token'][:50]}...")
+            return result
+        else:
+            print(f"   ❌ Error en registro")
+            print(f"   Response: {response.text}")
+            return None
+            
+    except Exception as e:
+        print(f"   ❌ Error de conexión: {e}")
         return None
 
 
 def test_login(email, password):
     """Prueba el endpoint de login."""
-    print("\n🧪 Probando inicio de sesión...")
+    print("\n🧪 Test 2: Probando inicio de sesión...")
     
     data = {
         "email": email,
         "contraseña": password
     }
     
-    response = httpx.post(f"{BASE_URL}/iniciar-sesion", json=data)
-    print(f"Status: {response.status_code}")
-    print(f"Response: {json.dumps(response.json(), indent=2)}")
-    
-    if response.status_code == 200:
-        print("✅ Login exitoso!")
-        return response.json()
-    else:
-        print("❌ Error en login")
+    try:
+        response = httpx.post(f"{BASE_URL}/iniciar-sesion", json=data, timeout=10.0)
+        print(f"   Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"   ✅ Login exitoso!")
+            print(f"   Usuario: {result['usuario']['nombre']}")
+            print(f"   Token generado: {result['access_token'][:50]}...")
+            return result
+        else:
+            print(f"   ❌ Error en login")
+            print(f"   Response: {response.text}")
+            return None
+            
+    except Exception as e:
+        print(f"   ❌ Error de conexión: {e}")
         return None
 
 
 def test_cerrar_sesion(token):
     """Prueba el endpoint de cerrar sesión."""
-    print("\n🧪 Probando cerrar sesión...")
+    print("\n🧪 Test 3: Probando cerrar sesión...")
     
     headers = {
         "Authorization": f"Bearer {token}"
     }
     
-    response = httpx.post(f"{BASE_URL}/cerrar-sesion", headers=headers)
-    print(f"Status: {response.status_code}")
-    print(f"Response: {json.dumps(response.json(), indent=2)}")
-    
-    if response.status_code == 200:
-        print("✅ Cierre de sesión exitoso!")
-        return True
-    else:
-        print("❌ Error al cerrar sesión")
+    try:
+        response = httpx.post(f"{BASE_URL}/cerrar-sesion", headers=headers, timeout=10.0)
+        print(f"   Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"   ✅ Cierre de sesión exitoso!")
+            print(f"   Mensaje: {result['mensaje']}")
+            return True
+        else:
+            print(f"   ❌ Error al cerrar sesión")
+            print(f"   Response: {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"   ❌ Error de conexión: {e}")
         return False
 
 
 if __name__ == "__main__":
-    print("=" * 60)
+    print("=" * 70)
     print("PRUEBAS DE AUTENTICACIÓN - API E-COMMERCE")
-    print("=" * 60)
+    print("=" * 70)
+    
+    # Verificar que el servidor esté corriendo
+    if not verificar_servidor():
+        sys.exit(1)
     
     # Test 1: Registro
     registro_result = test_registro()
@@ -95,6 +137,6 @@ if __name__ == "__main__":
             # Test 3: Cerrar sesión
             test_cerrar_sesion(new_token)
     
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 70)
     print("PRUEBAS COMPLETADAS")
-    print("=" * 60)
+    print("=" * 70)
