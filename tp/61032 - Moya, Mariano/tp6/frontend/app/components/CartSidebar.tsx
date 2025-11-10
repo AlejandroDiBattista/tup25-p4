@@ -88,7 +88,8 @@ export default function CartSidebar() {
     const rate = esElectronico ? 0.10 : 0.21;
     return acc + p.precio * p.cantidad * rate;
   }, 0)).toFixed(2);
-  const envio = subtotal > 50000 ? 0 : 1000;
+  // Envío: gratis si subtotal > 1000; $50 si hay productos y subtotal <= 1000; 0 si vacío
+  const envio = subtotal === 0 ? 0 : (subtotal > 1000 ? 0 : 50);
   const total = +(subtotal + iva + envio).toFixed(2);
 
   

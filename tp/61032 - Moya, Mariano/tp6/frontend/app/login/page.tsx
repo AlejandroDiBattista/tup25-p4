@@ -27,7 +27,15 @@ export default function LoginPage() {
             ¡Inicio de sesión exitoso! Redirigiendo...
           </div>
         )}
-        {!success && <AuthForm onAuthSuccess={handleAuthSuccess} />}
+        {!success && (
+          <AuthForm
+            onAuthSuccess={handleAuthSuccess}
+            initialMode="login"
+            onRequestRegister={() => {
+              router.push("/register");
+            }}
+          />
+        )}
       </div>
     </div>
   );

@@ -13,10 +13,14 @@ interface Usuario {
 
 interface AuthFormProps {
   onAuthSuccess: (token: string, user: Usuario) => void;
+  initialMode?: "login" | "register";
+  onRegisterSuccess?: () => void;
+  onRequestLogin?: () => void;
+  onRequestRegister?: () => void;
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
-  const [isLogin, setIsLogin] = useState(true);
+export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess, initialMode = "login", onRegisterSuccess, onRequestLogin, onRequestRegister }) => {
+  const [isLogin, setIsLogin] = useState(initialMode === "login");
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +49,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       if (isLogin) {
         onAuthSuccess(data.access_token, data);
       } else {
-        setIsLogin(true);
+        if (onRegisterSuccess) {
+          onRegisterSuccess();
+        } else {
+          setIsLogin(true);
+        }
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -81,7 +89,25 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         </Button>
       </form>
       <div className="mt-4 text-center">
-        <button className="text-gray-900 hover:text-black underline" onClick={() => setIsLogin(!isLogin)}>
+        <button
+          className="text-gray-900 hover:text-black underline"
+          onClick={(e) => {
+            e.preventDefault();
+            if (isLogin) {
+              if (onRequestRegister) {
+                onRequestRegister();
+              } else {
+                setIsLogin(false);
+              }
+            } else {
+              if (onRequestLogin) {
+                onRequestLogin();
+              } else {
+                setIsLogin(true);
+              }
+            }
+          }}
+        >
           {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
         </button>
       </div>

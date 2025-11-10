@@ -190,7 +190,8 @@ def finalizar_compra(data: CompraFinalizar, usuario_id: int = Depends(get_curren
                 "precio_unitario": producto.precio
             })
         iva = round(iva_total, 2)
-        envio = 0.0 if total > 50000 else 1000.0
+        # Regla: Envío gratuito para compras superiores a $1000; caso contrario $50 fijo
+        envio = 0.0 if total > 1000 else 50.0
         total_final = round(total + iva + envio, 2)
         compra = Compra(
             usuario_id=usuario_id,
