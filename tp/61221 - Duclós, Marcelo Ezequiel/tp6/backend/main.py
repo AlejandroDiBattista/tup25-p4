@@ -6,8 +6,19 @@ from sqlmodel import Session, select
 from typing import List, Optional
 
 from database import get_session
-from models import Producto, ProductoResponse, UsuarioCreate, UsuarioResponse, UsuarioLogin, Usuario
+from models import (
+    Producto, ProductoResponse, UsuarioCreate, UsuarioResponse, UsuarioLogin, Usuario,
+    ItemCarritoCreate, ItemCarritoUpdate, CarritoResponse
+)
 from auth import crear_usuario, convertir_a_usuario_response
+from carrito_utils import (
+    obtener_o_crear_carrito, 
+    agregar_item_a_carrito,
+    actualizar_cantidad_item,
+    eliminar_item_de_carrito,
+    vaciar_carrito,
+    convertir_carrito_a_response
+)
 from jwt_auth import (
     autenticar_y_crear_token, 
     obtener_usuario_actual, 
@@ -46,10 +57,17 @@ def root():
             "login": "/iniciar-sesion",
             "logout": "/cerrar-sesion",
             "perfil": "/perfil",
+            "carrito": {
+                "ver": "GET /carrito",
+                "agregar": "POST /carrito",
+                "actualizar": "PUT /carrito/{producto_id}",
+                "quitar": "DELETE /carrito/{producto_id}",
+                "cancelar": "POST /carrito/cancelar"
+            },
             "usuarios": "/usuarios",
             "documentacion": "/docs"
         },
-        "estado": "Filtros de productos implementados",
+        "estado": "Carrito de compras implementado",
         "filtros_disponibles": {
             "categoria": "Filtrar por categoría (ej: 'Ropa de hombre')",
             "busqueda": "Buscar en título y descripción",
@@ -184,6 +202,116 @@ def cerrar_sesion(
 def obtener_perfil(usuario_actual: Usuario = Depends(obtener_usuario_actual)):
     """Obtener información del perfil del usuario autenticado"""
     return convertir_a_usuario_response(usuario_actual)
+
+# === ENDPOINTS DEL CARRITO ===
+
+@app.post("/carrito", status_code=status.HTTP_201_CREATED)
+def agregar_al_carrito(
+    item_data: ItemCarritoCreate,
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Agregar producto al carrito"""
+    try:
+        # Obtener o crear carrito
+        carrito = obtener_o_crear_carrito(session, usuario_actual.id)
+        
+        # Agregar item al carrito
+        item = agregar_item_a_carrito(session, carrito, item_data)
+        
+        return {
+            "mensaje": "Producto agregado al carrito exitosamente",
+            "item_id": item.id,
+            "cantidad": item.cantidad,
+            "subtotal": item.subtotal
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
+
+@app.get("/carrito", response_model=CarritoResponse)
+def ver_carrito(
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Ver contenido del carrito"""
+    carrito = obtener_o_crear_carrito(session, usuario_actual.id)
+    return convertir_carrito_a_response(carrito, session)
+
+@app.put("/carrito/{producto_id}")
+def actualizar_carrito(
+    producto_id: int,
+    update_data: ItemCarritoUpdate,
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Actualizar cantidad de producto en el carrito"""
+    try:
+        carrito = obtener_o_crear_carrito(session, usuario_actual.id)
+        item = actualizar_cantidad_item(session, carrito, producto_id, update_data.cantidad)
+        
+        return {
+            "mensaje": "Cantidad actualizada exitosamente",
+            "producto_id": producto_id,
+            "nueva_cantidad": item.cantidad,
+            "subtotal": item.subtotal
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
+
+@app.delete("/carrito/{producto_id}")
+def quitar_del_carrito(
+    producto_id: int,
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Quitar producto del carrito"""
+    try:
+        carrito = obtener_o_crear_carrito(session, usuario_actual.id)
+        eliminar_item_de_carrito(session, carrito, producto_id)
+        
+        return {
+            "mensaje": "Producto eliminado del carrito exitosamente",
+            "producto_id": producto_id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
+
+@app.post("/carrito/cancelar")
+def cancelar_compra(
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Cancelar compra (vaciar carrito)"""
+    try:
+        carrito = obtener_o_crear_carrito(session, usuario_actual.id)
+        vaciar_carrito(session, carrito)
+        
+        return {
+            "mensaje": "Carrito vaciado exitosamente",
+            "usuario": usuario_actual.email
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
 
 @app.get("/usuarios", response_model=List[UsuarioResponse])
 def listar_usuarios(session: Session = Depends(get_session)):

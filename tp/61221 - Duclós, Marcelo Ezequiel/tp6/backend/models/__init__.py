@@ -20,6 +20,12 @@ from .compras import (
     CompraResumen
 )
 
+# Reconstruir modelos para resolver referencias circulares
+CarritoResponse.model_rebuild()
+ItemCarritoResponse.model_rebuild()
+CompraResponse.model_rebuild()
+ItemCompraResponse.model_rebuild()
+
 __all__ = [
     "Producto", 
     "ProductoResponse",
