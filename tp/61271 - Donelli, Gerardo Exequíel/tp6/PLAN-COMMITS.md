@@ -130,14 +130,30 @@
 
 ---
 
-### **COMMIT 3: Cargar datos iniciales de productos a la BD**
-**Archivos a modificar:**
-- `backend/main.py` → Función de inicialización que carga productos.json a SQLite
+### **✅ COMMIT 3: Cargar datos iniciales de productos a la BD - COMPLETADO**
+**Archivos modificados:**
+- ✅ `backend/main.py` → Función `cargar_productos_iniciales()` implementada
+- ✅ `backend/main.py` → Evento de startup actualizado
+- ✅ `backend/main.py` → Endpoint GET /productos actualizado para leer desde BD
 
-**Reglas a cumplir:**
-- Cargar todos los productos de productos.json
-- Mantener las imágenes en /imagenes
-- No duplicar productos si ya existen
+**Implementación:**
+- ✅ Función que carga productos desde `productos.json` a la BD
+- ✅ Validación para no duplicar productos (verifica si ya existen)
+- ✅ Carga automática al iniciar el servidor (evento startup)
+- ✅ 20 productos cargados exitosamente
+
+**Reglas cumplidas:**
+- ✅ Cargar todos los productos de productos.json (20 productos)
+- ✅ Mantener las imágenes en /imagenes
+- ✅ No duplicar productos si ya existen (verificación en cada inicio)
+- ✅ Endpoint /productos ahora obtiene datos desde BD, no desde JSON
+
+**Verificación:**
+- ✅ 20 productos cargados en la primera ejecución
+- ✅ Mensaje de confirmación en logs
+- ✅ No duplicación al reiniciar servidor
+- ✅ Endpoint GET /productos retorna status 200
+- ✅ Todos los campos correctos (id, titulo, precio, categoria, existencia, etc.)
 
 ---
 

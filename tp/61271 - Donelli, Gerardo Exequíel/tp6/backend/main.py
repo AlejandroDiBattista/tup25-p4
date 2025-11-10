@@ -297,19 +297,75 @@ def cerrar_sesion(
 
 @app.get("/productos")
 def obtener_productos(
-    session: Annotated[Session, Depends(obtener_session)]
+    session: Annotated[Session, Depends(obtener_session)],
+    categoria: Optional[str] = None,
+    buscar: Optional[str] = None
 ):
     """
-    Obtener lista de productos desde la base de datos.
+    Obtener lista de productos desde la base de datos con filtros opcionales.
     
     Args:
+        categoria: Filtrar por categoría exacta
+        buscar: Buscar por contenido en título o descripción (case-insensitive)
         session: Sesión de base de datos
         
     Returns:
-        Lista de productos
+        Lista de productos filtrados
+        
+    Examples:
+        GET /productos -> Todos los productos
+        GET /productos?categoria=Electrónica -> Solo productos de categoría "Electrónica"
+        GET /productos?buscar=mochila -> Productos con "mochila" en título o descripción
+        GET /productos?categoria=Electrónica&buscar=laptop -> Electrónica que contenga "laptop"
     """
-    productos = session.exec(select(Producto)).all()
+    # Crear query base
+    query = select(Producto)
+    
+    # Aplicar filtro por categoría si se proporciona
+    if categoria:
+        query = query.where(Producto.categoria == categoria)
+    
+    # Aplicar filtro de búsqueda si se proporciona
+    if buscar:
+        # Buscar en título o descripción (case-insensitive)
+        busqueda_lower = f"%{buscar.lower()}%"
+        query = query.where(
+            (Producto.titulo.ilike(busqueda_lower)) | 
+            (Producto.descripcion.ilike(busqueda_lower))
+        )
+    
+    # Ejecutar query y retornar resultados
+    productos = session.exec(query).all()
     return productos
+
+
+@app.get("/productos/{producto_id}")
+def obtener_producto_por_id(
+    producto_id: int,
+    session: Annotated[Session, Depends(obtener_session)]
+):
+    """
+    Obtener detalles de un producto específico por su ID.
+    
+    Args:
+        producto_id: ID del producto a buscar
+        session: Sesión de base de datos
+        
+    Returns:
+        Producto encontrado
+        
+    Raises:
+        HTTPException: Si el producto no existe (404)
+    """
+    producto = session.get(Producto, producto_id)
+    
+    if not producto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Producto con ID {producto_id} no encontrado"
+        )
+    
+    return producto
 
 
 if __name__ == "__main__":
