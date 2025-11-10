@@ -7,8 +7,12 @@ export default function Header() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Lazy read user; avoid immediate setState cascade by scheduling
     const u = localStorage.getItem("user");
-    setUsuario(u ? JSON.parse(u) : null);
+    if (u) {
+      // microtask para no disparar render extra antes de finalizar efecto
+      queueMicrotask(() => setUsuario(JSON.parse(u)));
+    }
     const handler = () => {
       const u2 = localStorage.getItem("user");
       setUsuario(u2 ? JSON.parse(u2) : null);
@@ -46,7 +50,7 @@ export default function Header() {
                         headers: { Authorization: `Bearer ${token}` },
                       });
                     }
-                  } catch (e) {
+                  } catch {
                     // ignorar errores de red al cerrar sesión
                   }
                   localStorage.removeItem("token");

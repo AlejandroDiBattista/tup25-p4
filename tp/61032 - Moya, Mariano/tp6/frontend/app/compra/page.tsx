@@ -33,7 +33,8 @@ export default function CompraPage() {
           const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${token}` } });
           if (res.ok) {
             const data = await res.json();
-            const list: CarritoProducto[] = (data.productos || []).map((p: any) => ({ id: p.id, cantidad: p.cantidad }));
+            type ApiItem = { id: number; cantidad: number };
+            const list: CarritoProducto[] = (data.productos || []).map((p: ApiItem) => ({ id: p.id, cantidad: p.cantidad }));
             localStorage.setItem("carrito", JSON.stringify(list));
             setCarrito(list);
             return;
@@ -53,7 +54,8 @@ export default function CompraPage() {
         const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
           const data = await res.json();
-          const list: CarritoProducto[] = (data.productos || []).map((p: any) => ({ id: p.id, cantidad: p.cantidad }));
+          type ApiItem = { id: number; cantidad: number };
+          const list: CarritoProducto[] = (data.productos || []).map((p: ApiItem) => ({ id: p.id, cantidad: p.cantidad }));
           localStorage.setItem("carrito", JSON.stringify(list));
           if (typeof window !== "undefined") window.dispatchEvent(new Event("carrito:changed"));
           setCarrito(list);
