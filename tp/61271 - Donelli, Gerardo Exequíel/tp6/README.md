@@ -1,0 +1,5 @@
+Tengo que hacer un proyecto de la universidad cumpliendo ESTRICTAMENTE las reglas del archivo GUIAPROYECTO.md, no puedes tocar nada que este fuera de la carpeta C:\Users\54381\OneDrive\Escritorio\tup25-p4\tp\61271 - Donelli, Gerardo Exequíel\tp6,ya que este es nuestro entorno de trabajo, tambien tienes que revisar el diseño.png, estructura de los archivos existentes y los dos MD como-configurar-sistema y como-probar-backend.md
+
+Tengo que hacer un minimo de 10 commits, por lo que en base a todo lo que analices haremos un MD donde haremos el planning de cada commit, por ejemplo commit 1 configurar backend, como-configurar-sistema, instalar dependencias o lo que sea, etc
+
+la idea es cumplir ESTRICTAMENTE con lo que dice guiaproyecto md ya que cualquier cosa que viole o haga diferente a lo que se me pide puede hacerme reprobar, hagamos un analisis asi planeamos de tratar de hacer que cada prompt sea un commit, es decir que hagamos todo cumpliendo reglas, dentro de la carpeta de C:\Users\lance\Documents\GitHub\tup25-p4\tp\61312 - Paz Berrondo, Lucas David\tp6 , probar, etc
