@@ -177,7 +177,7 @@ export default function ComprasPage() {
             <p className="text-gray-600 text-xl mb-4">No tienes compras aún</p>
             <button
               onClick={() => router.push('/')}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+              className="btn-primary"
             >
               Comenzar a comprar
             </button>

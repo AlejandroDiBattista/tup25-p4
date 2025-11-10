@@ -71,6 +71,7 @@ export default function AuthPage() {
                 id="nombre"
                 type="text"
                 required={!isLogin}
+                minLength={3}
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 className="input-field"

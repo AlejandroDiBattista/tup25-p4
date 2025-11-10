@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { getAuthHeaders } from '../services/auth';
-import { Producto } from '../types';
+import Image from "next/image";
+import { useState } from "react";
+import { getAuthHeaders } from "../services/auth";
+import { Producto } from "../types";
 
 interface ProductoCardProps {
   producto: Producto;
@@ -18,33 +18,33 @@ export default function ProductoCard({
   cantidadEnCarrito = 0,
   onAgregado,
 }: ProductoCardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const [loading, setLoading] = useState(false);
-  const [mensaje, setMensaje] = useState('');
+  const [mensaje, setMensaje] = useState("");
 
   const stockRestante = producto.existencia - cantidadEnCarrito;
   const sinStock = stockRestante <= 0;
-  const titulo = producto.titulo ?? producto.nombre ?? '';
+  const titulo = producto.titulo ?? producto.nombre ?? "";
 
   const agregarAlCarrito = async () => {
     if (!autenticado) {
-      setMensaje('Debes iniciar sesión');
-      setTimeout(() => setMensaje(''), 2000);
+      setMensaje("Debes iniciar sesión");
+      setTimeout(() => setMensaje(""), 2000);
       return;
     }
 
     if (sinStock) {
-      setMensaje('Sin stock');
-      setTimeout(() => setMensaje(''), 2000);
+      setMensaje("Sin stock");
+      setTimeout(() => setMensaje(""), 2000);
       return;
     }
 
     setLoading(true);
     try {
       const response = await fetch(`${API_URL}/carrito/agregar`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...getAuthHeaders(),
         },
         body: JSON.stringify({
@@ -54,22 +54,23 @@ export default function ProductoCard({
       });
 
       if (!response.ok) {
-        throw new Error('Error al agregar al carrito');
+        throw new Error("Error al agregar al carrito");
       }
 
-      setMensaje('✓ Agregado');
+      setMensaje("✓ Agregado");
       onAgregado?.();
-      setTimeout(() => setMensaje(''), 2000);
+      setTimeout(() => setMensaje(""), 2000);
     } catch (error) {
-      setMensaje('Error');
-      setTimeout(() => setMensaje(''), 2000);
+      console.error("Error al agregar al carrito:", error);
+      setMensaje("Error");
+      setTimeout(() => setMensaje(""), 2000);
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
       <div className="relative h-64 bg-gray-100">
         <Image
           src={`${API_URL}/${producto.imagen}`}
@@ -82,11 +83,11 @@ export default function ProductoCard({
           unoptimized
         />
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+      <div className="flex flex-col flex-1 p-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 min-h-16">
           {titulo}
         </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+        <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-16">
           {producto.descripcion}
         </p>
         <div className="flex justify-between items-center mb-2">
@@ -108,13 +109,20 @@ export default function ProductoCard({
         </div>
 
         {/* Botón de agregar al carrito */}
-        <button
-          onClick={agregarAlCarrito}
-          disabled={loading || sinStock}
-          className="btn-primary w-full text-sm"
-        >
-          {mensaje || (loading ? 'Agregando...' : sinStock ? 'Sin stock' : `Agregar (${stockRestante} disp.)`)}
-        </button>
+        <div className="mt-auto pt-2">
+          <button
+            onClick={agregarAlCarrito}
+            disabled={loading || sinStock}
+            className="btn-primary w-full text-sm"
+          >
+            {mensaje ||
+              (loading
+                ? "Agregando..."
+                : sinStock
+                ? "Sin stock"
+                : `Agregar (${stockRestante} disp.)`)}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -49,8 +49,17 @@ export async function registrarUsuario(data: RegistroData): Promise<{ mensaje: s
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || 'Error al registrar usuario');
+    const error = await response.json().catch(() => ({}));
+    const detailData = (error as { detail?: unknown }).detail;
+    const detail = Array.isArray(detailData)
+      ? (detailData as Array<{ msg?: string }>)
+          .map((issue) => issue.msg ?? '')
+          .filter(Boolean)
+          .join(' ')
+      : typeof detailData === 'string'
+        ? detailData
+        : '';
+    throw new Error(detail || 'Error al registrar usuario');
   }
 
   return response.json();
@@ -69,8 +78,17 @@ export async function iniciarSesion(data: LoginData): Promise<TokenResponse> {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || 'Error al iniciar sesión');
+    const error = await response.json().catch(() => ({}));
+    const detailData = (error as { detail?: unknown }).detail;
+    const detail = Array.isArray(detailData)
+      ? (detailData as Array<{ msg?: string }>)
+          .map((issue) => issue.msg ?? '')
+          .filter(Boolean)
+          .join(' ')
+      : typeof detailData === 'string'
+        ? detailData
+        : '';
+    throw new Error(detail || 'Error al iniciar sesión');
   }
 
   const tokenData: TokenResponse = await response.json();

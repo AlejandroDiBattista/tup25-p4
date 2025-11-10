@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 import json
 from pathlib import Path
 from typing import Optional
@@ -37,15 +37,17 @@ app.add_middleware(
 
 class RegistroRequest(BaseModel):
     """Modelo para registro de usuario."""
-    nombre: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+    nombre: str = Field(min_length=3, max_length=255)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=6, max_length=255)
 
 
 class LoginRequest(BaseModel):
     """Modelo para inicio de sesión."""
+    model_config = ConfigDict(str_strip_whitespace=True)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=6, max_length=255)
 
 
 class TokenResponse(BaseModel):
@@ -64,12 +66,12 @@ class MensajeResponse(BaseModel):
 class AgregarCarritoRequest(BaseModel):
     """Modelo para agregar producto al carrito."""
     producto_id: int
-    cantidad: int
+    cantidad: int = Field(gt=0)
 
 
 class ActualizarCarritoRequest(BaseModel):
     """Modelo para actualizar cantidad de un producto en el carrito."""
-    cantidad: int
+    cantidad: int = Field(ge=0)
 
 
 class ItemCarritoResponse(BaseModel):
@@ -95,8 +97,9 @@ class CarritoResponse(BaseModel):
 
 class FinalizarCompraRequest(BaseModel):
     """Modelo para finalizar compra."""
-    direccion: str
-    tarjeta: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+    direccion: str = Field(min_length=8, max_length=500)
+    tarjeta: str = Field(pattern=r"^\d{16}$")
 
 
 class CompraResponse(BaseModel):
@@ -766,10 +769,12 @@ def finalizar_compra(
         total = subtotal + iva_total + envio
         
         # Crear registro de Compra
+        ultimos_cuatro = datos.tarjeta[-4:]
+
         compra = Compra(
             usuario_id=usuario_actual.id,
             direccion=datos.direccion,
-            tarjeta=datos.tarjeta,
+            tarjeta=ultimos_cuatro,
             total=total,
             envio=envio
         )
