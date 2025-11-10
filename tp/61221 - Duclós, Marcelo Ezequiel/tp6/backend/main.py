@@ -393,6 +393,130 @@ async def obtener_compra(
         )
 
 
+@app.get("/compras")
+async def listar_compras(
+    limit: int = 10,
+    offset: int = 0,
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Listar todas las compras del usuario con paginación"""
+    try:
+        from models import Compra
+        
+        # Obtener compras del usuario ordenadas por fecha (más recientes primero)
+        statement = select(Compra).where(
+            Compra.usuario_id == usuario_actual.id
+        ).order_by(Compra.fecha.desc()).offset(offset).limit(limit)
+        
+        compras = session.exec(statement).all()
+        
+        # Contar total de compras para paginación
+        count_statement = select(Compra).where(Compra.usuario_id == usuario_actual.id)
+        total_compras = len(session.exec(count_statement).all())
+        
+        # Convertir a formato de respuesta
+        compras_resumen = []
+        for compra in compras:
+            # Obtener total de items
+            from models import ItemCompra
+            items_statement = select(ItemCompra).where(ItemCompra.compra_id == compra.id)
+            items = session.exec(items_statement).all()
+            total_items = sum(item.cantidad for item in items)
+            
+            compras_resumen.append({
+                "id": compra.id,
+                "fecha": compra.fecha.isoformat(),
+                "total": float(compra.total),
+                "subtotal": float(compra.subtotal),
+                "iva": float(compra.iva),
+                "envio": float(compra.envio),
+                "total_items": total_items,
+                "direccion": compra.direccion,
+                "tarjeta": compra.tarjeta
+            })
+        
+        return {
+            "compras": compras_resumen,
+            "total": total_compras,
+            "limit": limit,
+            "offset": offset,
+            "has_more": (offset + limit) < total_compras
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
+
+
+@app.get("/compras/estadisticas")
+async def obtener_estadisticas_compras(
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener estadísticas de compras del usuario"""
+    try:
+        from models import Compra, ItemCompra
+        from decimal import Decimal
+        
+        # Obtener todas las compras del usuario
+        compras_statement = select(Compra).where(Compra.usuario_id == usuario_actual.id)
+        compras = session.exec(compras_statement).all()
+        
+        if not compras:
+            return {
+                "total_compras": 0,
+                "total_gastado": 0.0,
+                "promedio_compra": 0.0,
+                "total_productos_comprados": 0,
+                "compra_mas_reciente": None,
+                "compra_mas_grande": None
+            }
+        
+        # Calcular estadísticas
+        total_compras = len(compras)
+        total_gastado = sum(compra.total for compra in compras)
+        promedio_compra = total_gastado / total_compras
+        
+        # Obtener total de productos comprados
+        total_productos = 0
+        for compra in compras:
+            items_statement = select(ItemCompra).where(ItemCompra.compra_id == compra.id)
+            items = session.exec(items_statement).all()
+            total_productos += sum(item.cantidad for item in items)
+        
+        # Compra más reciente
+        compra_reciente = max(compras, key=lambda c: c.fecha)
+        
+        # Compra más grande
+        compra_grande = max(compras, key=lambda c: c.total)
+        
+        return {
+            "total_compras": total_compras,
+            "total_gastado": float(total_gastado),
+            "promedio_compra": float(promedio_compra),
+            "total_productos_comprados": total_productos,
+            "compra_mas_reciente": {
+                "id": compra_reciente.id,
+                "fecha": compra_reciente.fecha.isoformat(),
+                "total": float(compra_reciente.total)
+            },
+            "compra_mas_grande": {
+                "id": compra_grande.id,
+                "fecha": compra_grande.fecha.isoformat(),
+                "total": float(compra_grande.total)
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
