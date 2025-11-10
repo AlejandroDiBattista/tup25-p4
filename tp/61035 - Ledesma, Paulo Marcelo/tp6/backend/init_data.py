@@ -1,38 +1,31 @@
-import json
-from pathlib import Path
-from sqlmodel import Session
-
+from fastapi import FastAPI
+from sqlmodel import SQLModel
 from db import engine
-from models import Producto
+
+from routers.auth import router as auth_router
+from routers.productos import router as productos_router
+from routers.carrito import router as carrito_router
+from routers.compras import router as compras_router
+from .producto import Producto
+from .usuario import Usuario
+from .carrito import Carrito, ItemCarrito
+from .compra import Compra, ItemCompra
+
+app = FastAPI(title="E-Commerce TP6")
+
+# ✅ Crear tablas al iniciar
+@app.on_event("startup")
+def startup():
+    SQLModel.metadata.create_all(engine)
 
 
-def cargar_productos_iniciales():
-    ruta = Path(__file__).parent / "productos.json"
-
-    with open(ruta, "r", encoding="utf-8") as f:
-        datos = json.load(f)
-
-    productos = []
-    for p in datos:
-        productos.append(
-            Producto(
-                id=p["id"],
-                nombre=p["titulo"],
-                descripcion=p["descripcion"],
-                precio=p["precio"],
-                categoria=p["categoria"],
-                existencia=p["existencia"],
-                imagen=p["imagen"],
-                valoracion=p["valoracion"],
-            )
-        )
-
-    with Session(engine) as session:
-        session.add_all(productos)
-        session.commit()
-
-    print("✅ Productos iniciales cargados correctamente.")
+# ✅ Registrar rutas
+app.include_router(auth_router)
+app.include_router(productos_router)
+app.include_router(carrito_router)
+app.include_router(compras_router)
 
 
-if __name__ == "__main__":
-    cargar_productos_iniciales()
+@app.get("/")
+def root():
+    return {"message": "API funcionando correctamente"}

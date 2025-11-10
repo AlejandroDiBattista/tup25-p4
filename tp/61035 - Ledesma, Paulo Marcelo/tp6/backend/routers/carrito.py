@@ -1,208 +1,212 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+from db import get_session
+from models import Carrito, ItemCarrito, Producto, Usuario, Compra, ItemCompra
+from routers.auth import get_current_user
 from datetime import datetime
 
-from db import get_session
-from models.usuario import Usuario
-from models.producto import Producto
-from models.carrito import Carrito, ItemCarrito
-from models.compra import Compra, ItemCompra
-from routers.auth import get_current_user
+router = APIRouter(prefix="/carrito", tags=["Carrito"])
 
-router = APIRouter()
-
-
-# ✅ Obtener o crear carrito
-def obtener_carrito(session: Session, usuario_id: int):
-    carrito = session.exec(
-        select(Carrito).where(
-            Carrito.usuario_id == usuario_id,
-            Carrito.estado == "activo"
-        )
+# ✅ Obtener carrito actual del usuario
+@router.get("/")
+def obtener_carrito(
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_session)
+):
+    carrito = db.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario.id, Carrito.estado == "abierto")
     ).first()
 
     if not carrito:
-        carrito = Carrito(usuario_id=usuario_id, estado="activo")
-        session.add(carrito)
-        session.commit()
-        session.refresh(carrito)
+        return {"items": [], "total": 0}
 
-    return carrito
+    items = []
+    total = 0
 
+    for item in carrito.items:
+        precio = item.producto.precio
+        subtotal = item.cantidad * precio
+        total += subtotal
+        items.append({
+            "id": item.id,
+            "producto": item.producto.nombre,
+            "cantidad": item.cantidad,
+            "precio_unitario": precio,
+            "subtotal": subtotal
+        })
 
-# ✅ Ver carrito
-@router.get("/carrito")
-def ver_carrito(
-    current_user: Usuario = Depends(get_current_user),
-    session: Session = Depends(get_session)
-):
-    carrito = obtener_carrito(session, current_user.id)
-
-    items = session.exec(
-        select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
-    ).all()
-
-    return {
-        "carrito_id": carrito.id,
-        "items": items
-    }
+    return {"items": items, "total": total}
 
 
 # ✅ Agregar producto al carrito
-@router.post("/carrito", status_code=201)
-def agregar_producto(
+@router.post("/")
+def agregar_al_carrito(
     data: dict,
-    current_user: Usuario = Depends(get_current_user),
-    session: Session = Depends(get_session)
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_session)
 ):
     producto_id = data.get("producto_id")
-    cantidad = data.get("cantidad", 1)
+    cantidad = data.get("cantidad")
 
-    producto = session.get(Producto, producto_id)
+    if not producto_id or not cantidad:
+        raise HTTPException(400, "Faltan campos: producto_id y cantidad son obligatorios")
+
+    producto = db.get(Producto, producto_id)
     if not producto:
         raise HTTPException(404, "Producto no encontrado")
 
     if producto.existencia < cantidad:
-        raise HTTPException(400, "No hay suficiente stock")
+        raise HTTPException(400, f"No hay suficiente stock de '{producto.nombre}'")
 
-    carrito = obtener_carrito(session, current_user.id)
+    carrito = db.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario.id, Carrito.estado == "abierto")
+    ).first()
 
-    # Ver si ya está en el carrito
-    item = session.exec(
-        select(ItemCarrito).where(
-            ItemCarrito.carrito_id == carrito.id,
-            ItemCarrito.producto_id == producto_id
-        )
+    if not carrito:
+        carrito = Carrito(usuario_id=usuario.id, estado="abierto")
+        db.add(carrito)
+        db.commit()
+        db.refresh(carrito)
+
+    item = db.exec(
+        select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)
     ).first()
 
     if item:
-        item.cantidad += cantidad
+        nueva_cantidad = item.cantidad + cantidad
+        if producto.existencia < nueva_cantidad:
+            raise HTTPException(400, f"Stock insuficiente para '{producto.nombre}'")
+        item.cantidad = nueva_cantidad
     else:
-        item = ItemCarrito(
-            carrito_id=carrito.id,
-            producto_id=producto_id,
-            cantidad=cantidad
-        )
-        session.add(item)
+        item = ItemCarrito(carrito_id=carrito.id, producto_id=producto_id, cantidad=cantidad)
+        db.add(item)
 
-    session.commit()
-    return {"message": "Producto agregado al carrito"}
+    db.commit()
+    db.refresh(item)
+    return {"mensaje": f"Producto '{producto.nombre}' agregado al carrito correctamente"}
 
 
-# ✅ Eliminar ítem del carrito
-@router.delete("/carrito/{producto_id}")
-def eliminar_item(
-    producto_id: int,
-    current_user: Usuario = Depends(get_current_user),
-    session: Session = Depends(get_session)
+# ✅ NUEVO: eliminar un item del carrito (para test 4.4)
+@router.delete("/{item_id}")
+def eliminar_item_carrito(
+    item_id: int,
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_session)
 ):
-    carrito = obtener_carrito(session, current_user.id)
+    carrito = db.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario.id, Carrito.estado == "abierto")
+    ).first()
 
-    item = session.exec(
+    if not carrito:
+        raise HTTPException(400, "No hay carrito activo")
+
+    item = db.exec(
         select(ItemCarrito).where(
-            ItemCarrito.carrito_id == carrito.id,
-            ItemCarrito.producto_id == producto_id
+            ItemCarrito.id == item_id,
+            ItemCarrito.carrito_id == carrito.id
         )
     ).first()
 
     if not item:
         raise HTTPException(404, "El producto no está en el carrito")
 
-    session.delete(item)
-    session.commit()
+    db.delete(item)
+    db.commit()
 
-    return {"message": "Producto eliminado del carrito"}
+    return {"mensaje": "Producto eliminado del carrito correctamente"}
 
 
-# ✅ Cancelar compra (vaciar carrito)
-@router.post("/carrito/cancelar")
-def cancelar(
-    current_user: Usuario = Depends(get_current_user),
-    session: Session = Depends(get_session)
+# ✅ NUEVO: vaciar carrito sin borrarlo (para test 4.6)
+@router.post("/cancelar")
+def cancelar_carrito(
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_session)
 ):
-    carrito = obtener_carrito(session, current_user.id)
+    carrito = db.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario.id, Carrito.estado == "abierto")
+    ).first()
 
-    items = session.exec(
-        select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
-    ).all()
+    if not carrito:
+        raise HTTPException(400, "No hay carrito activo")
 
-    for item in items:
-        session.delete(item)
+    # ✅ borrar solo los items
+    for item in carrito.items:
+        db.delete(item)
 
-    session.commit()
-    return {"message": "Carrito cancelado"}
+    db.commit()
+    return {"mensaje": "Carrito vaciado correctamente"}
 
 
-# ✅ Finalizar compra
-@router.post("/carrito/finalizar")
-def finalizar_compra(
+# ✅ Finalizar compra con reglas de negocio (SIN CAMBIOS)
+@router.post("/finalizar")
+def finalizar_carrito(
     data: dict,
-    current_user: Usuario = Depends(get_current_user),
-    session: Session = Depends(get_session)
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_session)
 ):
     direccion = data.get("direccion")
     tarjeta = data.get("tarjeta")
 
-    carrito = obtener_carrito(session, current_user.id)
+    if not direccion or not tarjeta:
+        raise HTTPException(400, "Faltan campos: dirección y tarjeta son obligatorios")
 
-    items = session.exec(
-        select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
-    ).all()
+    carrito = db.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario.id, Carrito.estado == "abierto")
+    ).first()
 
-    if not items:
+    if not carrito or not carrito.items:
         raise HTTPException(400, "El carrito está vacío")
 
     total = 0
-    envio = 50
+    envio = 0
+
+    for item in carrito.items:
+        producto = item.producto
+        if producto.existencia < item.cantidad:
+            raise HTTPException(400, f"Stock insuficiente de '{producto.nombre}'")
+
+        producto.existencia -= item.cantidad
+
+        iva = 0.10 if "electrónica" in producto.categoria.lower() else 0.21
+        precio_con_iva = producto.precio * (1 + iva)
+
+        total += precio_con_iva * item.cantidad
+
+    envio = 0 if total > 1000 else 50
+    total_final = total + envio
 
     compra = Compra(
-        usuario_id=current_user.id,
+        usuario_id=usuario.id,
         fecha=datetime.now(),
         direccion=direccion,
         tarjeta=tarjeta,
-        total=0,
-        envio=0
+        total=round(total_final, 2),
+        envio=envio
     )
+    db.add(compra)
+    db.commit()
+    db.refresh(compra)
 
-    session.add(compra)
-    session.commit()
-    session.refresh(compra)
+    for item in carrito.items:
+        producto = item.producto
+        iva = 0.10 if "electrónica" in producto.categoria.lower() else 0.21
+        precio_unitario = producto.precio * (1 + iva)
 
-    for item in items:
-        producto = session.get(Producto, item.producto_id)
-
-        # Calcular impuesto
-        if producto.categoria.lower().startswith("electro"):
-            iva = 0.10
-        else:
-            iva = 0.21
-
-        subtotal = (producto.precio * item.cantidad) * (1 + iva)
-        total += subtotal
-
-        # Restar stock
-        producto.existencia -= item.cantidad
-
-        # Guardar item de compra
-        session.add(ItemCompra(
+        item_compra = ItemCompra(
             compra_id=compra.id,
             producto_id=producto.id,
-            cantidad=item.cantidad,
             nombre=producto.nombre,
-            precio_unitario=producto.precio
-        ))
-
-        # Eliminar del carrito
-        session.delete(item)
-
-    if total > 1000:
-        envio = 0
-
-    compra.total = total
-    compra.envio = envio
+            cantidad=item.cantidad,
+            precio_unitario=round(precio_unitario, 2)
+        )
+        db.add(item_compra)
 
     carrito.estado = "finalizado"
+    db.commit()
 
-    session.commit()
-
-    return {"message": "Compra finalizada", "compra_id": compra.id}
+    return {
+        "mensaje": "Compra realizada con éxito 🎉",
+        "compra_id": compra.id,
+        "total": round(total_final, 2),
+        "envio": envio
+    }
