@@ -289,17 +289,49 @@
 
 ---
 
-### **COMMIT 7: Implementar endpoints de historial de compras**
-**Archivos a modificar:**
-- `backend/main.py` → Endpoints de compras
+### **✅ COMMIT 7: Implementar endpoints de historial de compras - COMPLETADO**
+**Archivos modificados:**
+- ✅ `backend/main.py` → Endpoints de historial implementados
 
-**Endpoints a crear:**
-- GET /compras → Requiere autenticación
-- GET /compras/{id} → Requiere autenticación
+**Endpoints implementados:**
+- ✅ GET /compras → Historial de compras del usuario
+- ✅ GET /compras/{id} → Detalle completo de una compra
 
-**Reglas a cumplir:**
-- Solo devolver compras del usuario autenticado
-- Incluir todos los items de cada compra
+**Implementación del historial:**
+- ✅ GET /compras retorna lista de compras ordenadas por fecha descendente
+- ✅ Resumen incluye: id, fecha, total, envío, dirección, cantidad de productos
+- ✅ Manejo de historial vacío con mensaje apropiado
+- ✅ Contador de total de compras realizadas
+
+**Implementación del detalle:**
+- ✅ GET /compras/{id} retorna detalle completo con items
+- ✅ Validación de compra existente (404 si no existe)
+- ✅ Validación de permisos (403 si no pertenece al usuario)
+- ✅ Tarjeta mostrada como "****XXXX" (solo últimos 4 dígitos)
+- ✅ Desglose financiero completo: subtotal, IVA, envío, total
+- ✅ Items con snapshot de datos al momento de compra
+- ✅ Cálculo retroactivo de IVA: total - subtotal - envío
+- ✅ Imagen del producto actual (puede haber cambiado desde compra)
+
+**Reglas cumplidas:**
+- ✅ Solo devolver compras del usuario autenticado
+- ✅ Incluir todos los items de cada compra con detalles
+- ✅ Protección de privacidad (otros usuarios no pueden ver compras ajenas)
+- ✅ Autenticación requerida para ambos endpoints
+- ✅ ItemCompra mantiene snapshot (nombre, precio_unitario al momento de compra)
+
+**Verificación:**
+- ✅ Test 1: GET /compras → Status 200, 1 compra con datos completos
+- ✅ Test 2: GET /compras/4 → Detalle completo (fecha, dirección, tarjeta, desglose, items)
+- ✅ Test 3: GET /compras/99999 → 404 (compra inexistente)
+- ✅ Test 4: Otro usuario accede a compra → 403 (Forbidden - seguridad)
+- ✅ Test 5: GET /compras sin auth → 403 (requiere autenticación)
+- ✅ 5/5 tests exitosos
+
+**Seguridad implementada:**
+- ✅ Validación de propiedad: `compra.usuario_id == usuario_actual.id`
+- ✅ Solo últimos 4 dígitos de tarjeta visibles
+- ✅ Autenticación obligatoria vía JWT
 
 ---
 
