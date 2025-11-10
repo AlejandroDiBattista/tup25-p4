@@ -3,12 +3,22 @@ import { Producto } from '../types';
 
 export type { Producto };
 
+interface FiltrosProductos {
+    search?: string;
+    categoria?: string;
+}
 
-
-export async function obtenerProductos(): Promise<Producto[]> {
+export async function obtenerProductos(filtros?: FiltrosProductos): Promise<Producto[]> {
+    // Construir query params
+    const params = new URLSearchParams();
+    if (filtros?.search) params.append('search', filtros.search);
+    if (filtros?.categoria) params.append('categoria', filtros.categoria);
+    
+    const url = `${API_URL}/productos${params.toString() ? '?' + params.toString() : ''}`;
+    
     // Primero intentamos obtener datos del backend
     try {
-        const response = await fetch(`${API_URL}/productos`, {
+        const response = await fetch(url, {
             cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json'

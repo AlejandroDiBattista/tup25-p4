@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { obtenerProductos, Producto } from './services/productos';
 import ProductoCard from './components/ProductoCard';
 import CartSidebar from './components/CartSidebar';
+import SearchFilters from './components/SearchFilters';
 import useAuthStore, { loadAuthFromStorage } from './store/auth';
 import useCartStore from './store/cart';
 import Link from 'next/link';
@@ -12,6 +13,8 @@ export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [cartOpen, setCartOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const { user, clearAuth } = useAuthStore();
   const { itemCount } = useCartStore();
 
@@ -33,6 +36,34 @@ export default function Home() {
     cargarProductos();
   }, []);
 
+  // Obtener categorías únicas
+  const categories = useMemo(() => {
+    const cats = productos.map(p => p.categoria);
+    return Array.from(new Set(cats)).sort();
+  }, [productos]);
+
+  // Filtrar productos
+  const productosFiltrados = useMemo(() => {
+    let filtered = productos;
+
+    // Filtrar por búsqueda
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(p => 
+        (p.nombre?.toLowerCase().includes(term) || 
+         p.titulo?.toLowerCase().includes(term) ||
+         p.descripcion?.toLowerCase().includes(term))
+      );
+    }
+
+    // Filtrar por categoría
+    if (selectedCategory) {
+      filtered = filtered.filter(p => p.categoria === selectedCategory);
+    }
+
+    return filtered;
+  }, [productos, searchTerm, selectedCategory]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
@@ -41,7 +72,7 @@ export default function Home() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">TP6 Shop</h1>
               <p className="text-gray-600 mt-1">
-                {productos.length} productos disponibles
+                Catálogo de productos
               </p>
             </div>
             
@@ -102,11 +133,32 @@ export default function Home() {
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {productos.map((producto) => (
-              <ProductoCard key={producto.id} producto={producto} />
-            ))}
-          </div>
+          <>
+            {/* Búsqueda y Filtros */}
+            <SearchFilters
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              categories={categories}
+              resultCount={productosFiltrados.length}
+            />
+
+            {/* Grid de productos */}
+            {productosFiltrados.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-6xl mb-4">🔍</p>
+                <p className="text-xl text-gray-600 mb-2">No se encontraron productos</p>
+                <p className="text-gray-500">Intenta con otros términos de búsqueda o filtros</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {productosFiltrados.map((producto) => (
+                  <ProductoCard key={producto.id} producto={producto} />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
 
