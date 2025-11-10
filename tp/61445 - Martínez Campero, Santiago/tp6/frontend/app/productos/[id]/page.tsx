@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { obtenerProducto } from '@/app/services/productos';
+import { agregarAlCarrito } from '@/app/services/carrito';
 import { Producto } from '@/app/types';
 import Link from 'next/link';
+import { useToast } from '@/app/hooks/useToast';
 
 export default function ProductoDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { agregarToast } = useToast();
   const id = params.id as string;
 
   const [producto, setProducto] = useState<Producto | null>(null);
@@ -48,26 +51,13 @@ export default function ProductoDetailPage() {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/carrito/agregar`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          producto_id: producto.id,
-          cantidad,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('No se pudo agregar al carrito');
-      }
-
-      // Redirigir al carrito
+      await agregarAlCarrito(producto.id, cantidad);
+      agregarToast('Producto agregado al carrito', 'success', 2000);
       router.push('/carrito');
     } catch (err) {
-      setError('Error al agregar al carrito');
+      const mensaje = err instanceof Error ? err.message : 'Error al agregar al carrito';
+      setError(mensaje);
+      agregarToast(mensaje, 'error', 3000);
       console.error('Error:', err);
     } finally {
       setAgregando(false);
