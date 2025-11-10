@@ -1,5 +1,4 @@
-# Ignorar el plan de commits local (no debe subirse al repositorio)
-COMMIT_PLAN.md
+GUIAPROYECTO.md
 # Python-generated files
 __pycache__/
 *.py[oc]
