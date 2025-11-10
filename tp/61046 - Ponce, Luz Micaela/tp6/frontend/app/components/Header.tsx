@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import LogoutButton from './LogoutButton';
+import CartButton from './CartButton';
 
 export default async function Header() {
   const cookieStore = await cookies();
@@ -57,6 +58,7 @@ export default async function Header() {
                 </Link>
               </>
             )}
+            <CartButton />
           </div>
         </div>
       </div>

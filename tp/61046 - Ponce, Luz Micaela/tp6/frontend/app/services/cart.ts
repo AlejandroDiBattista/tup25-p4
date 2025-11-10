@@ -77,3 +77,19 @@ export async function finalizarCompra(direccion: string, tarjeta: string) {
 
   return response.json();
 }
+
+export async function cancelarCompra() {
+  const token = getToken();
+  if (!token) throw new Error('Usuario no autenticado');
+
+  const response = await fetch(`${API_URL}/carrito/cancelar`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al cancelar la compra');
+  }
+
+  return response.json();
+}

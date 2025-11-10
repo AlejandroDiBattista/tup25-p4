@@ -3,24 +3,22 @@
 import { Producto } from '../types';
 import Image from 'next/image';
 import { useCart } from '../context/CartContext';
+import { toast } from 'sonner';
 
 export default function ProductoCard({ producto }: { producto: Producto }) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-  const { addItem } = useCart();
-  const { fetchCart } = useCart();
-
+  const { addItem, fetchCart } = useCart();
   const hayStock = producto.existencia > 0;
 
   const handleAddToCart = () => {
     try {
       addItem(producto.id, 1);
     } catch (error: any) {
+
       if (error.message.includes('autenticado')) {
-        alert("Por favor, inicia sesión para agregar productos al carrito.");
-        window.location.href = '/iniciar-sesion';
+        toast.error("Por favor, inicia sesión para agregar productos.");
+
       } else {
-        alert(`Error: ${error.message}`);
       }
     }
   };
@@ -37,22 +35,15 @@ export default function ProductoCard({ producto }: { producto: Producto }) {
           unoptimized
         />
       </div>
-
       <div className="p-4 flex flex-col flex-grow">
         <p className="text-xs text-gray-500 mb-1">{producto.categoria}</p>
-        <h3 className="text-md font-semibold text-gray-800 mb-2 line-clamp-2 flex-grow">
-          {producto.titulo}
-        </h3>
-
+        <h3 className="text-md font-semibold text-gray-800 mb-2 line-clamp-2 flex-grow">{producto.titulo}</h3>
         <div className="flex justify-between items-center mb-4">
-          <span className="text-2xl font-bold text-pink-600">
-            ${producto.precio}
-          </span>
+          <span className="text-2xl font-bold text-pink-600">${producto.precio}</span>
           <span className={`text-sm font-medium ${hayStock ? 'text-gray-700' : 'text-red-500'}`}>
             {hayStock ? `Disponible: ${producto.existencia}` : 'Agotado'}
           </span>
         </div>
-
         <button
           onClick={handleAddToCart}
           disabled={!hayStock}

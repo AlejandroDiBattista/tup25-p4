@@ -1,23 +1,17 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
-import { obtenerCarrito, agregarAlCarrito, quitarDelCarrito } from '../services/cart';
+import {
+  obtenerCarrito,
+  agregarAlCarrito,
+  quitarDelCarrito,
+  cancelarCompra as apiCancelarCompra
+} from '../services/cart';
+import { toast } from 'sonner';
 import { Producto } from '../types';
 
-interface CartItem {
-  cantidad: number;
-  producto: Producto;
-}
-
-export interface CartData {
-  id: number;
-  productos: CartItem[];
-  subtotal: number;
-  iva: number;
-  envio: number;
-  total: number;
-}
-
+interface CartItem { cantidad: number; producto: Producto; }
+export interface CartData { id: number; productos: CartItem[]; subtotal: number; iva: number; envio: number; total: number; }
 interface CartContextType {
   cart: CartData | null;
   loading: boolean;
@@ -25,6 +19,7 @@ interface CartContextType {
   fetchCart: () => Promise<void>;
   addItem: (producto_id: number, cantidad: number) => Promise<void>;
   removeItem: (producto_id: number) => Promise<void>;
+  cancelarCompra: () => Promise<void>;
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -38,9 +33,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-
   const openCart = useCallback(() => setIsCartOpen(true), []);
-
   const closeCart = useCallback(() => setIsCartOpen(false), []);
 
   const fetchCart = useCallback(async () => {
@@ -51,9 +44,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setCart(cartData);
     } catch (err: any) {
       setError(err.message);
-      if (err.message.includes('autenticado')) {
-        setCart(null);
-      }
+      if (err.message.includes('autenticado')) setCart(null);
     } finally {
       setLoading(false);
     }
@@ -64,9 +55,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       await agregarAlCarrito(producto_id, cantidad);
       await fetchCart();
       openCart();
+      toast.success("Producto agregado al carrito");
     } catch (err: any) {
       setError(err.message);
-      alert(`Error: ${err.message}`);
+      toast.error(err.message);
     }
   }, [fetchCart, openCart]);
 
@@ -74,22 +66,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       await quitarDelCarrito(producto_id);
       await fetchCart();
+      toast.success("Producto eliminado del carrito");
     } catch (err: any) {
       setError(err.message);
-      alert(`Error: ${err.message}`);
+      toast.error(err.message);
+    }
+  }, [fetchCart]);
+
+  const cancelarCompra = useCallback(async () => {
+
+    try {
+      await apiCancelarCompra();
+      await fetchCart();
+      toast.success("Carrito vaciado exitosamente");
+    } catch (err: any) {
+      setError(err.message);
+      toast.error(err.message);
     }
   }, [fetchCart]);
 
   const value = {
-    cart,
-    loading,
-    error,
-    fetchCart,
-    addItem,
-    removeItem,
-    isCartOpen,
-    openCart,
-    closeCart,
+    cart, loading, error, fetchCart, addItem, removeItem,
+    cancelarCompra,
+    isCartOpen, openCart, closeCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

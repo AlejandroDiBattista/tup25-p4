@@ -1,18 +1,23 @@
 "use client";
 
 import { useCart } from '../context/CartContext';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from './ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from './ui/sheet';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/app/components/ui/alert-dialog";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -22,22 +27,20 @@ export default function CartSidebar() {
     isCartOpen,
     closeCart,
     removeItem,
-    loading
+    loading,
+    cancelarCompra
   } = useCart();
+
 
   return (
     <Sheet open={isCartOpen} onOpenChange={closeCart}>
-      <SheetContent className="flex flex-col sm:max-w-lg bg-pink-50"> {/* <-- Tu color rosa pastel */}
+      <SheetContent className="flex flex-col sm:max-w-lg bg-pink-50">
         <SheetHeader>
-          <SheetTitle className="text-2xl font-bold text-pink-700"> {/* <-- Tu color rosa */}
-            Mi Carrito
-          </SheetTitle>
+          <SheetTitle className="text-2xl font-bold text-pink-700">Mi Carrito</SheetTitle>
         </SheetHeader>
 
         <Separator className="bg-pink-200" />
-
         {loading && <p>Actualizando carrito...</p>}
-
         {!cart || cart.productos.length === 0 ? (
           <div className="flex-1 flex items-center justify-center">
             <p className="text-gray-600">Tu carrito está vacío.</p>
@@ -57,19 +60,15 @@ export default function CartSidebar() {
                       unoptimized
                     />
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 line-clamp-1">
-                        {item.producto.titulo}
-                      </h4>
+                      <h4 className="font-semibold text-gray-800 line-clamp-1">{item.producto.titulo}</h4>
                       <p className="text-sm text-gray-500">Cantidad: {item.cantidad}</p>
-                      <p className="text-md font-bold text-pink-600">
-                        ${(item.producto.precio * item.cantidad).toFixed(2)}
-                      </p>
+                      <p className="text-md font-bold text-pink-600">${(item.producto.precio * item.cantidad).toFixed(2)}</p>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="text-gray-500 hover:text-red-500"
-                      onClick={() => removeItem(item.producto.id)} // <-- Botón de quitar
+                      onClick={() => removeItem(item.producto.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -77,9 +76,7 @@ export default function CartSidebar() {
                 ))}
               </div>
             </div>
-
             <Separator className="bg-pink-200" />
-
             <div className="space-y-2 text-sm text-gray-700">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
@@ -101,13 +98,37 @@ export default function CartSidebar() {
             </div>
 
             <SheetFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={closeCart}
-                className="border-pink-300 text-pink-600 hover:bg-pink-100 hover:text-pink-700"
-              >
-                Cancelar
-              </Button>
+
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+
+                  <Button
+                    variant="outline"
+                    className="border-pink-300 text-pink-600 hover:bg-pink-100 hover:text-pink-700"
+                  >
+                    Cancelar
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción vaciará tu carrito de compras por completo. No podrás deshacerla.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cerrar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={cancelarCompra}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Sí, vaciar carrito
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
               <Link href="/finalizar-compra" className="w-full">
                 <Button
                   onClick={closeCart}

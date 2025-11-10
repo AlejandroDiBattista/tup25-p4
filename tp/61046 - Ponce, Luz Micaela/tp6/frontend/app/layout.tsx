@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "./components/Header";
 import { CartProvider } from "./context/CartContext";
 import CartSidebar from "./components/CartSidebar";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,7 @@ export default function RootLayout({
         className={`${geistSans.variable} font-sans antialiased bg-gray-50`}
       >
         <CartProvider>
+          <Toaster richColors position="top-center" />
           <Header />
           <CartSidebar />
           <main>{children}</main>
