@@ -57,6 +57,7 @@ class ItemCompra(SQLModel, table=True):
     precio_unitario: float = Field(gt=0)
     cantidad: int = Field(gt=0)
     categoria: str = Field(max_length=100)  # Para cálculo de IVA histórico
+    imagen: str = Field(max_length=500)  # Ruta de la imagen
     
     # Relaciones
     compra: Compra = Relationship(back_populates="items")
@@ -87,6 +88,8 @@ class ItemCompraResponse(SQLModel):
     precio_unitario: float
     cantidad: int
     subtotal: float
+    categoria: str
+    imagen: str
 
 
 class CompraResumenResponse(SQLModel):

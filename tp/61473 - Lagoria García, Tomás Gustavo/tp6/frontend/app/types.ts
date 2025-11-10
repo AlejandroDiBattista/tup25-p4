@@ -81,6 +81,7 @@ export interface ItemCompra {
   cantidad: number;
   subtotal: number;
   categoria: string;
+  imagen: string;
 }
 
 export interface CompraDetalle {

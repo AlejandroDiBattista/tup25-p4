@@ -246,7 +246,8 @@ def finalizar_compra(
                 precio_unitario=item.precio_unitario,
                 cantidad=item.cantidad,
                 subtotal=item.precio_unitario * item.cantidad,
-                categoria=item.categoria
+                categoria=item.categoria,
+                imagen=item.imagen
             )
             for item in compra.items
         ],

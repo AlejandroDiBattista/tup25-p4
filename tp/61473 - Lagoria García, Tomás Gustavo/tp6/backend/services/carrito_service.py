@@ -198,7 +198,8 @@ def crear_compra_desde_carrito(
             cantidad=item.cantidad,
             nombre=item.producto.titulo,
             precio_unitario=item.producto.precio,
-            categoria=item.producto.categoria
+            categoria=item.producto.categoria,
+            imagen=item.producto.imagen
         )
         session.add(item_compra)
         

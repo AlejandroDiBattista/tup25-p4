@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,7 @@ interface CartSidebarProps {
 }
 
 export function CartSidebar({ open, onClose }: CartSidebarProps) {
+  const router = useRouter();
   const { carrito, loading, agregar, quitar, cancelar, recargar } = useCarrito();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
@@ -177,8 +179,7 @@ export function CartSidebar({ open, onClose }: CartSidebarProps) {
                 size="lg"
                 onClick={() => {
                   onClose();
-                  // Aquí luego navegaremos al checkout (FASE 4)
-                  toast.info('Checkout próximamente (FASE 4)');
+                  router.push('/checkout');
                 }}
               >
                 Continuar compra
