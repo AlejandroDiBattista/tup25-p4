@@ -1,8 +1,13 @@
-from fastapi import FastAPI
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlmodel import Session, select
+from models.db_models import Usuario
+from init_db import engine
 import json
 from pathlib import Path
+import hashlib
 
 app = FastAPI(title="API Productos")
 
@@ -18,15 +23,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+@app.post("/registrar")
+def registrar_usuario(nombre: str, email: str, password: str):
+    with Session(engine) as session:
+        existe = session.exec(select(Usuario).where(Usuario.email == email)).first()
+        if existe:
+            raise HTTPException(status_code=400, detail="El email ya está registrado.")
+        usuario = Usuario(nombre=nombre, email=email, password=hash_password(password))
+        session.add(usuario)
+        session.commit()
+        session.refresh(usuario)
+        return {"mensaje": "Usuario registrado correctamente."}
 
 @app.get("/")
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
+
+def cargar_productos():
+    ruta_productos = Path(__file__).parent / "productos.json"
+    with open(ruta_productos, "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
 
 @app.get("/productos")
 def obtener_productos():
