@@ -2,9 +2,14 @@ import { Producto } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export async function obtenerProductos(): Promise<Producto[]> {
+export async function obtenerProductos(buscar?: string): Promise<Producto[]> {
   try {
-    const response = await fetch(`${API_URL}/productos`, {
+    const url = new URL(`${API_URL}/productos`);
+    if (buscar) {
+      url.searchParams.set('buscar', buscar);
+    }
+
+    const response = await fetch(url.toString(), {
       cache: 'no-store'
     });
 
