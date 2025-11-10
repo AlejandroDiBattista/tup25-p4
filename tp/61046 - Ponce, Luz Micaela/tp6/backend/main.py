@@ -21,7 +21,9 @@ from models.productos import (
     UsuarioCreate, UsuarioRead, UsuarioLogin,
     Token, TokenData,
     CarritoItemCreate,
-    CarritoItemRead, CarritoRead
+    CarritoItemRead, CarritoRead,
+    CompraCreate,
+    CompraItemRead, CompraRead
 )
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -32,7 +34,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="iniciar-sesion")
 
 DATABASE_FILE = "database.db"
 DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 @event.listens_for(Engine, "connect")
 def on_connect(dbapi_connection, connection_record):
@@ -234,7 +236,7 @@ def agregar_producto_al_carrito(
     usuario_actual: Usuario = Depends(get_current_user)
 ):
     carrito = session.exec(
-        select(Carrito).where(Carrito.usuario_id == usuario_actual.id, Carrito.estado == "activo")
+        select(Carrito).where(Carrito.usuario_id == usuario_actual.id)
     ).first()
 
     if not carrito:
@@ -242,6 +244,9 @@ def agregar_producto_al_carrito(
         session.add(carrito)
         session.commit()
         session.refresh(carrito)
+
+    if carrito.estado == "finalizado":
+        carrito.estado = "activo"
 
     producto = session.get(Producto, item_data.producto_id)
     if not producto:
@@ -263,7 +268,7 @@ def agregar_producto_al_carrito(
     if item_existente:
         nueva_cantidad = item_existente.cantidad + item_data.cantidad
         if producto.existencia < nueva_cantidad:
-             raise HTTPException(
+            raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"No hay suficiente existencia para agregar más. Disponibles: {producto.existencia}, en carrito: {item_existente.cantidad}"
             )
@@ -277,6 +282,7 @@ def agregar_producto_al_carrito(
         )
 
     session.add(item_existente)
+    session.add(carrito)
     session.commit()
     session.refresh(item_existente)
 
@@ -318,7 +324,7 @@ def ver_carrito(
             iva += item_total * 0.21 # 21% para el resto
 
     envio = 0.0
-    if subtotal <= 1000.0:
+    if subtotal <= 1000.0 and subtotal > 0:
         envio = 50.0
 
     total = subtotal + iva + envio
@@ -388,6 +394,131 @@ def cancelar_compra_vaciar_carrito(
 
     return {"mensaje": "Carrito vaciado exitosamente"}
 
+@app.post("/carrito/finalizar", response_model=Compra)
+def finalizar_compra(
+    compra_data: CompraCreate,
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    carrito = session.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario_actual.id, Carrito.estado == "activo")
+    ).first()
+
+    if not carrito:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró un carrito activo")
+
+    items_con_productos = session.exec(
+        select(CarritoItem, Producto)
+        .join(Producto, CarritoItem.producto_id == Producto.id)
+        .where(CarritoItem.carrito_id == carrito.id)
+    ).all()
+
+    if not items_con_productos:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito está vacío")
+
+    for item, producto in items_con_productos:
+        if producto.existencia < item.cantidad:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"No hay suficiente stock para '{producto.nombre}'. Pedido: {item.cantidad}, Disponible: {producto.existencia}"
+            )
+
+    subtotal = 0.0
+    iva = 0.0
+    for item, producto in items_con_productos:
+        item_total = producto.precio * item.cantidad
+        subtotal += item_total
+        if "electrónica" in producto.categoria.lower():
+            iva += item_total * 0.10
+        else:
+            iva += item_total * 0.21
+
+    envio = 0.0
+    if subtotal <= 1000.0:
+        envio = 50.0
+
+    total = round(subtotal + iva + envio, 2)
+
+    nueva_compra = Compra(
+        usuario_id=usuario_actual.id,
+        direccion=compra_data.direccion,
+        tarjeta=compra_data.tarjeta,
+        total=total,
+        envio=envio,
+    )
+    session.add(nueva_compra)
+    session.commit()
+    session.refresh(nueva_compra)
+
+    for item, producto in items_con_productos:
+        compra_item = CompraItem(
+            compra_id=nueva_compra.id,
+            producto_id=producto.id,
+            cantidad=item.cantidad,
+            nombre=producto.nombre,
+            precio_unitario=producto.precio
+        )
+
+        producto_a_actualizar = session.get(Producto, producto.id)
+        producto_a_actualizar.existencia -= item.cantidad
+        session.add(producto_a_actualizar)
+
+        session.add(compra_item)
+
+        session.delete(item)
+
+    session.commit()
+    session.refresh(nueva_compra)
+
+    return nueva_compra
+
+
+@app.get("/compras", response_model=List[Compra])
+def ver_historial_compras(
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    compras = session.exec(
+        select(Compra)
+        .where(Compra.usuario_id == usuario_actual.id)
+        .order_by(Compra.fecha.desc()) # Mostrar la más reciente primero
+    ).all()
+    return compras
+
+@app.get("/compras/{id}", response_model=CompraRead)
+def ver_detalle_compra(
+    id: int,
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    compra = session.get(Compra, id)
+
+    if not compra:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Compra no encontrada")
+
+    if compra.usuario_id != usuario_actual.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para ver esta compra")
+
+    items_compra = session.exec(
+        select(CompraItem).where(CompraItem.compra_id == id)
+    ).all()
+
+    lista_items_leidos = []
+    for item in items_compra:
+        lista_items_leidos.append(CompraItemRead.model_validate(item))
+
+    compra_leida = CompraRead(
+        id=compra.id,
+        fecha=compra.fecha,
+        direccion=compra.direccion,
+        tarjeta=compra.tarjeta,
+        total=compra.total,
+        envio=compra.envio,
+        usuario_id=compra.usuario_id,
+        productos=lista_items_leidos
+    )
+
+    return compra_leida
 
 if __name__ == "__main__":
     import uvicorn

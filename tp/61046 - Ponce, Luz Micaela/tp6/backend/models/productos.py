@@ -109,3 +109,41 @@ class Token(SQLModel):
 # <<<< Modelo p/los datos contenidos en el token >>>>>
 class TokenData(SQLModel):
     email: str | None = None
+
+class CarritoItemCreate(SQLModel):
+    producto_id: int
+    cantidad: int
+
+class CarritoItemRead(SQLModel):
+    cantidad: int
+    producto: Producto
+
+class CarritoRead(SQLModel):
+    id: int
+    estado: str
+    productos: List[CarritoItemRead] = []
+    subtotal: float = 0.0
+    iva: float = 0.0
+    envio: float = 0.0
+    total: float = 0.0
+
+class CompraCreate(SQLModel):
+    direccion: str
+    tarjeta: str
+
+class CompraItemRead(SQLModel):
+    cantidad: int
+    nombre: str
+    precio_unitario: float
+    producto_id: int
+
+class CompraRead(SQLModel):
+    id: int
+    fecha: datetime
+    direccion: str
+    tarjeta: str
+    total: float
+    envio: float
+    usuario_id: int
+
+    productos: List[CompraItemRead] = []
