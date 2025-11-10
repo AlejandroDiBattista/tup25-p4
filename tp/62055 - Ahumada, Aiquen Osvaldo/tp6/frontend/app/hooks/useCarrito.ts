@@ -36,6 +36,9 @@ export function useCarrito() {
     }
     const data = await response.json();
     notifyCarritoActualizado();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('compras-actualizadas'));
+    }
     return data;
   }, [API_URL, isAuthenticated, token]);
 
@@ -93,6 +96,9 @@ export function useCarrito() {
     }
     const data = await response.json();
     notifyCarritoActualizado();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('compras-actualizadas'));
+    }
     return data;
   }, [API_URL, isAuthenticated, token]);
 

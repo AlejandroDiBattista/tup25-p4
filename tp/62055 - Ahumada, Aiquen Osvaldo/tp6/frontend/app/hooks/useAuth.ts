@@ -3,14 +3,16 @@
 import { useState, useEffect } from 'react';
 import { getToken, getUser, logout } from '../services/auth';
 
+const isClient = typeof window !== 'undefined';
+
 export function useAuth() {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [token, setToken] = useState<string | null>(() => (isClient ? getToken() : null));
+  const [user, setUser] = useState<any>(() => (isClient ? getUser() : null));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (!isClient) {
       setLoading(false);
       return;
     }
@@ -39,8 +41,10 @@ export function useAuth() {
     syncAuth();
     const handleStorage = () => syncAuth();
     window.addEventListener('storage', handleStorage);
+    window.addEventListener('auth-updated', handleStorage);
     return () => {
       window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('auth-updated', handleStorage);
     };
   }, []);
 
@@ -50,6 +54,9 @@ export function useAuth() {
     setUser(null);
     setError(null);
     setLoading(false);
+    if (isClient) {
+      window.dispatchEvent(new Event('auth-updated'));
+    }
   }
 
   return { token, user, signOut, isAuthenticated: !!token, error, loading };

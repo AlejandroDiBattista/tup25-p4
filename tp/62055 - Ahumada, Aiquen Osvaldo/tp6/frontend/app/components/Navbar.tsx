@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
-  const { user, signOut, isAuthenticated } = useAuth();
+  const { user, signOut, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   function handleSignOut() {
@@ -18,7 +18,9 @@ export default function Navbar() {
       <div className="font-bold text-lg">TP6 Shop</div>
       <div className="flex items-center gap-4">
         <Link href="/productos" className="text-blue-900 font-semibold px-3 py-1 rounded hover:bg-blue-100 transition">Productos</Link>
-        {isAuthenticated ? (
+        {loading ? (
+          <span className="text-gray-500 text-sm">Cargando...</span>
+        ) : isAuthenticated ? (
           <>
             <Link href="/compras" className="text-blue-900 font-semibold px-3 py-1 rounded hover:bg-blue-100 transition">Mis compras</Link>
             <span className="text-gray-700 font-semibold">{user?.nombre}</span>

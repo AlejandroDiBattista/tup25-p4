@@ -34,6 +34,7 @@ export async function iniciarSesion(email: string, password: string) {
   if (typeof window !== 'undefined') {
     localStorage.setItem('token', data.access_token);
     localStorage.setItem('user', JSON.stringify(data.user));
+    window.dispatchEvent(new Event('auth-updated'));
   }
   return data;
 }
@@ -57,6 +58,7 @@ export function logout() {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    window.dispatchEvent(new Event('auth-updated'));
   }
 }
 export async function cerrarSesion(token: string) {

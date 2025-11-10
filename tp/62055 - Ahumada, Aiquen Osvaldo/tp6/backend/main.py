@@ -19,6 +19,7 @@ from models.usuarios import SessionToken, Usuario, UsuarioCreate
 BASE_DIR = pathlib.Path(__file__).parent
 PRODUCTOS_PATH = BASE_DIR / "productos.json"
 IMAGENES_DIR = BASE_DIR / "imagenes"
+COMPRAS_PATH = BASE_DIR / "compras.json"
 
 app = FastAPI(title="API E-Commerce (TP6)")
 
@@ -34,6 +35,18 @@ if IMAGENES_DIR.exists():
     app.mount("/imagenes", StaticFiles(directory=str(IMAGENES_DIR)), name="imagenes")
 
 carritos: Dict[int, Dict[int, int]] = {}
+
+
+def cargar_compras() -> List[Dict[str, Any]]:
+    if not COMPRAS_PATH.exists():
+        return []
+    with open(COMPRAS_PATH, "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
+
+
+def guardar_compras(compras: List[Dict[str, Any]]) -> None:
+    with open(COMPRAS_PATH, "w", encoding="utf-8") as archivo:
+        json.dump(compras, archivo, ensure_ascii=False, indent=4)
 
 
 def get_db_session():
@@ -133,6 +146,8 @@ def construir_detalle_carrito(carrito_usuario: Dict[int, int]) -> Dict[str, Any]
 @app.on_event("startup")
 def on_startup() -> None:
     create_db_and_tables()
+    if not COMPRAS_PATH.exists():
+        guardar_compras([])
 
 
 @app.get("/")
@@ -226,9 +241,19 @@ def finalizar_compra(user: Usuario = Depends(get_current_user)):
     carrito_usuario = carritos.get(user.id, {})
     if not carrito_usuario:
         raise HTTPException(status_code=400, detail="El carrito está vacío")
+    detalle = construir_detalle_carrito(carrito_usuario)
+
+    compras = cargar_compras()
+    compras.append({
+        "id": str(uuid4()),
+        "user_id": user.id,
+        "fecha": datetime.utcnow().isoformat(),
+        "items": detalle.get("carrito", []),
+        "resumen": detalle.get("resumen", {}),
+    })
+    guardar_compras(compras)
 
     carritos[user.id] = {}
-    detalle = construir_detalle_carrito({})
     return {"mensaje": "Compra finalizada", **detalle}
 
 
@@ -296,3 +321,11 @@ def cerrar_sesion(authorization: Optional[str] = Header(default=None), session: 
     session.delete(ses)
     session.commit()
     return {"mensaje": "Sesión cerrada correctamente"}
+
+
+@app.get("/compras")
+def ver_compras(user: Usuario = Depends(get_current_user)):
+    compras = cargar_compras()
+    propias = [compra for compra in compras if compra.get("user_id") == user.id]
+    propias.sort(key=lambda c: c.get("fecha", ""), reverse=True)
+    return {"compras": propias}

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { obtenerProductos } from "../services/productos";
 import ProductoCard from "../components/ProductoCard";
 import Carrito from "../components/Carrito";
@@ -11,11 +11,26 @@ export default function ProductosPage() {
   const [error, setError] = useState("");
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
+  const cargarProductos = useCallback(() => {
     obtenerProductos()
       .then(setProductos)
       .catch((err) => setError(err.message));
   }, []);
+
+  useEffect(() => {
+    cargarProductos();
+  }, [cargarProductos]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const handler = () => cargarProductos();
+    window.addEventListener("carrito-actualizado", handler);
+    return () => {
+      window.removeEventListener("carrito-actualizado", handler);
+    };
+  }, [cargarProductos]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 p-8 bg-white min-h-screen">
@@ -40,7 +55,7 @@ export default function ProductosPage() {
       {/* Carrito emergente a la derecha */}
       <div className="w-full lg:w-[400px]">
         {isAuthenticated ? <Carrito /> : (
-          <div className="bg-red-100 text-redbien ahora esta mejor la sincronizacion , me gusta , solo que no abre el carrito de igual manera -700 p-2 rounded mb-2">Debes iniciar sesión para ver el carrito</div>
+          <div className="bg-red-100 text-red-700 p-2 rounded mb-2">Debes iniciar sesión para ver el carrito</div>
         )}
       </div>
     </div>
