@@ -4,9 +4,10 @@ import { Producto } from "../types";
 interface ProductoRowProps {
   producto: Producto;
   onAdd: (id: number) => void;
+  isLogged?: boolean;
 }
 
-export default function ProductoRow({ producto, onAdd }: ProductoRowProps) {
+export default function ProductoRow({ producto, onAdd, isLogged = false }: ProductoRowProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const agotado = producto.existencia <= 0;
 
@@ -37,14 +38,14 @@ export default function ProductoRow({ producto, onAdd }: ProductoRowProps) {
         <div className="text-xs text-gray-900">Disponible: {producto.existencia}</div>
         <button
           className={`px-4 py-2 rounded text-sm font-semibold transition ${
-            agotado
+            agotado || !isLogged
               ? "bg-gray-200 text-gray-500 cursor-not-allowed"
               : "bg-indigo-600 text-white hover:bg-indigo-700"
           }`}
-          onClick={() => !agotado && onAdd(producto.id)}
-          disabled={agotado}
+          onClick={() => !agotado && isLogged && onAdd(producto.id)}
+          disabled={agotado || !isLogged}
         >
-          {agotado ? "Agotado" : "Agregar al carrito"}
+          {agotado ? "Agotado" : isLogged ? "Agregar al carrito" : "Ingresá para comprar"}
         </button>
       </div>
     </div>

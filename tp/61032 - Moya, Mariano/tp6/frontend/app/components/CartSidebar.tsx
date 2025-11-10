@@ -27,7 +27,11 @@ export default function CartSidebar() {
   }).filter(Boolean) as (Producto & { cantidad: number })[];
 
   const subtotal = enriched.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
-  const iva = +(subtotal * 0.21).toFixed(2);
+  const iva = +(enriched.reduce((acc, p) => {
+    const esElectronico = (p.categoria || "").toLowerCase().includes("electr");
+    const rate = esElectronico ? 0.10 : 0.21;
+    return acc + p.precio * p.cantidad * rate;
+  }, 0)).toFixed(2);
   const envio = subtotal > 50000 ? 0 : 1000;
   const total = +(subtotal + iva + envio).toFixed(2);
 

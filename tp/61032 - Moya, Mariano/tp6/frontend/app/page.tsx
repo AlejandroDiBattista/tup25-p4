@@ -14,6 +14,13 @@ export default function Home() {
   const [categoria, setCategoria] = useState("");
   const [categorias, setCategorias] = useState<string[]>([]);
   const [addedMsg, setAddedMsg] = useState<string | null>(null);
+  const [needLoginMsg, setNeedLoginMsg] = useState<string | null>(null);
+  const [isLogged, setIsLogged] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return !!localStorage.getItem("token");
+    }
+    return false;
+  });
 
   useEffect(() => {
     obtenerProductos().then((data: Producto[]) => {
@@ -21,10 +28,20 @@ export default function Home() {
       const cats = Array.from(new Set(data.map((p) => p.categoria).filter(Boolean)));
       setCategorias(cats);
     });
+    if (typeof window !== "undefined") {
+      const handler = () => setIsLogged(!!localStorage.getItem("token"));
+      window.addEventListener("storage", handler);
+      return () => window.removeEventListener("storage", handler);
+    }
   }, []);
 
   const onAddToCart = (id: number) => {
     if (typeof window === "undefined") return;
+    if (!isLogged) {
+      setNeedLoginMsg("Inicia sesión para agregar productos");
+      setTimeout(() => setNeedLoginMsg(null), 1800);
+      return;
+    }
     const carritoRaw = localStorage.getItem("carrito");
     const carrito: { id: number; cantidad: number }[] = carritoRaw ? JSON.parse(carritoRaw) : [];
     const existing = carrito.find((item) => item.id === id);
@@ -52,7 +69,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-8 py-10">
         <Header />
         <div className="mt-10">
-          <h1 className="text-2xl font-bold mb-6">Pantalla inicial de productos.</h1>
+          <h1 className="text-2xl font-bold mb-6">Productos</h1>
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1">
               <SearchBar value={busqueda} onChange={setBusqueda} />
@@ -62,7 +79,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6">
             <div className="space-y-4">
               {productosFiltrados.map((producto: Producto) => (
-                <ProductoRow key={producto.id} producto={producto} onAdd={onAddToCart} />
+                <ProductoRow key={producto.id} producto={producto} onAdd={onAddToCart} isLogged={isLogged} />
               ))}
             </div>
             <CartSidebar />
@@ -72,6 +89,11 @@ export default function Home() {
       {addedMsg && (
         <div className="fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded shadow-lg text-sm">
           {addedMsg}
+        </div>
+      )}
+      {needLoginMsg && (
+        <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg text-sm">
+          {needLoginMsg}
         </div>
       )}
     </div>
