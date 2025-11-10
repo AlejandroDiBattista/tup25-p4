@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { obtenerCarrito } from '@/app/services/carrito';
+import { finalizarCompra } from '@/app/services/compras';
+import { useToast } from '@/app/hooks/useToast';
 import { Carrito } from '@/app/types';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { agregarToast } = useToast();
   const [carrito, setCarrito] = useState<Carrito | null>(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
@@ -28,7 +31,9 @@ export default function CheckoutPage() {
         const datos = await obtenerCarrito();
         setCarrito(datos);
       } catch (err) {
-        setError('No se pudo cargar el carrito');
+        const msg = 'No se pudo cargar el carrito';
+        setError(msg);
+        agregarToast(msg, 'error', 3000);
         console.error('Error:', err);
       } finally {
         setLoading(false);
@@ -36,7 +41,7 @@ export default function CheckoutPage() {
     };
 
     cargarCarrito();
-  }, [router]);
+  }, [router, agregarToast]);
 
   const handleProcesar = async () => {
     try {
@@ -49,27 +54,13 @@ export default function CheckoutPage() {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/compras`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({}),
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Error al procesar la compra');
-      }
-
-      // Redirigir a página de éxito o compras
+      await finalizarCompra('Dirección de entrega', '****-****-****-1234');
+      agregarToast('Compra realizada exitosamente', 'success', 2000);
       router.push('/compras?success=true');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al procesar la compra');
+      const mensaje = err instanceof Error ? err.message : 'Error al procesar la compra';
+      setError(mensaje);
+      agregarToast(mensaje, 'error', 3000);
       console.error('Error:', err);
     } finally {
       setProcesando(false);

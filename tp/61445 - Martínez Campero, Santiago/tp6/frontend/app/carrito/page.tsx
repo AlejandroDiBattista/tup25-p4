@@ -66,8 +66,10 @@ export default function CarritoPage() {
     try {
       setActualizando(itemId);
       setError(null);
-      const actualizado = await removerDelCarrito(itemId);
-      setCarrito(actualizado);
+      await removerDelCarrito(itemId);
+      // Recargar el carrito después de eliminar
+      const carritoActualizado = await obtenerCarrito();
+      setCarrito(carritoActualizado);
       agregarToast('Producto eliminado del carrito', 'success', 2000);
     } catch (err) {
       const msg = 'Error al eliminar del carrito';
@@ -84,8 +86,10 @@ export default function CarritoPage() {
 
     try {
       setError(null);
-      const actualizado = await cancelarCarrito();
-      setCarrito(actualizado);
+      await cancelarCarrito();
+      // Recargar el carrito después de vaciarlo
+      const carritoActualizado = await obtenerCarrito();
+      setCarrito(carritoActualizado);
       agregarToast('Carrito vaciado correctamente', 'success', 2000);
     } catch (err) {
       const msg = 'Error al vaciar el carrito';

@@ -1,15 +1,16 @@
 """Endpoints para gestión de compras."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlmodel import Session, select, and_
 from datetime import datetime
+from typing import Optional
 
 from database import get_session
-from models.compras import Compra, CompraCreate, CompraResponse, CompraDetailResponse, ItemCompra
+from models.compras import Compra, CompraCreate, CompraResponse, CompraDetailResponse, ItemCompra, ItemCompraResponse
 from models.carrito import Carrito, ItemCarrito
 from models.usuarios import Usuario
 from models.productos import Producto
-from utils import get_current_user
+from utils import validate_token_from_header
 from config import IVA_STANDARD, IVA_ELECTRONICA, SHIPPING_COST, SHIPPING_FREE_THRESHOLD, ELECTRONICS_CATEGORIES
 
 router = APIRouter(prefix="/compras", tags=["compras"])
@@ -18,10 +19,17 @@ router = APIRouter(prefix="/compras", tags=["compras"])
 @router.post("/finalizar", response_model=CompraResponse)
 def finalizar_compra(
     compra_data: CompraCreate,
-    session: Session = Depends(get_session),
-    usuario: Usuario = Depends(get_current_user)
+    authorization: Optional[str] = Header(None),
+    session: Session = Depends(get_session)
 ):
     """Finalizar compra desde el carrito activo."""
+    
+    # Validar el token
+    usuario_id = validate_token_from_header(authorization)
+    
+    usuario = session.get(Usuario, usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
     
     # Obtener carrito activo
     carrito = session.exec(
@@ -54,6 +62,7 @@ def finalizar_compra(
     subtotal = 0.0
     iva_total = 0.0
     items_compra = []
+    items_info = []  # Para guardar info del producto
     
     for item in items:
         producto = session.get(Producto, item.producto_id)
@@ -79,6 +88,14 @@ def finalizar_compra(
             precio_unitario=producto.precio
         )
         items_compra.append(item_compra)
+        
+        # Guardar info del producto para la respuesta
+        items_info.append({
+            "nombre": producto.nombre,
+            "precio": producto.precio,
+            "imagen": producto.imagen,
+            "precio_item": precio_item
+        })
     
     # Calcular envío
     envio = 0.0 if subtotal >= SHIPPING_FREE_THRESHOLD else SHIPPING_COST
@@ -118,25 +135,77 @@ def finalizar_compra(
 
 @router.get("", response_model=list[CompraResponse])
 def obtener_compras(
-    session: Session = Depends(get_session),
-    usuario: Usuario = Depends(get_current_user)
+    authorization: Optional[str] = Header(None),
+    session: Session = Depends(get_session)
 ):
     """Obtener historial de compras del usuario."""
+    
+    # Validar el token
+    usuario_id = validate_token_from_header(authorization)
+    
+    usuario = session.get(Usuario, usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
     
     compras = session.exec(
         select(Compra).where(Compra.usuario_id == usuario.id).order_by(Compra.fecha.desc())
     ).all()
     
-    return compras
+    # Cargar items para cada compra
+    result = []
+    for compra in compras:
+        items_db = session.exec(
+            select(ItemCompra).where(ItemCompra.compra_id == compra.id)
+        ).all()
+        
+        # Construir items extendidos con información del producto
+        items_extendidos = []
+        for item in items_db:
+            producto = session.get(Producto, item.producto_id)
+            if producto:
+                item_response = ItemCompraResponse(
+                    id=item.id,
+                    producto_id=item.producto_id,
+                    nombre=item.nombre_producto,
+                    cantidad=item.cantidad,
+                    precio_unitario=item.precio_unitario,
+                    precio_total=item.precio_unitario * item.cantidad,
+                    imagen=producto.imagen
+                )
+                items_extendidos.append(item_response)
+        
+        compra_response = CompraResponse(
+            id=compra.id,
+            usuario_id=compra.usuario_id,
+            fecha=compra.fecha,
+            direccion=compra.direccion,
+            tarjeta=compra.tarjeta,
+            subtotal=compra.subtotal,
+            iva=compra.iva,
+            envio=compra.envio,
+            total=compra.total,
+            estado=compra.estado,
+            items=items_extendidos
+        )
+        result.append(compra_response)
+    
+    return result
 
 
 @router.get("/{compra_id}", response_model=CompraDetailResponse)
 def obtener_compra(
     compra_id: int,
-    session: Session = Depends(get_session),
-    usuario: Usuario = Depends(get_current_user)
+    authorization: Optional[str] = Header(None),
+    session: Session = Depends(get_session)
 ):
     """Obtener detalles de una compra específica."""
+    
+    # Validar el token
+    usuario_id = validate_token_from_header(authorization)
+    
+    usuario = session.get(Usuario, usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
     
     compra = session.get(Compra, compra_id)
     
@@ -153,10 +222,25 @@ def obtener_compra(
             detail="Not authorized to view this purchase"
         )
     
-    # Obtener items
-    items = session.exec(
+    # Obtener items con información del producto
+    items_db = session.exec(
         select(ItemCompra).where(ItemCompra.compra_id == compra.id)
     ).all()
+    
+    items_extendidos = []
+    for item in items_db:
+        producto = session.get(Producto, item.producto_id)
+        if producto:
+            item_response = ItemCompraResponse(
+                id=item.id,
+                producto_id=item.producto_id,
+                nombre=item.nombre_producto,
+                cantidad=item.cantidad,
+                precio_unitario=item.precio_unitario,
+                precio_total=item.precio_unitario * item.cantidad,
+                imagen=producto.imagen
+            )
+            items_extendidos.append(item_response)
     
     return CompraDetailResponse(
         id=compra.id,
@@ -169,5 +253,5 @@ def obtener_compra(
         envio=compra.envio,
         total=compra.total,
         estado=compra.estado,
-        items=items
+        items=items_extendidos
     )

@@ -51,7 +51,19 @@ class CompraResponse(SQLModel):
     envio: float
     total: float
     estado: EstadoCompra
+    items: list['ItemCompraResponse'] = []
+
+
+class ItemCompraResponse(SQLModel):
+    """Item de compra con información extendida para respuestas."""
+    id: int
+    producto_id: int
+    nombre: str
+    cantidad: int
+    precio_unitario: float
+    precio_total: float
+    imagen: str
 
 
 class CompraDetailResponse(CompraResponse):
-    items: list[ItemCompra]
+    items: list[ItemCompraResponse] = []

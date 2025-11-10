@@ -10,7 +10,7 @@ DATABASE_URL = "sqlite:///./database.db"
 # Seguridad JWT
 SECRET_KEY = "tp6-ecommerce-secret-key-change-in-production"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 480  # 8 horas para facilitar el testing
 
 # CORS
 ALLOWED_ORIGINS = [

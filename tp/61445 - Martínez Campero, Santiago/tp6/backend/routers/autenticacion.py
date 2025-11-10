@@ -70,7 +70,7 @@ def registrar(usuario_data: UsuarioCreate, session: Session = Depends(get_sessio
     session.refresh(usuario)
     
     access_token = create_access_token(
-        data={"sub": usuario.id},
+        data={"sub": str(usuario.id)},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
@@ -90,7 +90,7 @@ def iniciar_sesion(credenciales: UsuarioLogin, session: Session = Depends(get_se
         raise HTTPException(status_code=401, detail="Email o contraseña inválidos")
     
     access_token = create_access_token(
-        data={"sub": usuario.id},
+        data={"sub": str(usuario.id)},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
