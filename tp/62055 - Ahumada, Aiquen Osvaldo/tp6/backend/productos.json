@@ -6,7 +6,7 @@
         "descripcion": "Mochila resistente para uso diario con funda acolchada para laptop de 15 pulgadas.",
         "categoria": "Ropa de hombre",
         "valoracion": 3.9,
-        "existencia": 4,
+        "existencia": 8,
         "imagen": "imagenes/0001.png"
     },
     {
@@ -16,7 +16,7 @@
         "descripcion": "Camiseta entallada de mangas raglán, tejido ligero y cómodo para estilo casual.",
         "categoria": "Ropa de hombre",
         "valoracion": 4.1,
-        "existencia": 4,
+        "existencia": 5,
         "imagen": "imagenes/0002.png"
     },
     {
@@ -26,7 +26,7 @@
         "descripcion": "Chaqueta ligera de algodón para hombre, ideal para actividades al aire libre en clima frío.",
         "categoria": "Ropa de hombre",
         "valoracion": 4.7,
-        "existencia": 5,
+        "existencia": 4,
         "imagen": "imagenes/0003.png"
     },
     {
@@ -36,7 +36,7 @@
         "descripcion": "Prenda casual entallada para hombre con ajuste cómodo; verifica talles antes de comprar.",
         "categoria": "Ropa de hombre",
         "valoracion": 2.1,
-        "existencia": 5,
+        "existencia": 3,
         "imagen": "imagenes/0004.png"
     },
     {

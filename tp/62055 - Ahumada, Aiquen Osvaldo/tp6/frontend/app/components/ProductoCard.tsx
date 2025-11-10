@@ -39,6 +39,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain p-4"
+          loading="eager"
           unoptimized
         />
       </div>

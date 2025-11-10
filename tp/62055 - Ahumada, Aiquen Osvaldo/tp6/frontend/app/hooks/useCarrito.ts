@@ -1,11 +1,21 @@
 "use client";
+import { useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 
 export function useCarrito() {
   const { token, isAuthenticated } = useAuth();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const API_URL = useMemo(
+    () => process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    []
+  );
 
-  async function agregarAlCarrito(producto: any) {
+  function notifyCarritoActualizado() {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('carrito-actualizado'));
+    }
+  }
+
+  const agregarAlCarrito = useCallback(async (producto: any) => {
     if (!isAuthenticated) {
       throw new Error('Debes iniciar sesión para agregar productos al carrito');
     }
@@ -24,10 +34,12 @@ export function useCarrito() {
       const error = await response.json();
       throw new Error(error.detail || 'Error al agregar al carrito');
     }
-    return response.json();
-  }
+    const data = await response.json();
+    notifyCarritoActualizado();
+    return data;
+  }, [API_URL, isAuthenticated, token]);
 
-  async function obtenerCarrito() {
+  const obtenerCarrito = useCallback(async () => {
     if (!isAuthenticated) throw new Error('Debes iniciar sesión para ver el carrito');
     const response = await fetch(`${API_URL}/carrito`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -37,9 +49,9 @@ export function useCarrito() {
       throw new Error(error.detail || 'Error al obtener el carrito');
     }
     return response.json();
-  }
+  }, [API_URL, isAuthenticated, token]);
 
-  async function quitarDelCarrito(producto_id: number) {
+  const quitarDelCarrito = useCallback(async (producto_id: number) => {
     if (!isAuthenticated) throw new Error('Debes iniciar sesión para modificar el carrito');
     const response = await fetch(`${API_URL}/carrito/${producto_id}`, {
       method: 'DELETE',
@@ -49,10 +61,12 @@ export function useCarrito() {
       const error = await response.json();
       throw new Error(error.detail || 'Error al quitar producto del carrito');
     }
-    return response.json();
-  }
+    const data = await response.json();
+    notifyCarritoActualizado();
+    return data;
+  }, [API_URL, isAuthenticated, token]);
 
-  async function finalizarCompra() {
+  const finalizarCompra = useCallback(async () => {
     if (!isAuthenticated) throw new Error('Debes iniciar sesión para finalizar la compra');
     const response = await fetch(`${API_URL}/carrito/finalizar`, {
       method: 'POST',
@@ -62,10 +76,12 @@ export function useCarrito() {
       const error = await response.json();
       throw new Error(error.detail || 'Error al finalizar la compra');
     }
-    return response.json();
-  }
+    const data = await response.json();
+    notifyCarritoActualizado();
+    return data;
+  }, [API_URL, isAuthenticated, token]);
 
-  async function cancelarCompra() {
+  const cancelarCompra = useCallback(async () => {
     if (!isAuthenticated) throw new Error('Debes iniciar sesión para cancelar la compra');
     const response = await fetch(`${API_URL}/carrito/cancelar`, {
       method: 'POST',
@@ -75,8 +91,10 @@ export function useCarrito() {
       const error = await response.json();
       throw new Error(error.detail || 'Error al cancelar el carrito');
     }
-    return response.json();
-  }
+    const data = await response.json();
+    notifyCarritoActualizado();
+    return data;
+  }, [API_URL, isAuthenticated, token]);
 
   return { agregarAlCarrito, obtenerCarrito, quitarDelCarrito, finalizarCompra, cancelarCompra };
 }

@@ -1,42 +1,50 @@
-
 # --- IMPORTS Y APP ---
-from fastapi import FastAPI, Path, Body, Depends, HTTPException, status, Header, Query
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
-import pathlib
+from typing import Any, Dict, Optional, List  # Cambiar list y dict por List y Dict para compatibilidad con Python 3.8
+
 import json
-from typing import Optional
-from passlib.hash import argon2
+import pathlib
 from uuid import uuid4
-from sqlmodel import select, Session
-from database import engine, create_db_and_tables
-from models.productos import Producto
-from models.usuarios import Usuario, UsuarioCreate, SessionToken
+from datetime import datetime, timedelta
+
+from fastapi import Body, Depends, FastAPI, Header, HTTPException, Path, Query, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from passlib.hash import argon2
+from sqlmodel import Session, select
+
+from database import create_db_and_tables, engine
+from models.usuarios import SessionToken, Usuario, UsuarioCreate
+
+BASE_DIR = pathlib.Path(__file__).parent
+PRODUCTOS_PATH = BASE_DIR / "productos.json"
+IMAGENES_DIR = BASE_DIR / "imagenes"
 
 app = FastAPI(title="API E-Commerce (TP6)")
 
-carritos = {}
-
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],  # Permitir el origen del frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+if IMAGENES_DIR.exists():
+    app.mount("/imagenes", StaticFiles(directory=str(IMAGENES_DIR)), name="imagenes")
 
-# --- Dependencias y utilidades para autenticación ---
+carritos: Dict[int, Dict[int, int]] = {}
+
+
 def get_db_session():
     with Session(engine) as session:
         yield session
 
+
 def get_user_by_email(session: Session, email: str) -> Optional[Usuario]:
     statement = select(Usuario).where(Usuario.email == email)
-    result = session.exec(statement).first()
-    return result
+    return session.exec(statement).first()
+
 
 def get_user_by_token(session: Session, token: str) -> Optional[Usuario]:
     if not token:
@@ -46,211 +54,204 @@ def get_user_by_token(session: Session, token: str) -> Optional[Usuario]:
     if not ses:
         return None
     statement_u = select(Usuario).where(Usuario.id == ses.user_id)
-    user = session.exec(statement_u).first()
-    return user
+    return session.exec(statement_u).first()
 
-# Dependencia para obtener usuario actual desde header Authorization: Bearer <token>
-def get_current_user(authorization: Optional[str] = Header(None), session: Session = Depends(get_db_session)) -> Usuario:
+
+def get_current_user(
+    authorization: Optional[str] = Header(default=None),
+    session: Session = Depends(get_db_session),
+) -> Usuario:
     if not authorization:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Falta header Authorization")
     parts = authorization.split()
     if len(parts) != 2 or parts[0].lower() != "bearer":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Formato de Authorization inválido")
     token = parts[1]
-    user = get_user_by_token(session, token)
-    if not user:
+    statement = select(SessionToken).where(SessionToken.token == token)
+    ses = session.exec(statement).first()
+    if not ses:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido o expirado")
-    return user
+    if ses.expires_at < datetime.utcnow():
+        session.delete(ses)
+        session.commit()
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expirado")
+    statement_u = select(Usuario).where(Usuario.id == ses.user_id)
+    return session.exec(statement_u).first()
 
-# ----------------------------
-# Endpoints de Carrito
-# ----------------------------
-@app.post("/carrito")
-def agregar_al_carrito(data: dict = Body(...), user: Usuario = Depends(get_current_user)):
-    producto_id = data.get("producto_id")
-    cantidad = data.get("cantidad", 1)
-    if not producto_id:
-        raise HTTPException(status_code=400, detail="Falta producto_id")
-    ruta_productos = pathlib.Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        productos = json.load(archivo)
-    producto = next((p for p in productos if p["id"] == producto_id), None)
-    if not producto:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
-    if producto["existencia"] < cantidad:
-        raise HTTPException(status_code=400, detail="No hay stock disponible para este producto")
-    # Descontar stock
-    for p in productos:
-        if p["id"] == producto_id:
-            p["existencia"] -= cantidad
-    with open(ruta_productos, "w", encoding="utf-8") as archivo:
-        json.dump(productos, archivo, ensure_ascii=False, indent=4)
-    carrito = carritos.get(user.id, {})
-    carrito[producto_id] = carrito.get(producto_id, 0) + cantidad
-    carritos[user.id] = carrito
-    return {"mensaje": "Producto agregado al carrito", "carrito": carrito}
 
-@app.get("/carrito")
-def ver_carrito(user: Usuario = Depends(get_current_user)):
-    carrito = carritos.get(user.id, {})
-    ruta_productos = pathlib.Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        productos = json.load(archivo)
-    items = []
-    subtotal = 0
-    iva = 0
-    for pid, cantidad in carrito.items():
-        prod = next((p for p in productos if p["id"] == pid), None)
-        if prod:
-            precio = prod["precio"]
-            categoria = prod.get("categoria", "")
-            items.append({
-                "id": pid,
-                "titulo": prod["titulo"],
-                "precio_unitario": precio,
-                "cantidad": cantidad,
-                "subtotal": round(precio * cantidad, 2)
-            })
-            subtotal += precio * cantidad
-            if "Electrónica" in categoria:
-                iva += precio * cantidad * 0.10
-            else:
-                iva += precio * cantidad * 0.21
-    envio = 0 if subtotal > 1000 else 50
-    total = subtotal + iva + envio
-    resumen = {
-        "subtotal": round(subtotal, 2),
-        "iva": round(iva, 2),
-        "envio": round(envio, 2),
-        "total": round(total, 2)
-    }
-    return {"carrito": items, "resumen": resumen}
-
-@app.delete("/carrito/{producto_id}")
-@app.delete("/carrito/{producto_id}")
-def quitar_del_carrito(producto_id: int = Path(..., description="ID del producto"), user: Usuario = Depends(get_current_user)):
-    carrito = carritos.get(user.id, {})
-    if producto_id in carrito:
-        del carrito[producto_id]
-        carritos[user.id] = carrito
-        return {"mensaje": "Producto quitado del carrito", "carrito": carrito}
-    raise HTTPException(status_code=404, detail="Producto no está en el carrito")
-
-@app.post("/carrito/finalizar")
-def finalizar_compra(user: Usuario = Depends(get_current_user)):
-    carrito = carritos.get(user.id, {})
-    if not carrito:
-        raise HTTPException(status_code=400, detail="El carrito está vacío")
-    # Aquí deberías crear la compra y vaciar el carrito
-    carritos[user.id] = {}
-    return {"mensaje": "Compra finalizada", "carrito": {}}
-
-@app.post("/carrito/cancelar")
-def cancelar_compra(user: Usuario = Depends(get_current_user)):
-    carritos[user.id] = {}
-    return {"mensaje": "Carrito cancelado", "carrito": {}}
-
-@app.post("/carrito/finalizar")
-def finalizar_compra(user: Usuario = Depends(get_current_user)):
-    carrito = carritos.get(user.id, {})
-    if not carrito:
-        raise HTTPException(status_code=400, detail="El carrito está vacío")
-    # Aquí deberías crear la compra y vaciar el carrito
-    carritos[user.id] = {}
-    return {"mensaje": "Compra finalizada", "carrito": {}}
-
-@app.post("/carrito/cancelar")
-def cancelar_compra(user: Usuario = Depends(get_current_user)):
-    carritos[user.id] = {}
-    return {"mensaje": "Carrito cancelado", "carrito": {}}
-# ----------------------------
-def cargar_productos():
-    ruta_productos = pathlib.Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
+def cargar_productos() -> List[Dict[str, Any]]:  # Cambiar list por List
+    with open(PRODUCTOS_PATH, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
-@app.on_event("startup")
-def on_startup():
-    # Crea la DB y tablas si no existen
-    create_db_and_tables()
-    # Opcional: podés cargar productos a la DB desde productos.json aquí si querés persistirlos
-    # Por ahora mantenemos productos.json como fuente única de productos (tal como tenías).
-    pass
 
-# ----------------------------
-# Endpoints de Productos
-# ----------------------------
-from fastapi import Query
+def guardar_productos(productos: List[Dict[str, Any]]) -> None:  # Cambiar list por List
+    with open(PRODUCTOS_PATH, "w", encoding="utf-8") as archivo:
+        json.dump(productos, archivo, ensure_ascii=False, indent=4)
+
+
+def construir_detalle_carrito(carrito_usuario: Dict[int, int]) -> Dict[str, Any]:
+    productos = cargar_productos()
+    items = []
+    subtotal = 0.0
+    iva_total = 0.0
+
+    for pid, cantidad in carrito_usuario.items():
+        producto = next((p for p in productos if p.get("id") == pid), None)
+        if not producto:
+            continue
+        precio = producto.get("precio", 0.0)
+        categoria = producto.get("categoria", "")
+        tasa_iva = 0.10 if "Electrónica" in categoria else 0.21
+        subtotal_item = precio * cantidad
+        iva_item = subtotal_item * tasa_iva
+        items.append({
+            "id": pid,
+            "titulo": producto.get("titulo"),
+            "precio_unitario": precio,
+            "cantidad": cantidad,
+            "subtotal": round(subtotal_item, 2),
+            "iva": round(iva_item, 2),
+            "imagen": producto.get("imagen"),
+        })
+        subtotal += subtotal_item
+        iva_total += iva_item
+
+    envio = 0 if subtotal == 0 or subtotal > 1000 else 50
+    total = subtotal + iva_total + envio
+
+    return {
+        "carrito": items,
+        "resumen": {
+            "subtotal": round(subtotal, 2),
+            "iva": round(iva_total, 2),
+            "envio": round(envio, 2),
+            "total": round(total, 2),
+        },
+    }
+
+
+@app.on_event("startup")
+def on_startup() -> None:
+    create_db_and_tables()
+
 
 @app.get("/")
 def root():
     return {"mensaje": "API E-Commerce TP6 - use /productos para obtener el listado"}
 
+
 @app.get("/productos")
-def obtener_productos(buscar: Optional[str] = Query(None), categoria: Optional[str] = Query(None)):
+def obtener_productos(buscar: Optional[str] = Query(default=None), categoria: Optional[str] = Query(default=None)):
     productos = cargar_productos()
     if buscar:
-        b = buscar.lower()
-        productos = [p for p in productos if b in p.get("titulo", "").lower() or b in p.get("descripcion", "").lower()]
+        termino = buscar.lower()
+        productos = [
+            p
+            for p in productos
+            if termino in p.get("titulo", "").lower() or termino in p.get("descripcion", "").lower()
+        ]
     if categoria:
-        c = categoria.lower()
-        productos = [p for p in productos if c in p.get("categoria", "").lower()]
+        filtro = categoria.lower()
+        productos = [p for p in productos if filtro in p.get("categoria", "").lower()]
     return productos
+
 
 @app.get("/productos/{producto_id}")
 def obtener_producto(producto_id: int):
     productos = cargar_productos()
-    for p in productos:
-        if p.get("id") == producto_id:
-            return p
+    for producto in productos:
+        if producto.get("id") == producto_id:
+            return producto
     raise HTTPException(status_code=404, detail="Producto no encontrado")
 
 
+@app.post("/carrito")
+def agregar_al_carrito(data: Dict[str, Any] = Body(...), user: Usuario = Depends(get_current_user)):
+    producto_id = data.get("producto_id")
+    cantidad = int(data.get("cantidad", 1))
+    if not producto_id:
+        raise HTTPException(status_code=400, detail="Falta producto_id")
+    if cantidad < 1:
+        raise HTTPException(status_code=400, detail="La cantidad debe ser al menos 1")
 
-def get_db_session():
-    with Session(engine) as session:
-        yield session
+    productos = cargar_productos()
+    producto = next((p for p in productos if p.get("id") == producto_id), None)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    if producto.get("existencia", 0) < cantidad:
+        raise HTTPException(status_code=400, detail="No hay stock disponible para este producto")
 
-def get_user_by_email(session: Session, email: str) -> Optional[Usuario]:
-    statement = select(Usuario).where(Usuario.email == email)
-    result = session.exec(statement).first()
-    return result
+    producto["existencia"] = producto.get("existencia", 0) - cantidad
+    guardar_productos(productos)
 
-def get_user_by_token(session: Session, token: str) -> Optional[Usuario]:
-    if not token:
-        return None
-    statement = select(SessionToken).where(SessionToken.token == token)
-    ses = session.exec(statement).first()
-    if not ses:
-        return None
-    # buscar usuario
-    statement_u = select(Usuario).where(Usuario.id == ses.user_id)
-    user = session.exec(statement_u).first()
-    return user
+    carrito_usuario = carritos.setdefault(user.id, {})
+    carrito_usuario[producto_id] = carrito_usuario.get(producto_id, 0) + cantidad
+    carritos[user.id] = carrito_usuario
 
-# Dependencia para obtener usuario actual desde header Authorization: Bearer <token>
-def get_current_user(authorization: Optional[str] = Header(None), session: Session = Depends(get_db_session)) -> Usuario:
-    if not authorization:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Falta header Authorization")
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Formato de Authorization inválido")
-    token = parts[1]
-    user = get_user_by_token(session, token)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido o expirado")
-    return user
+    detalle = construir_detalle_carrito(carrito_usuario)
+    return {"mensaje": "Producto agregado al carrito", **detalle}
 
 
-from fastapi import Body
+@app.get("/carrito")
+def ver_carrito(user: Usuario = Depends(get_current_user)):
+    carrito_usuario = carritos.get(user.id, {})
+    return construir_detalle_carrito(carrito_usuario)
+
+
+@app.delete("/carrito/{producto_id}")
+def quitar_del_carrito(producto_id: int = Path(..., description="ID del producto"), user: Usuario = Depends(get_current_user)):
+    carrito_usuario = carritos.get(user.id, {})
+    cantidad_actual = carrito_usuario.get(producto_id)
+    if not cantidad_actual:
+        raise HTTPException(status_code=404, detail="Producto no está en el carrito")
+
+    productos = cargar_productos()
+    producto = next((p for p in productos if p.get("id") == producto_id), None)
+    if producto:
+        producto["existencia"] = producto.get("existencia", 0) + 1
+        guardar_productos(productos)
+
+    if cantidad_actual <= 1:
+        carrito_usuario.pop(producto_id, None)
+    else:
+        carrito_usuario[producto_id] = cantidad_actual - 1
+    carritos[user.id] = carrito_usuario
+
+    detalle = construir_detalle_carrito(carrito_usuario)
+    return {"mensaje": "Producto quitado del carrito", **detalle}
+
+
+@app.post("/carrito/finalizar")
+def finalizar_compra(user: Usuario = Depends(get_current_user)):
+    carrito_usuario = carritos.get(user.id, {})
+    if not carrito_usuario:
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
+
+    carritos[user.id] = {}
+    detalle = construir_detalle_carrito({})
+    return {"mensaje": "Compra finalizada", **detalle}
+
+
+@app.post("/carrito/cancelar")
+def cancelar_compra(user: Usuario = Depends(get_current_user)):
+    carrito_usuario = carritos.get(user.id, {})
+    if carrito_usuario:
+        productos = cargar_productos()
+        for pid, cantidad in carrito_usuario.items():
+            producto = next((p for p in productos if p.get("id") == pid), None)
+            if producto:
+                producto["existencia"] = producto.get("existencia", 0) + cantidad
+        guardar_productos(productos)
+    carritos[user.id] = {}
+    detalle = construir_detalle_carrito({})
+    return {"mensaje": "Carrito cancelado", **detalle}
+
 
 @app.post("/registrar", status_code=201)
 def registrar(usuario_in: UsuarioCreate = Body(...), session: Session = Depends(get_db_session)):
     existing = get_user_by_email(session, usuario_in.email)
     if existing:
         raise HTTPException(status_code=400, detail="Email ya registrado")
-    # Hash password
-    # Usar argon2 para hashear la contraseña (sin límite de longitud)
     hashed = argon2.hash(usuario_in.password)
     nuevo = Usuario(nombre=usuario_in.nombre, email=usuario_in.email, hashed_password=hashed)
     session.add(nuevo)
@@ -260,11 +261,7 @@ def registrar(usuario_in: UsuarioCreate = Body(...), session: Session = Depends(
 
 
 @app.post("/iniciar-sesion")
-def iniciar_sesion(payload: dict = Body(...), session: Session = Depends(get_db_session)):
-    """
-    Espera { "email": "...", "password": "..." }
-    Devuelve { "access_token": "<token>", "user": {id,nombre,email} }
-    """
+def iniciar_sesion(payload: Dict[str, Any] = Body(...), session: Session = Depends(get_db_session)):
     email = payload.get("email")
     password = payload.get("password")
     if not email or not password:
@@ -272,12 +269,12 @@ def iniciar_sesion(payload: dict = Body(...), session: Session = Depends(get_db_
     user = get_user_by_email(session, email)
     if not user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    # Verificar password con argon2
     if not argon2.verify(password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    # Crear token de sesión
+
     token = str(uuid4())
-    ses = SessionToken(token=token, user_id=user.id)
+    expires_at = datetime.utcnow() + timedelta(hours=1)  # Token válido por 1 hora
+    ses = SessionToken(token=token, user_id=user.id, expires_at=expires_at)
     session.add(ses)
     session.commit()
     session.refresh(ses)
@@ -285,7 +282,7 @@ def iniciar_sesion(payload: dict = Body(...), session: Session = Depends(get_db_
 
 
 @app.post("/cerrar-sesion")
-def cerrar_sesion(authorization: Optional[str] = Header(None), session: Session = Depends(get_db_session)):
+def cerrar_sesion(authorization: Optional[str] = Header(default=None), session: Session = Depends(get_db_session)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Falta Authorization header")
     parts = authorization.split()
@@ -295,7 +292,6 @@ def cerrar_sesion(authorization: Optional[str] = Header(None), session: Session 
     statement = select(SessionToken).where(SessionToken.token == token)
     ses = session.exec(statement).first()
     if not ses:
-        # ya invalidado
         return JSONResponse(status_code=200, content={"mensaje": "Sesión ya invalidada o token no encontrado"})
     session.delete(ses)
     session.commit()

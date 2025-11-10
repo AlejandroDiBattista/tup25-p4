@@ -24,3 +24,4 @@ class SessionToken(SQLModel, table=True):
     token: str = Field(default_factory=lambda: str(uuid4()), index=True, nullable=False)
     user_id: int = Field(nullable=False, index=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: datetime = Field(nullable=False)  # Nuevo campo para la expiración del token
