@@ -35,15 +35,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-sm border rounded p-6 bg-white flex flex-col gap-3">
-        <h1 className="text-xl font-semibold">Registro</h1>
+    <div className="min-h-[70vh] flex items-start justify-center pt-10 px-4">
+      <form onSubmit={onSubmit} className="w-full max-w-sm border rounded-md p-6 bg-white flex flex-col gap-4 shadow-sm">
+        <h1 className="text-xl font-semibold mb-1">Crear cuenta</h1>
         <input className="border px-3 py-2 rounded" placeholder="Nombre" value={nombre} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNombre(e.target.value)} />
         <input className="border px-3 py-2 rounded" placeholder="Email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
         <input className="border px-3 py-2 rounded" placeholder="Contraseña" type="password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} />
-        <button disabled={loading} className="bg-green-600 hover:bg-green-700 text-white rounded px-4 py-2">
-          {loading ? 'Registrando...' : 'Registrar'}
+        <button disabled={loading} className="bg-gray-900 hover:bg-black text-white rounded px-4 py-2 text-sm font-medium">
+          {loading ? 'Registrando...' : 'Registrarme'}
         </button>
+        <p className="text-xs text-gray-500">¿Ya tienes cuenta? <a href="/login" className="underline">Inicia sesión</a></p>
       </form>
     </div>
   );

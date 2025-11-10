@@ -24,10 +24,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="es" className="bg-gray-50">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>        
+        {/* Header principal */}
         <Header />
-        <main className="max-w-5xl mx-auto p-4">{children}</main>
+        {/* Contenedor central acorde al mock (ancho ~1280 y panel blanco) */}
+        <div className="flex-1 w-full">
+          <main className="max-w-6xl mx-auto w-full bg-transparent px-4 py-6">{children}</main>
+        </div>
       </body>
     </html>
   );

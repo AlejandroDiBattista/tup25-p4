@@ -25,7 +25,6 @@ export default function SidebarCarrito() {
   }
 
   useEffect(() => {
-    // Defer para evitar advertencia de setState sincronizado
     Promise.resolve().then(() => cargar());
   }, []);
 

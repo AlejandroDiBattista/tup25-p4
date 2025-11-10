@@ -1,6 +1,14 @@
 "use client";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
+const CATEGORIAS = [
+  { label: 'Todas las categorías', value: '' },
+  { label: 'Electrónica', value: 'Electrónica' },
+  { label: 'Joyería', value: 'Joyería' },
+  { label: 'Ropa de hombre', value: 'Ropa de hombre' },
+  { label: 'Ropa de mujer', value: 'Ropa de mujer' },
+];
 
 export default function Filtros() {
   const router = useRouter();
@@ -8,49 +16,45 @@ export default function Filtros() {
   const [buscar, setBuscar] = useState(sp.get('buscar') || '');
   const [categoria, setCategoria] = useState(sp.get('categoria') || '');
 
-  function aplicar() {
+  function pushParams(nextBuscar: string, nextCategoria: string) {
     const params = new URLSearchParams();
-    if (buscar) params.set('buscar', buscar);
-    if (categoria) params.set('categoria', categoria);
-    router.push(`/?${params.toString()}`);
+    if (nextBuscar) params.set('buscar', nextBuscar);
+    if (nextCategoria) params.set('categoria', nextCategoria);
+    const qs = params.toString();
+    router.push(qs ? `/?${qs}` : '/');
   }
 
-  function limpiar() {
-    setBuscar('');
-    setCategoria('');
-    router.push('/');
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    pushParams(buscar.trim(), categoria);
+  }
+
+  function onChangeCategoria(e: React.ChangeEvent<HTMLSelectElement>) {
+    const next = e.target.value;
+    setCategoria(next);
+    // Cambio inmediato en la URL al seleccionar categoría
+    pushParams(buscar.trim(), next);
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-gray-50 border rounded">
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Buscar</label>
+    <form onSubmit={onSubmit} className="flex items-center gap-3">
+      <div className="flex-1">
         <input
-          className="border rounded px-2 py-1 text-sm"
+          className="w-full border rounded px-3 py-2 text-sm"
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}
-          placeholder="Texto en título o descripción"
+          placeholder="Buscar..."
         />
       </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">Categoría</label>
-        <input
-          className="border rounded px-2 py-1 text-sm"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-          placeholder="Ej: Electrónica"
-        />
-      </div>
-      <div className="flex gap-2">
-        <button
-          onClick={aplicar}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-        >Aplicar</button>
-        <button
-          onClick={limpiar}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm px-3 py-1 rounded"
-        >Limpiar</button>
-      </div>
-    </div>
+      <select
+        value={categoria}
+        onChange={onChangeCategoria}
+        className="border rounded px-3 py-2 text-sm min-w-[200px]"
+      >
+        {CATEGORIAS.map((c) => (
+          <option key={c.value} value={c.value}>{c.label}</option>
+        ))}
+      </select>
+    </form>
   );
 }

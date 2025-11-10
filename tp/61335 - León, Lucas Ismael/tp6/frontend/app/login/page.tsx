@@ -35,14 +35,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-sm border rounded p-6 bg-white flex flex-col gap-3">
-        <h1 className="text-xl font-semibold">Iniciar sesión</h1>
+    <div className="min-h-[70vh] flex items-start justify-center pt-10 px-4">
+      <form onSubmit={onSubmit} className="w-full max-w-sm border rounded-md p-6 bg-white flex flex-col gap-4 shadow-sm">
+        <h1 className="text-xl font-semibold mb-1">Iniciar sesión</h1>
   <input className="border px-3 py-2 rounded" placeholder="Email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
   <input className="border px-3 py-2 rounded" placeholder="Contraseña" type="password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} />
-        <button disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2">
-          {loading ? 'Ingresando...' : 'Ingresar'}
+        <button disabled={loading} className="bg-gray-900 hover:bg-black text-white rounded px-4 py-2 text-sm font-medium">
+          {loading ? 'Ingresando...' : 'Entrar'}
         </button>
+        <p className="text-xs text-gray-500">¿No tienes cuenta? <a href="/register" className="underline">Regístrate</a></p>
       </form>
     </div>
   );

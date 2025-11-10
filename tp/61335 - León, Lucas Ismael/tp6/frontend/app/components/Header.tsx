@@ -15,7 +15,6 @@ export default function Header() {
   });
 
   useEffect(() => {
-    // Sincronizar en cambios de storage (por ejemplo desde otras pestañas)
     function sync(e: StorageEvent) {
       if (e.key === 'token') {
         setToken(localStorage.getItem('token'));
@@ -38,18 +37,20 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full border-b bg-white mb-4">
-      <nav className="max-w-5xl mx-auto flex items-center gap-4 p-4 text-sm">
-        <Link href="/" className="font-semibold">Catálogo</Link>
-        <Link href="/carrito" className="hover:underline">Carrito</Link>
-        <Link href="/compras" className="hover:underline">Mis compras</Link>
-        <div className="ml-auto flex gap-3">
+    <header className="w-full border-b bg-white">
+      <nav className="max-w-6xl mx-auto flex items-center gap-6 px-4 py-3 text-sm">
+        <Link href="/" className="font-semibold text-base tracking-tight">TP6 Shop</Link>
+        <Link href="/" className="text-gray-700 hover:text-black transition">Productos</Link>
+        {token && <Link href="/compras" className="text-gray-700 hover:text-black transition">Mis compras</Link>}
+        <div className="ml-auto flex items-center gap-3">
           {token ? (
-            <button onClick={logout} className="text-red-600 hover:underline">Cerrar sesión</button>
+            <>
+              <button onClick={logout} className="px-3 py-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-800">Salir</button>
+            </>
           ) : (
             <>
-              <Link href="/login" className="hover:underline">Login</Link>
-              <Link href="/register" className="hover:underline">Registro</Link>
+              <Link href="/login" className="px-3 py-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-800">Ingresar</Link>
+              <Link href="/register" className="px-3 py-1.5 rounded bg-gray-800 text-white hover:bg-black">Crear cuenta</Link>
             </>
           )}
         </div>
