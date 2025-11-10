@@ -856,6 +856,143 @@ def finalizar_compra(
     )
 
 
+# ==================== ENDPOINTS DE HISTORIAL DE COMPRAS ====================
+
+@app.get("/compras")
+def obtener_historial_compras(
+    usuario_actual: Annotated[Usuario, Depends(obtener_usuario_actual)],
+    session: Annotated[Session, Depends(obtener_session)]
+):
+    """
+    Obtener el historial de compras del usuario autenticado.
+    
+    Retorna un resumen de todas las compras realizadas por el usuario,
+    ordenadas de más reciente a más antigua.
+    
+    Args:
+        usuario_actual: Usuario autenticado
+        session: Sesión de base de datos
+        
+    Returns:
+        Lista de compras con resumen (sin items detallados)
+    """
+    # Obtener todas las compras del usuario ordenadas por fecha descendente
+    compras = session.exec(
+        select(Compra)
+        .where(Compra.usuario_id == usuario_actual.id)
+        .order_by(Compra.fecha.desc())
+    ).all()
+    
+    if not compras:
+        return {
+            "mensaje": "No tienes compras realizadas",
+            "compras": []
+        }
+    
+    # Preparar resumen de compras
+    compras_resumen = []
+    for compra in compras:
+        # Contar items de la compra
+        items_count = session.exec(
+            select(ItemCompra).where(ItemCompra.compra_id == compra.id)
+        ).all()
+        
+        compras_resumen.append({
+            "id": compra.id,
+            "fecha": compra.fecha.isoformat(),
+            "total": compra.total,
+            "envio": compra.envio,
+            "direccion": compra.direccion,
+            "cantidad_productos": len(items_count)
+        })
+    
+    return {
+        "compras": compras_resumen,
+        "total_compras": len(compras)
+    }
+
+
+@app.get("/compras/{compra_id}")
+def obtener_detalle_compra(
+    compra_id: int,
+    usuario_actual: Annotated[Usuario, Depends(obtener_usuario_actual)],
+    session: Annotated[Session, Depends(obtener_session)]
+):
+    """
+    Obtener el detalle completo de una compra específica.
+    
+    Incluye todos los items comprados con su información al momento de la compra.
+    
+    Args:
+        compra_id: ID de la compra a consultar
+        usuario_actual: Usuario autenticado
+        session: Sesión de base de datos
+        
+    Returns:
+        Detalle completo de la compra con todos sus items
+        
+    Raises:
+        HTTPException: Si la compra no existe o no pertenece al usuario
+    """
+    # Buscar la compra
+    compra = session.get(Compra, compra_id)
+    
+    if not compra:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Compra con ID {compra_id} no encontrada"
+        )
+    
+    # Verificar que la compra pertenece al usuario actual
+    if compra.usuario_id != usuario_actual.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para ver esta compra"
+        )
+    
+    # Obtener items de la compra
+    items_compra = session.exec(
+        select(ItemCompra).where(ItemCompra.compra_id == compra_id)
+    ).all()
+    
+    # Preparar detalle de items
+    items_detalle = []
+    subtotal = 0
+    
+    for item in items_compra:
+        subtotal_item = item.precio_unitario * item.cantidad
+        subtotal += subtotal_item
+        
+        # Obtener imagen del producto actual (puede haber cambiado desde la compra)
+        producto_actual = session.get(Producto, item.producto_id)
+        imagen = producto_actual.imagen if producto_actual else "imagenes/default.png"
+        
+        items_detalle.append({
+            "producto_id": item.producto_id,
+            "nombre": item.nombre,
+            "precio_unitario": item.precio_unitario,
+            "cantidad": item.cantidad,
+            "subtotal": subtotal_item,
+            "imagen": imagen
+        })
+    
+    # Calcular IVA (total - subtotal - envío)
+    iva_calculado = compra.total - subtotal - compra.envio
+    
+    return {
+        "id": compra.id,
+        "fecha": compra.fecha.isoformat(),
+        "direccion": compra.direccion,
+        "tarjeta": f"****{compra.tarjeta}",  # Mostrar solo últimos 4 dígitos
+        "subtotal": subtotal,
+        "iva": iva_calculado,
+        "envio": compra.envio,
+        "total": compra.total,
+        "items": items_detalle,
+        "cantidad_productos": len(items_detalle)
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
