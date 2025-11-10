@@ -1,16 +1,20 @@
 from datetime import datetime
-from typing import List, Optional, ForwardRef
+from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
-from .productos import Producto
 
-# Forward references para resolver dependencias circulares
-ItemCarritoRef = ForwardRef("ItemCarrito")
-ItemCompraRef = ForwardRef("ItemCompra")
+# --- DEFINIMOS TODOS LOS MODELOS AQUÍ ---
 
-# Añadir relaciones al modelo Producto
-Producto.model_rebuild()
-Producto.items_carrito = Relationship(back_populates="producto")
-Producto.items_compra = Relationship(back_populates="producto")
+class Producto(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str = Field(index=True)
+    descripcion: str
+    precio: float
+    categoria: str = Field(index=True)
+    existencia: int
+
+    # --- AQUÍ ESTÁN LAS RELACIONES ---
+    items_carrito: List["ItemCarrito"] = Relationship(back_populates="producto")
+    items_compra: List["ItemCompra"] = Relationship(back_populates="producto")
 
 class Usuario(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -25,14 +29,14 @@ class Carrito(SQLModel, table=True):
     usuario_id: int = Field(foreign_key="usuario.id")
     estado: str = Field(default="activo")  # activo, finalizado, cancelado
     usuario: Usuario = Relationship(back_populates="carritos")
-    productos: List["ItemCarrito"] = Relationship(back_populates="carrito")
+    items: List["ItemCarrito"] = Relationship(back_populates="carrito") 
 
 class ItemCarrito(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     carrito_id: int = Field(foreign_key="carrito.id")
     producto_id: int = Field(foreign_key="producto.id")
     cantidad: int
-    carrito: Carrito = Relationship(back_populates="productos")
+    carrito: Carrito = Relationship(back_populates="items")
     producto: Producto = Relationship(back_populates="items_carrito")
 
 class Compra(SQLModel, table=True):

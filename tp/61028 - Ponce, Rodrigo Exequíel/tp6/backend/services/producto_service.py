@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import List, Optional
 from sqlmodel import Session, select
-from models import Producto
+from models.models import Producto
 from schemas.producto_schema import ProductoFilter
 
 class ProductoService:
