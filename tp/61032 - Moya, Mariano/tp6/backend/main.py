@@ -1,5 +1,6 @@
 
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
@@ -26,24 +27,36 @@ app.add_middleware(
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
-# Endpoint: Iniciar sesión (autenticación simple)
-from fastapi import Form
+# Modelos para entrada JSON
+class UsuarioRegistro(BaseModel):
+    nombre: str
+    email: str
+    password: str
 
+class UsuarioLogin(BaseModel):
+    email: str
+    password: str
+
+
+# Endpoint: Iniciar sesión (JSON)
 @app.post("/iniciar-sesion")
-def iniciar_sesion(email: str = Form(...), password: str = Form(...)):
+def iniciar_sesion(data: UsuarioLogin):
     with Session(engine) as session:
-        usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
-        if not usuario or hash_password(password) != usuario.password:
+        usuario = session.exec(select(Usuario).where(Usuario.email == data.email)).first()
+        if not usuario or hash_password(data.password) != usuario.password:
             raise HTTPException(status_code=401, detail="Credenciales inválidas.")
-        return {"mensaje": "Inicio de sesión exitoso", "usuario_id": usuario.id, "nombre": usuario.nombre, "email": usuario.email}
+        # Simular token para pruebas
+        token = f"fake-token-{usuario.id}"
+        return {"access_token": token, "token_type": "bearer", "usuario_id": usuario.id, "nombre": usuario.nombre, "email": usuario.email}
+
 
 @app.post("/registrar")
-def registrar_usuario(nombre: str, email: str, password: str):
+def registrar_usuario(data: UsuarioRegistro):
     with Session(engine) as session:
-        existe = session.exec(select(Usuario).where(Usuario.email == email)).first()
+        existe = session.exec(select(Usuario).where(Usuario.email == data.email)).first()
         if existe:
             raise HTTPException(status_code=400, detail="El email ya está registrado.")
-        usuario = Usuario(nombre=nombre, email=email, password=hash_password(password))
+        usuario = Usuario(nombre=data.nombre, email=data.email, password=hash_password(data.password))
         session.add(usuario)
         session.commit()
         session.refresh(usuario)
