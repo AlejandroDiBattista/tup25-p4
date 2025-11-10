@@ -5,13 +5,17 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import Session, select
+from sqlmodel import Session, select, SQLModel, create_engine
 from models.db_models import Usuario, Carrito, CarritoItem, Producto
 from fastapi import Header
 from typing import Optional
 from pathlib import Path
 import json
 
+
+# Definir engine para la base de datos SQLite
+engine = create_engine("sqlite:///database.db")
+SQLModel.metadata.create_all(engine)
 app = FastAPI(title="API Productos")
 
 # Utilidad para obtener usuario desde token
