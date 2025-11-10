@@ -484,19 +484,89 @@ uv run pytest test_main.py -v
 
 ---
 
-### **COMMIT 10: Implementar carrito de compras en frontend**
-**Archivos a crear/modificar:**
-- `frontend/app/components/Carrito.tsx` (nuevo) → Componente del carrito
-- `frontend/app/services/carrito.ts` (nuevo) → Servicios del carrito
-- `frontend/app/layout.tsx` → Integrar carrito visible
-- `frontend/app/page.tsx` → Botones para agregar al carrito
-- `frontend/app/components/ProductoCard.tsx` → Agregar botón "Agregar al carrito"
+### **✅ COMMIT 10: Implementar productos, filtros y carrito en frontend - COMPLETADO**
+**Archivos creados:**
+- ✅ `frontend/app/services/carrito.ts` → Servicios del carrito
+- ✅ `frontend/app/components/Carrito.tsx` → Componente modal del carrito
 
-**Reglas a cumplir:**
-- Mostrar "Agotado" en productos sin existencia
-- No permitir agregar productos agotados
-- Mostrar total del carrito
-- Actualizar carrito en tiempo real
+**Archivos modificados:**
+- ✅ `frontend/app/page.tsx` → Listado de productos con filtros
+- ✅ `frontend/app/services/productos.ts` → Mejorado con filtros
+
+**Funcionalidades de productos:**
+- ✅ Listado completo de productos desde backend
+- ✅ Filtro por categoría con dropdown
+- ✅ Búsqueda por texto (título/descripción)
+- ✅ Combinación de filtros (categoría + búsqueda)
+- ✅ Botón "Limpiar filtros" cuando hay filtros activos
+- ✅ Grid responsive (1-4 columnas según pantalla)
+- ✅ Mostrar imagen, título, descripción, precio, valoración
+- ✅ Indicador de stock disponible
+- ✅ Productos agotados marcados como "Agotado"
+- ✅ Botón deshabilitado para productos sin stock
+
+**Funcionalidades del carrito:**
+- ✅ Agregar productos al carrito (cantidad 1)
+- ✅ Ver carrito en modal flotante
+- ✅ Listar todos los items con imagen y detalles
+- ✅ Mostrar subtotal por producto y total general
+- ✅ Eliminar productos individuales del carrito
+- ✅ Vaciar carrito completo (cancelar)
+- ✅ Botón "Ver Carrito" en header de productos
+- ✅ Actualización automática después de agregar/eliminar
+
+**Funcionalidad de checkout:**
+- ✅ Formulario integrado en modal del carrito
+- ✅ Vista de resumen del pedido
+- ✅ Campo dirección (mínimo 10 caracteres)
+- ✅ Campo tarjeta (4 dígitos exactos)
+- ✅ Validación HTML5 de campos
+- ✅ Botón "Confirmar Compra" con estado de cargando
+- ✅ Llamada a POST /carrito/finalizar
+- ✅ Alerta de éxito con total pagado
+- ✅ Redirección a /compras después de finalizar
+- ✅ Limpieza de formulario después de compra
+
+**Servicios implementados:**
+- ✅ agregarAlCarrito() - POST /carrito
+- ✅ obtenerCarrito() - GET /carrito
+- ✅ eliminarDelCarrito() - DELETE /carrito/{id}
+- ✅ cancelarCarrito() - POST /carrito/cancelar
+- ✅ finalizarCompra() - POST /carrito/finalizar
+- ✅ obtenerProductos(categoria?, buscar?) - GET /productos
+- ✅ obtenerProductoPorId() - GET /productos/{id}
+- ✅ obtenerCategorias() - Derivado de productos
+
+**Diseño y UX:**
+- ✅ Modal del carrito con overlay oscuro
+- ✅ Cards de productos con hover effect
+- ✅ Botones con colores semánticos (verde=finalizar, rojo=eliminar)
+- ✅ Indicadores de carga (spinners)
+- ✅ Mensajes de error claros
+- ✅ Responsive design con Tailwind CSS
+- ✅ Confirmación antes de vaciar carrito
+- ✅ Cierre del modal con botón X
+
+**Reglas cumplidas:**
+- ✅ Solo agregar productos con existencia
+- ✅ Mostrar "Agotado" si existencia = 0
+- ✅ No permitir agregar productos agotados
+- ✅ Productos se pueden eliminar del carrito
+- ✅ Carrito se vacía al cancelar
+- ✅ Checkout con dirección y tarjeta
+- ✅ Validación de campos requeridos
+- ✅ Autenticación requerida (token en headers)
+- ✅ Filtros de productos funcionando
+- ✅ Búsqueda por contenido funcionando
+- ✅ Finalizar compra completo
+
+**Verificación:**
+- ✅ Frontend compilando sin errores
+- ✅ Comunicación con backend funcionando
+- ✅ Filtros funcionan correctamente
+- ✅ Agregar/eliminar productos del carrito
+- ✅ Finalizar compra exitosamente
+- ✅ Flujo completo: buscar → agregar → ver carrito → finalizar → éxito
 
 ---
 
