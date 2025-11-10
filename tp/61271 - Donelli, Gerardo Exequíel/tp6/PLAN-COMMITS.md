@@ -724,7 +724,44 @@ uv run pytest test_main.py -v
 
 ---
 
-### **COMMIT 13: Implementar búsqueda y filtros de productos** (OPCIONAL - YA IMPLEMENTADO)
+### **✅ COMMIT 13: Optimización y normalización del repositorio - COMPLETADO**
+**Archivos creados:**
+- ✅ `.gitattributes` → Configuración de normalización de archivos
+
+**Contenido implementado:**
+
+**Configuración de .gitattributes:**
+- ✅ Normalización automática de archivos de texto
+- ✅ LF (Line Feed) para archivos de código:
+  - Archivos Python (*.py)
+  - Archivos TypeScript/JavaScript (*.ts, *.tsx, *.js, *.jsx)
+  - Archivos JSON (*.json)
+  - Archivos Markdown (*.md)
+  - Archivos CSS (*.css)
+- ✅ CRLF para scripts de Windows:
+  - Scripts PowerShell (*.ps1)
+- ✅ Marcado de archivos binarios:
+  - Bases de datos (*.db, *.sqlite)
+  - Imágenes (*.png, *.jpg, *.jpeg, *.gif, *.ico)
+  - Archivos comprimidos (*.zip)
+  - PDFs (*.pdf)
+
+**Beneficios:**
+- ✅ Compatibilidad multiplataforma mejorada
+- ✅ Prevención de conflictos de merge por diferencias de EOL
+- ✅ Manejo correcto de archivos binarios
+- ✅ Consistencia en el repositorio
+- ✅ Buenas prácticas de control de versiones
+
+**Verificación:**
+- ✅ Archivo .gitattributes creado con 31 líneas
+- ✅ Configuración correcta de tipos de archivo
+- ✅ Tests siguen pasando (32/32)
+- ✅ Repositorio limpio sin errores
+
+---
+
+### **COMMIT 14: Implementar búsqueda y filtros de productos** (OPCIONAL - YA IMPLEMENTADO)
 **Archivos a modificar:**
 - `frontend/app/page.tsx` → Agregar barra de búsqueda y filtros
 - `frontend/app/components/FiltrosProductos.tsx` (nuevo) → Componente de filtros
