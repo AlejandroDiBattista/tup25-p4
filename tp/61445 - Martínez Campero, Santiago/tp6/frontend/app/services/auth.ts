@@ -25,7 +25,8 @@ export async function registrar(
 
 export async function iniciarSesion(
   email: string,
-  password: string
+  password: string,
+  rememberMe: boolean = false
 ): Promise<AuthResponse> {
   const res = await fetch(`${API_URL}/auth/iniciar-sesion`, {
     method: 'POST',
@@ -40,6 +41,18 @@ export async function iniciarSesion(
 
   const data = await res.json();
   localStorage.setItem('token', data.access_token);
+  
+  // Si "Remember me" está activo, guardar información de sesión
+  if (rememberMe) {
+    const expirationTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000); // 30 días
+    localStorage.setItem('tokenExpiration', expirationTime.toString());
+    localStorage.setItem('userEmail', email);
+  } else {
+    // Limpiar si no está activo
+    localStorage.removeItem('tokenExpiration');
+    localStorage.removeItem('userEmail');
+  }
+  
   return data;
 }
 
@@ -47,12 +60,19 @@ export async function cerrarSesion(): Promise<void> {
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  await fetch(`${API_URL}/auth/cerrar-sesion`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}` },
-  });
+  try {
+    await fetch(`${API_URL}/auth/cerrar-sesion`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+  } catch (error) {
+    console.error('Error al cerrar sesión en backend:', error);
+  }
 
+  // Limpiar todo el localStorage
   localStorage.removeItem('token');
+  localStorage.removeItem('tokenExpiration');
+  localStorage.removeItem('userEmail');
 }
 
 export function obtenerToken(): string | null {

@@ -14,6 +14,7 @@ export default function LoginPage() {
   const { agregarToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,11 +24,11 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await iniciarSesion(email, password);
+      await iniciarSesion(email, password, rememberMe);
       agregarToast('¡Sesión iniciada correctamente!', 'success', 3000);
       router.push('/productos');
-    } catch (err: any) {
-      const mensaje = err.message || 'Error al iniciar sesión';
+    } catch (err) {
+      const mensaje = err instanceof Error ? err.message : 'Error al iniciar sesión';
       setError(mensaje);
       agregarToast(mensaje, 'error', 3000);
     } finally {
@@ -72,6 +73,19 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
+            />
+            <Label htmlFor="rememberMe" className="cursor-pointer">
+              Recuérdame en este dispositivo
+            </Label>
           </div>
 
           <Button 
