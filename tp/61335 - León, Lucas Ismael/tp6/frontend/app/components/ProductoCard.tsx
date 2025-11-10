@@ -20,56 +20,36 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       await agregarAlCarrito(producto.id, 1);
       // Simple feedback - en un TP real podríamos usar toast
       alert('Producto agregado al carrito');
-    } catch (e: any) {
-      alert(e.message || 'Error al agregar');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al agregar';
+      alert(msg);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow ${agotado ? 'opacity-70' : ''}`}>
-      <div className="relative h-64 bg-gray-100">
+    <div className={`bg-white rounded border p-3 flex gap-4 items-start ${agotado ? 'opacity-70' : ''}`}>
+      <div className="relative w-28 h-24 flex-shrink-0 bg-gray-100 rounded">
         {agotado && (
-          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
-            Agotado
-          </span>
+          <span className="absolute -top-2 -left-2 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded">Agotado</span>
         )}
-        <Image
-          src={`${API_URL}/${producto.imagen}`}
-          alt={producto.titulo}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain p-4"
-          unoptimized
-        />
+        <Image src={`${API_URL}/${producto.imagen}`} alt={producto.titulo} fill className="object-contain p-2" unoptimized />
       </div>
-      <div className="p-4 flex flex-col gap-2">
-        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
-          {producto.titulo}
-        </h3>
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {producto.descripcion}
-        </p>
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
-          </span>
-          <div className="flex items-center gap-1">
-            <span className="text-yellow-500">★</span>
-            <span className="text-sm text-gray-700">{producto.valoracion}</span>
-          </div>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">${producto.precio}</span>
-          <span className="text-xs text-gray-500">Stock: {producto.existencia}</span>
-        </div>
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold text-sm leading-tight">{producto.titulo}</div>
+        <p className="text-xs text-gray-600 line-clamp-2 mt-1">{producto.descripcion}</p>
+        <div className="text-[10px] text-gray-500 mt-1">Categoría: {producto.categoria}</div>
+      </div>
+      <div className="w-36 text-right">
+        <div className="font-semibold">${Number(producto.precio).toFixed(2)}</div>
+        <div className="text-[10px] text-gray-500 mt-1">Disponible: {producto.existencia}</div>
         <button
           disabled={agotado || loading}
           onClick={handleAgregar}
-          className="mt-2 w-full text-sm font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-2 rounded"
+          className={`mt-2 w-full text-xs font-medium rounded px-3 py-2 ${agotado ? 'bg-gray-300 text-gray-600' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
         >
-          {agotado ? 'No disponible' : loading ? 'Agregando...' : 'Agregar al carrito'}
+          {agotado ? 'Sin stock' : loading ? 'Agregando...' : 'Agregar al carrito'}
         </button>
       </div>
     </div>

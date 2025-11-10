@@ -159,6 +159,10 @@ class AgregarAlCarrito(BaseModel):
     producto_id: int
     cantidad: int
 
+class ActualizarCantidadItem(BaseModel):
+    producto_id: int
+    cantidad: int  # nueva cantidad absoluta (>=0)
+
 
 class FinalizarCompraData(BaseModel):
     direccion: str
@@ -340,6 +344,35 @@ def agregar_al_carrito(
         session.add(item)
     session.commit()
     return {"mensaje": "Producto agregado"}
+
+@app.patch("/carrito")
+def actualizar_cantidad_item(
+    body: ActualizarCantidadItem,
+    user: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    if body.cantidad < 0:
+        raise HTTPException(status_code=400, detail="Cantidad inválida")
+    carrito = obtener_o_crear_carrito_abierto(session, user.id)
+    stmt = select(ItemCarrito).where(
+        ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == body.producto_id
+    )
+    item = session.exec(stmt).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item no encontrado en el carrito")
+    # Si la cantidad es 0 eliminar el ítem
+    if body.cantidad == 0:
+        session.delete(item)
+        session.commit()
+        return {"mensaje": "Item eliminado"}
+    # Validar stock disponible
+    prod = session.get(Producto, body.producto_id)
+    if not prod or body.cantidad > prod.existencia:
+        raise HTTPException(status_code=400, detail="No hay existencia suficiente")
+    item.cantidad = body.cantidad
+    session.add(item)
+    session.commit()
+    return {"mensaje": "Cantidad actualizada"}
 
 
 @app.delete("/carrito/{producto_id}")

@@ -1,6 +1,7 @@
 import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
 import Filtros from './components/Filtros';
+import SidebarCarrito from './components/SidebarCarrito';
 
 export default async function Home({ searchParams }: { searchParams?: { buscar?: string; categoria?: string } }) {
   const productos = await obtenerProductos({
@@ -10,26 +11,25 @@ export default async function Home({ searchParams }: { searchParams?: { buscar?:
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
-          <div className="mt-4">
-            {/* Filtros de búsqueda y categoría */}
-            <Filtros />
-          </div>
+      <header className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between text-sm">
+          <div className="font-semibold">TP6 Shop</div>
+          {/* El Header global ya muestra login/registro/mis compras/salir */}
         </div>
       </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
+      <main className="max-w-6xl mx-auto px-4 py-6">
+        <div className="mb-3">
+          <Filtros />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          <div className="space-y-3 lg:col-span-2">
+            {productos.map((producto) => (
+              <ProductoCard key={producto.id} producto={producto} />
+            ))}
+          </div>
+          <div>
+            <SidebarCarrito />
+          </div>
         </div>
       </main>
     </div>
