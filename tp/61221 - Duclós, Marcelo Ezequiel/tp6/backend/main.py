@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlmodel import Session, select
-from typing import List
+from typing import List, Optional
 
 from database import get_session
 from models import Producto, ProductoResponse, UsuarioCreate, UsuarioResponse, UsuarioLogin, Usuario
@@ -40,7 +40,8 @@ def root():
         "mensaje": "TP6 Shop API - Tienda de Comercio Electrónico",
         "version": "1.0.0",
         "endpoints": {
-            "productos": "/productos",
+            "productos": "/productos?categoria=&busqueda=&disponible_solo=false",
+            "categorias": "/categorias",
             "registro": "/registrar",
             "login": "/iniciar-sesion",
             "logout": "/cerrar-sesion",
@@ -48,14 +49,49 @@ def root():
             "usuarios": "/usuarios",
             "documentacion": "/docs"
         },
-        "estado": "Autenticación JWT implementada",
+        "estado": "Filtros de productos implementados",
+        "filtros_disponibles": {
+            "categoria": "Filtrar por categoría (ej: 'Ropa de hombre')",
+            "busqueda": "Buscar en título y descripción",
+            "disponible_solo": "Solo productos con stock"
+        },
         "autenticacion": "Bearer Token requerido para endpoints protegidos"
     }
 
 @app.get("/productos", response_model=List[ProductoResponse])
-def obtener_productos(session: Session = Depends(get_session)):
-    """Obtener todos los productos disponibles"""
+def obtener_productos(
+    categoria: Optional[str] = None,
+    busqueda: Optional[str] = None,
+    disponible_solo: bool = False,
+    session: Session = Depends(get_session)
+):
+    """
+    Obtener productos con filtros opcionales
+    
+    - **categoria**: Filtrar por categoría específica
+    - **busqueda**: Buscar en título y descripción
+    - **disponible_solo**: Solo productos con stock disponible
+    """
     statement = select(Producto)
+    
+    # Aplicar filtros
+    if categoria:
+        statement = statement.where(Producto.categoria.ilike(f"%{categoria}%"))
+    
+    if busqueda:
+        # Buscar en título y descripción
+        busqueda_term = f"%{busqueda}%"
+        statement = statement.where(
+            (Producto.titulo.ilike(busqueda_term)) | 
+            (Producto.descripcion.ilike(busqueda_term))
+        )
+    
+    if disponible_solo:
+        statement = statement.where(Producto.existencia > 0)
+    
+    # Ordenar por ID para consistencia
+    statement = statement.order_by(Producto.id)
+    
     productos = session.exec(statement).all()
     
     # Convertir a ProductoResponse con la propiedad disponible
@@ -81,6 +117,19 @@ def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
     producto_dict = producto.model_dump()
     producto_dict["disponible"] = producto.disponible
     return ProductoResponse(**producto_dict)
+
+@app.get("/categorias")
+def obtener_categorias(session: Session = Depends(get_session)):
+    """Obtener todas las categorías de productos disponibles"""
+    from sqlmodel import func, distinct
+    
+    statement = select(distinct(Producto.categoria)).order_by(Producto.categoria)
+    categorias = session.exec(statement).all()
+    
+    return {
+        "categorias": categorias,
+        "total": len(categorias)
+    }
 
 # === ENDPOINTS DE USUARIOS ===
 
