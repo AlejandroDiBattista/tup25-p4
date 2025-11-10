@@ -1,15 +1,15 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDown, Minus, Plus, Search } from 'lucide-react';
 import ProductoCard from './ProductoCard';
 import { Carrito, CarritoItem, Producto, Usuario } from '../types';
+import { ENVIO_FIJO, IVA_TASA } from '../lib/precios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const TODAS = 'Todas las categorías';
-const IVA_TASA = 0.21;
-const ENVIO_FIJO = 50;
 
 interface ProductCatalogProps {
   productos: Producto[];
@@ -23,6 +23,7 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
   const [carritoActual, setCarritoActual] = useState<Carrito | null>(carrito);
   const [productoEnProceso, setProductoEnProceso] = useState<number | null>(null);
   const [accionGlobal, setAccionGlobal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setCarritoActual(carrito);
@@ -185,6 +186,8 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
     }
   }, [usuario, carritoActual, refrescarCarrito]);
 
+  const carritoVacio = !carritoActual || carritoActual.items.length === 0;
+
   const subtotal = useMemo(() => {
     if (!carritoActual) {
       return 0;
@@ -197,7 +200,13 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
   const envio = subtotal > 0 ? ENVIO_FIJO : 0;
   const total = subtotal + iva + envio;
 
-  const carritoVacio = !carritoActual || carritoActual.items.length === 0;
+  const manejarContinuarCompra = useCallback(() => {
+    if (carritoVacio) {
+      return;
+    }
+
+    router.push('/checkout');
+  }, [carritoVacio, router]);
 
   const carritoSection = usuario ? (
     <div className="flex h-fit flex-col gap-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -296,7 +305,8 @@ export default function ProductCatalog({ productos, usuario, carrito }: ProductC
         <button
           type="button"
           className="h-11 rounded-lg bg-slate-900 text-sm font-semibold text-white transition hover:bg-slate-900/90 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={carritoVacio}
+          onClick={manejarContinuarCompra}
+          disabled={carritoVacio || accionGlobal}
         >
           Continuar compra
         </button>
