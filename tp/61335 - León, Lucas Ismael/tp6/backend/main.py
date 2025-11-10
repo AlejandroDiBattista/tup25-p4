@@ -43,7 +43,9 @@ app.add_middleware(
 # Configuración de Base de Datos
 # =============================
 BASE_DIR = Path(__file__).parent
-DB_PATH = BASE_DIR / "ecommerce.db"
+# Permitir override de DB para pruebas mediante variable de entorno
+DB_PATH_ENV = os.getenv("DB_PATH")
+DB_PATH = Path(DB_PATH_ENV) if DB_PATH_ENV else (BASE_DIR / "ecommerce.db")
 engine = create_engine(f"sqlite:///{DB_PATH}", echo=False)
 
 
