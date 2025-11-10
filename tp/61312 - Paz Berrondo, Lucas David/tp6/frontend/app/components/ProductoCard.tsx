@@ -55,10 +55,12 @@ export default function ProductoCard({ producto, autenticado = false }: Producto
       <div className="relative h-64 bg-gray-100">
         <Image
           src={`${API_URL}/${producto.imagen}`}
-          alt={producto.titulo}
+          alt={`${producto.titulo} - ${producto.categoria}`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain p-4"
+          loading="eager"
+          priority
           unoptimized
         />
       </div>

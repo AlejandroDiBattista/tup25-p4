@@ -1,21 +1,15 @@
 'use client';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { estaAutenticado, getAuthHeaders } from '../services/auth';
 
 interface ItemCarrito {
-  id: number;
   producto_id: number;
+  nombre: string;
+  precio: number;
   cantidad: number;
-  producto: {
-    id: number;
-    titulo: string;
-    precio: number;
-    imagen: string;
-    existencia: number;
-  };
+  subtotal: number;
 }
 
 export default function CarritoPage() {
@@ -52,9 +46,9 @@ export default function CarritoPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const eliminarItem = async (itemId: number) => {
+  const eliminarItem = async (productoId: number) => {
     try {
-      const response = await fetch(`${API_URL}/carrito/quitar/${itemId}`, {
+      const response = await fetch(`${API_URL}/carrito/quitar/${productoId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
@@ -72,10 +66,15 @@ export default function CarritoPage() {
 
   const finalizarCompra = async () => {
     setProcesando(true);
+    const totalCalculado = calcularTotal();
     try {
-      const response = await fetch(`${API_URL}/compras/finalizar`, {
+      const response = await fetch(`${API_URL}/carrito/finalizar`, {
         method: 'POST',
         headers: getAuthHeaders(),
+        body: JSON.stringify({
+          direccion: 'Dirección de envío',
+          tarjeta: '****-****-****-1234'
+        }),
       });
 
       if (!response.ok) {
@@ -84,7 +83,7 @@ export default function CarritoPage() {
       }
 
       const data = await response.json();
-      alert(`¡Compra finalizada!\nTotal: $${data.total}\nID Compra: ${data.compra_id}`);
+      alert(`¡Compra finalizada!\nTotal: $${totalCalculado.toFixed(2)}\nID Compra: ${data.compra_id}`);
       router.push('/compras');
     } catch (error) {
       setMensaje(error instanceof Error ? error.message : 'Error al procesar');
@@ -98,8 +97,8 @@ export default function CarritoPage() {
     if (!confirm('¿Vaciar todo el carrito?')) return;
     
     try {
-      const response = await fetch(`${API_URL}/carrito/vaciar`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_URL}/carrito/cancelar`, {
+        method: 'POST',
         headers: getAuthHeaders(),
       });
 
@@ -115,7 +114,7 @@ export default function CarritoPage() {
   };
 
   const calcularSubtotal = () => {
-    return items.reduce((sum, item) => sum + (item.producto.precio * item.cantidad), 0);
+    return items.reduce((sum, item) => sum + item.subtotal, 0);
   };
 
   const calcularIVA = () => {
@@ -186,31 +185,21 @@ export default function CarritoPage() {
               </div>
 
               {items.map((item) => (
-                <div key={item.id} className="bg-white rounded-lg shadow-md p-4 flex gap-4">
-                  <div className="relative w-24 h-24 bg-gray-100 rounded shrink-0">
-                    <Image
-                      src={`${API_URL}/${item.producto.imagen}`}
-                      alt={item.producto.titulo}
-                      fill
-                      className="object-contain p-2"
-                      unoptimized
-                    />
-                  </div>
-                  
+                <div key={item.producto_id} className="bg-white rounded-lg shadow-md p-4 flex gap-4">
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 mb-1">
-                      {item.producto.titulo}
+                      {item.nombre}
                     </h3>
                     <p className="text-sm text-gray-600 mb-2">
                       Cantidad: {item.cantidad}
                     </p>
                     <p className="text-lg font-bold text-blue-600">
-                      ${item.producto.precio} × {item.cantidad} = ${item.producto.precio * item.cantidad}
+                      ${item.precio.toFixed(2)} × {item.cantidad} = ${item.subtotal.toFixed(2)}
                     </p>
                   </div>
 
                   <button
-                    onClick={() => eliminarItem(item.id)}
+                    onClick={() => eliminarItem(item.producto_id)}
                     className="text-red-600 hover:text-red-700 self-start"
                   >
                     ✕
