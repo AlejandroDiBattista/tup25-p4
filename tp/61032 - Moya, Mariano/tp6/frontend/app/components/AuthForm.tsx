@@ -60,7 +60,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {!isLogin && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Nombre</label>
             <input
               type="text"
               placeholder="Tu nombre"
@@ -72,7 +72,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
           </div>
         )}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
           <input
             type="email"
             placeholder="tu@email.com"
@@ -83,7 +83,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+          <label className="block text-sm font-medium text-gray-900 mb-1">Contraseña</label>
           <input
             type="password"
             placeholder="••••••••"
@@ -104,7 +104,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       </form>
       <div className="mt-4 text-center">
         <button
-          className="text-gray-700 hover:text-gray-900 underline"
+          className="text-gray-900 hover:text-black underline"
           onClick={() => setIsLogin(!isLogin)}
         >
           {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}

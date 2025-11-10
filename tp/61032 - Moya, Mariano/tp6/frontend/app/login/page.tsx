@@ -7,11 +7,15 @@ export default function LoginPage() {
   const router = useRouter();
   const [success, setSuccess] = useState(false);
 
-  const handleAuthSuccess = () => {
+  const handleAuthSuccess = (token: string, user: { nombre?: string; email?: string }) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+    }
     setSuccess(true);
     setTimeout(() => {
       router.push("/");
-    }, 1200);
+    }, 800);
   };
 
   return (
