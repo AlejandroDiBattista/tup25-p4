@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 interface CompraDetalle {
   id: number;
@@ -11,19 +11,25 @@ interface CompraDetalle {
   items: { producto_id: number; nombre: string; cantidad: number; precio_unitario: number }[];
 }
 
-export default function CompraDetallePage({ params }: { params: { id: string } }) {
+export default function CompraDetallePage() {
   const [detalle, setDetalle] = useState<CompraDetalle | null>(null);
   const router = useRouter();
+  const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (!token) return;
-    fetch(`http://localhost:8000/compras/${params.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(setDetalle);
-  }, [params.id]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/compras/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setDetalle(data);
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [id]);
 
   if (!detalle) {
     return <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white text-center">Cargando...</div>;
@@ -39,7 +45,7 @@ export default function CompraDetallePage({ params }: { params: { id: string } }
       <h3 className="font-semibold mt-4 mb-2">Productos:</h3>
       <ul className="divide-y">
         {detalle.items.map(item => (
-          <li key={item.producto_id} className="py-2 flex justify-between">
+          <li key={`${detalle.id}-${item.producto_id}`} className="py-2 flex justify-between">
             <span>{item.nombre} (x{item.cantidad})</span>
             <span>${item.precio_unitario}</span>
           </li>

@@ -182,11 +182,7 @@ export default function CartSidebar() {
         </div>
         <div className="mt-4 flex gap-2">
           <Button variant="outline" className="flex-1" onClick={clear}>Cancelar</Button>
-          {token ? (
-            <Link href="/compra" className="flex-1"><Button className="w-full">Continuar compra</Button></Link>
-          ) : (
-            <Button className="flex-1" onClick={() => router.push("/login")}>Continuar compra</Button>
-          )}
+          <Button className="flex-1" onClick={() => router.push(token ? "/compra" : "/login")}>Continuar compra</Button>
         </div>
       </CardContent>
     </Card>

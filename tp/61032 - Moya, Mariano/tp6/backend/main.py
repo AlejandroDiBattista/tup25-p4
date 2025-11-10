@@ -101,9 +101,15 @@ def agregar_carrito(data: CarritoAdd, usuario_id: int = Depends(get_current_user
         producto = session.get(Producto, data.producto_id)
         if not producto:
             raise HTTPException(status_code=404, detail="Producto no encontrado")
-        if producto.existencia < data.cantidad:
+        # Validar stock considerando cantidad ya en carrito
+        carrito_existente = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        ya_en_carrito = 0
+        if carrito_existente:
+            item_exist = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito_existente.id, CarritoItem.producto_id == data.producto_id)).first()
+            ya_en_carrito = item_exist.cantidad if item_exist else 0
+        if producto.existencia < data.cantidad + ya_en_carrito:
             raise HTTPException(status_code=400, detail="No hay suficiente existencia")
-        carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
+        carrito = carrito_existente
         if not carrito:
             carrito = Carrito(usuario_id=usuario_id, estado="activo")
             session.add(carrito)
@@ -325,36 +331,52 @@ def cargar_productos():
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
-# Endpoint: Listar productos con filtros
+# Endpoint: Listar productos con filtros (desde DB)
 @app.get("/productos")
 def obtener_productos(categoria: str = None, q: str = None):
-    productos = cargar_productos()
-    # Filtrar por categoría si se especifica
-    if categoria:
-        productos = [p for p in productos if p.get("categoria", "").lower() == categoria.lower()]
-    # Filtrar por búsqueda si se especifica
-    if q:
-        productos = [p for p in productos if q.lower() in p.get("titulo", "").lower() or q.lower() in p.get("descripcion", "").lower()]
-    # Marcar productos agotados
-    for p in productos:
-        if p.get("existencia", 0) <= 0:
-            p["agotado"] = True
-        else:
-            p["agotado"] = False
-    return productos
+    with Session(engine) as session:
+        query = select(Producto)
+        productos_db = session.exec(query).all()
+        def to_dict(p: Producto):
+            d = {
+                "id": p.id,
+                "titulo": p.nombre,
+                "precio": p.precio,
+                "descripcion": p.descripcion or "",
+                "categoria": p.categoria or "",
+                "valoracion": 0,
+                "existencia": p.existencia or 0,
+                "imagen": p.imagen or "",
+            }
+            d["agotado"] = d["existencia"] <= 0
+            return d
+        productos = [to_dict(p) for p in productos_db]
+        if categoria:
+            productos = [p for p in productos if p.get("categoria", "").lower() == categoria.lower()]
+        if q:
+            ql = q.lower()
+            productos = [p for p in productos if ql in p.get("titulo", "").lower() or ql in p.get("descripcion", "").lower()]
+        return productos
 
-# Endpoint: Detalle de producto
+# Endpoint: Detalle de producto (desde DB)
 @app.get("/productos/{id}")
 def obtener_producto(id: int):
-    productos = cargar_productos()
-    for p in productos:
-        if p.get("id") == id:
-            if p.get("existencia", 0) <= 0:
-                p["agotado"] = True
-            else:
-                p["agotado"] = False
-            return p
-    raise HTTPException(status_code=404, detail="Producto no encontrado")
+    with Session(engine) as session:
+        p = session.get(Producto, id)
+        if not p:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        d = {
+            "id": p.id,
+            "titulo": p.nombre,
+            "precio": p.precio,
+            "descripcion": p.descripcion or "",
+            "categoria": p.categoria or "",
+            "valoracion": 0,
+            "existencia": p.existencia or 0,
+            "imagen": p.imagen or "",
+        }
+        d["agotado"] = d["existencia"] <= 0
+        return d
 
 if __name__ == "__main__":
     import uvicorn
