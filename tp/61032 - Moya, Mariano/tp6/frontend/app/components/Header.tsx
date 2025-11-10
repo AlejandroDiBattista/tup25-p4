@@ -32,12 +32,6 @@ export default function Header() {
         <nav className="flex gap-3 items-center">
           <Link href="/" className="text-gray-900 hover:text-blue-600 font-medium">Productos</Link>
           <Link href="/compras" className="text-gray-900 hover:text-blue-600">Mis compras</Link>
-          <Link href="/compra" className="relative text-gray-900 hover:text-blue-600">
-            Carrito
-            <span className="ml-2 inline-flex items-center justify-center min-w-[22px] h-5 px-1 rounded-full text-xs font-semibold bg-gray-900 text-white">
-              {cartCount}
-            </span>
-          </Link>
           {usuario ? (
             <>
               <span className="text-gray-900 font-medium">{usuario.nombre || usuario.email}</span>

@@ -26,15 +26,15 @@ export default function ProductoRow({ producto, onAdd }: ProductoRowProps) {
         </div>
         <div className="max-w-xl">
           <h3 className="font-semibold text-gray-900 leading-5">{producto.titulo}</h3>
-          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{producto.descripcion}</p>
-          <div className="text-xs text-gray-500 mt-2">Categoría: {producto.categoria}</div>
+          <p className="text-sm text-gray-800 mt-1 line-clamp-2">{producto.descripcion}</p>
+          <div className="text-xs text-gray-800 mt-2">Categoría: {producto.categoria}</div>
         </div>
       </div>
 
       {/* Derecha: precio, stock y botón */}
       <div className="flex flex-col items-end gap-3 min-w-[180px]">
         <div className="text-gray-900 font-semibold">${producto.precio.toFixed(2)}</div>
-        <div className="text-xs text-gray-600">Disponible: {producto.existencia}</div>
+        <div className="text-xs text-gray-900">Disponible: {producto.existencia}</div>
         <button
           className={`px-4 py-2 rounded text-sm font-semibold transition ${
             agotado

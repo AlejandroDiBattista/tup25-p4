@@ -14,7 +14,11 @@ export default function CartSidebar() {
     fetch("http://localhost:8000/productos").then(r=>r.json()).then(setProductos);
     const handler = () => setItems(JSON.parse(localStorage.getItem("carrito") || "[]"));
     window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
+    window.addEventListener("carrito:changed", handler as EventListener);
+    return () => {
+      window.removeEventListener("storage", handler);
+      window.removeEventListener("carrito:changed", handler as EventListener);
+    };
   }, []);
 
   const enriched = items.map(it => {
@@ -32,20 +36,20 @@ export default function CartSidebar() {
       <h3 className="font-semibold mb-3 text-gray-900">Carrito</h3>
       <div className="space-y-3 max-h-[320px] overflow-auto pr-1">
         {enriched.length === 0 ? (
-          <div className="text-sm text-gray-600">Tu carrito está vacío.</div>
+          <div className="text-sm text-gray-900">Tu carrito está vacío.</div>
         ) : (
           enriched.map(p => (
-            <div key={p.id} className="flex justify-between text-sm">
-              <div className="text-gray-800">
+            <div key={p.id} className="flex justify-between text-sm text-gray-900">
+              <div>
                 <div className="font-medium">{p.titulo}</div>
-                <div className="text-xs text-gray-500">Cantidad: {p.cantidad}</div>
+                <div className="text-xs">Cantidad: {p.cantidad}</div>
               </div>
-              <div className="text-gray-800">${(p.precio * p.cantidad).toFixed(2)}</div>
+              <div>${(p.precio * p.cantidad).toFixed(2)}</div>
             </div>
           ))
         )}
       </div>
-      <div className="mt-4 text-sm text-gray-800 space-y-1">
+      <div className="mt-4 text-sm text-gray-900 space-y-1">
         <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
         <div className="flex justify-between"><span>IVA</span><span>${iva.toFixed(2)}</span></div>
         <div className="flex justify-between"><span>Envío</span><span>${envio.toFixed(2)}</span></div>

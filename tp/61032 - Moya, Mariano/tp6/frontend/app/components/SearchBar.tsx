@@ -12,7 +12,7 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
       placeholder="Buscar..."
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="w-full p-2 border rounded mb-4"
+      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
     />
   );
 }
