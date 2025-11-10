@@ -8,16 +8,32 @@ import { Producto } from '../types';
 interface ProductoCardProps {
   producto: Producto;
   autenticado?: boolean;
+  cantidadEnCarrito?: number;
+  onAgregado?: () => void;
 }
 
-export default function ProductoCard({ producto, autenticado = false }: ProductoCardProps) {
+export default function ProductoCard({
+  producto,
+  autenticado = false,
+  cantidadEnCarrito = 0,
+  onAgregado,
+}: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
+  const stockRestante = producto.existencia - cantidadEnCarrito;
+  const sinStock = stockRestante <= 0;
+
   const agregarAlCarrito = async () => {
     if (!autenticado) {
       setMensaje('Debes iniciar sesión');
+      setTimeout(() => setMensaje(''), 2000);
+      return;
+    }
+
+    if (sinStock) {
+      setMensaje('Sin stock');
       setTimeout(() => setMensaje(''), 2000);
       return;
     }
@@ -41,6 +57,7 @@ export default function ProductoCard({ producto, autenticado = false }: Producto
       }
 
       setMensaje('✓ Agregado');
+      onAgregado?.();
       setTimeout(() => setMensaje(''), 2000);
     } catch (error) {
       setMensaje('Error');
@@ -92,10 +109,10 @@ export default function ProductoCard({ producto, autenticado = false }: Producto
         {/* Botón de agregar al carrito */}
         <button
           onClick={agregarAlCarrito}
-          disabled={loading || producto.existencia === 0}
+          disabled={loading || sinStock}
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
         >
-          {mensaje || (loading ? 'Agregando...' : producto.existencia === 0 ? 'Sin stock' : 'Agregar al carrito')}
+          {mensaje || (loading ? 'Agregando...' : sinStock ? 'Sin stock' : `Agregar (${stockRestante} disp.)`)}
         </button>
       </div>
     </div>

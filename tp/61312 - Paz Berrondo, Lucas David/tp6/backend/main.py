@@ -65,18 +65,29 @@ class AgregarCarritoRequest(BaseModel):
     cantidad: int
 
 
+class ActualizarCarritoRequest(BaseModel):
+    """Modelo para actualizar cantidad de un producto en el carrito."""
+    cantidad: int
+
+
 class ItemCarritoResponse(BaseModel):
     """Modelo para item de carrito en respuesta."""
     producto_id: int
     nombre: str
+    categoria: str
     precio: float
     cantidad: int
     subtotal: float
+    stock_disponible: int
+    imagen: str
 
 
 class CarritoResponse(BaseModel):
     """Modelo para respuesta de carrito."""
     items: list[ItemCarritoResponse]
+    subtotal: float
+    iva: float
+    envio: float
     total: float
 
 
@@ -89,6 +100,10 @@ class FinalizarCompraRequest(BaseModel):
 class CompraResponse(BaseModel):
     """Modelo para respuesta de compra finalizada."""
     compra_id: int
+    subtotal: float
+    iva: float
+    envio: float
+    total: float
 
 
 class ItemCompraResponse(BaseModel):
@@ -331,31 +346,47 @@ def ver_carrito(usuario_actual: Usuario = Depends(get_current_user)):
         
         if not carrito:
             # Si no hay carrito activo, retornar carrito vacío
-            return CarritoResponse(items=[], total=0.0)
+            return CarritoResponse(items=[], subtotal=0.0, iva=0.0, envio=0.0, total=0.0)
         
         # Obtener items del carrito con información de productos
         items_carrito = session.exec(
             select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
         ).all()
         
-        items_response = []
-        total = 0.0
+        items_response: list[ItemCarritoResponse] = []
+        subtotal = 0.0
+        iva_total = 0.0
         
         for item in items_carrito:
             producto = session.get(Producto, item.producto_id)
             if producto:
-                subtotal = producto.precio * item.cantidad
-                total += subtotal
+                item_subtotal = producto.precio * item.cantidad
+                subtotal += item_subtotal
+                
+                tasa_iva = 0.10 if producto.categoria == "Electrónica" else 0.21
+                iva_total += item_subtotal * tasa_iva
                 
                 items_response.append(ItemCarritoResponse(
                     producto_id=producto.id,
                     nombre=producto.nombre,
+                    categoria=producto.categoria,
                     precio=producto.precio,
                     cantidad=item.cantidad,
-                    subtotal=subtotal
+                    subtotal=item_subtotal,
+                    stock_disponible=producto.existencia,
+                    imagen=producto.imagen
                 ))
         
-        return CarritoResponse(items=items_response, total=total)
+        envio = 0.0 if subtotal > 1000 else 50.0 if subtotal > 0 else 0.0
+        total = subtotal + iva_total + envio
+        
+        return CarritoResponse(
+            items=items_response,
+            subtotal=subtotal,
+            iva=iva_total,
+            envio=envio,
+            total=total
+        )
 
 
 @app.post("/carrito", response_model=MensajeResponse, status_code=status.HTTP_201_CREATED)
@@ -373,6 +404,13 @@ def agregar_al_carrito(
     - Requiere autenticación
     """
     with Session(engine) as session:
+        # Validar cantidad positiva
+        if datos.cantidad <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="La cantidad debe ser mayor a 0"
+            )
+
         # Validar que el producto existe
         producto = session.get(Producto, datos.producto_id)
         if not producto:
@@ -450,6 +488,69 @@ def agregar_al_carrito_alias(
 ):
     """Alias de POST /carrito para agregar productos al carrito."""
     return agregar_al_carrito(datos, usuario_actual)
+
+
+@app.put("/carrito/{producto_id}", response_model=CarritoResponse)
+def actualizar_cantidad_carrito(
+    producto_id: int,
+    datos: ActualizarCarritoRequest,
+    usuario_actual: Usuario = Depends(get_current_user)
+):
+    """Actualizar la cantidad de un producto en el carrito."""
+    if datos.cantidad < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La cantidad no puede ser negativa"
+        )
+
+    with Session(engine) as session:
+        carrito = session.exec(
+            select(Carrito).where(
+                Carrito.usuario_id == usuario_actual.id,
+                Carrito.estado == "activo"
+            )
+        ).first()
+
+        if not carrito:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No hay un carrito activo"
+            )
+
+        producto = session.get(Producto, producto_id)
+        if not producto:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Producto con ID {producto_id} no encontrado"
+            )
+
+        item = session.exec(
+            select(ItemCarrito).where(
+                ItemCarrito.carrito_id == carrito.id,
+                ItemCarrito.producto_id == producto_id
+            )
+        ).first()
+
+        if not item:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"El producto {producto.nombre} no está en el carrito"
+            )
+
+        if datos.cantidad == 0:
+            session.delete(item)
+        else:
+            if datos.cantidad > producto.existencia:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Stock insuficiente. Disponible: {producto.existencia}"
+                )
+            item.cantidad = datos.cantidad
+            session.add(item)
+
+        session.commit()
+
+    return ver_carrito(usuario_actual)
 
 
 @app.delete("/carrito/{producto_id}", response_model=MensajeResponse)
@@ -681,7 +782,13 @@ def finalizar_compra(
         
         session.commit()
         
-        return CompraResponse(compra_id=compra.id)
+        return CompraResponse(
+            compra_id=compra.id,
+            subtotal=subtotal,
+            iva=iva_total,
+            envio=envio,
+            total=total
+        )
 
 
 # ========================================

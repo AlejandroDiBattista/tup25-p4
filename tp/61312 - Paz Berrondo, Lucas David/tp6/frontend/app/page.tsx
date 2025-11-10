@@ -3,15 +3,46 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ProductoCard from './components/ProductoCard';
-import { cerrarSesion, estaAutenticado } from './services/auth';
+import { cerrarSesion, estaAutenticado, getAuthHeaders } from './services/auth';
 import { obtenerProductos } from './services/productos';
 import type { Producto } from './types';
+
+interface ItemCarrito {
+  producto_id: number;
+  nombre: string;
+  categoria: string;
+  precio: number;
+  cantidad: number;
+  subtotal: number;
+  stock_disponible: number;
+  imagen: string;
+}
+
+interface CarritoResponse {
+  items: ItemCarrito[];
+  subtotal: number;
+  iva: number;
+  envio: number;
+  total: number;
+}
 
 export default function Home() {
   const router = useRouter();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [autenticado, setAutenticado] = useState(false);
+  const [carrito, setCarrito] = useState<CarritoResponse | null>(null);
+  const [cargandoCarrito, setCargandoCarrito] = useState(false);
+  const [mensaje, setMensaje] = useState('');
+  const [error, setError] = useState('');
+  const [itemEnProceso, setItemEnProceso] = useState<number | null>(null);
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+  const mostrarMensaje = (texto: string) => {
+    setMensaje(texto);
+    setTimeout(() => setMensaje(''), 2500);
+  };
 
   useEffect(() => {
     setAutenticado(estaAutenticado());
@@ -30,13 +61,131 @@ export default function Home() {
     cargarProductos();
   }, []);
 
+  useEffect(() => {
+    if (estaAutenticado()) {
+      void cargarCarrito();
+    } else {
+      setCarrito(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autenticado]);
+
+  const cargarCarrito = async () => {
+    if (!estaAutenticado()) {
+      setCarrito(null);
+      return;
+    }
+
+    setCargandoCarrito(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_URL}/carrito`, {
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudo obtener el carrito');
+      }
+
+      const data: CarritoResponse = await response.json();
+      setCarrito(data);
+    } catch (err) {
+      console.error('Error al cargar carrito:', err);
+      setCarrito(null);
+      setError(err instanceof Error ? err.message : 'Error al cargar el carrito');
+    } finally {
+      setCargandoCarrito(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await cerrarSesion();
       setAutenticado(false);
+      setCarrito(null);
       router.refresh();
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+    }
+  };
+
+  const actualizarCantidad = async (productoId: number, nuevaCantidad: number) => {
+    if (!autenticado) return;
+
+    if (nuevaCantidad < 1) {
+      await eliminarItem(productoId);
+      return;
+    }
+
+    try {
+      setItemEnProceso(productoId);
+      const response = await fetch(`${API_URL}/carrito/${productoId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ cantidad: nuevaCantidad }),
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.detail || 'No se pudo actualizar la cantidad');
+      }
+
+      await cargarCarrito();
+      mostrarMensaje('Cantidad actualizada');
+    } catch (err) {
+      console.error('Error al actualizar cantidad:', err);
+      setError(err instanceof Error ? err.message : 'Error al actualizar la cantidad');
+    } finally {
+      setItemEnProceso(null);
+    }
+  };
+
+  const eliminarItem = async (productoId: number) => {
+    if (!autenticado) return;
+
+    try {
+      setItemEnProceso(productoId);
+      const response = await fetch(`${API_URL}/carrito/quitar/${productoId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudo eliminar el producto');
+      }
+
+      await cargarCarrito();
+      mostrarMensaje('Producto eliminado del carrito');
+    } catch (err) {
+      console.error('Error al eliminar item:', err);
+      setError(err instanceof Error ? err.message : 'Error al eliminar el producto');
+    } finally {
+      setItemEnProceso(null);
+    }
+  };
+
+  const vaciarCarrito = async () => {
+    if (!autenticado || !carrito || carrito.items.length === 0) {
+      return;
+    }
+
+    if (!window.confirm('¿Vaciar todo el carrito?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/carrito/cancelar`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudo vaciar el carrito');
+      }
+
+      await cargarCarrito();
+      mostrarMensaje('Carrito vaciado');
+    } catch (err) {
+      console.error('Error al vaciar carrito:', err);
+      setError(err instanceof Error ? err.message : 'Error al vaciar el carrito');
     }
   };
 
@@ -66,10 +215,10 @@ export default function Home() {
               {autenticado ? (
                 <>
                   <button
-                    onClick={() => router.push('/carrito')}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    onClick={() => router.push('/compras')}
+                    className="bg-white border border-blue-600 text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors"
                   >
-                    🛒 Mi Carrito
+                    Historial de compras
                   </button>
                   <button
                     onClick={handleLogout}
@@ -92,14 +241,145 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productos.map((producto) => (
-            <ProductoCard 
-              key={producto.id} 
-              producto={producto}
-              autenticado={autenticado}
-            />
-          ))}
+        {mensaje && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-6">
+            {mensaje}
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <section className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {productos.map((producto) => (
+                <ProductoCard
+                  key={producto.id}
+                  producto={producto}
+                  autenticado={autenticado}
+                  cantidadEnCarrito={carrito?.items.find((item) => item.producto_id === producto.id)?.cantidad ?? 0}
+                  onAgregado={() => {
+                    mostrarMensaje('Producto agregado al carrito');
+                    void cargarCarrito();
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+
+          <aside className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
+              <h2 className="text-xl font-semibold mb-4">Tu carrito</h2>
+
+              {!autenticado ? (
+                <div className="text-center text-gray-600">
+                  <p className="mb-4">Inicia sesión para agregar productos y ver tu carrito.</p>
+                  <button
+                    onClick={() => router.push('/auth')}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                  >
+                    Iniciar sesión
+                  </button>
+                </div>
+              ) : cargandoCarrito ? (
+                <p className="text-gray-600">Cargando carrito...</p>
+              ) : !carrito || carrito.items.length === 0 ? (
+                <div className="text-center text-gray-600">
+                  <p className="mb-4">Tu carrito está vacío.</p>
+                  <p className="text-sm">Agrega productos del catálogo para verlos aquí.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm text-gray-500">{carrito.items.length} producto{carrito.items.length !== 1 ? 's' : ''}</span>
+                    <button
+                      onClick={vaciarCarrito}
+                      className="text-sm text-red-600 hover:text-red-700"
+                    >
+                      Vaciar
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 mb-6 max-h-80 overflow-y-auto pr-2">
+                    {carrito.items.map((item) => {
+                      const puedeIncrementar = item.cantidad < item.stock_disponible;
+                      const puedeDecrementar = item.cantidad > 1;
+
+                      return (
+                        <div key={item.producto_id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between">
+                            <div>
+                              <p className="font-semibold text-gray-900">{item.nombre}</p>
+                              <p className="text-xs text-gray-500">{item.categoria}</p>
+                              <p className="text-sm text-gray-600 mt-1">${item.precio.toFixed(2)} c/u</p>
+                            </div>
+                            <button
+                              onClick={() => void eliminarItem(item.producto_id)}
+                              disabled={itemEnProceso === item.producto_id}
+                              className="text-red-500 hover:text-red-600 text-sm"
+                            >
+                              Quitar
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => void actualizarCantidad(item.producto_id, item.cantidad - 1)}
+                                disabled={!puedeDecrementar || itemEnProceso === item.producto_id}
+                                className="w-8 h-8 flex items-center justify-center border rounded-full text-lg text-gray-700 disabled:text-gray-300 disabled:border-gray-200"
+                                aria-label={`Disminuir cantidad de ${item.nombre}`}
+                              >
+                                −
+                              </button>
+                              <span className="w-10 text-center font-medium">{item.cantidad}</span>
+                              <button
+                                onClick={() => void actualizarCantidad(item.producto_id, item.cantidad + 1)}
+                                disabled={!puedeIncrementar || itemEnProceso === item.producto_id}
+                                className="w-8 h-8 flex items-center justify-center border rounded-full text-lg text-gray-700 disabled:text-gray-300 disabled:border-gray-200"
+                                aria-label={`Aumentar cantidad de ${item.nombre}`}
+                              >
+                                +
+                              </button>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-500">Subtotal</p>
+                              <p className="text-base font-semibold text-gray-900">${item.subtotal.toFixed(2)}</p>
+                              {!puedeIncrementar && (
+                                <p className="text-xs text-orange-600 mt-1">Stock máximo alcanzado</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="space-y-2 text-gray-700 text-sm">
+                    <div className="flex justify-between"><span>Subtotal</span><span>${carrito.subtotal.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span>IVA</span><span>${carrito.iva.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span>Envío</span><span>{carrito.envio === 0 ? 'GRATIS' : `$${carrito.envio.toFixed(2)}`}</span></div>
+                  </div>
+
+                  <div className="border-t border-gray-200 mt-4 pt-4 flex justify-between items-center">
+                    <span className="text-lg font-semibold">Total</span>
+                    <span className="text-2xl font-bold text-blue-600">${carrito.total.toFixed(2)}</span>
+                  </div>
+
+                  <button
+                    onClick={() => router.push('/carrito')}
+                    className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 mt-4"
+                  >
+                    Finalizar compra
+                  </button>
+                </>
+              )}
+            </div>
+          </aside>
         </div>
       </main>
     </div>

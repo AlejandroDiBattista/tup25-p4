@@ -27,6 +27,12 @@ interface CompraDetalle extends CompraResumen {
   subtotal: number;
 }
 
+const enmascararTarjeta = (tarjeta: string) => {
+  const digits = tarjeta.replace(/\s+/g, '');
+  if (digits.length < 4) return '**** **** **** ****';
+  return `**** **** **** ${digits.slice(-4)}`;
+};
+
 export default function ComprasPage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -231,6 +237,14 @@ export default function ComprasPage() {
                           <div className="border-t pt-2 flex justify-between text-lg font-bold">
                             <span>Total:</span>
                             <span className="text-blue-600">${detalle.total.toFixed(2)}</span>
+                          </div>
+                          <div className="border-t pt-4 text-sm text-gray-700 space-y-1">
+                            <p>
+                              <span className="font-medium">Dirección:</span> {detalle.direccion}
+                            </p>
+                            <p>
+                              <span className="font-medium">Tarjeta:</span> {enmascararTarjeta(detalle.tarjeta)}
+                            </p>
                           </div>
                         </div>
                       </>
