@@ -85,7 +85,9 @@ def finalizar_compra(
             producto_id=producto.id,
             cantidad=item.cantidad,
             nombre_producto=producto.nombre,
-            precio_unitario=producto.precio
+            precio_unitario=producto.precio,
+            imagen=producto.imagen,
+            precio_total=precio_item
         )
         items_compra.append(item_compra)
         
@@ -161,18 +163,16 @@ def obtener_compras(
         # Construir items extendidos con información del producto
         items_extendidos = []
         for item in items_db:
-            producto = session.get(Producto, item.producto_id)
-            if producto:
-                item_response = ItemCompraResponse(
-                    id=item.id,
-                    producto_id=item.producto_id,
-                    nombre=item.nombre_producto,
-                    cantidad=item.cantidad,
-                    precio_unitario=item.precio_unitario,
-                    precio_total=item.precio_unitario * item.cantidad,
-                    imagen=producto.imagen
-                )
-                items_extendidos.append(item_response)
+            item_response = ItemCompraResponse(
+                id=item.id,
+                producto_id=item.producto_id,
+                nombre=item.nombre_producto,
+                cantidad=item.cantidad,
+                precio_unitario=item.precio_unitario,
+                precio_total=item.precio_total,
+                imagen=item.imagen
+            )
+            items_extendidos.append(item_response)
         
         compra_response = CompraResponse(
             id=compra.id,
@@ -229,18 +229,16 @@ def obtener_compra(
     
     items_extendidos = []
     for item in items_db:
-        producto = session.get(Producto, item.producto_id)
-        if producto:
-            item_response = ItemCompraResponse(
-                id=item.id,
-                producto_id=item.producto_id,
-                nombre=item.nombre_producto,
-                cantidad=item.cantidad,
-                precio_unitario=item.precio_unitario,
-                precio_total=item.precio_unitario * item.cantidad,
-                imagen=producto.imagen
-            )
-            items_extendidos.append(item_response)
+        item_response = ItemCompraResponse(
+            id=item.id,
+            producto_id=item.producto_id,
+            nombre=item.nombre_producto,
+            cantidad=item.cantidad,
+            precio_unitario=item.precio_unitario,
+            precio_total=item.precio_total,
+            imagen=item.imagen
+        )
+        items_extendidos.append(item_response)
     
     return CompraDetailResponse(
         id=compra.id,
