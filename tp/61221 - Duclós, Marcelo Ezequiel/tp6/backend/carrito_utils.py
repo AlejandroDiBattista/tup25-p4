@@ -6,6 +6,9 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from decimal import Decimal
 
+# Importar reglas de negocio centralizadas
+from reglas_negocio import ReglasNegocio
+
 from models import (
     Carrito, ItemCarrito, Producto, Usuario, EstadoCarrito,
     ItemCarritoCreate, ItemCarritoUpdate, CarritoResponse, ItemCarritoResponse,
@@ -59,12 +62,42 @@ def verificar_disponibilidad_producto(session: Session, producto_id: int, cantid
     
     return producto
 
+
+def validar_limite_total_carrito(session: Session, carrito: Carrito, cantidad_adicional: int = 0):
+    """Validar que el carrito no exceda el límite total de productos"""
+    # Contar total de productos en el carrito
+    total_items = session.exec(
+        select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
+    ).all()
+    
+    total_cantidad = sum(item.cantidad for item in total_items) + cantidad_adicional
+    
+    if total_cantidad > ReglasNegocio.CANTIDAD_MAXIMA_TOTAL_CARRITO:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El carrito no puede tener más de {ReglasNegocio.CANTIDAD_MAXIMA_TOTAL_CARRITO} productos en total"
+        )
+
+
 def agregar_item_a_carrito(
     session: Session, 
     carrito: Carrito, 
     item_data: ItemCarritoCreate
 ) -> ItemCarrito:
-    """Agregar un item al carrito o actualizar cantidad si ya existe"""
+    """Agregar un item al carrito o actualizar cantidad si ya existe con validaciones de negocio"""
+    
+    # Validar cantidad solicitada
+    if item_data.cantidad <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La cantidad debe ser mayor a 0"
+        )
+    
+    if item_data.cantidad > ReglasNegocio.CANTIDAD_MAXIMA_POR_PRODUCTO:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"No se pueden agregar más de {ReglasNegocio.CANTIDAD_MAXIMA_POR_PRODUCTO} unidades de un producto"
+        )
     
     # Verificar producto y disponibilidad
     producto = verificar_disponibilidad_producto(
@@ -82,6 +115,13 @@ def agregar_item_a_carrito(
         # Actualizar cantidad
         nueva_cantidad = item_existente.cantidad + item_data.cantidad
         
+        # Validar límites por producto
+        if nueva_cantidad > ReglasNegocio.CANTIDAD_MAXIMA_POR_PRODUCTO:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"No se pueden tener más de {ReglasNegocio.CANTIDAD_MAXIMA_POR_PRODUCTO} unidades del mismo producto en el carrito"
+            )
+        
         # Verificar stock para la nueva cantidad
         verificar_disponibilidad_producto(session, item_data.producto_id, nueva_cantidad)
         
@@ -89,6 +129,9 @@ def agregar_item_a_carrito(
         item_existente.fecha_agregado = datetime.now()
         item = item_existente
     else:
+        # Validar límite total del carrito
+        validar_limite_total_carrito(session, carrito, item_data.cantidad)
+        
         # Crear nuevo item
         item = ItemCarrito(
             carrito_id=carrito.id,

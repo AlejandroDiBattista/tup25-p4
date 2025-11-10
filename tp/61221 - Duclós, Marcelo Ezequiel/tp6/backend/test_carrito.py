@@ -51,15 +51,26 @@ class TestCarrito:
         assert response.status_code == 422
     
     def test_agregar_excede_stock(self, client, usuario_logueado, productos_en_db):
-        """Test agregar más cantidad que el stock disponible"""
+        """Test agregar producto excediendo stock o límites de negocio"""
         producto_id = productos_en_db[0].id
         stock_disponible = productos_en_db[0].existencia
         
-        item_data = {"producto_id": producto_id, "cantidad": stock_disponible + 1}
+        # Intentar agregar más del stock disponible, pero respetando límites de producto
+        cantidad_a_probar = min(stock_disponible + 1, 10)
         
-        response = client.post("/carrito", json=item_data, headers=usuario_logueado["headers"])
-        assert response.status_code == 400
-        assert "stock insuficiente" in response.json()["detail"].lower()
+        if cantidad_a_probar > stock_disponible:
+            # Si podemos probar exceso de stock
+            item_data = {"producto_id": producto_id, "cantidad": cantidad_a_probar}
+            response = client.post("/carrito", json=item_data, headers=usuario_logueado["headers"])
+            assert response.status_code == 400
+            assert "stock insuficiente" in response.json()["detail"].lower()
+        else:
+            # Si el stock es >= 10, probar límite de cantidad por producto
+            item_data = {"producto_id": producto_id, "cantidad": 11}  # Excede límite de 10
+            response = client.post("/carrito", json=item_data, headers=usuario_logueado["headers"])
+            assert response.status_code == 400
+            assert ("más de 10 unidades" in response.json()["detail"] or 
+                   "stock insuficiente" in response.json()["detail"].lower())
     
     def test_actualizar_cantidad_item(self, client, usuario_logueado, productos_en_db):
         """Test actualizar cantidad de item en carrito"""

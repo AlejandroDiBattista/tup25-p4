@@ -11,6 +11,7 @@ class Compra(SQLModel, table=True):
     direccion: str = Field(max_length=500)
     tarjeta: str = Field(max_length=20)  # Últimos 4 dígitos enmascarados
     subtotal: Decimal = Field(decimal_places=2, max_digits=10)
+    descuento: Decimal = Field(decimal_places=2, max_digits=10, default=0)
     iva: Decimal = Field(decimal_places=2, max_digits=10)
     envio: Decimal = Field(decimal_places=2, max_digits=10)
     total: Decimal = Field(decimal_places=2, max_digits=10)
