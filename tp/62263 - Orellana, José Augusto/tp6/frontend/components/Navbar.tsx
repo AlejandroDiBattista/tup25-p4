@@ -14,16 +14,10 @@ export default function Navbar() {
                         <Link href="/">Productos</Link>
                     </Button>
 
-                    {/* --- CAMBIO 1 --- */}
-                    {/* Cambiado de variant="outline" a variant="ghost" */}
-                    {/* También ajusté el className para que sea igual a "Productos" */}
                     <Button variant="ghost" asChild className="text-slate-600 hover:text-slate-900">
                         <Link href="/login">Ingresar</Link>
                     </Button>
 
-                    {/* --- CAMBIO 2 --- */}
-                    {/* Quitado el className="bg-slate-900..." */}
-                    {/* Agregado variant="secondary" para el botón claro */}
                     <Button variant="secondary" asChild>
                         <Link href="/registro">Crear cuenta</Link>
                     </Button>
