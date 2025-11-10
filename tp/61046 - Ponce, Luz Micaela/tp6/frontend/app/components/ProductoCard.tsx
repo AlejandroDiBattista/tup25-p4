@@ -1,14 +1,29 @@
+"use client";
+
 import { Producto } from '../types';
 import Image from 'next/image';
+import { useCart } from '../context/CartContext';
 
-interface ProductoCardProps {
-  producto: Producto;
-}
-
-export default function ProductoCard({ producto }: ProductoCardProps) {
+export default function ProductoCard({ producto }: { producto: Producto }) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+  const { addItem } = useCart();
+  const { fetchCart } = useCart();
+
   const hayStock = producto.existencia > 0;
+
+  const handleAddToCart = () => {
+    try {
+      addItem(producto.id, 1);
+    } catch (error: any) {
+      if (error.message.includes('autenticado')) {
+        alert("Por favor, inicia sesión para agregar productos al carrito.");
+        window.location.href = '/iniciar-sesion';
+      } else {
+        alert(`Error: ${error.message}`);
+      }
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
@@ -23,10 +38,9 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
         />
       </div>
 
-      <div className="p-4 flex flex-col grow">
+      <div className="p-4 flex flex-col flex-grow">
         <p className="text-xs text-gray-500 mb-1">{producto.categoria}</p>
-
-        <h3 className="text-md font-semibold text-gray-800 mb-2 line-clamp-2 grow">
+        <h3 className="text-md font-semibold text-gray-800 mb-2 line-clamp-2 flex-grow">
           {producto.titulo}
         </h3>
 
@@ -39,19 +53,18 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </span>
         </div>
 
-
         <button
+          onClick={handleAddToCart}
           disabled={!hayStock}
           className={`w-full px-4 py-2 rounded-md font-semibold text-sm transition-colors
             ${hayStock
-              ? 'bg-pink-500 text-white hover:bg-pink-600' // <-- Tu color rosa
+              ? 'bg-pink-500 text-white hover:bg-pink-600'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }
           `}
         >
           {hayStock ? 'Agregar al carrito' : 'Agotado'}
         </button>
-
       </div>
     </div>
   );
