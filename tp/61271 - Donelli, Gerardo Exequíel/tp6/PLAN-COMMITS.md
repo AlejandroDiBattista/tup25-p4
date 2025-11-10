@@ -190,35 +190,49 @@
 
 ---
 
-### **COMMIT 5: Implementar endpoints del carrito (backend)**
-**Archivos a modificar:**
-- `backend/main.py` → Endpoints del carrito
+### **✅ COMMIT 5: Implementar endpoints del carrito (backend) - COMPLETADO**
+**Archivos modificados:**
+- ✅ `backend/main.py` → Endpoints del carrito implementados y schemas agregados
 
-**Endpoints a modificar/crear:**
-- GET /productos → Agregar filtros opcionales (categoría, búsqueda)
-- GET /productos/{id} → Nuevo endpoint
+**Schemas creados:**
+- ✅ `AgregarProductoRequest` → Validación de producto_id y cantidad (ge=1)
+- ✅ `CarritoResponse` → Schema para respuesta del carrito
 
-**Reglas a cumplir:**
-- Filtrado por categoría
-- Búsqueda por contenido en nombre/descripción
-- Devolver productos desde BD, no desde JSON
+**Endpoints implementados:**
+- ✅ POST /carrito → Agregar producto (status 201)
+- ✅ GET /carrito → Ver contenido del carrito
+- ✅ DELETE /carrito/{product_id} → Quitar producto (status 200)
+- ✅ POST /carrito/cancelar → Cancelar/vaciar carrito
 
----
+**Implementación:**
+- ✅ Validación de stock antes de agregar productos
+- ✅ Validación de producto existente (404 si no existe)
+- ✅ Creación automática de carrito si no existe uno activo
+- ✅ Actualización de cantidad si producto ya está en carrito
+- ✅ Validación de stock total (cantidad existente + nueva)
+- ✅ Cálculo de subtotales y total del carrito
+- ✅ Cambio de estado a "cancelado" al vaciar carrito
+- ✅ Todos los endpoints requieren autenticación (Depends(obtener_usuario_actual))
 
-### **COMMIT 5: Implementar endpoints del carrito (backend)**
-**Archivos a modificar:**
-- `backend/main.py` → Endpoints del carrito
+**Reglas cumplidas:**
+- ✅ Solo agregar si hay existencia disponible
+- ✅ Validación: stock insuficiente retorna 400
+- ✅ Validación: producto agotado retorna 400
+- ✅ Usuario debe estar autenticado (403 sin token)
+- ✅ Carrito solo puede tener estado "activo" para modificaciones
+- ✅ Al cancelar carrito se eliminan todos los items y cambia estado
 
-**Endpoints a crear:**
-- POST /carrito → Requiere autenticación
-- DELETE /carrito/{product_id} → Requiere autenticación
-- GET /carrito → Requiere autenticación
-- POST /carrito/cancelar → Requiere autenticación
-
-**Reglas a cumplir:**
-- Solo agregar si hay existencia disponible
-- Usuario debe estar autenticado
-- Validar que el carrito no esté finalizado antes de eliminar productos
+**Verificación:**
+- ✅ Test 1: POST /carrito → Producto agregado (2 unidades)
+- ✅ Test 2: POST /carrito → Segundo producto agregado
+- ✅ Test 3: POST /carrito → Cantidad actualizada (3 unidades total)
+- ✅ Test 4: GET /carrito → 2 items, total $1024.85
+- ✅ Test 5: POST /carrito con cantidad excesiva → 400 (stock insuficiente)
+- ✅ Test 6: DELETE /carrito/5 → Producto eliminado
+- ✅ Test 7: GET /carrito sin auth → 403 (Forbidden)
+- ✅ Test 8: POST /carrito/cancelar → 1 item eliminado
+- ✅ Test 9: GET /carrito → Carrito vacío (0 items, $0.00)
+- ✅ 9/9 tests exitosos
 
 ---
 
