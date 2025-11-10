@@ -237,18 +237,55 @@
 ---
 
 ### **COMMIT 6: Implementar endpoint de finalizar compra**
-**Archivos a modificar:**
-- `backend/main.py` → Endpoint finalizar compra
+---
 
-**Endpoint a crear:**
-- POST /carrito/finalizar → Requiere autenticación
+### **✅ COMMIT 6: Implementar endpoint de finalizar compra - COMPLETADO**
+**Archivos modificados:**
+- ✅ `backend/main.py` → Endpoint finalizar compra implementado con schemas
 
-**Reglas a cumplir:**
-- Calcular IVA: 21% general, 10% electrónicos (categoría "Electrónica" o similar)
-- Calcular envío: gratis si total > $1000, sino $50
-- Crear registro de Compra con todos los detalles
-- Vaciar carrito después de compra
-- Reducir existencias de productos
+**Schemas creados:**
+- ✅ `FinalizarCompraRequest` → Validación de dirección (min 10 chars) y tarjeta (4 dígitos)
+- ✅ `CompraResponse` → Respuesta con desglose completo (subtotal, IVA, envío, total, items)
+
+**Endpoint implementado:**
+- ✅ POST /carrito/finalizar → Requiere autenticación (status 201)
+
+**Implementación del proceso de compra:**
+- ✅ Validación de carrito activo (404 si no existe)
+- ✅ Validación de carrito no vacío (400 si está vacío)
+- ✅ Validación de stock suficiente para cada producto
+- ✅ Cálculo de subtotal por categoría (electrónica vs general)
+- ✅ Cálculo de IVA diferenciado: 10% para "Electrónica", 21% para resto
+- ✅ Cálculo de envío: $0 si subtotal > $1000, sino $50
+- ✅ Cálculo de total final: subtotal + IVA + envío
+- ✅ Reducción automática de existencias de productos
+- ✅ Creación de registro de Compra con fecha, dirección, tarjeta, total, envío
+- ✅ Creación de ItemsCompra (snapshot: nombre, precio_unitario al momento de compra)
+- ✅ Eliminación de items del carrito
+- ✅ Cambio de estado del carrito a "finalizado"
+
+**Reglas cumplidas:**
+- ✅ IVA 21% general, 10% para categoría "Electrónica" exacta
+- ✅ Envío gratis si subtotal > $1000, sino costo fijo $50
+- ✅ Registro de Compra con todos los campos requeridos
+- ✅ ItemsCompra guarda snapshot de productos (nombre, precio al momento de compra)
+- ✅ Carrito se vacía completamente después de finalizar
+- ✅ Existencias de productos se reducen correctamente
+- ✅ Validación de stock antes de finalizar (evita compras sin stock)
+
+**Verificación:**
+- ✅ Test 1: Compra > $1000 (Pulsera $1390) → Envío gratis, IVA 21%, Total $1681.90
+- ✅ Test 2: Compra < $1000 (Mochila + Camiseta $242.20) → Envío $50, IVA 21%, Total $343.06
+- ✅ Test 3: IVA mixto (SSD $109 + Chaquetas $111.98) → IVA $34.42 (10% + 21%), Total $305.40
+- ✅ Test 4: Carrito vacío después de compra → 0 items
+- ✅ Test 5: Finalizar sin carrito activo → 404 (correcto)
+- ✅ 5/5 tests exitosos
+
+**Fórmulas implementadas:**
+- IVA Electrónica: `subtotal_electronica * 0.10`
+- IVA General: `subtotal_general * 0.21`
+- Envío: `0 if subtotal > 1000 else 50`
+- Total: `subtotal + iva_total + costo_envio`
 
 ---
 
