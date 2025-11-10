@@ -3,16 +3,14 @@
 import { useState, useEffect } from 'react';
 import { getToken, getUser, logout } from '../services/auth';
 
-const isClient = typeof window !== 'undefined';
-
 export function useAuth() {
-  const [token, setToken] = useState<string | null>(() => (isClient ? getToken() : null));
-  const [user, setUser] = useState<any>(() => (isClient ? getUser() : null));
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isClient) {
+    if (typeof window === 'undefined') {
       setLoading(false);
       return;
     }
@@ -54,7 +52,7 @@ export function useAuth() {
     setUser(null);
     setError(null);
     setLoading(false);
-    if (isClient) {
+    if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('auth-updated'));
     }
   }
