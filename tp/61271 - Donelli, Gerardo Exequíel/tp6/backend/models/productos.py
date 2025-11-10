@@ -9,7 +9,7 @@ class Usuario(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str = Field(max_length=255)
     email: str = Field(unique=True, index=True, max_length=255)
-    contraseña: str = Field(max_length=255)  # Contraseña hasheada
+    password: str = Field(max_length=255)  # Contraseña hasheada
     
     # Relaciones
     carritos: List["Carrito"] = Relationship(back_populates="usuario")
