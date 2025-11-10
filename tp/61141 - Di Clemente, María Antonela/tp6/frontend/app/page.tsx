@@ -2,12 +2,14 @@
 import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
 import { useState, useEffect } from 'react';
+import Carrito from './components/Carrito';
 
 export default function Home() {
   // Estados
   const [productos, setProductos] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState('');
   const [categoria, setCategoria] = useState("Todas las categorias");
+  const [carrito, setCarrito] = useState<any[]>([]); 
 
   // Cargar productos al montar el componente
   useEffect(() => {
@@ -17,6 +19,26 @@ export default function Home() {
     };
     cargarProductos();
   }, []);
+
+   // Función para agregar producto al carrito
+const agregarAlCarrito = (producto: any) => {
+  const productoConRuta = {
+    ...producto,
+    imagen: producto.imagen.startsWith('/') ? producto.imagen : '/' + producto.imagen
+  };
+
+  // Actualiza el carrito
+  setCarrito((prev) => {
+    const existe = prev.find((item) => item.id === producto.id);
+    if (existe) {
+      return prev.map((item) =>
+        item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item
+      );
+    } else {
+      return [...prev, { ...productoConRuta, cantidad: 1 }];
+    }
+  });
+};
 
   // Filtrar productos por búsqueda y categoría
 const productosFiltrados = (productos || []).filter((p) => {
@@ -71,13 +93,14 @@ const productosFiltrados = (productos || []).filter((p) => {
         {/* Lista de productos */}
         <div className="lg:col-span-3 space-y-4">
           {productosFiltrados.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
+            <ProductoCard key={producto.id} producto={producto} onAgregar={agregarAlCarrito} />
           ))}
+
         </div>
 
         {/* Sidebar */}
-        <aside className="hidden lg:block bg-white rounded-lg shadow p-4 text-gray-700">
-          <p>Inicia sesión para ver y editar tu carrito.</p>
+        <aside className="hidden lg:block">
+          <Carrito productos={carrito}/>
         </aside>
       </main>
     </div>
