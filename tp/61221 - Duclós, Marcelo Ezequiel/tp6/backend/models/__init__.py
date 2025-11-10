@@ -2,6 +2,15 @@
 
 from .productos import Producto, ProductoResponse
 from .usuarios import Usuario, UsuarioCreate, UsuarioLogin, UsuarioResponse
+from .carrito import (
+    Carrito, 
+    ItemCarrito, 
+    EstadoCarrito,
+    ItemCarritoCreate, 
+    ItemCarritoUpdate,
+    CarritoResponse, 
+    ItemCarritoResponse
+)
 
 __all__ = [
     "Producto", 
@@ -9,5 +18,12 @@ __all__ = [
     "Usuario", 
     "UsuarioCreate", 
     "UsuarioLogin", 
-    "UsuarioResponse"
+    "UsuarioResponse",
+    "Carrito",
+    "ItemCarrito",
+    "EstadoCarrito",
+    "ItemCarritoCreate",
+    "ItemCarritoUpdate", 
+    "CarritoResponse",
+    "ItemCarritoResponse"
 ]

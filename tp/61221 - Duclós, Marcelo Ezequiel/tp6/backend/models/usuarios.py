@@ -1,5 +1,5 @@
-from typing import Optional
-from sqlmodel import Field, SQLModel
+from typing import Optional, List
+from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 import bcrypt
 
@@ -11,6 +11,10 @@ class Usuario(SQLModel, table=True):
     email: str = Field(unique=True, max_length=200)
     contraseña_hash: str = Field(max_length=255)
     fecha_registro: datetime = Field(default_factory=datetime.now)
+    
+    # Relaciones
+    carritos: List["Carrito"] = Relationship(back_populates="usuario")
+    compras: List["Compra"] = Relationship(back_populates="usuario")
     
     def verificar_contraseña(self, contraseña: str) -> bool:
         """Verificar si la contraseña proporcionada es correcta"""

@@ -1,5 +1,5 @@
-from typing import Optional
-from sqlmodel import Field, SQLModel
+from typing import Optional, List
+from sqlmodel import Field, SQLModel, Relationship
 from decimal import Decimal
 
 
@@ -13,6 +13,10 @@ class Producto(SQLModel, table=True):
     valoracion: Optional[float] = Field(default=None)
     existencia: int = Field(default=0, ge=0)
     imagen: str = Field(max_length=255)
+    
+    # Relaciones
+    items_carrito: List["ItemCarrito"] = Relationship(back_populates="producto")
+    items_compra: List["ItemCompra"] = Relationship(back_populates="producto")
     
     @property
     def disponible(self) -> bool:
