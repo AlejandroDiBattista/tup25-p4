@@ -14,7 +14,7 @@ async function getHeaders(): Promise<HeadersInit> {
 export async function agregarAlCarrito(
   productoId: number,
   cantidad: number = 1
-): Promise<any> {
+): Promise<Carrito> {
   const headers = await getHeaders();
   
   const res = await fetch(
@@ -49,7 +49,7 @@ export async function obtenerCarrito(): Promise<Carrito> {
   return res.json();
 }
 
-export async function removerDelCarrito(itemId: number): Promise<any> {
+export async function removerDelCarrito(itemId: number): Promise<Carrito> {
   const headers = await getHeaders();
   
   const res = await fetch(`${API_URL}/carrito/${itemId}`, {

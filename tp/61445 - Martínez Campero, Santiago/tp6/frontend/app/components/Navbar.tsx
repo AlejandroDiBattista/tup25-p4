@@ -11,8 +11,11 @@ export default function Navbar() {
   const [autenticado, setAutenticado] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setAutenticado(!!token);
+    const verificarToken = () => {
+      const token = localStorage.getItem('token');
+      setAutenticado(!!token);
+    };
+    verificarToken();
   }, []);
 
   const handleLogout = async () => {

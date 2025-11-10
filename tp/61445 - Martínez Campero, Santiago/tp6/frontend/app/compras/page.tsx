@@ -157,16 +157,9 @@ function ComprasContent({ success }: { success: boolean }) {
 }
 
 export default function ComprasPage() {
-  const [mounted, setMounted] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setSuccess(params.get('success') === 'true');
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
+  const success = typeof window !== 'undefined' 
+    ? new URLSearchParams(window.location.search).get('success') === 'true'
+    : false;
 
   return (
     <Suspense fallback={<div>Cargando...</div>}>
