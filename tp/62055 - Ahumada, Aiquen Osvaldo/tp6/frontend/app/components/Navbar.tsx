@@ -15,7 +15,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white border-b shadow-sm px-4 py-2 flex items-center justify-between">
-      <div className="font-bold text-lg">TP6 Shop</div>
+  <div className="font-bold text-lg text-gray-900">TP6 Shop</div>
       <div className="flex items-center gap-4">
         <Link href="/productos" className="text-blue-900 font-semibold px-3 py-1 rounded hover:bg-blue-100 transition">Productos</Link>
         {loading ? (
