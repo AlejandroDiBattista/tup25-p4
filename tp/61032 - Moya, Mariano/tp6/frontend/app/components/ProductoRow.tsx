@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Producto } from "../types";
+import { Button } from "../../components/ui/button";
 
 interface ProductoRowProps {
   producto: Producto;
@@ -36,17 +37,13 @@ export default function ProductoRow({ producto, onAdd, isLogged = false }: Produ
       <div className="flex flex-col items-end gap-3 min-w-[180px]">
         <div className="text-gray-900 font-semibold">${producto.precio.toFixed(2)}</div>
         <div className="text-xs text-gray-900">Disponible: {producto.existencia}</div>
-        <button
-          className={`px-4 py-2 rounded text-sm font-semibold transition ${
-            agotado || !isLogged
-              ? "bg-gray-200 text-gray-900 cursor-not-allowed"
-              : "bg-indigo-600 text-white hover:bg-indigo-700"
-          }`}
+        <Button
+          className={`${agotado || !isLogged ? "bg-gray-200 text-gray-900 hover:bg-gray-200" : ""}`}
           onClick={() => !agotado && isLogged && onAdd(producto.id)}
           disabled={agotado || !isLogged}
         >
           {agotado ? "Agotado" : isLogged ? "Agregar al carrito" : "Ingresá para comprar"}
-        </button>
+        </Button>
       </div>
     </div>
   );

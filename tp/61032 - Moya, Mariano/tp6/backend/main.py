@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -27,6 +27,12 @@ def get_usuario_id_from_token(token: Optional[str]) -> Optional[int]:
             return None
     return None
 
+def get_current_user(Authorization: Optional[str] = Header(None)) -> int:
+    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
+    if not usuario_id:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    return usuario_id
+
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
@@ -41,10 +47,7 @@ app.add_middleware(
 
 # Endpoint: Ver contenido del carrito
 @app.get("/carrito")
-def ver_carrito(Authorization: Optional[str] = Header(None)):
-    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
-    if not usuario_id:
-        raise HTTPException(status_code=401, detail="No autenticado")
+def ver_carrito(usuario_id: int = Depends(get_current_user)):
     with Session(engine) as session:
         carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
         if not carrito:
@@ -64,10 +67,7 @@ class CarritoAdd(BaseModel):
 
 # Endpoint: Agregar producto al carrito
 @app.post("/carrito")
-def agregar_carrito(data: CarritoAdd, Authorization: Optional[str] = Header(None)):
-    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
-    if not usuario_id:
-        raise HTTPException(status_code=401, detail="No autenticado")
+def agregar_carrito(data: CarritoAdd, usuario_id: int = Depends(get_current_user)):
     with Session(engine) as session:
         producto = session.get(Producto, data.producto_id)
         if not producto:
@@ -91,10 +91,7 @@ def agregar_carrito(data: CarritoAdd, Authorization: Optional[str] = Header(None
 
 # Endpoint: Quitar producto del carrito
 @app.delete("/carrito/{product_id}")
-def quitar_carrito(product_id: int, Authorization: Optional[str] = Header(None)):
-    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
-    if not usuario_id:
-        raise HTTPException(status_code=401, detail="No autenticado")
+def quitar_carrito(product_id: int, usuario_id: int = Depends(get_current_user)):
     with Session(engine) as session:
         carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
         if not carrito:
@@ -108,10 +105,7 @@ def quitar_carrito(product_id: int, Authorization: Optional[str] = Header(None))
 
 # Endpoint: Cancelar compra (vaciar carrito)
 @app.post("/carrito/cancelar")
-def cancelar_carrito(Authorization: Optional[str] = Header(None)):
-    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
-    if not usuario_id:
-        raise HTTPException(status_code=401, detail="No autenticado")
+def cancelar_carrito(usuario_id: int = Depends(get_current_user)):
     with Session(engine) as session:
         carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
         if not carrito:
@@ -130,10 +124,7 @@ class CompraFinalizar(BaseModel):
 
 # Endpoint: Finalizar compra
 @app.post("/carrito/finalizar")
-def finalizar_compra(data: CompraFinalizar, Authorization: Optional[str] = Header(None)):
-    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
-    if not usuario_id:
-        raise HTTPException(status_code=401, detail="No autenticado")
+def finalizar_compra(data: CompraFinalizar, usuario_id: int = Depends(get_current_user)):
     with Session(engine) as session:
         carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")).first()
         if not carrito:
@@ -196,10 +187,7 @@ def finalizar_compra(data: CompraFinalizar, Authorization: Optional[str] = Heade
 
 # Endpoint: Ver historial de compras
 @app.get("/compras")
-def ver_compras(Authorization: Optional[str] = Header(None)):
-    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
-    if not usuario_id:
-        raise HTTPException(status_code=401, detail="No autenticado")
+def ver_compras(usuario_id: int = Depends(get_current_user)):
     with Session(engine) as session:
         compras = session.exec(select(Compra).where(Compra.usuario_id == usuario_id)).all()
         resultado = []
@@ -215,10 +203,7 @@ def ver_compras(Authorization: Optional[str] = Header(None)):
 
 # Endpoint: Ver detalle de una compra
 @app.get("/compras/{id}")
-def ver_detalle_compra(id: int, Authorization: Optional[str] = Header(None)):
-    usuario_id = get_usuario_id_from_token(Authorization.replace("Bearer ", "") if Authorization else None)
-    if not usuario_id:
-        raise HTTPException(status_code=401, detail="No autenticado")
+def ver_detalle_compra(id: int, usuario_id: int = Depends(get_current_user)):
     with Session(engine) as session:
         compra = session.get(Compra, id)
         if not compra or compra.usuario_id != usuario_id:
