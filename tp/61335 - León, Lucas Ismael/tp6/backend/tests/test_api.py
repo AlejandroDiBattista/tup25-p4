@@ -1,6 +1,7 @@
 import os
 import tempfile
 import time
+import uuid
 from typing import Optional
 
 import pytest
@@ -27,7 +28,7 @@ def auth_headers(token: str):
 
 
 def do_register_and_login(client: TestClient, email: Optional[str] = None, password: str = "pwd12345"):
-    email = email or f"test_{int(time.time())}@example.com"
+    email = email or f"test_{uuid.uuid4().hex}@example.com"
     # Registrar
     r = client.post("/registrar", json={"nombre": "Test", "email": email, "password": password})
     assert r.status_code in (201, 400)
@@ -100,3 +101,39 @@ def test_checkout_empty_cart_returns_400_and_logout_blacklist():
     # El token ya no debe permitir acceder
     r = client.get("/carrito", headers=auth_headers(token))
     assert r.status_code == 401
+
+
+def test_checkout_flow_decrements_stock():
+    client = make_client()
+    token = do_register_and_login(client)
+
+    # Obtener un producto con stock > 1
+    productos = client.get("/productos").json()
+    prod = next((p for p in productos if p.get("existencia", 0) >= 2), productos[0])
+    original_stock = prod["existencia"]
+
+    # Agregar 2 unidades
+    r = client.post("/carrito", json={"producto_id": prod["id"], "cantidad": 2}, headers=auth_headers(token))
+    assert r.status_code == 201
+
+    # Finalizar compra
+    r = client.post(
+        "/carrito/finalizar",
+        json={"direccion": "Av Siempre Viva 742", "tarjeta": "4111111111111111"},
+        headers=auth_headers(token),
+    )
+    assert r.status_code == 200
+    compra_id = r.json()["compra_id"]
+    assert isinstance(compra_id, int)
+
+    # Ver historial contiene la compra
+    r_hist = client.get("/compras", headers=auth_headers(token))
+    assert r_hist.status_code == 200
+    compras = r_hist.json()
+    assert any(c["id"] == compra_id for c in compras)
+
+    # Ver producto actualizado (stock reducido)
+    r_prod = client.get(f"/productos/{prod['id']}")
+    assert r_prod.status_code == 200
+    nuevo_stock = r_prod.json()["existencia"]
+    assert nuevo_stock == original_stock - 2
