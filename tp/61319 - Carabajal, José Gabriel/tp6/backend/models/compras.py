@@ -1,22 +1,24 @@
-from typing import Optional, List
+from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
-
-class CompraItem(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    compra_id: int = Field(index=True, foreign_key="compra.id")
-    producto_id: int
-    nombre: str
-    precio_unitario: float
-    cantidad: int
+from datetime import datetime
 
 class Compra(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    usuario_id: int = Field(index=True)
-    fecha: str
+    usuario_id: int
+    fecha: datetime
     direccion: str
-    tarjeta: str
+    tarjeta: str   
     subtotal: float
     iva: float
     envio: float
     total: float
-    items: List[CompraItem] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+
+class CompraItem(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    compra_id: int = Field(foreign_key="compra.id")
+    producto_id: int
+    nombre: str
+    precio_unitario: float
+    cantidad: int
+    categoria: Optional[str] = None   
+    iva: float = 0.0                  

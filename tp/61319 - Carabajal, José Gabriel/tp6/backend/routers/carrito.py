@@ -32,14 +32,8 @@ def buscar_producto(prod_list: List[Dict[str, Any]], producto_id: int) -> Dict[s
     raise HTTPException(status_code=404, detail="Producto no encontrado")
 
 def calcular_totales(items: List[CartViewItem]) -> CartTotals:
-    # IVA: 21% general, 10% si categoría es electrónica
+    # Subtotal: suma de líneas; IVA y envío se calculan en build_cart_view
     subtotal = sum(i.precio_unitario * i.cantidad for i in items)
-    iva_total = 0.0
-    for i in items:
-        es_electro = "electr" in i.nombre.lower() or "electr" in i.nombre.lower()
-        # Mejor por categoría si la tuviéramos aquí; como no viene, lo recalculamos en build_view usando categoría real.
-    # Recalculamos en build_view con categoría real (ver abajo)
-    # En esta función solo retornamos 0, se setea correctamente más abajo.
     return CartTotals(subtotal=subtotal, iva=0.0, envio=0.0, total=subtotal)
 
 def build_cart_view(session: Session, cart: Carrito) -> CartView:
@@ -76,7 +70,12 @@ def build_cart_view(session: Session, cart: Carrito) -> CartView:
     return CartView(
         estado=cart.estado,
         items=view_items,
-        totals=CartTotals(subtotal=round(subtotal, 2), iva=round(iva_sum, 2), envio=round(envio, 2), total=round(total, 2)),
+        totals=CartTotals(
+            subtotal=round(subtotal, 2),
+            iva=round(iva_sum, 2),
+            envio=round(envio, 2),
+            total=round(total, 2),
+        ),
     )
 
 # --- Endpoints ---
@@ -133,15 +132,15 @@ def finalizar_compra(data: FinalizarCompraIn, usuario_id: int, session: Annotate
     if not cart.items:
         raise HTTPException(status_code=400, detail="El carrito está vacío")
 
-    # construir vista para totales
+    # construir vista para totales (subtotal, iva y envío correctos)
     view = build_cart_view(session, cart)
 
-    # crear compra
+    # crear compra  
     compra = Compra(
         usuario_id=usuario_id,
-        fecha=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        fecha=datetime.utcnow(),          
         direccion=data.direccion,
-        tarjeta=data.tarjeta[-4:],  # solo demo
+        tarjeta=data.tarjeta[-4:],        
         subtotal=view.totals.subtotal,
         iva=view.totals.iva,
         envio=view.totals.envio,
@@ -151,16 +150,24 @@ def finalizar_compra(data: FinalizarCompraIn, usuario_id: int, session: Annotate
     session.commit()
     session.refresh(compra)
 
-    # items
+    # ---------- persistir IVA por ÍTEM ----------
     productos = cargar_productos()
     for it in cart.items:
         p = buscar_producto(productos, it.producto_id)
+        precio = float(p["precio"])
+        categoria = p["categoria"]
+
+        tasa = 0.10 if "electr" in categoria.lower() else 0.21
+        line_base = precio * it.cantidad
+        line_iva = round(line_base * tasa, 2)
+
         session.add(CompraItem(
             compra_id=compra.id,
             producto_id=it.producto_id,
             nombre=p["titulo"],
-            precio_unitario=float(p["precio"]),
-            cantidad=it.cantidad
+            precio_unitario=precio,
+            cantidad=it.cantidad,
+            iva=line_iva,                  
         ))
 
     # cerrar carrito y vaciar
@@ -169,7 +176,18 @@ def finalizar_compra(data: FinalizarCompraIn, usuario_id: int, session: Annotate
         session.delete(it)
     session.commit()
 
-    # respuesta
+    # respuesta con los ítems (incluyendo IVA por ítem)
+    items_out = [
+        CompraItemOut(
+            producto_id=ci.producto_id,
+            nombre=ci.nombre,
+            precio_unitario=ci.precio_unitario,
+            cantidad=ci.cantidad,
+            iva=getattr(ci, "iva", None),
+        )
+        for ci in session.exec(select(CompraItem).where(CompraItem.compra_id == compra.id)).all()
+    ]
+
     return CompraOut(
         id=compra.id,
         fecha=compra.fecha,
@@ -177,12 +195,5 @@ def finalizar_compra(data: FinalizarCompraIn, usuario_id: int, session: Annotate
         iva=compra.iva,
         envio=compra.envio,
         total=compra.total,
-        items=[
-            CompraItemOut(
-                producto_id=ci.producto_id,
-                nombre=ci.nombre,
-                precio_unitario=ci.precio_unitario,
-                cantidad=ci.cantidad
-            ) for ci in session.exec(select(CompraItem).where(CompraItem.compra_id == compra.id)).all()
-        ]
+        items=items_out,
     )

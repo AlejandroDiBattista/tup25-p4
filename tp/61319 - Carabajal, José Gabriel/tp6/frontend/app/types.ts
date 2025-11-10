@@ -29,3 +29,29 @@ export interface CartView {
   items: CartViewItem[];
   totals: CartTotals;
 }
+
+export interface CompraItem {
+  producto_id: number;
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+  iva: number; 
+}
+
+export interface CompraResumen {
+  id: number;
+  fecha: string;        
+  total: number;
+}
+
+export interface CompraDetalle {
+  id: number;
+  fecha: string;        
+  direccion: string;
+  tarjeta: string;      
+  items: CompraItem[];
+  subtotal: number;
+  iva: number;
+  envio: number;
+  total: number;
+}
