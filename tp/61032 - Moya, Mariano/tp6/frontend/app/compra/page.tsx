@@ -119,8 +119,26 @@ export default function CompraPage() {
           </div>
           <div className="mb-4 text-right font-bold">Total: ${total.toFixed(2)}</div>
           <form onSubmit={handleFinalizar} className="space-y-4">
-            <Input type="text" placeholder="Dirección de envío" value={direccion} onChange={e => setDireccion(e.target.value)} required />
-            <Input type="text" placeholder="Tarjeta de crédito" value={tarjeta} onChange={e => setTarjeta(e.target.value)} required />
+            <Input
+              type="text"
+              placeholder="Dirección de envío"
+              value={direccion}
+              onChange={e => setDireccion(e.target.value)}
+              required
+            />
+            <Input
+              type="text"
+              inputMode="numeric"
+              placeholder="Tarjeta de crédito"
+              value={tarjeta}
+              maxLength={19}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
+                const parts = digits.match(/.{1,4}/g) || [];
+                setTarjeta(parts.join(" "));
+              }}
+              required
+            />
             {error && <div className="text-red-500 text-sm">{error}</div>}
             <Button type="submit" className="w-full">Finalizar compra</Button>
           </form>

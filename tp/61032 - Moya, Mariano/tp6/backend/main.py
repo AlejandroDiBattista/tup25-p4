@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select, SQLModel, create_engine
-from models.db_models import Usuario, Carrito, CarritoItem, Producto
+from models.db_models import Usuario, Carrito, CarritoItem, Producto, Compra, CompraItem
 from fastapi import Header
 from typing import Optional
 from pathlib import Path
@@ -310,10 +310,10 @@ def registrar_usuario(data: UsuarioRegistro):
         session.refresh(usuario)
         return {"mensaje": "Usuario registrado correctamente."}
 
-    @app.post("/cerrar-sesion")
-    def cerrar_sesion(Authorization: Optional[str] = Header(None)):
-        # Con tokens fake no persistimos estado; respondemos OK para cumplir el contrato.
-        return {"mensaje": "Sesión cerrada"}
+@app.post("/cerrar-sesion")
+def cerrar_sesion(Authorization: Optional[str] = Header(None)):
+    # Con tokens fake no persistimos estado; respondemos OK para cumplir el contrato.
+    return {"mensaje": "Sesión cerrada"}
 
 @app.get("/")
 def root():

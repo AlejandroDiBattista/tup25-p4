@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Producto } from "../types";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 
 export default function CartSidebar() {
+  const router = useRouter();
   const [items, setItems] = useState<{ id: number; cantidad: number }[]>(() => {
     if (typeof window !== "undefined") {
       return JSON.parse(localStorage.getItem("carrito") || "[]");
@@ -180,7 +182,11 @@ export default function CartSidebar() {
         </div>
         <div className="mt-4 flex gap-2">
           <Button variant="outline" className="flex-1" onClick={clear}>Cancelar</Button>
-          <Link href="/compra" className="flex-1"><Button className="w-full">Continuar compra</Button></Link>
+          {token ? (
+            <Link href="/compra" className="flex-1"><Button className="w-full">Continuar compra</Button></Link>
+          ) : (
+            <Button className="flex-1" onClick={() => router.push("/login")}>Continuar compra</Button>
+          )}
         </div>
       </CardContent>
     </Card>
