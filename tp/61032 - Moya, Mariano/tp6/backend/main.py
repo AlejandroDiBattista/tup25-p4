@@ -26,6 +26,17 @@ app.add_middleware(
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
+# Endpoint: Iniciar sesión (autenticación simple)
+from fastapi import Form
+
+@app.post("/iniciar-sesion")
+def iniciar_sesion(email: str = Form(...), password: str = Form(...)):
+    with Session(engine) as session:
+        usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
+        if not usuario or hash_password(password) != usuario.password:
+            raise HTTPException(status_code=401, detail="Credenciales inválidas.")
+        return {"mensaje": "Inicio de sesión exitoso", "usuario_id": usuario.id, "nombre": usuario.nombre, "email": usuario.email}
+
 @app.post("/registrar")
 def registrar_usuario(nombre: str, email: str, password: str):
     with Session(engine) as session:
