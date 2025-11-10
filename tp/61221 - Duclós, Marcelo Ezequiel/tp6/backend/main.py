@@ -19,6 +19,7 @@ from carrito_utils import (
     vaciar_carrito,
     convertir_carrito_a_response
 )
+from compras_utils import finalizar_compra, obtener_resumen_compra
 from jwt_auth import (
     autenticar_y_crear_token, 
     obtener_usuario_actual, 
@@ -321,9 +322,76 @@ def listar_usuarios(session: Session = Depends(get_session)):
     usuarios = session.exec(statement).all()
     return [convertir_a_usuario_response(u) for u in usuarios]
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# ==================== ENDPOINTS DE COMPRAS ====================
+
+@app.post("/compra/finalizar")
+async def finalizar_compra_endpoint(
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Finalizar compra del carrito actual"""
+    try:
+        # Obtener carrito activo del usuario
+        carrito = obtener_o_crear_carrito(session, usuario_actual.id)
+        
+        # Finalizar compra
+        compra = finalizar_compra(session, carrito)
+        
+        # Obtener resumen completo de la compra
+        resumen = obtener_resumen_compra(session, compra.id)
+        
+        return {
+            "mensaje": "Compra realizada exitosamente",
+            "compra": resumen
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
+
+
+@app.get("/compra/{compra_id}")
+async def obtener_compra(
+    compra_id: int,
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    """Obtener detalles de una compra específica"""
+    try:
+        # Verificar que la compra pertenece al usuario
+        from models import Compra
+        compra = session.get(Compra, compra_id)
+        
+        if not compra:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Compra no encontrada"
+            )
+        
+        if compra.usuario_id != usuario_actual.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tienes acceso a esta compra"
+            )
+        
+        resumen = obtener_resumen_compra(session, compra_id)
+        return resumen
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno: {str(e)}"
+        )
+
 
 if __name__ == "__main__":
     import uvicorn
