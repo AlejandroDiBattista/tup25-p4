@@ -570,7 +570,116 @@ uv run pytest test_main.py -v
 
 ---
 
-### **COMMIT 11: Implementar búsqueda y filtros de productos**
+### **✅ COMMIT 11: Implementar historial de compras en frontend - COMPLETADO**
+**Archivos creados:**
+- ✅ `frontend/app/services/compras.ts` → Servicio de compras
+- ✅ `frontend/app/compras/page.tsx` → Página de listado de compras
+- ✅ `frontend/app/compras/[id]/page.tsx` → Página de detalle de compra
+
+**Funcionalidades implementadas:**
+
+**Servicio de compras (compras.ts):**
+- ✅ Interfaz ItemCompra con detalles de producto comprado
+- ✅ Interfaz CompraResumen para listado de compras
+- ✅ Interfaz CompraDetalle con información completa de compra
+- ✅ Interfaz HistorialResponse con array de compras
+- ✅ Función obtenerHistorialCompras() para listar todas las compras del usuario
+- ✅ Función obtenerDetalleCompra() para obtener detalles de una compra específica
+- ✅ Autenticación con Bearer token en todas las peticiones
+
+**Página de listado de compras (compras/page.tsx):**
+- ✅ Vista con todas las compras del usuario autenticado
+- ✅ Redirección a login si no está autenticado
+- ✅ Cards de compras con información resumida:
+  - ID de compra
+  - Fecha de compra formateada
+  - Total de la compra destacado
+  - Dirección de envío
+  - Cantidad de productos
+  - Indicador de envío gratis o costo de envío
+- ✅ Cards clicables que navegan al detalle de la compra
+- ✅ Estado vacío con mensaje cuando no hay compras realizadas
+- ✅ Botón para ir a ver productos desde estado vacío
+- ✅ Contador de compras totales en el header
+- ✅ Indicador de carga mientras se obtienen las compras
+- ✅ Manejo de errores con mensajes claros
+
+**Página de detalle de compra (compras/[id]/page.tsx):**
+- ✅ Vista completa de una compra específica
+- ✅ Botón "Volver al historial" en la parte superior
+- ✅ Redirección a login si no está autenticado
+- ✅ Información de compra:
+  - ID y fecha de compra
+  - Total destacado en grande
+  - Dirección de envío completa
+  - Tarjeta con últimos 4 dígitos visibles (****)
+- ✅ Lista detallada de todos los productos comprados:
+  - Nombre del producto
+  - Cantidad comprada
+  - Precio unitario al momento de la compra
+  - Subtotal por producto
+- ✅ Desglose financiero completo:
+  - Subtotal de productos
+  - IVA aplicado
+  - Costo de envío (o "GRATIS" en verde)
+  - Total final
+- ✅ Banner informativo con fecha y nota sobre envío gratis
+- ✅ Estado de error si la compra no existe
+- ✅ Indicador de carga mientras se obtiene el detalle
+- ✅ Manejo de errores con mensajes claros
+
+**Diseño y UX:**
+- ✅ Diseño responsive con Tailwind CSS
+- ✅ Cards con efecto hover en listado
+- ✅ Colores semánticos (indigo para precio, verde para envío gratis)
+- ✅ Iconos SVG para mejor visualización
+- ✅ Spinners de carga animados
+- ✅ Formato de fecha legible en español
+- ✅ Separación visual clara entre secciones
+- ✅ Mensajes de error en banner rojo
+- ✅ Layout consistente con el resto de la aplicación
+
+**Integración con backend:**
+- ✅ GET /compras → Obtener historial completo de compras
+- ✅ GET /compras/{id} → Obtener detalle de una compra específica
+- ✅ Autenticación mediante token JWT
+- ✅ Validación de ownership (solo compras del usuario autenticado)
+- ✅ Manejo correcto de respuestas HTTP
+- ✅ Procesamiento de datos del backend (ItemCompra con snapshot)
+
+**Reglas cumplidas:**
+- ✅ Mostrar resumen de todas las compras del usuario
+- ✅ Ver detalle completo de cada compra individual
+- ✅ Requiere autenticación obligatoria
+- ✅ Protección de rutas con redirección a login
+- ✅ Solo ver compras propias (validado por backend)
+- ✅ Mostrar productos con precios al momento de la compra (snapshot)
+- ✅ Desglose completo de IVA y envío
+- ✅ Navegación fluida entre listado y detalle
+
+**Verificación:**
+- ✅ Navegación a /compras muestra historial de compras
+- ✅ Click en una compra navega a /compras/{id}
+- ✅ Detalle muestra todos los productos y cálculos correctos
+- ✅ Botón volver regresa al listado
+- ✅ Estado vacío funciona correctamente
+- ✅ Redirección a login cuando no autenticado
+- ✅ Errores manejados correctamente
+- ✅ Enlace "Mis Compras" visible en Header cuando autenticado
+
+**Flujo completo de compra implementado:**
+1. ✅ Registrar usuario
+2. ✅ Iniciar sesión
+3. ✅ Buscar y filtrar productos
+4. ✅ Agregar productos al carrito
+5. ✅ Ver carrito con resumen
+6. ✅ Finalizar compra con dirección y tarjeta
+7. ✅ Ver historial de compras ← **NUEVO (Commit 11)**
+8. ✅ Ver detalle completo de cada compra ← **NUEVO (Commit 11)**
+
+---
+
+### **COMMIT 12: Implementar búsqueda y filtros de productos** (OPCIONAL)
 **Archivos a modificar:**
 - `frontend/app/page.tsx` → Agregar barra de búsqueda y filtros
 - `frontend/app/components/FiltrosProductos.tsx` (nuevo) → Componente de filtros
@@ -581,9 +690,11 @@ uv run pytest test_main.py -v
 - Búsqueda por contenido
 - Actualizar productos dinámicamente
 
+**NOTA:** Los filtros y búsqueda ya fueron implementados en el Commit 10, por lo que este commit es opcional/redundante.
+
 ---
 
-### **COMMIT 12: Implementar pantalla de finalizar compra**
+### **COMMIT 13: Implementar pantalla de finalizar compra** (OPCIONAL)
 **Archivos a crear:**
 - `frontend/app/checkout/page.tsx` (nuevo) → Pantalla de finalización
 - `frontend/app/components/FormularioCompra.tsx` (nuevo) → Formulario de dirección y pago
@@ -595,18 +706,7 @@ uv run pytest test_main.py -v
 - Mostrar cálculo de IVA y envío
 - Botón para finalizar compra
 
----
-
-### **COMMIT 13: Implementar historial de compras en frontend**
-**Archivos a crear:**
-- `frontend/app/compras/page.tsx` (nuevo) → Lista de compras
-- `frontend/app/compras/[id]/page.tsx` (nuevo) → Detalle de compra
-- `frontend/app/services/compras.ts` (nuevo) → Servicios de compras
-
-**Reglas a cumplir:**
-- Mostrar resumen de todas las compras
-- Ver detalle completo de cada compra
-- Requiere autenticación
+**NOTA:** El checkout ya fue implementado en el componente Carrito.tsx (Commit 10), por lo que este commit es opcional/redundante
 
 ---
 
