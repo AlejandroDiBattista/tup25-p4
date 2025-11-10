@@ -101,20 +101,32 @@
 
 ---
 
-### **COMMIT 2: Implementar sistema de autenticación (backend)**
-**Archivos a modificar/crear:**
-- `backend/main.py` → Endpoints de autenticación
-- `backend/auth.py` (nuevo) → Funciones de hash, verificación, tokens JWT
+### **✅ COMMIT 2: Implementar sistema de autenticación (backend) - COMPLETADO**
+**Archivos modificados/creados:**
+- ✅ `backend/auth.py` (nuevo) → Funciones de hash de contraseñas y manejo de JWT
+- ✅ `backend/main.py` → Endpoints de autenticación y dependencia de usuario actual
+- ✅ `backend/pyproject.toml` → Agregadas dependencias: passlib, python-jose, python-multipart, email-validator
+- ✅ `backend/models/productos.py` → Cambiado campo `contraseña` a `password` (compatibilidad SQLite)
+- ✅ `backend/api-tests.http` → Agregadas pruebas de autenticación
+- ✅ `backend/test_auth.py` (nuevo) → Script de pruebas de autenticación
 
-**Endpoints a crear:**
-- POST /registrar
-- POST /iniciar-sesion
-- POST /cerrar-sesion
+**Endpoints implementados:**
+- ✅ POST /registrar → Registra nuevo usuario, retorna token JWT
+- ✅ POST /iniciar-sesion → Autentica usuario, retorna token JWT
+- ✅ POST /cerrar-sesion → Cierra sesión (requiere autenticación)
 
-**Reglas a cumplir:**
-- Hash de contraseñas con bcrypt/passlib
-- Tokens JWT para autenticación
-- Validación de email único
+**Reglas cumplidas:**
+- ✅ Hash de contraseñas con bcrypt mediante passlib
+- ✅ Tokens JWT para autenticación con python-jose
+- ✅ Validación de email único en base de datos
+- ✅ Middleware de seguridad HTTP Bearer implementado
+- ✅ Dependencia `obtener_usuario_actual` para proteger endpoints
+
+**Verificación:**
+- ✅ Dependencias instaladas correctamente
+- ✅ Modelos actualizados sin caracteres especiales en nombres de columnas
+- ✅ Sistema de tokens JWT funcionando
+- ✅ Validación de emails con email-validator
 
 ---
 
