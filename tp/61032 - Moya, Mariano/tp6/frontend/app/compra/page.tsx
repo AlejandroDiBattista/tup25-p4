@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import CarritoItem from "../components/CarritoItem";
 import { Producto } from "../types";
 import { useRouter } from "next/navigation";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
 
 interface CarritoProducto {
   id: number;
@@ -73,7 +75,7 @@ export default function CompraPage() {
     <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow bg-white">
       <h2 className="text-2xl font-bold mb-4 text-center">Finalizar compra</h2>
       {productosEnCarrito.length === 0 ? (
-        <div className="text-center text-gray-600">El carrito está vacío.</div>
+        <div className="text-center text-gray-900">El carrito está vacío.</div>
       ) : confirmacion ? (
         <div className="text-green-600 text-center font-semibold mb-4">{confirmacion}</div>
       ) : (
@@ -85,29 +87,10 @@ export default function CompraPage() {
           </div>
           <div className="mb-4 text-right font-bold">Total: ${total.toFixed(2)}</div>
           <form onSubmit={handleFinalizar} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Dirección de envío"
-              value={direccion}
-              onChange={e => setDireccion(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-            <input
-              type="text"
-              placeholder="Tarjeta de crédito"
-              value={tarjeta}
-              onChange={e => setTarjeta(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
+            <Input type="text" placeholder="Dirección de envío" value={direccion} onChange={e => setDireccion(e.target.value)} required />
+            <Input type="text" placeholder="Tarjeta de crédito" value={tarjeta} onChange={e => setTarjeta(e.target.value)} required />
             {error && <div className="text-red-500 text-sm">{error}</div>}
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded font-semibold"
-            >
-              Finalizar compra
-            </button>
+            <Button type="submit" className="w-full">Finalizar compra</Button>
           </form>
         </>
       )}

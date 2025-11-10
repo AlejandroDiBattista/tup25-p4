@@ -21,26 +21,26 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
         />
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
           {producto.titulo}
         </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+        <p className="text-sm text-gray-900 mb-3 line-clamp-2">
           {producto.descripcion}
         </p>
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+          <span className="text-xs text-gray-900 bg-gray-100 px-2 py-1 rounded">
             {producto.categoria}
           </span>
           <div className="flex items-center gap-1">
             <span className="text-yellow-500">★</span>
-            <span className="text-sm text-gray-700">{producto.valoracion}</span>
+            <span className="text-sm text-gray-900">{producto.valoracion}</span>
           </div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-2xl font-bold text-blue-600">
             ${producto.precio}
           </span>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-900">
             Stock: {producto.existencia}
           </span>
         </div>

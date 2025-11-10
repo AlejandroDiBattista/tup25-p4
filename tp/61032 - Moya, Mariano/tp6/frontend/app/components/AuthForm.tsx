@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Button } from "../../components/ui/button";
 
 interface Usuario {
   usuario_id: number;
@@ -60,53 +63,25 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {!isLogin && (
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Nombre</label>
-            <input
-              type="text"
-              placeholder="Tu nombre"
-              value={nombre}
-              onChange={e => setNombre(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-              required
-            />
+            <Label>Nombre</Label>
+            <Input type="text" placeholder="Tu nombre" value={nombre} onChange={e => setNombre(e.target.value)} required />
           </div>
         )}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
-          <input
-            type="email"
-            placeholder="tu@email.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-            required
-          />
+          <Label>Email</Label>
+          <Input type="email" placeholder="tu@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-1">Contraseña</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-            required
-          />
+          <Label>Contraseña</Label>
+          <Input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
         </div>
         {error && <div className="rounded bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2">{error}</div>}
-        <button
-          type="submit"
-          className="w-full bg-gray-900 text-white py-2 rounded-lg font-semibold hover:bg-black transition"
-          disabled={loading}
-        >
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Procesando..." : isLogin ? "Ingresar" : "Registrar"}
-        </button>
+        </Button>
       </form>
       <div className="mt-4 text-center">
-        <button
-          className="text-gray-900 hover:text-black underline"
-          onClick={() => setIsLogin(!isLogin)}
-        >
+        <button className="text-gray-900 hover:text-black underline" onClick={() => setIsLogin(!isLogin)}>
           {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
         </button>
       </div>

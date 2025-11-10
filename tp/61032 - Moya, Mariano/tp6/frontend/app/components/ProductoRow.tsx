@@ -39,7 +39,7 @@ export default function ProductoRow({ producto, onAdd, isLogged = false }: Produ
         <button
           className={`px-4 py-2 rounded text-sm font-semibold transition ${
             agotado || !isLogged
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              ? "bg-gray-200 text-gray-900 cursor-not-allowed"
               : "bg-indigo-600 text-white hover:bg-indigo-700"
           }`}
           onClick={() => !agotado && isLogged && onAdd(producto.id)}
