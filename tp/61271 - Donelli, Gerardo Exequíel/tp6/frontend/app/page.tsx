@@ -13,7 +13,7 @@ import { Input } from './components/ui/input';
 import { Label } from './components/ui/label';
 import { Card } from './components/ui/card';
 import { Badge } from './components/ui/badge';
-import { Loader2, ShoppingCart, Search, X, Package } from 'lucide-react';
+import { Loader2, ShoppingCart, Search, X, Package, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Home() {
@@ -138,12 +138,15 @@ export default function Home() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="categoria">Filtrar por categoría</Label>
+            <Label htmlFor="categoria" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filtrar por categoría
+            </Label>
             <select
               id="categoria"
               value={categoriaSeleccionada}
               onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="">Todas las categorías</option>
               {categorias.map((cat) => (
@@ -155,18 +158,33 @@ export default function Home() {
           </div>
         </div>
         {(categoriaSeleccionada || busqueda) && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setCategoriaSeleccionada('');
-              setBusqueda('');
-            }}
-            className="mt-4"
-          >
-            <X className="h-4 w-4 mr-2" />
-            Limpiar filtros
-          </Button>
+          <div className="flex items-center justify-between mt-4 pt-4 border-t">
+            <div className="flex gap-2">
+              {busqueda && (
+                <Badge variant="secondary" className="gap-1">
+                  <Search className="h-3 w-3" />
+                  "{busqueda}"
+                </Badge>
+              )}
+              {categoriaSeleccionada && (
+                <Badge variant="secondary" className="gap-1">
+                  <Filter className="h-3 w-3" />
+                  {categoriaSeleccionada}
+                </Badge>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setCategoriaSeleccionada('');
+                setBusqueda('');
+              }}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Limpiar filtros
+            </Button>
+          </div>
         )}
       </Card>
 

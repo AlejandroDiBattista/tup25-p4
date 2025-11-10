@@ -57,3 +57,21 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+@layer utilities {
+  /* 🎨 Estilo general del select */
+  select {
+    @apply text-white bg-[hsl(var(--background))] border border-[hsl(var(--input))] rounded-md;
+  }
+
+  /* 🧩 Estilo solo para las opciones desplegadas */
+  select option {
+    color: hsl(var(--foreground)); /* texto visible (oscuro en claro, claro en oscuro) */
+    background-color: hsl(var(--card)); /* fondo sólido */
+  }
+
+  /* Opcional: al pasar el mouse sobre una opción */
+  select option:hover {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}

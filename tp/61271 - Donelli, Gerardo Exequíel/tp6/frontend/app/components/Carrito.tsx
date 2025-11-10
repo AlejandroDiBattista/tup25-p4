@@ -166,32 +166,31 @@ export default function Carrito({ open, onOpenChange, actualizarTrigger, onActua
             /* Formulario de Checkout */
             <form onSubmit={handleFinalizarCompra} className="space-y-6">
               {/* Resumen del carrito */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-muted/50 p-4 rounded-lg border">
                 <h3 className="font-semibold mb-3">Resumen del Pedido</h3>
                 <div className="space-y-2">
                   {carrito.items.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
-                      <span>
+                      <span className="text-muted-foreground">
                         {item.titulo} x{item.cantidad}
                       </span>
-                      <span>${item.subtotal.toFixed(2)}</span>
+                      <span className="font-medium">${item.subtotal.toFixed(2)}</span>
                     </div>
                   ))}
-                  <div className="border-t pt-2 mt-2 font-bold text-lg">
-                    <div className="flex justify-between">
-                      <span>Total</span>
-                      <span>${carrito.total.toFixed(2)}</span>
-                    </div>
+                  <Separator className="my-2" />
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span className="text-primary">${carrito.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Formulario */}
-              <div>
-                <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="space-y-2">
+                <Label htmlFor="direccion">
                   Dirección de envío *
-                </label>
-                <input
+                </Label>
+                <Input
                   type="text"
                   id="direccion"
                   required
@@ -199,15 +198,17 @@ export default function Carrito({ open, onOpenChange, actualizarTrigger, onActua
                   value={direccion}
                   onChange={(e) => setDireccion(e.target.value)}
                   placeholder="Calle, número, ciudad, código postal"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Mínimo 10 caracteres
+                </p>
               </div>
 
-              <div>
-                <label htmlFor="tarjeta" className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="space-y-2">
+                <Label htmlFor="tarjeta">
                   Últimos 4 dígitos de la tarjeta *
-                </label>
-                <input
+                </Label>
+                <Input
                   type="text"
                   id="tarjeta"
                   required
@@ -217,28 +218,38 @@ export default function Carrito({ open, onOpenChange, actualizarTrigger, onActua
                   value={tarjeta}
                   onChange={(e) => setTarjeta(e.target.value)}
                   placeholder="1234"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Por seguridad, solo ingresa los últimos 4 dígitos
                 </p>
               </div>
 
-              <div className="flex space-x-4">
-                <button
+              <div className="flex gap-4">
+                <Button
                   type="button"
                   onClick={() => setMostrarCheckout(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Volver al carrito
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={procesandoCompra}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-green-600 hover:bg-green-700"
                 >
-                  {procesandoCompra ? 'Procesando...' : 'Confirmar Compra'}
-                </button>
+                  {procesandoCompra ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Confirmar Compra
+                    </>
+                  )}
+                </Button>
               </div>
             </form>
           ) : (
