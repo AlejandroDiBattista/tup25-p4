@@ -26,7 +26,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white border-b border-gray-300">
       <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">TP6 Shop</h1>
         <nav className="flex gap-3 items-center">

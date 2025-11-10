@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { obtenerProductos } from "./services/productos";
-import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import CategorySelect from "./components/CategorySelect";
 import ProductoRow from "./components/ProductoRow";
@@ -79,9 +78,8 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto px-8 py-10">
-        <Header />
         <div className="mt-10">
           <h1 className="text-2xl font-bold mb-6">Productos</h1>
           <div className="flex items-center gap-4 mb-4">

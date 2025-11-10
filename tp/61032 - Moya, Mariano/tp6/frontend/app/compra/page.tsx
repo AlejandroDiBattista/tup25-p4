@@ -117,7 +117,7 @@ export default function CompraPage() {
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 text-gray-900">El carrito está vacío.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 outline outline-1 outline-gray-300">
+          <div className="md:col-span-2 bg-white border border-gray-300 rounded-xl shadow-sm p-6 outline outline-1 outline-gray-300">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Resumen del carrito</h3>
             <div className="divide-y divide-gray-200">
               {productosEnCarrito.map((p) => {
@@ -144,7 +144,7 @@ export default function CompraPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 outline outline-1 outline-gray-300">
+          <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6 outline outline-1 outline-gray-300">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Datos de envío</h3>
             <form onSubmit={handleFinalizar} className="space-y-4">
               <Input
