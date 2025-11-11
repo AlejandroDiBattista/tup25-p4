@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, Field
-from typing import Optional
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List
 from datetime import datetime
 
 class Usuario(SQLModel, table=True):
@@ -9,6 +9,9 @@ class Usuario(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     password_hash: str
     fecha_creacion: datetime = Field(default_factory=datetime.now)
+    
+    # Relación con compras
+    compras: List["Compra"] = Relationship(back_populates="usuario")
 
 class UsuarioCreate(SQLModel):
     """Esquema para crear un usuario"""

@@ -33,9 +33,9 @@ export default function CartPage() {
     }
   };
 
-  const handleFinalizarCompra = () => {
-    // TODO: Implementar en próximo commit con backend
-    alert('Funcionalidad de compra en desarrollo (próximo commit)');
+  const handleFinalizarCompra = async () => {
+    // Redirigir a la página de checkout
+    router.push('/checkout');
   };
 
   if (items.length === 0) {

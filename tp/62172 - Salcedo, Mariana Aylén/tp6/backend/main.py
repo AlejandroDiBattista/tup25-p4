@@ -5,10 +5,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session, select
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from database import create_db_and_tables, get_session
 from models.usuario import Usuario, UsuarioCreate, UsuarioLogin, UsuarioResponse, Token
+from models.compra import Compra, CompraItem, CompraCreate, CompraResponse, CompraItemResponse
 from auth import hash_password, verify_password, create_access_token, verify_token
 
 app = FastAPI(title="API E-Commerce")
@@ -189,6 +190,173 @@ def obtener_usuario_actual(usuario_actual: Usuario = Depends(get_current_user)):
         id=usuario_actual.id,
         nombre=usuario_actual.nombre,
         email=usuario_actual.email
+    )
+
+# ===== ENDPOINTS DE COMPRAS =====
+
+@app.post("/carrito/finalizar", response_model=CompraResponse, status_code=status.HTTP_201_CREATED)
+def finalizar_compra(
+    compra_data: CompraCreate,
+    usuario_actual: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Finalizar compra y crear registro en base de datos"""
+    productos = cargar_productos()
+    
+    # Calcular total y validar stock
+    total = 0
+    items_compra = []
+    
+    for item_data in compra_data.items:
+        # Buscar producto
+        producto = next((p for p in productos if p["id"] == item_data.producto_id), None)
+        if not producto:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Producto {item_data.producto_id} no encontrado"
+            )
+        
+        # Validar stock
+        if item_data.cantidad > producto["existencia"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Stock insuficiente para {producto['titulo']}"
+            )
+        
+        subtotal = producto["precio"] * item_data.cantidad
+        total += subtotal
+        
+        # Crear item de compra
+        item = CompraItem(
+            producto_id=producto["id"],
+            producto_titulo=producto["titulo"],
+            producto_imagen=producto["imagen"],
+            producto_categoria=producto["categoria"],
+            cantidad=item_data.cantidad,
+            precio_unitario=producto["precio"],
+            subtotal=subtotal
+        )
+        items_compra.append(item)
+    
+    # Crear compra
+    compra = Compra(
+        usuario_id=usuario_actual.id,
+        total=total,
+        estado="completada"
+    )
+    
+    session.add(compra)
+    session.commit()
+    session.refresh(compra)
+    
+    # Agregar items a la compra
+    for item in items_compra:
+        item.compra_id = compra.id
+        session.add(item)
+    
+    session.commit()
+    
+    # Cargar items para respuesta
+    session.refresh(compra)
+    
+    return CompraResponse(
+        id=compra.id,
+        usuario_id=compra.usuario_id,
+        fecha=compra.fecha,
+        total=compra.total,
+        estado=compra.estado,
+        items=[
+            CompraItemResponse(
+                id=item.id,
+                producto_id=item.producto_id,
+                producto_titulo=item.producto_titulo,
+                producto_imagen=item.producto_imagen,
+                producto_categoria=item.producto_categoria,
+                cantidad=item.cantidad,
+                precio_unitario=item.precio_unitario,
+                subtotal=item.subtotal
+            )
+            for item in compra.items
+        ]
+    )
+
+@app.get("/compras", response_model=List[CompraResponse])
+def obtener_compras(
+    usuario_actual: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Obtener todas las compras del usuario actual"""
+    compras = session.exec(
+        select(Compra)
+        .where(Compra.usuario_id == usuario_actual.id)
+        .order_by(Compra.fecha.desc())
+    ).all()
+    
+    return [
+        CompraResponse(
+            id=compra.id,
+            usuario_id=compra.usuario_id,
+            fecha=compra.fecha,
+            total=compra.total,
+            estado=compra.estado,
+            items=[
+                CompraItemResponse(
+                    id=item.id,
+                    producto_id=item.producto_id,
+                    producto_titulo=item.producto_titulo,
+                    producto_imagen=item.producto_imagen,
+                    producto_categoria=item.producto_categoria,
+                    cantidad=item.cantidad,
+                    precio_unitario=item.precio_unitario,
+                    subtotal=item.subtotal
+                )
+                for item in compra.items
+            ]
+        )
+        for compra in compras
+    ]
+
+@app.get("/compras/{compra_id}", response_model=CompraResponse)
+def obtener_compra(
+    compra_id: int,
+    usuario_actual: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Obtener detalle de una compra específica"""
+    compra = session.get(Compra, compra_id)
+    
+    if not compra:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Compra no encontrada"
+        )
+    
+    # Verificar que la compra pertenezca al usuario
+    if compra.usuario_id != usuario_actual.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para ver esta compra"
+        )
+    
+    return CompraResponse(
+        id=compra.id,
+        usuario_id=compra.usuario_id,
+        fecha=compra.fecha,
+        total=compra.total,
+        estado=compra.estado,
+        items=[
+            CompraItemResponse(
+                id=item.id,
+                producto_id=item.producto_id,
+                producto_titulo=item.producto_titulo,
+                producto_imagen=item.producto_imagen,
+                producto_categoria=item.producto_categoria,
+                cantidad=item.cantidad,
+                precio_unitario=item.precio_unitario,
+                subtotal=item.subtotal
+            )
+            for item in compra.items
+        ]
     )
 
 if __name__ == "__main__":
