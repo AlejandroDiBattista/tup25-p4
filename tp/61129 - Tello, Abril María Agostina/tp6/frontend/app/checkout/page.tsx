@@ -8,8 +8,14 @@ export default function CheckoutPage() {
   // Obtener productos seleccionados del carrito desde localStorage
   const carrito = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("carrito") || "[]") : [];
   const subtotal = carrito.reduce((acc: number, item: any) => acc + item.precio * item.cantidad, 0);
-  const iva = subtotal * 0.21;
-  const envio = carrito.length > 0 ? 50 : 0;
+  // IVA diferenciado por producto
+  const ivaPorProducto = carrito.map((item: any) => {
+    const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
+    const ivaTasa = esElectronico ? 0.10 : 0.21;
+    return item.precio * item.cantidad * ivaTasa;
+  });
+  const iva = ivaPorProducto.reduce((acc, v) => acc + v, 0);
+  const envio = (carrito.length > 0 && (subtotal + iva) > 1000) ? 0 : (carrito.length > 0 ? 50 : 0);
   const total = subtotal + iva + envio;
 
   const [direccion, setDireccion] = useState("");
@@ -30,18 +36,23 @@ export default function CheckoutPage() {
                 {carrito.length === 0 ? (
                   <div className="text-gray-500">No hay productos en el carrito.</div>
                 ) : (
-                  carrito.map((item: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="font-semibold text-lg text-gray-900">{item.nombre || item.titulo}</div>
-                        <div className="text-gray-500 text-base">Cantidad: {item.cantidad}</div>
+                  carrito.map((item: any, idx: number) => {
+                    const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
+                    const ivaTasa = esElectronico ? 0.10 : 0.21;
+                    const ivaItem = item.precio * item.cantidad * ivaTasa;
+                    return (
+                      <div key={idx} className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="font-semibold text-lg text-gray-900">{item.nombre || item.titulo}</div>
+                          <div className="text-gray-500 text-base">Cantidad: {item.cantidad}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-semibold text-gray-900">${item.precio.toFixed(2)}</div>
+                          <div className="text-gray-400 text-sm">IVA ({esElectronico ? "10%" : "21%"}): {ivaItem.toFixed(2)}</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-semibold text-gray-900">${item.precio.toFixed(2)}</div>
-                        <div className="text-gray-400 text-sm">IVA: ${(item.precio * 0.21).toFixed(2)}</div>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
                 <hr className="my-6" />
                 <div className="text-base mb-2">Total productos: <span className="font-medium">${subtotal.toFixed(2)}</span></div>
@@ -53,11 +64,17 @@ export default function CheckoutPage() {
                 <h2 className="text-2xl font-bold mb-8">Datos de envío</h2>
                 <form className="flex flex-col gap-6" onSubmit={e => {
                   e.preventDefault();
-                  // Guardar la compra en localStorage
+                  // Guardar la compra en localStorage, incluyendo IVA por producto
                   const compras = JSON.parse(localStorage.getItem("compras") || "[]");
+                  // Agregar el IVA de cada producto al carrito
+                  const carritoConIVA = carrito.map((item: any) => {
+                    const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
+                    const ivaTasa = esElectronico ? 0.10 : 0.21;
+                    return { ...item, iva: item.precio * item.cantidad * ivaTasa };
+                  });
                   compras.push({
                     fecha: new Date().toISOString(),
-                    carrito,
+                    carrito: carritoConIVA,
                     subtotal,
                     iva,
                     envio,

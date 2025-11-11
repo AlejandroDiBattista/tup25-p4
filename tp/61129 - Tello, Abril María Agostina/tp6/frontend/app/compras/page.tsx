@@ -63,18 +63,23 @@ export default function ComprasPage() {
                     <div className="mb-2"><span className="font-bold">Tarjeta:</span> {maskCard(compras[seleccionada].tarjeta)}</div>
                   )}
                   <div className="font-bold mt-6 mb-2">Productos</div>
-                  {compras[seleccionada].carrito.map((item: any, i: number) => (
-                    <div key={i} className="flex justify-between items-center border-b border-gray-100 py-2">
-                      <div>
-                        <div className="font-semibold text-base text-gray-900">{item.nombre || item.titulo}</div>
-                        <div className="text-gray-500 text-sm">Cantidad: {item.cantidad}</div>
+                  {compras[seleccionada].carrito.map((item: any, i: number) => {
+                    const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
+                    const ivaTasa = esElectronico ? 0.10 : 0.21;
+                    const ivaItem = item.iva !== undefined ? item.iva : (item.precio ?? 0) * item.cantidad * ivaTasa;
+                    return (
+                      <div key={i} className="flex justify-between items-center border-b border-gray-100 py-2">
+                        <div>
+                          <div className="font-semibold text-base text-gray-900">{item.nombre || item.titulo}</div>
+                          <div className="text-gray-500 text-sm">Cantidad: {item.cantidad}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-gray-900">${(item.precio ?? 0).toFixed(2)}</div>
+                          <div className="text-gray-400 text-sm">IVA ({esElectronico ? "10%" : "21%"}): {ivaItem.toFixed(2)}</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-gray-900">${(item.precio ?? 0).toFixed(2)}</div>
-                        <div className="text-gray-400 text-sm">IVA: {(item.iva !== undefined ? item.iva.toFixed(2) : ((item.precio ?? 0) * 0.21).toFixed(2))}</div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <hr className="my-6" />
                   <div className="text-base mb-2">Subtotal: <span className="font-medium">${(compras[seleccionada].subtotal ?? 0).toFixed(2)}</span></div>
                   <div className="text-base mb-2">IVA: <span className="font-medium">${(compras[seleccionada].iva ?? 0).toFixed(2)}</span></div>

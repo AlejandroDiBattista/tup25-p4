@@ -124,9 +124,15 @@ export default function Home() {
       });
     }
 
-  // Calcular totales
+  // Calcular totales con IVA diferenciado
   const subtotal = carrito.reduce((acc: number, item: Producto & { cantidad: number }) => acc + item.precio * item.cantidad, 0);
-  const iva = subtotal * 0.21;
+  // IVA por producto: electrónicos 10%, resto 21%
+  const ivaPorProducto = carrito.map((item: Producto & { cantidad: number }) => {
+    const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
+    const ivaTasa = esElectronico ? 0.10 : 0.21;
+    return item.precio * item.cantidad * ivaTasa;
+  });
+  const iva = ivaPorProducto.reduce((acc, v) => acc + v, 0);
   // Envío gratis si subtotal + iva > 1000
   const envio = (carrito.length > 0 && (subtotal + iva) > 1000) ? 0 : (carrito.length > 0 ? 50 : 0);
   const total = subtotal + iva + envio;
@@ -188,9 +194,12 @@ export default function Home() {
               ) : (
                 <>
                   <div className="mb-4 flex flex-col gap-5">
-                    {carrito.map((item: Producto & { cantidad: number }) => {
+                    {carrito.map((item: Producto & { cantidad: number }, idx: number) => {
                       const stockOriginal = productos.find((p: Producto) => p.id === item.id)?.existencia ?? productos.find((p: Producto) => p.id === item.id)?.stock ?? 0;
                       const stockDisponible = productosStock[item.id] ?? stockOriginal;
+                      const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
+                      const ivaTasa = esElectronico ? 0.10 : 0.21;
+                      const ivaItem = item.precio * item.cantidad * ivaTasa;
                       return (
                         <div key={item.id} className="flex items-center gap-5 p-4 bg-gray-50 rounded-lg shadow border border-gray-200 relative">
                           <img src={`http://localhost:8000/${item.imagen}`} alt={item.titulo} className="w-16 h-16 object-contain rounded bg-white border border-gray-300" />
@@ -198,6 +207,7 @@ export default function Home() {
                             <div className="font-semibold text-gray-800 text-base">{item.nombre || item.titulo}</div>
                             <div className="text-xs text-gray-500">${item.precio.toFixed(2)} c/u</div>
                             <div className="text-xs text-gray-600 mt-1">Disponible: {stockDisponible}</div>
+                            <div className="text-xs text-gray-500 mt-1">IVA ({esElectronico ? "10%" : "21%"}): ${ivaItem.toFixed(2)}</div>
                           </div>
                           <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-2">
