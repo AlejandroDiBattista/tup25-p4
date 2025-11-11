@@ -446,7 +446,7 @@ export default function ProductsPage() {
                     <div className="mt-6 flex gap-3">
                       <Button
                         variant="outline"
-                        className="flex-1"
+                        className="flex-1 bg-slate-50"
                         onClick={handleCancelarCarrito}
                         disabled={cancelandoCarrito}
                       >

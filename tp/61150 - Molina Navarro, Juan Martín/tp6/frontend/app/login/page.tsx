@@ -69,7 +69,9 @@ export default function LoginPage() {
       <main className="mx-auto flex max-w-5xl justify-center px-6 py-16">
         <Card className="w-full max-w-md border border-slate-200 bg-white p-8 shadow-[0px_20px_50px_rgba(15,23,42,0.06)]">
           <CardHeader className="space-y-2 p-0">
-            <CardTitle className="text-2xl font-semibold">Iniciar sesión</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-slate-900">
+              Iniciar sesión
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5 p-0 pt-6">
             <form className="space-y-5" onSubmit={handleSubmit}>
