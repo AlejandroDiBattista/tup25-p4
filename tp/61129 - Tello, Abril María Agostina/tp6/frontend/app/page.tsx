@@ -19,6 +19,7 @@ type Producto = {
 
 
 export default function Home() {
+  const [mensajeCarrito, setMensajeCarrito] = useState<{ id: number, mensaje: string } | null>(null);
   const router = useRouter();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
@@ -79,6 +80,10 @@ export default function Home() {
 
 
     function agregarAlCarrito(producto: Producto) {
+      if (!usuario) {
+        setMensajeCarrito({ id: producto.id, mensaje: "Debe iniciar sesión o registrarse para agregar productos al carrito." });
+        return;
+      }
       setCarrito((prev: (Producto & { cantidad: number })[]) => {
         const existe = prev.find((item) => item.id === producto.id);
         const stockOriginal = productos.find((p) => p.id === producto.id)?.existencia ?? productos.find((p) => p.id === producto.id)?.stock ?? 0;
@@ -93,6 +98,7 @@ export default function Home() {
         // Actualizar productosStock para mostrar correctamente el disponible
         setProductosStock((s) => ({ ...s, [producto.id]: stockOriginal - (cantidadEnCarrito + 1) }));
         localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+        setMensajeCarrito(null);
         return nuevoCarrito;
       });
     }
@@ -161,6 +167,9 @@ export default function Home() {
                         <div className="text-2xl font-bold text-gray-800">${producto.precio.toFixed(2)}</div>
                         <div className="text-xs text-gray-500">Disponible: {stockDisponible}</div>
                         <button className="bg-blue-600 text-white px-4 py-2 rounded font-bold shadow hover:bg-transparent hover:text-blue-600 border border-blue-600 transition active:scale-95 disabled:opacity-50" onClick={() => agregarAlCarrito(producto)} disabled={stockDisponible <= 0}>Agregar al carrito</button>
+                        {mensajeCarrito && mensajeCarrito.id === producto.id && (
+                          <div className="text-xs text-red-600 font-bold mt-2">{mensajeCarrito.mensaje}</div>
+                        )}
                         {stockDisponible <= 0 && (
                           <div className="text-xs text-red-600 font-bold mt-2">Sin stock</div>
                         )}
