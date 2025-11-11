@@ -128,7 +128,12 @@ def listar_productos(buscar: Optional[str] = None, categoria: Optional[str] = No
     if categoria:
         query = query.where(Producto.categoria == categoria)
     productos = session.exec(query).all()
-    return productos
+    productos_out = []
+    for p in productos:
+        prod_dict = p.dict() if hasattr(p, 'dict') else dict(p)
+        prod_dict["sin_stock"] = p.existencia == 0
+        productos_out.append(prod_dict)
+    return productos_out
 
 @app.get("/productos/{id}")
 def detalle_producto(id: int, session: Session = Depends(get_session)):
@@ -219,6 +224,7 @@ def finalizar_compra(token: str, direccion: str, tarjeta: str, session: Session 
             cantidad=i.cantidad
         )
         prod.existencia -= i.cantidad
+        session.add(prod)
         session.add(compra_item)
     carrito.estado = "finalizado"
     session.commit()

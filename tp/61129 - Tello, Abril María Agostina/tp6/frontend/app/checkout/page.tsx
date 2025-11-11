@@ -14,7 +14,7 @@ export default function CheckoutPage() {
     const ivaTasa = esElectronico ? 0.10 : 0.21;
     return item.precio * item.cantidad * ivaTasa;
   });
-  const iva = ivaPorProducto.reduce((acc, v) => acc + v, 0);
+  const iva = ivaPorProducto.reduce((acc: number, v: number) => acc + v, 0);
   const envio = (carrito.length > 0 && (subtotal + iva) > 1000) ? 0 : (carrito.length > 0 ? 50 : 0);
   const total = subtotal + iva + envio;
 
