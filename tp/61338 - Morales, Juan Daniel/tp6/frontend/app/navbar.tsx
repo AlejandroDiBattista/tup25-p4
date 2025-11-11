@@ -1,111 +1,75 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Auth, getUsuarioActual } from "./services/productos";
-
-type Usuario = { nombre: string; email: string } | null;
+import Link from "next/link";
+import { Auth } from "../app/services/productos";
 
 export default function Navbar() {
-  const [usuario, setUsuario] = useState<Usuario>(null);
-  const [tieneSesion, setTieneSesion] = useState(false);
+  const [usuario, setUsuario] = useState<any | null>(null);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const token = localStorage.getItem("token");
-    const u = getUsuarioActual();
-
-    if (token) {
-      setTieneSesion(true);
-      // si no hay usuario guardado pero hay token, mostramos algo genérico
-      setUsuario(
-        u || {
-          nombre: "Usuario",
-          email: "",
-        }
-      );
-    } else {
-      setTieneSesion(false);
-      setUsuario(null);
+    const raw = localStorage.getItem("usuario");
+    if (raw) {
+      setUsuario(JSON.parse(raw));
     }
+    setCargando(false);
   }, []);
 
-  const handleLogout = async () => {
-    await Auth.logout();
-    setTieneSesion(false);
-    setUsuario(null);
+  const handleLogout = () => {
+    Auth.logout();
+    localStorage.removeItem("usuario");
     window.location.href = "/";
   };
 
+  if (cargando) return null;
+
   return (
-    <nav className="bg-[var(--color-primario)] text-white shadow-sm">
-      <div className="container flex items-center justify-between h-14">
-        <Link href="/" className="text-lg font-semibold tracking-wide">
-          🛍️ TP6 Shop
+    <nav className="fixed top-0 left-0 w-full bg-[#0a1d37] text-white px-6 py-3 flex justify-between items-center shadow-md z-50">
+      <Link href="/" className="font-bold flex items-center gap-2">
+        🛍️ TP6 Shop
+      </Link>
+
+      <div className="space-x-2">
+        <Link href="/">
+          <button className="bg-white text-[#0a1d37] px-3 py-1 rounded hover:bg-gray-200">
+            Productos
+          </button>
         </Link>
 
-        {!tieneSesion ? (
-          // ==== NAV SIN SESIÓN ====
-          <div className="flex gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 rounded-md bg-white text-[var(--color-primario)] font-medium hover:bg-gray-100 transition"
-            >
-              Iniciar sesión
+        {usuario ? (
+          <>
+            <Link href="/carrito">
+              <button className="bg-white text-[#0a1d37] px-3 py-1 rounded hover:bg-gray-200">
+                Carrito
+              </button>
             </Link>
-            <Link
-              href="/registro"
-              className="px-4 py-2 rounded-md bg-white text-[var(--color-primario)] font-medium hover:bg-gray-100 transition"
-            >
-              Registrarme
+            <Link href="/compras">
+              <button className="bg-white text-[#0a1d37] px-3 py-1 rounded hover:bg-gray-200">
+                Mis compras
+              </button>
             </Link>
-            <Link
-              href="/carrito"
-              className="px-4 py-2 rounded-md bg-white text-[var(--color-primario)] font-medium hover:bg-gray-100 transition"
-            >
-              Carrito
-            </Link>
-            <Link
-              href="/compras"
-              className="px-4 py-2 rounded-md bg-white text-[var(--color-primario)] font-medium hover:bg-gray-100 transition"
-            >
-              Mis compras
-            </Link>
-          </div>
-        ) : (
-          // ==== NAV CON SESIÓN ACTIVA ====
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="font-semibold hover:underline hover:text-gray-200"
-            >
-              Productos
-            </Link>
-            <Link
-              href="/carrito"
-              className="hover:underline hover:text-gray-200"
-            >
-              Carrito
-            </Link>
-            <Link
-              href="/compras"
-              className="hover:underline hover:text-gray-200"
-            >
-              Mis compras
-            </Link>
-
-            <span className="text-gray-100 font-medium">
-              👤 {usuario?.nombre || "Usuario"}
-            </span>
-
+            <span className="text-sm px-2">{usuario.nombre}</span>
             <button
               onClick={handleLogout}
-              className="bg-white text-[var(--color-primario)] font-medium px-3 py-1.5 rounded-md hover:bg-gray-100 transition"
+              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
             >
               Salir
             </button>
-          </div>
+          </>
+        ) : (
+          <>
+            <Link href="/login">
+              <button className="bg-white text-[#0a1d37] px-3 py-1 rounded hover:bg-gray-200">
+                Iniciar sesión
+              </button>
+            </Link>
+            <Link href="/registro">
+              <button className="bg-white text-[#0a1d37] px-3 py-1 rounded hover:bg-gray-200">
+                Registrarme
+              </button>
+            </Link>
+          </>
         )}
       </div>
     </nav>
