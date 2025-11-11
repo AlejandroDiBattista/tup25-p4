@@ -18,6 +18,8 @@ ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
+    "http://192.168.1.109:3000",  # Red local
+    "*",  # Permitir todos durante desarrollo
 ]
 
 # Reglas de negocio
