@@ -10,6 +10,12 @@ class Compra(SQLModel, table=True):
     total: float
     estado: str = Field(default="completada")  # completada, cancelada
     
+    # Datos de envío
+    direccion: Optional[str] = None
+    ciudad: Optional[str] = None
+    codigo_postal: Optional[str] = None
+    telefono: Optional[str] = None
+    
     # Relaciones
     usuario: Optional["Usuario"] = Relationship(back_populates="compras")
     items: List["CompraItem"] = Relationship(back_populates="compra", cascade_delete=True)
@@ -40,6 +46,10 @@ class CompraItemCreate(SQLModel):
 class CompraCreate(SQLModel):
     """Schema para crear una compra"""
     items: List[CompraItemCreate]
+    direccion: str
+    ciudad: str
+    codigo_postal: str
+    telefono: str
 
 class CompraItemResponse(SQLModel):
     """Schema para respuesta de item de compra"""
@@ -59,4 +69,8 @@ class CompraResponse(SQLModel):
     fecha: datetime
     total: float
     estado: str
+    direccion: Optional[str] = None
+    ciudad: Optional[str] = None
+    codigo_postal: Optional[str] = None
+    telefono: Optional[str] = None
     items: List[CompraItemResponse]

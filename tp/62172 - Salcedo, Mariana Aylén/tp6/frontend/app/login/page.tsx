@@ -39,9 +39,9 @@ export default function LoginPage() {
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('usuario', JSON.stringify(data.usuario));
       
-      // Redirigir a la página principal
-      router.push('/');
-      router.refresh();
+      // Redirigir a productos
+      router.push('/products');
+      window.location.href = '/products';
     } catch (err: any) {
       setError(err.message);
     } finally {

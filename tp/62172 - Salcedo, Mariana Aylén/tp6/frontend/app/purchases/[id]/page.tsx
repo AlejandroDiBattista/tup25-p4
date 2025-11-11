@@ -24,6 +24,10 @@ interface Compra {
   fecha: string;
   total: number;
   estado: string;
+  direccion?: string;
+  ciudad?: string;
+  codigo_postal?: string;
+  telefono?: string;
   items: CompraItem[];
 }
 
@@ -207,6 +211,22 @@ export default function PurchaseDetailPage() {
                 <span className="text-blue-600">${compra.total.toFixed(2)}</span>
               </div>
             </div>
+
+            {/* Dirección de envío */}
+            {compra.direccion && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Dirección de envío</h3>
+                <p className="text-sm text-gray-700">{compra.direccion}</p>
+                {compra.ciudad && compra.codigo_postal && (
+                  <p className="text-sm text-gray-700">
+                    {compra.ciudad}, CP {compra.codigo_postal}
+                  </p>
+                )}
+                {compra.telefono && (
+                  <p className="text-sm text-gray-600 mt-1">Tel: {compra.telefono}</p>
+                )}
+              </div>
+            )}
 
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">

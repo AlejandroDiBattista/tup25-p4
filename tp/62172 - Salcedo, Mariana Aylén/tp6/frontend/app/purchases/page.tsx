@@ -21,6 +21,10 @@ interface Compra {
   fecha: string;
   total: number;
   estado: string;
+  direccion?: string;
+  ciudad?: string;
+  codigo_postal?: string;
+  telefono?: string;
   items: CompraItem[];
 }
 
@@ -28,6 +32,7 @@ export default function PurchasesPage() {
   const router = useRouter();
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
+  const [compraSeleccionada, setCompraSeleccionada] = useState<Compra | null>(null);
 
   useEffect(() => {
     cargarCompras();
@@ -53,6 +58,10 @@ export default function PurchasesPage() {
 
       const data = await response.json();
       setCompras(data);
+      // Seleccionar la primera compra por defecto
+      if (data.length > 0) {
+        setCompraSeleccionada(data[0]);
+      }
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -112,16 +121,11 @@ export default function PurchasesPage() {
             <Card
               key={compra.id}
               className={`p-4 cursor-pointer transition-all ${
-                compras.indexOf(compra) === 0 
+                compraSeleccionada?.id === compra.id
                   ? 'border-2 border-blue-500 bg-blue-50' 
                   : 'hover:shadow-md'
               }`}
-              onClick={() => {
-                // La primera compra ya está seleccionada, para las demás redirigir
-                if (compras.indexOf(compra) !== 0) {
-                  router.push(`/purchases/${compra.id}`);
-                }
-              }}
+              onClick={() => setCompraSeleccionada(compra)}
             >
               <div className="mb-3">
                 <h3 className="font-bold text-gray-900">
@@ -145,27 +149,35 @@ export default function PurchasesPage() {
               Detalle de la compra
             </h2>
             
-            {compras.length > 0 && (
+            {compraSeleccionada && (
               <>
                 {/* Info de la compra */}
                 <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b">
                   <div>
                     <p className="text-sm text-gray-600">Compra #:</p>
-                    <p className="font-semibold text-gray-900">{compras[0].id}</p>
+                    <p className="font-semibold text-gray-900">{compraSeleccionada.id}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Fecha:</p>
                     <p className="font-semibold text-gray-900">
-                      {formatearFecha(compras[0].fecha)}
+                      {formatearFecha(compraSeleccionada.fecha)}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Dirección:</p>
-                    <p className="font-semibold text-gray-900">AV Central 4124</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Tarjeta:</p>
-                    <p className="font-semibold text-gray-900">**** **** **** 1234</p>
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-600">Dirección de envío:</p>
+                    <p className="font-semibold text-gray-900">
+                      {compraSeleccionada.direccion || 'No especificada'}
+                    </p>
+                    {compraSeleccionada.ciudad && compraSeleccionada.codigo_postal && (
+                      <p className="font-semibold text-gray-900">
+                        {compraSeleccionada.ciudad}, CP {compraSeleccionada.codigo_postal}
+                      </p>
+                    )}
+                    {compraSeleccionada.telefono && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        Tel: {compraSeleccionada.telefono}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -173,7 +185,7 @@ export default function PurchasesPage() {
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-4">Productos</h3>
                   <div className="space-y-4">
-                    {compras[0].items.map((item) => (
+                    {compraSeleccionada.items.map((item) => (
                       <div key={item.id} className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900">{item.producto_titulo}</p>
@@ -197,13 +209,13 @@ export default function PurchasesPage() {
                   <div className="flex justify-between text-gray-700">
                     <span>Subtotal:</span>
                     <span className="font-semibold">
-                      ${(compras[0].total / 1.21).toFixed(2)}
+                      ${(compraSeleccionada.total / 1.21).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-gray-700">
                     <span>IVA:</span>
                     <span className="font-semibold">
-                      ${(compras[0].total - compras[0].total / 1.21).toFixed(2)}
+                      ${(compraSeleccionada.total - compraSeleccionada.total / 1.21).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-gray-700">
@@ -212,7 +224,7 @@ export default function PurchasesPage() {
                   </div>
                   <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
                     <span>Total pagado:</span>
-                    <span>${compras[0].total.toFixed(2)}</span>
+                    <span>${compraSeleccionada.total.toFixed(2)}</span>
                   </div>
                 </div>
               </>

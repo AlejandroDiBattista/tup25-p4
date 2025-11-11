@@ -242,7 +242,11 @@ def finalizar_compra(
     compra = Compra(
         usuario_id=usuario_actual.id,
         total=total,
-        estado="completada"
+        estado="completada",
+        direccion=compra_data.direccion,
+        ciudad=compra_data.ciudad,
+        codigo_postal=compra_data.codigo_postal,
+        telefono=compra_data.telefono
     )
     
     session.add(compra)
@@ -265,6 +269,10 @@ def finalizar_compra(
         fecha=compra.fecha,
         total=compra.total,
         estado=compra.estado,
+        direccion=compra.direccion,
+        ciudad=compra.ciudad,
+        codigo_postal=compra.codigo_postal,
+        telefono=compra.telefono,
         items=[
             CompraItemResponse(
                 id=item.id,
@@ -299,6 +307,10 @@ def obtener_compras(
             fecha=compra.fecha,
             total=compra.total,
             estado=compra.estado,
+            direccion=compra.direccion,
+            ciudad=compra.ciudad,
+            codigo_postal=compra.codigo_postal,
+            telefono=compra.telefono,
             items=[
                 CompraItemResponse(
                     id=item.id,
@@ -344,6 +356,10 @@ def obtener_compra(
         fecha=compra.fecha,
         total=compra.total,
         estado=compra.estado,
+        direccion=compra.direccion,
+        ciudad=compra.ciudad,
+        codigo_postal=compra.codigo_postal,
+        telefono=compra.telefono,
         items=[
             CompraItemResponse(
                 id=item.id,

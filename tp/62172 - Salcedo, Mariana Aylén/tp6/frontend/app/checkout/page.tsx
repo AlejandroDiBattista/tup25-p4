@@ -176,7 +176,11 @@ export default function CheckoutPage() {
         items: items.map(item => ({
           producto_id: item.producto.id,
           cantidad: item.cantidad
-        }))
+        })),
+        direccion,
+        ciudad,
+        codigo_postal: codigoPostal,
+        telefono
       };
 
       const response = await fetch('http://localhost:8000/carrito/finalizar', {
@@ -218,11 +222,6 @@ export default function CheckoutPage() {
         <p className="text-center text-gray-500">Cargando...</p>
       </div>
     );
-  }
-
-  if (items.length === 0) {
-    router.push('/cart');
-    return null;
   }
 
   const IVA = totalPrecio * 0.21;

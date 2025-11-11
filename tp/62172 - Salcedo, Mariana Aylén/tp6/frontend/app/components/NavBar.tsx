@@ -20,14 +20,32 @@ export default function NavBar() {
 
   // Verificar si hay usuario logueado
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const usuario = localStorage.getItem('usuario');
-    
-    if (token && usuario) {
-      setIsAuthenticated(true);
-      const userData = JSON.parse(usuario);
-      setUserName(userData.nombre);
-    }
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const usuario = localStorage.getItem('usuario');
+      
+      if (token && usuario) {
+        setIsAuthenticated(true);
+        try {
+          const userData = JSON.parse(usuario);
+          setUserName(userData.nombre);
+        } catch (error) {
+          console.error('Error parsing usuario:', error);
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+        setUserName('');
+      }
+    };
+
+    // Verificar al montar
+    checkAuth();
+
+    // Verificar periódicamente (cada segundo)
+    const interval = setInterval(checkAuth, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Cerrar sesión
