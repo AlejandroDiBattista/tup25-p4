@@ -2,11 +2,27 @@ import { Producto } from "../types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+/* =======================
+ * Utils de autenticación
+ * ======================= */
+
 function authHeaders(): HeadersInit {
   if (typeof window === "undefined") return {};
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+async function safeText(res: Response, fallback: string) {
+  try {
+    return await res.text();
+  } catch {
+    return fallback;
+  }
+}
+
+/* =======================
+ * Métodos genéricos de API
+ * ======================= */
 
 async function apiGET<T>(path: string, opts: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
@@ -42,14 +58,6 @@ async function apiDELETE<T = unknown>(path: string): Promise<T> {
   return res.status === 204 ? (undefined as unknown as T) : res.json();
 }
 
-async function safeText(res: Response, fallback: string) {
-  try {
-    return await res.text();
-  } catch {
-    return fallback;
-  }
-}
-
 /* =======================
  * Productos
  * ======================= */
@@ -69,7 +77,7 @@ export async function obtenerProducto(id: number): Promise<Producto> {
 }
 
 /* =======================
- * Auth
+ * Auth (login / registro)
  * ======================= */
 
 export async function registrar(
@@ -81,14 +89,16 @@ export async function registrar(
 }
 
 export async function iniciarSesion(email: string, password: string) {
-  const data = await apiForm<{ token: string; usuario: { id: number; nombre: string; email: string } }>(
-    "/iniciar-sesion",
-    { email, password }
-  );
+  const data = await apiForm<{
+    token: string;
+    usuario: { id: number; nombre: string; email: string };
+  }>("/iniciar-sesion", { email, password });
+
   if (typeof window !== "undefined") {
     localStorage.setItem("token", data.token);
     localStorage.setItem("usuario", JSON.stringify(data.usuario));
   }
+
   return data;
 }
 
@@ -210,7 +220,9 @@ export const Compras = {
  * Utils de sesión
  * ======================= */
 
-export function getUsuarioActual(): { nombre: string; email: string } | null {
+export function getUsuarioActual():
+  | { id: number; nombre: string; email: string }
+  | null {
   if (typeof window === "undefined") return null;
   const raw = localStorage.getItem("usuario");
   if (!raw) return null;

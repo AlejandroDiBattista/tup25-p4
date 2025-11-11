@@ -39,8 +39,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Token store en memoria
-TOKENS: Dict[str, int] = {}  # token -> usuario_id
+
 
 
 # ── Hooks de arranque ─────────────────────────────────────────────────────────
@@ -56,14 +55,20 @@ def get_session():
     with Session(engine) as session:
         yield session
 
-def auth_user(authorization: Optional[str] = Header(default=None)) -> int:
+def auth_user(
+    authorization: Optional[str] = Header(default=None),
+    session: Session = Depends(get_session),
+) -> int:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(401, "Token requerido")
     token = authorization.replace("Bearer ", "").strip()
-    user_id = TOKENS.get(token)
-    if not user_id:
+
+    u = session.exec(select(Usuario).where(Usuario.token == token)).first()
+    if not u:
         raise HTTPException(401, "Token inválido")
-    return user_id
+
+    return u.id
+
 
 def _normalize(s: str) -> str:
     s_nfkd = unicodedata.normalize("NFD", s or "")
@@ -127,15 +132,31 @@ def iniciar_sesion(
     u = session.exec(select(Usuario).where(Usuario.email == email)).first()
     if not u or not bcrypt.verify(password, u.password_hash):
         raise HTTPException(401, "Credenciales inválidas")
+
+    # 🔐 Generar nuevo token y guardarlo en la base
     token = secrets.token_urlsafe(24)
-    TOKENS[token] = u.id
+    u.token = token
+    session.add(u)
+    session.commit()
+    session.refresh(u)
+
     return {"token": token, "usuario": {"id": u.id, "nombre": u.nombre, "email": u.email}}
 
+
 @app.post("/cerrar-sesion")
-def cerrar_sesion(authorization: Optional[str] = Header(default=None)):
+def cerrar_sesion(
+    authorization: Optional[str] = Header(default=None),
+    session: Session = Depends(get_session),
+):
     if authorization and authorization.startswith("Bearer "):
-        TOKENS.pop(authorization.replace("Bearer ", "").strip(), None)
+        token = authorization.replace("Bearer ", "").strip()
+        u = session.exec(select(Usuario).where(Usuario.token == token)).first()
+        if u:
+            u.token = None
+            session.add(u)
+            session.commit()
     return {"ok": True}
+
 
 
 # ── Productos ─────────────────────────────────────────────────────────────────
@@ -182,6 +203,7 @@ def ver_carrito(user_id: int = Depends(auth_user), session: Session = Depends(ge
             "cantidad": it.cantidad,
             "precio_unitario": float(prod.precio),
             "subtotal": linea_sub,
+            "imagen": f"http://localhost:8000/{prod.imagen}" if prod.imagen else None,
         })
         subtotal += linea_sub
         iva_total += calcular_iva(it, prod)

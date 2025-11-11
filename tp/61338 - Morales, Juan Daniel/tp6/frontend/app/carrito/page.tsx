@@ -1,123 +1,170 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Carrito } from "../services/productos";
 
-interface ItemCarrito {
+import { useEffect, useState } from "react";
+import { Carrito } from "../../app/services/productos"; // ✅ ruta corregida
+import { Producto } from "../../app/types"; // para tipar los items
+
+// Creamos un tipo de item del carrito basado en tu backend actual
+interface CarritoItem {
   producto_id: number;
   nombre: string;
   cantidad: number;
   precio_unitario: number;
   subtotal: number;
-}
-
-interface CarritoData {
-  carrito_id: number;
-  estado: string;
-  items: ItemCarrito[];
-  subtotal: number;
-  iva: number;
-  envio: number;
-  total: number;
+  imagen?: string | null;
 }
 
 export default function CarritoPage() {
-  const [data, setData] = useState<CarritoData | null>(null);
+  const [carrito, setCarrito] = useState<CarritoItem[]>([]);
+  const [subtotal, setSubtotal] = useState(0);
   const [direccion, setDireccion] = useState("");
   const [tarjeta, setTarjeta] = useState("");
 
-  const load = async () => {
-    const info = await Carrito.ver();
-    setData(info);
-  };
-
   useEffect(() => {
-  (async () => {
-    await load();
-  })();
-}, []);
+    const fetchCarrito = async () => {
+      try {
+        const data = await Carrito.ver();
+        const items = data.items || [];
+        setCarrito(items);
+        const total = items.reduce((acc, item) => acc + item.subtotal, 0);
+        setSubtotal(total);
+      } catch (err) {
+        console.error("Error al obtener carrito:", err);
+        alert("No se pudo cargar el carrito. Verificá tu sesión.");
+      }
+    };
+    fetchCarrito();
+  }, []);
 
-  const quitar = async (id: number) => {
-    await Carrito.quitar(id);
-    await load();
+  const iva = subtotal * 0.21;
+  const envio = carrito.length > 0 ? 50 : 0;
+  const total = subtotal + iva + envio;
+
+  const handleCancelar = async () => {
+    try {
+      await Carrito.cancelar();
+      setCarrito([]);
+      alert("Carrito cancelado correctamente.");
+    } catch (err) {
+      alert("Error al cancelar el carrito.");
+    }
   };
 
-  const cancelar = async () => {
-    await Carrito.cancelar();
-    await load();
-  };
-
-  const finalizar = async () => {
+  const handlePagar = async () => {
     if (!direccion || !tarjeta) {
-      alert("Completá dirección y tarjeta");
+      alert("Completá todos los campos para finalizar la compra.");
       return;
     }
     try {
-      const r = await Carrito.finalizar(direccion, tarjeta);
-      alert(`Compra realizada ✅\nID: ${r.compra_id}\nTotal: $${r.total}`);
-      await load();
-    } catch (error) {
-      const msg =
-        error instanceof Error ? error.message : "Error al finalizar compra";
-      alert(msg);
+      await Carrito.finalizar(direccion, tarjeta);
+      alert("Compra finalizada con éxito.");
+      setCarrito([]);
+      setDireccion("");
+      setTarjeta("");
+    } catch (err) {
+      alert("Error al finalizar la compra.");
     }
   };
 
-  if (!data) return <div className="card">Cargando carrito...</div>;
+  const handleQuitar = async (producto_id: number) => {
+    try {
+      await Carrito.quitar(producto_id);
+      setCarrito(carrito.filter((item) => item.producto_id !== producto_id));
+    } catch (err) {
+      alert("Error al quitar el producto del carrito.");
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Carrito</h1>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-[#0a1d37] text-white py-4 px-6 flex justify-between items-center shadow-sm">
+        <h1 className="text-xl font-semibold flex items-center gap-2">
+          🛍️ TP6 Shop
+        </h1>
+      </header>
 
-      <div className="space-y-2">
-        {data.items.length === 0 ? (
-          <div className="card text-gray-600">El carrito está vacío</div>
+      <main className="max-w-4xl mx-auto p-6">
+        <h2 className="text-xl font-bold mb-4">Carrito</h2>
+
+        {carrito.length === 0 ? (
+          <p className="text-gray-600">Tu carrito está vacío.</p>
         ) : (
-          data.items.map((it) => (
-            <div key={it.producto_id} className="card flex justify-between">
-              <div>
-                <div className="font-semibold">{it.nombre}</div>
-                <div>
-                  Cant: {it.cantidad} · ${it.precio_unitario.toFixed(2)}
+          <div className="space-y-4">
+            {carrito.map((item) => (
+              <div
+                key={item.producto_id}
+                className="flex items-center justify-between bg-white rounded-xl shadow p-4"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 flex-shrink-0">
+                    <img
+                      src={item.imagen || "/placeholder.png"}
+                      alt={item.nombre}
+                      className="w-full h-full object-contain rounded-md border"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-gray-900">{item.nombre}</p>
+                    <p className="text-sm text-gray-600">
+                      Cant: {item.cantidad} • ${item.precio_unitario.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  onClick={() => handleQuitar(item.producto_id)}
+                  className="bg-[#0a1d37] text-white px-3 py-1 rounded-md hover:bg-blue-900"
+                >
+                  Quitar
+                </button>
               </div>
-              <button className="btn" onClick={() => quitar(it.producto_id)}>
-                Quitar
-              </button>
+            ))}
+
+            <div className="bg-white p-4 rounded-xl shadow">
+              <p>Subtotal: ${subtotal.toFixed(2)}</p>
+              <p>IVA: ${iva.toFixed(2)}</p>
+              <p>Envío: ${envio.toFixed(2)}</p>
+              <p className="font-bold text-gray-900">
+                Total: ${total.toFixed(2)}
+              </p>
             </div>
-          ))
+
+            <div className="bg-white p-4 rounded-xl shadow space-y-3">
+              <h3 className="font-semibold text-gray-800">Finalizar compra</h3>
+              <input
+                type="text"
+                placeholder="Dirección"
+                className="w-full border rounded-md p-2"
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Tarjeta (16 dígitos)"
+                className="w-full border rounded-md p-2"
+                value={tarjeta}
+                onChange={(e) => setTarjeta(e.target.value)}
+              />
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePagar}
+                  className="bg-[#0a1d37] text-white px-4 py-2 rounded-md hover:bg-blue-900"
+                >
+                  Pagar
+                </button>
+                <button
+                  onClick={handleCancelar}
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+                >
+                  Cancelar carrito
+                </button>
+              </div>
+            </div>
+          </div>
         )}
-      </div>
-
-      <div className="card space-y-1">
-        <div>Subtotal: ${data.subtotal.toFixed(2)}</div>
-        <div>IVA: ${data.iva.toFixed(2)}</div>
-        <div>Envío: ${data.envio.toFixed(2)}</div>
-        <div className="font-bold">Total: ${data.total.toFixed(2)}</div>
-      </div>
-
-      <div className="card space-y-2">
-        <h2 className="font-semibold">Finalizar compra</h2>
-        <input
-          className="input"
-          placeholder="Dirección"
-          value={direccion}
-          onChange={(e) => setDireccion(e.target.value)}
-        />
-        <input
-          className="input"
-          placeholder="Tarjeta (16 dígitos)"
-          value={tarjeta}
-          onChange={(e) => setTarjeta(e.target.value)}
-        />
-        <div className="flex gap-2">
-          <button className="btn" onClick={finalizar}>
-            Pagar
-          </button>
-          <button className="btn" onClick={cancelar}>
-            Cancelar carrito
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

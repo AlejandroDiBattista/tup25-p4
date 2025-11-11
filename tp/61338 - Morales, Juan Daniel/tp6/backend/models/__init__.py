@@ -8,9 +8,12 @@ class Usuario(SQLModel, table=True):
     nombre: str
     email: str = Field(index=True, unique=True)
     password_hash: str
+    token: Optional[str] = Field(default=None)
+
 
     carritos: List["Carrito"] = Relationship(back_populates="usuario")
     compras: List["Compra"] = Relationship(back_populates="usuario")
+    
 
 
 class Producto(SQLModel, table=True):

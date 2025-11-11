@@ -8,3 +8,12 @@ export interface Producto {
   imagen?: string | null;
   valoracion?: number | null;
 }
+
+export interface CarritoItem {
+  id: number;
+  productoId: number;
+  nombre: string;
+  precio: number;
+  cantidad: number;
+  imagen?: string | null;
+}
