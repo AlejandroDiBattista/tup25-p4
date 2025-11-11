@@ -1,15 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import json
-from pathlib import Path
+from sqlmodel import Session, select
+from database import create_db_and_tables, load_initial_data, engine
+from models.productos import Producto
 
 app = FastAPI(title="API Productos")
 
-# Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
-# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,11 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    load_initial_data()
 
 @app.get("/")
 def root():
@@ -30,9 +28,13 @@ def root():
 
 @app.get("/productos")
 def obtener_productos():
-    productos = cargar_productos()
-    return productos
+    with Session(engine) as session:
+        productos = session.exec(select(Producto)).all()
+        return productos
+
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
