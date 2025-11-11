@@ -1,7 +1,6 @@
 fastapi
-uvicorn[standard]
-python-dotenv
-PyGithub
-pandas
-requests
-ipykernel
+uvicorn
+sqlmodel
+sqlite3
+passlib[bcrypt]
+python-jose
