@@ -10,19 +10,21 @@ export const metadata = {
 export default async function ProductosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; buscar?: string; ordenar?: string }>;
+  searchParams: Promise<{ categoria?: string; buscar?: string; ordenar?: string; precioMin?: string; precioMax?: string }>;
 }) {
   const params = await searchParams;
   const categoria = params.categoria;
   const buscar = params.buscar;
   const ordenar = params.ordenar;
+  const precioMin = params.precioMin;
+  const precioMax = params.precioMax;
 
   let productos: Producto[] = [];
   let categorias: string[] = [];
 
   try {
     [productos, categorias] = await Promise.all([
-      obtenerProductos(categoria, buscar, ordenar),
+      obtenerProductos(categoria, buscar, ordenar, precioMin, precioMax),
       obtenerCategorias(),
     ]);
   } catch (error) {
