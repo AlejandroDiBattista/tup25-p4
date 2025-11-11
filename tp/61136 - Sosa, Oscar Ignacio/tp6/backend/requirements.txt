@@ -1,6 +1,5 @@
 fastapi
 uvicorn
 sqlmodel
-sqlite3
 passlib[bcrypt]
 python-jose
