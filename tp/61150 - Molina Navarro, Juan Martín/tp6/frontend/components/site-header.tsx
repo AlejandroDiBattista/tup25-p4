@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type HeaderProps = {
-  active?: "products" | "login" | "register";
+  active?: "products" | "login" | "register" | "orders";
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -81,6 +81,9 @@ export function SiteHeader({ active = "products" }: HeaderProps) {
         <nav className="flex items-center gap-6">
           <Link className={navLinkClasses(active === "products")} href="/">
             Productos
+          </Link>
+          <Link className={navLinkClasses(active === "orders")} href="/compras">
+            Mis compras
           </Link>
           {usuario ? (
             <span className="text-sm font-semibold text-slate-900">{usuario.nombre}</span>

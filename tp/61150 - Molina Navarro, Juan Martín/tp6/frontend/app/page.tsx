@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import ProductoCard from "./components/ProductoCard";
-import type { Producto } from "./types";
+import type { CarritoDetalle, CarritoItem, Producto } from "./types";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,24 +16,6 @@ import { cn } from "@/lib/utils";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type LoadState = "idle" | "loading" | "error";
-
-type CarritoItem = {
-  producto_id: number;
-  titulo: string;
-  precio_unitario: number;
-  cantidad: number;
-  subtotal: number;
-  categoria: string;
-  imagen: string;
-};
-
-type CarritoDetalle = {
-  items: CarritoItem[];
-  subtotal: number;
-  iva: number;
-  envio: number;
-  total: number;
-};
 
 const mapCarritoDetalle = (payload: any): CarritoDetalle => ({
   items: Array.isArray(payload?.items) ? (payload.items as CarritoItem[]) : [],
@@ -55,6 +38,7 @@ export default function ProductsPage() {
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [mensajeTipo, setMensajeTipo] = useState<"info" | "error">("info");
   const [addingId, setAddingId] = useState<number | null>(null);
+  const router = useRouter();
 
   const updateMensaje = (texto: string | null, tipo: "info" | "error" = "info") => {
     setMensaje(texto);
@@ -267,6 +251,18 @@ export default function ProductsPage() {
     }
   };
 
+  const handleIrAlCheckout = () => {
+    if (!token) {
+      updateMensaje("Inicia sesion para finalizar tu compra.", "error");
+      return;
+    }
+    if (!carrito || carrito.items.length === 0) {
+      updateMensaje("Tu carrito está vacío.", "error");
+      return;
+    }
+    router.push("/checkout");
+  };
+
   return (
     <div className="min-h-screen bg-[#f7f9fc] text-slate-900">
       <SiteHeader active="products" />
@@ -460,6 +456,7 @@ export default function ProductsPage() {
                         className="flex-1 bg-slate-900 text-white hover:bg-slate-800"
                         disabled={carrito.items.length === 0}
                         type="button"
+                        onClick={handleIrAlCheckout}
                       >
                         Continuar compra
                       </Button>
