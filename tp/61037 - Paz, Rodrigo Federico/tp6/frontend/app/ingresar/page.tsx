@@ -9,22 +9,27 @@ export default function IngresarPage() {
   async function handleLogin() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-    const response = await fetch(
-      `${API_URL}/iniciar-sesion?email=${email}&password=${password}`,
-      { method: "POST" }
-    );
+    try {
+      const response = await fetch(
+        `${API_URL}/iniciar-sesion?email=${email}&password=${password}`,
+        { method: "POST" }
+      );
 
-    if (!response.ok) {
-      alert("Correo o contraseña incorrectos");
-      return;
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        alert(error.detail || "Correo o contraseña incorrectos");
+        return;
+      }
+
+      const data = await response.json();
+
+      localStorage.setItem("usuario_id", data.usuario_id);
+      localStorage.setItem("usuario_nombre", data.usuario);
+
+      window.location.href = "/";
+    } catch (error) {
+      alert("Error de conexión. Intenta nuevamente.");
     }
-
-    const data = await response.json();
-
-    localStorage.setItem("usuario_id", data.usuario_id);
-    localStorage.setItem("usuario_nombre", data.usuario);
-
-    window.location.href = "/";
   }
 
   return (

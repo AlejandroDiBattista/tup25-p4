@@ -35,29 +35,22 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm mb-6">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-4 gap-6">
-
-        <div className="col-span-4 flex items-center justify-between bg-white p-3 rounded-lg shadow-sm mb-4">
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        
+        {/* Búsqueda y Filtros */}
+        <div className="flex items-center gap-4 mb-6">
           <input
             type="text"
             placeholder="Buscar..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-2/3 border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black shadow-sm"
+            className="flex-1 border border-gray-300 rounded-md px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400"
           />
 
           <select
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
-            className="border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black shadow-sm"
+            className="border border-gray-300 rounded-md px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             <option value="todas">Todas las categorías</option>
             <option value="Ropa de hombre">Ropa de hombre</option>
@@ -67,14 +60,23 @@ export default function Home() {
           </select>
         </div>
 
-        <div className="col-span-3 space-y-4">
-  {productos.map((producto) => (
-    <ProductoCard key={producto.id} producto={producto} />
-  ))}
-</div>
+        {/* Layout: Productos (izquierda) + Carrito (derecha) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Productos en lista vertical (2 columnas) */}
+          <div className="lg:col-span-2 space-y-4">
+            {productos.map((producto) => (
+              <ProductoCard key={producto.id} producto={producto} />
+            ))}
+          </div>
 
-        <div className="col-span-1">
-          <Carrito />
+          {/* Carrito sticky (1 columna) */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-6">
+              <Carrito />
+            </div>
+          </div>
+
         </div>
 
       </main>

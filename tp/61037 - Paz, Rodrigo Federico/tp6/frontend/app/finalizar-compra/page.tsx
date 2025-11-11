@@ -14,7 +14,7 @@ export default function FinalizarCompraPage() {
     if (!id) window.location.href = "/ingresar";
     setUsuarioId(id || null);
 
-    // cálculo local (misma regla que backend) para mostrar totales antes de pagar
+    
     async function preview() {
       if (!id) return;
       const items = await obtenerCarrito(id);
@@ -33,9 +33,14 @@ export default function FinalizarCompraPage() {
   async function handlePagar(e: React.FormEvent) {
     e.preventDefault();
     if (!usuarioId) return;
-    const r = await finalizarCompra(usuarioId, direccion, tarjeta);
-    alert(r.mensaje || `Compra OK. Total pagado: $${r.total_pagado}`);
-    window.location.href = "/mis-compras";
+    
+    try {
+      const r = await finalizarCompra(usuarioId, direccion, tarjeta);
+      alert(r.mensaje || `Compra realizada con éxito. Total pagado: $${r.total_pagado}`);
+      window.location.href = "/mis-compras";
+    } catch (error: any) {
+      alert(error.message || "Error al finalizar la compra");
+    }
   }
 
   return (

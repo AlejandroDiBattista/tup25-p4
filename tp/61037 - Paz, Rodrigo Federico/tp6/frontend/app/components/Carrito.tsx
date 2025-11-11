@@ -56,10 +56,21 @@ export default function Carrito() {
     if (!usuarioId) return;
 
     const item = items.find((x) => x.producto_id === id);
-    if (!item || item.cantidad <= 1) return;
+    if (!item) return;
 
-    await quitarDelCarrito(usuarioId, id);
-    await agregarAlCarrito(usuarioId, id); // Reagregamos pero 1 menos
+    // Si es la última unidad, quitar del carrito
+    if (item.cantidad <= 1) {
+      await quitarDelCarrito(usuarioId, id);
+    } else {
+      // TODO: Implementar endpoint PATCH para decrementar cantidad
+      // Por ahora, quitar y reagregar no es ideal pero funciona
+      await quitarDelCarrito(usuarioId, id);
+      // Agregar (cantidad - 1) veces
+      for (let i = 0; i < item.cantidad - 1; i++) {
+        await agregarAlCarrito(usuarioId, id);
+      }
+    }
+    
     const nuevos = await obtenerCarrito(usuarioId);
     setItems(nuevos);
     actualizarCarrito();
@@ -67,10 +78,14 @@ export default function Carrito() {
 
   async function handleSumar(id: number) {
     if (!usuarioId) return;
-    await agregarAlCarrito(usuarioId, id);
-    const nuevos = await obtenerCarrito(usuarioId);
-    setItems(nuevos);
-    actualizarCarrito();
+    try {
+      await agregarAlCarrito(usuarioId, id);
+      const nuevos = await obtenerCarrito(usuarioId);
+      setItems(nuevos);
+      actualizarCarrito();
+    } catch (e: any) {
+      alert(e.message || "No se pudo agregar más unidades");
+    }
   }
 
   async function handleCancelar() {

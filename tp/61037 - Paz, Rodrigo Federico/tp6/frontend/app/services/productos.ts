@@ -12,7 +12,10 @@ export async function agregarAlCarrito(usuario_id: number, producto_id: number) 
   const res = await fetch(`${API_URL}/carrito?usuario_id=${usuario_id}&producto_id=${producto_id}`, {
     method: "POST",
   });
-  if (!res.ok) throw new Error("No se pudo agregar al carrito");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "No se pudo agregar al carrito");
+  }
   return res.json();
 }
 
@@ -38,9 +41,16 @@ export async function cancelarCarrito(usuario_id: number) {
 }
 
 export async function finalizarCompra(usuario_id: number, direccion: string, tarjeta: string) {
-  const params = new URLSearchParams({ usuario_id: String(usuario_id), direccion, tarjeta });
-  const res = await fetch(`${API_URL}/carrito/finalizar?${params.toString()}`, {
+  const res = await fetch(`${API_URL}/carrito/finalizar`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      usuario_id,
+      direccion,
+      tarjeta,
+    }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

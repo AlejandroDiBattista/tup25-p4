@@ -23,35 +23,55 @@ export default function ProductoCard({ producto }: any) {
   }
 
   return (
-    <div className="flex gap-4 bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition">
-      <img src={imgSrc} alt={producto.nombre} className="w-32 h-32 object-cover rounded-md" />
+    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition flex gap-4">
+      
+      {/* Imagen (izquierda) */}
+      <img 
+        src={imgSrc} 
+        alt={producto.nombre} 
+        className="w-40 h-40 object-cover rounded-md flex-shrink-0"
+      />
 
-      <div className="flex flex-col justify-between flex-1">
+      {/* Información central */}
+      <div className="flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{producto.nombre}</h3>
-          <p className="text-sm text-gray-700 mt-1 leading-snug">{producto.descripcion}</p>
-          <p className="text-xs text-gray-400 mt-1">Categoría: {producto.categoria}</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            {producto.nombre}
+          </h3>
+          
+          <p className="text-sm text-gray-600 mb-2">
+            {producto.descripcion}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            Categoría: {producto.categoria}
+          </p>
         </div>
-        <p className="text-lg font-semibold text-gray-900">${producto.precio}</p>
       </div>
 
-      <div className="flex flex-col items-end justify-between">
-        <p className="text-gray-700 font-medium">
+      {/* Precio y botón (derecha) */}
+      <div className="flex flex-col items-end justify-between min-w-[140px]">
+        <p className="text-xl font-bold text-gray-900">
+          ${producto.precio}
+        </p>
+
+        <p className="text-sm text-gray-600 mb-2">
           {sinStock ? "Agotado" : `Disponible: ${producto.existencia}`}
         </p>
 
         <button
           disabled={sinStock}
           onClick={handleAdd}
-          className={`py-2 px-4 rounded-md text-sm transition ${
+          className={`px-4 py-2 rounded-md text-sm font-medium border transition ${
             sinStock
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-[#0A2540] hover:bg-[#0D3158] text-white"
+              ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+              : "bg-[#0A2540] hover:bg-[#0D3158] text-white border-gray-300"
           }`}
         >
           Agregar al carrito
         </button>
       </div>
+
     </div>
   );
 }
