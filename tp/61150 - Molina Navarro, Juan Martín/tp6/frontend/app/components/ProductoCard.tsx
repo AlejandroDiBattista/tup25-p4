@@ -29,6 +29,7 @@ export default function ProductoCard({
 }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const router = useRouter();
+  const sinStock = producto.existencia === 0;
 
   const handleCardClick = () => {
     router.push(`/productos/${producto.id}`);
@@ -90,9 +91,13 @@ export default function ProductoCard({
             <Button
               className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
               onClick={handleAddClick}
-              disabled={disabled}
+              disabled={disabled || sinStock}
             >
-              {loading ? "Agregando..." : "Agregar al carrito"}
+              {loading
+                ? "Agregando..."
+                : sinStock
+                  ? "Agotado"
+                  : "Agregar al carrito"}
             </Button>
           )}
         </CardContent>

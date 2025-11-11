@@ -16,9 +16,14 @@ type ToastState = {
 type AddToCartButtonProps = {
   productoId: number;
   titulo: string;
+  disponible?: boolean;
 };
 
-export function AddToCartButton({ productoId, titulo }: AddToCartButtonProps) {
+export function AddToCartButton({
+  productoId,
+  titulo,
+  disponible = true,
+}: AddToCartButtonProps) {
   const [token, setToken] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
@@ -58,6 +63,10 @@ export function AddToCartButton({ productoId, titulo }: AddToCartButtonProps) {
   };
 
   const handleAddToCart = async () => {
+    if (!disponible) {
+      return;
+    }
+
     if (!token) {
       showToast("Inicia sesión para agregar productos al carrito.", "error");
       return;
@@ -96,10 +105,10 @@ export function AddToCartButton({ productoId, titulo }: AddToCartButtonProps) {
       <Button
         className="rounded-xl bg-slate-900 py-6 text-base text-white hover:bg-slate-800"
         onClick={handleAddToCart}
-        disabled={isAdding}
+        disabled={isAdding || !disponible}
         type="button"
       >
-        {isAdding ? "Agregando..." : "Agregar al carrito"}
+        {!disponible ? "Agotado" : isAdding ? "Agregando..." : "Agregar al carrito"}
       </Button>
 
       {toast && (

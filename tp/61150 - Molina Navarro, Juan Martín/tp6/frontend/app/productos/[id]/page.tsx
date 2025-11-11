@@ -113,7 +113,11 @@ export default async function ProductoDetallePage({ params }: ProductoPageProps)
               <DetalleItem label="ID de producto" value={`#${producto.id}`} />
             </div>
 
-            <AddToCartButton productoId={producto.id} titulo={producto.titulo} />
+            <AddToCartButton
+              productoId={producto.id}
+              titulo={producto.titulo}
+              disponible={producto.existencia > 0}
+            />
 
             <p className="text-sm text-slate-500">
               Este producto forma parte del catálogo TP6 Shop. Todas las compras son protegidas

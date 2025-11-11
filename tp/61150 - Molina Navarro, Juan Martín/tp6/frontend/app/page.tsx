@@ -189,28 +189,47 @@ export default function ProductsPage() {
     }
   };
 
-  const handleQuitarDelCarrito = async (productoId: number) => {
+  const handleActualizarCantidad = async (productoId: number, nuevaCantidad: number) => {
     if (!token) {
+      updateMensaje("Inicia sesion para modificar tu carrito.", "error");
+      return;
+    }
+
+    if (nuevaCantidad < 0) {
       return;
     }
 
     setAccionCarritoId(productoId);
     updateMensaje(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/carrito/${productoId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      let response: Response;
+      if (nuevaCantidad === 0) {
+        response = await fetch(`${API_BASE_URL}/carrito/${productoId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/carrito/${productoId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ cantidad: nuevaCantidad }),
+        });
+      }
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail ?? "No se pudo quitar el producto");
+        throw new Error(data.detail ?? "No se pudo actualizar el carrito");
       }
 
       setCarrito(mapCarritoDetalle(data));
-      updateMensaje(data.mensaje ?? "Producto eliminado del carrito.");
+      updateMensaje(
+        data.mensaje ?? (nuevaCantidad === 0 ? "Producto eliminado del carrito." : "Cantidad actualizada.")
+      );
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Ocurrio un error inesperado";
@@ -338,7 +357,7 @@ export default function ProductsPage() {
           </div>
         </section>
 
-        <aside className="hidden w-72 flex-shrink-0 lg:block">
+        <aside className="hidden w-[26rem] flex-shrink-0 lg:block">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             {!token ? (
               <>
@@ -380,40 +399,69 @@ export default function ProductsPage() {
                       {carrito.items.map((item) => (
                         <li
                           key={item.producto_id}
-                          className="flex gap-3 rounded-xl border border-slate-100 p-3"
+                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                         >
-                          <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-slate-100">
-                            <Image
-                              src={`${API_BASE_URL}/${item.imagen}`}
-                              alt={item.titulo}
-                              fill
-                              sizes="64px"
-                              className="object-cover"
-                              unoptimized
-                            />
-                          </div>
-                          <div className="flex-1 text-sm">
-                            <p className="font-semibold text-slate-900">{item.titulo}</p>
-                            <p className="text-xs text-slate-500">
-                              ${item.precio_unitario.toFixed(2)} c/u
-                            </p>
-                            <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
-                              <span>Cantidad: {item.cantidad}</span>
-                              <span className="font-semibold text-slate-900">
-                                ${item.subtotal.toFixed(2)}
-                              </span>
+                          <div className="flex gap-4">
+                            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                              <Image
+                                src={`${API_BASE_URL}/${item.imagen}`}
+                                alt={item.titulo}
+                                fill
+                                sizes="64px"
+                                className="object-cover"
+                                unoptimized
+                              />
+                            </div>
+                            <div className="flex flex-1 flex-col gap-1 text-sm">
+                              <div className="flex items-start justify-between gap-4">
+                                <div>
+                                  <p className="font-semibold text-slate-900 leading-snug">
+                                    {item.titulo}
+                                  </p>
+                                  <p className="text-xs text-slate-500">
+                                    ${item.precio_unitario.toFixed(2)} c/u
+                                  </p>
+                                </div>
+                                <p className="text-base font-semibold text-slate-900">
+                                  ${item.subtotal.toFixed(2)}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-slate-400 hover:text-slate-900"
-                            onClick={() => handleQuitarDelCarrito(item.producto_id)}
-                            disabled={accionCarritoId === item.producto_id}
-                            aria-label={`Quitar ${item.titulo}`}
-                          >
-                            X
-                          </Button>
+                          <div className="mt-4 flex items-center justify-between">
+                            <span className="text-sm text-slate-600">Cantidad:</span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="outline"
+                                className="h-10 w-10 rounded-lg border-slate-200 bg-slate-50 text-base font-semibold text-slate-700 transition hover:bg-slate-900 hover:text-white"
+                                onClick={() =>
+                                  handleActualizarCantidad(item.producto_id, item.cantidad - 1)
+                                }
+                                disabled={accionCarritoId === item.producto_id}
+                                aria-label={`Reducir ${item.titulo}`}
+                              >
+                                -
+                              </Button>
+                              <span className="w-6 text-center text-base font-semibold text-slate-900">
+                                {item.cantidad}
+                              </span>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="outline"
+                                className="h-10 w-10 rounded-lg border-slate-200 bg-slate-50 text-base font-semibold text-slate-700 transition hover:bg-slate-900 hover:text-white"
+                                onClick={() =>
+                                  handleActualizarCantidad(item.producto_id, item.cantidad + 1)
+                                }
+                                disabled={accionCarritoId === item.producto_id}
+                                aria-label={`Incrementar ${item.titulo}`}
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </div>
                         </li>
                       ))}
                     </ul>

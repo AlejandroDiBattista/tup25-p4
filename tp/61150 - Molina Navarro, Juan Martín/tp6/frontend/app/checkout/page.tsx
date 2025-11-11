@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
 import type { CarritoDetalle, CarritoItem } from "@/app/types";
@@ -28,6 +29,7 @@ const calcularIvaItem = (item: CarritoItem) => {
 };
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [carrito, setCarrito] = useState<CarritoDetalle | null>(null);
   const [estadoCarrito, setEstadoCarrito] = useState<LoadState>("idle");
@@ -141,7 +143,8 @@ export default function CheckoutPage() {
       });
       setDireccion("");
       setTarjeta("");
-      fetchCarrito();
+      await fetchCarrito();
+      router.push("/compras");
     } catch (error) {
       const texto =
         error instanceof Error ? error.message : "Ocurrió un error inesperado.";

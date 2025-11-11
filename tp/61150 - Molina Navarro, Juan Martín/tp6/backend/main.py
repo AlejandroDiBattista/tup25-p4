@@ -91,8 +91,9 @@ def calcular_detalle_carrito(email: str) -> Dict:
             }
         )
 
-    envio = 0 if subtotal >= 1000 or subtotal == 0 else 50
-    total = subtotal + iva + envio
+    base_para_envio = subtotal + iva
+    envio = 0 if base_para_envio >= 1000 or base_para_envio == 0 else 50
+    total = base_para_envio + envio
 
     return {
         "items": items,
@@ -117,6 +118,10 @@ class LoginRequest(BaseModel):
 class CarritoItemRequest(BaseModel):
     producto_id: int
     cantidad: int = Field(..., gt=0)
+
+
+class CarritoUpdateRequest(BaseModel):
+    cantidad: int = Field(..., ge=0)
 
 
 class CheckoutRequest(BaseModel):
@@ -269,6 +274,26 @@ def quitar_producto_carrito(producto_id: int, usuario=Depends(obtener_usuario_ac
 
     carrito_usuario.pop(producto_id)
     return {"mensaje": "Producto eliminado del carrito", **calcular_detalle_carrito(usuario["email"])}
+
+
+@app.patch("/carrito/{producto_id}")
+def actualizar_producto_carrito(
+    producto_id: int, payload: CarritoUpdateRequest, usuario=Depends(obtener_usuario_actual)
+):
+    carrito_usuario = carritos.setdefault(usuario["email"], {})
+
+    if payload.cantidad == 0:
+        carrito_usuario.pop(producto_id, None)
+        return {"mensaje": "Producto eliminado del carrito", **calcular_detalle_carrito(usuario["email"])}
+
+    producto = obtener_producto(producto_id)
+    if payload.cantidad > producto["existencia"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Cantidad solicitada supera el stock disponible"
+        )
+
+    carrito_usuario[producto_id] = payload.cantidad
+    return {"mensaje": "Cantidad actualizada", **calcular_detalle_carrito(usuario["email"])}
 
 
 @app.post("/carrito/cancelar")
