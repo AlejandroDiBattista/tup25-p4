@@ -103,78 +103,122 @@ export default function PurchasesPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Mis Compras
         </h1>
-        <p className="text-gray-600">
-          Historial de todas tus compras realizadas
-        </p>
       </div>
 
-      <div className="space-y-4">
-        {compras.map((compra) => (
-          <Card
-            key={compra.id}
-            className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => router.push(`/purchases/${compra.id}`)}
-          >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              {/* Información principal */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <ShoppingBag className="h-5 w-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Pedido #{compra.id}
-                  </h3>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    compra.estado === 'completada' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {compra.estado}
-                  </span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Lista de compras - lado izquierdo */}
+        <div className="lg:col-span-1 space-y-4">
+          {compras.map((compra) => (
+            <Card
+              key={compra.id}
+              className={`p-4 cursor-pointer transition-all ${
+                compras.indexOf(compra) === 0 
+                  ? 'border-2 border-blue-500 bg-blue-50' 
+                  : 'hover:shadow-md'
+              }`}
+              onClick={() => {
+                // La primera compra ya está seleccionada, para las demás redirigir
+                if (compras.indexOf(compra) !== 0) {
+                  router.push(`/purchases/${compra.id}`);
+                }
+              }}
+            >
+              <div className="mb-3">
+                <h3 className="font-bold text-gray-900">
+                  Compra #{compra.id}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {formatearFecha(compra.fecha)}
+                </p>
+              </div>
+              <p className="text-lg font-bold text-gray-900">
+                Total: ${compra.total.toFixed(2)}
+              </p>
+            </Card>
+          ))}
+        </div>
+
+        {/* Detalle de la compra seleccionada - lado derecho */}
+        <div className="lg:col-span-2">
+          <Card className="p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Detalle de la compra
+            </h2>
+            
+            {compras.length > 0 && (
+              <>
+                {/* Info de la compra */}
+                <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b">
+                  <div>
+                    <p className="text-sm text-gray-600">Compra #:</p>
+                    <p className="font-semibold text-gray-900">{compras[0].id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Fecha:</p>
+                    <p className="font-semibold text-gray-900">
+                      {formatearFecha(compras[0].fecha)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Dirección:</p>
+                    <p className="font-semibold text-gray-900">AV Central 4124</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Tarjeta:</p>
+                    <p className="font-semibold text-gray-900">**** **** **** 1234</p>
+                  </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {formatearFecha(compra.fecha)}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    {compra.items.reduce((sum, item) => sum + item.cantidad, 0)} productos
+                {/* Productos */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Productos</h3>
+                  <div className="space-y-4">
+                    {compras[0].items.map((item) => (
+                      <div key={item.id} className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">{item.producto_titulo}</p>
+                          <p className="text-sm text-gray-600">Cantidad: {item.cantidad}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-900">
+                            ${item.subtotal.toFixed(2)}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            IVA: ${(item.subtotal * 0.21).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Total */}
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    ${compra.total.toFixed(2)}
-                  </p>
+                {/* Totales */}
+                <div className="space-y-2 pt-4 border-t">
+                  <div className="flex justify-between text-gray-700">
+                    <span>Subtotal:</span>
+                    <span className="font-semibold">
+                      ${(compras[0].total / 1.21).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
+                    <span>IVA:</span>
+                    <span className="font-semibold">
+                      ${(compras[0].total - compras[0].total / 1.21).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
+                    <span>Envío:</span>
+                    <span className="font-semibold">$50.00</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
+                    <span>Total pagado:</span>
+                    <span>${compras[0].total.toFixed(2)}</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Preview de productos */}
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex gap-2 overflow-x-auto">
-                {compra.items.slice(0, 3).map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex-shrink-0 text-sm text-gray-600"
-                  >
-                    {item.producto_titulo} (x{item.cantidad})
-                  </div>
-                ))}
-                {compra.items.length > 3 && (
-                  <div className="flex-shrink-0 text-sm text-gray-500">
-                    +{compra.items.length - 3} más
-                  </div>
-                )}
-              </div>
-            </div>
+              </>
+            )}
           </Card>
-        ))}
+        </div>
       </div>
     </div>
   );
