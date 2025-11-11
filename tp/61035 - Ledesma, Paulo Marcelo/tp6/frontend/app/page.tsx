@@ -1,9 +1,7 @@
 'use client';
-
 import { useEffect, useState } from 'react';
-import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
-import { Navbar } from './components/Navbar';
+import { Carrito } from './components/Carrito';
 
 interface Producto {
   id: number;
@@ -16,71 +14,101 @@ interface Producto {
   imagen: string;
 }
 
-export default function Page() {
+export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [productosFiltrados, setProductosFiltrados] = useState<Producto[]>([]);
-  const [usuario, setUsuario] = useState<{ nombre: string } | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [categorias, setCategorias] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busqueda, setBusqueda] = useState('');
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     const fetchProductos = async () => {
+      setLoading(true);
       try {
-        const data = (await obtenerProductos()) as Producto[];
+        const res = await fetch(`${API_URL}/productos`);
+        const data: Producto[] = await res.json();
         setProductos(data || []);
         setProductosFiltrados(data || []);
+        const cats = Array.from(new Set(data.map((p) => p.categoria)));
+        setCategorias(cats);
       } catch (err) {
-        console.error('Error al obtener productos:', err);
-        setProductos([]);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProductos();
-
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (token) setUsuario({ nombre: 'Usuario demo' });
   }, []);
 
-  const handleSearch = (query: string) => {
-    if (!query) {
-      setProductosFiltrados(productos);
-      return;
-    }
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const queryParams = new URLSearchParams();
+    if (busqueda.trim()) queryParams.append('buscar', busqueda.trim());
+    if (categoriaSeleccionada) queryParams.append('categoria', categoriaSeleccionada);
 
-    const filtrados = productos.filter((p) =>
-      `${p.titulo} ${p.categoria}`.toLowerCase().includes(query)
-    );
-    setProductosFiltrados(filtrados);
+    try {
+      const res = await fetch(`${API_URL}/productos?${queryParams.toString()}`);
+      const data: Producto[] = await res.json();
+      setProductosFiltrados(data || []);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center text-gray-600">
-        Cargando productos...
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 to-sky-100 p-8">
-      <Navbar onSearch={handleSearch} />
+    <main className="flex flex-col gap-6 p-6 min-h-screen">
+      <div className="flex gap-6">
+        <div className="flex-1">
+          <form onSubmit={handleSearch} className="flex gap-2 mb-6 flex-wrap items-center">
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar productos..."
+              className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+            />
+            <select
+              value={categoriaSeleccionada}
+              onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+            >
+              <option value="">Todas las categorías</option>
+              {categorias.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <button type="submit" className="bg-sky-600 text-white px-4 py-2 rounded-lg">
+              Buscar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setBusqueda('');
+                setCategoriaSeleccionada('');
+                setProductosFiltrados(productos);
+              }}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg"
+            >
+              Mostrar todos
+            </button>
+          </form>
 
-      <div className="flex gap-6 items-start mt-6">
-        <section className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productosFiltrados.length === 0 ? (
-            <p className="text-center text-gray-500 col-span-full">
-              No se encontraron productos
-            </p>
-          ) : (
-            productosFiltrados.map((producto) => (
-              <ProductoCard key={producto.id} producto={producto} />
-            ))
-          )}
-        </section>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {loading ? (
+              <p>Cargando productos...</p>
+            ) : productosFiltrados.length === 0 ? (
+              <p>No se encontraron productos</p>
+            ) : (
+              productosFiltrados.map((p) => <ProductoCard key={p.id} producto={p} />)
+            )}
+          </div>
+        </div>
 
         <aside className="w-80">
-          {/* Aquí luego irá tu componente <Carrito /> */}
+          <Carrito />
         </aside>
       </div>
     </main>

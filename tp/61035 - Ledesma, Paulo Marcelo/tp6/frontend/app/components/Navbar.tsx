@@ -1,72 +1,80 @@
-'use client';
-import Link from "next/link";
-import { useState } from "react";
+"use client";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-interface NavbarProps {
-  onSearch: (query: string) => void;
-}
+export default function Navbar() {
+  const [isLogged, setIsLogged] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return Boolean(localStorage.getItem('tp6_token'));
+  });
 
-export const Navbar = ({ onSearch }: NavbarProps) => {
-  const [isLogged, setIsLogged] = useState(false);
-  const [busqueda, setBusqueda] = useState("");
+  const [userName, setUserName] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem('tp6_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        return u?.nombre || u?.email || null;
+      }
+    } catch {
+      // ignore parse errors
+    }
+    return null;
+  });
 
-  const handleBuscar = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    onSearch(busqueda.trim().toLowerCase());
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Evitar alertas automáticas de Next.js en modo dev cuando hay mismatch de server/client
+    // (ej. "Please refresh the page and try again"). Sobrescribimos temporalmente window.alert
+  const originalAlert = window.alert.bind(window) as typeof window.alert;
+  window.alert = (message?: unknown) => {
+      try {
+        const text = String(message ?? '');
+        if (text.includes('Please refresh the page and try again')) {
+          console.debug('[Navbar] suppressed Next.js alert:', text);
+          return;
+        }
+      } catch {
+        // ignore
+      }
+      originalAlert(message);
+    };
+
+    return () => {
+      window.alert = originalAlert;
+    };
+  }, []);
+
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('tp6_token');
+      localStorage.removeItem('tp6_user');
+    }
+    setIsLogged(false);
+    setUserName(null);
+    window.location.href = '/';
   };
 
   return (
-    <nav className="w-full bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-50 flex flex-wrap justify-between items-center px-6 py-3 gap-3">
-      {/* Logo / título */}
-      <div className="text-xl font-semibold text-sky-600">
-        🛍️ TP6 E-Commerce
-      </div>
+    <nav className="w-full bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-50 flex justify-between items-center px-6 py-3">
+      <div className="text-xl font-semibold text-sky-600">🛍️ De Todo Un Poco</div>
 
-      {/* Barra de búsqueda */}
-      <form onSubmit={handleBuscar} className="flex items-center gap-2">
-        <input
-          type="text"
-          placeholder="Buscar por nombre o categoría..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="px-3 py-2 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm w-64"
-        />
-        <button
-          type="submit"
-          className="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 transition text-sm"
-        >
-          Buscar
-        </button>
-      </form>
-
-      {/* Enlaces de navegación */}
       <div className="flex gap-4 items-center">
-        <Link href="/" className="hover:text-sky-600">
-          Inicio
-        </Link>
+        <Link href="/" className="hover:text-sky-600">Inicio</Link>
         {!isLogged ? (
           <>
-            <Link href="/login" className="hover:text-sky-600">
-              Ingresar
-            </Link>
-            <Link href="/registro" className="hover:text-sky-600">
-              Crear usuario
-            </Link>
+            <Link href="/login" className="hover:text-sky-600">Ingresar</Link>
+            <Link href="/registro" className="hover:text-sky-600">Crear usuario</Link>
           </>
         ) : (
           <>
-            <Link href="/compras" className="hover:text-sky-600">
-              Mis compras
-            </Link>
-            <button
-              onClick={() => setIsLogged(false)}
-              className="text-red-500 hover:underline"
-            >
-              Cerrar sesión
-            </button>
+            <span className="text-sm text-slate-600">Hola, {userName}</span>
+            <Link href="/compras" className="hover:text-sky-600">Mis compras</Link>
+            <button onClick={handleLogout} className="text-red-500 hover:underline">Cerrar sesión</button>
           </>
         )}
       </div>
     </nav>
   );
-};
+}

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -19,12 +19,16 @@ export const Carrito = () => {
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  // Usar la misma clave que el resto de la app (tp6_token)
+  const token = typeof window !== "undefined" ? localStorage.getItem("tp6_token") : null;
 
   // ✅ Cargar el carrito
-  const fetchCarrito = async () => {
+  const fetchCarrito = useCallback(async () => {
+    // No forzar el modal de autenticación al cargar la página.
+    // Si no hay token, mostramos un carrito vacío en lugar de abrir el diálogo.
     if (!token) {
-      setShowAuthModal(true);
+      setItems([]);
+      setTotal(0);
       setLoading(false);
       return;
     }
@@ -44,11 +48,11 @@ export const Carrito = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, API_URL]);
 
   useEffect(() => {
     fetchCarrito();
-  }, []);
+  }, [fetchCarrito]);
 
   // ✅ Eliminar producto
   const eliminarItem = async (itemId: number) => {
