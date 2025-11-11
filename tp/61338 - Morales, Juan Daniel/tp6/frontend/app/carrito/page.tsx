@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Carrito } from "../../app/services/productos"; // ✅ ruta corregida
-import { Producto } from "../../app/types"; // para tipar los items
+import { useRouter } from "next/navigation";
+import { Carrito } from "../../app/services/productos";
+import { Producto } from "../../app/types";
 
-// Creamos un tipo de item del carrito basado en tu backend actual
 interface CarritoItem {
   producto_id: number;
   nombre: string;
@@ -17,8 +17,7 @@ interface CarritoItem {
 export default function CarritoPage() {
   const [carrito, setCarrito] = useState<CarritoItem[]>([]);
   const [subtotal, setSubtotal] = useState(0);
-  const [direccion, setDireccion] = useState("");
-  const [tarjeta, setTarjeta] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCarrito = async () => {
@@ -50,20 +49,8 @@ export default function CarritoPage() {
     }
   };
 
-  const handlePagar = async () => {
-    if (!direccion || !tarjeta) {
-      alert("Completá todos los campos para finalizar la compra.");
-      return;
-    }
-    try {
-      await Carrito.finalizar(direccion, tarjeta);
-      alert("Compra finalizada con éxito.");
-      setCarrito([]);
-      setDireccion("");
-      setTarjeta("");
-    } catch (err) {
-      alert("Error al finalizar la compra.");
-    }
+  const handleContinuar = () => {
+    router.push("/confirmar");
   };
 
   const handleQuitar = async (producto_id: number) => {
@@ -131,28 +118,16 @@ export default function CarritoPage() {
             </div>
 
             <div className="bg-white p-4 rounded-xl shadow space-y-3">
-              <h3 className="font-semibold text-gray-800">Finalizar compra</h3>
-              <input
-                type="text"
-                placeholder="Dirección"
-                className="w-full border rounded-md p-2"
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Tarjeta (16 dígitos)"
-                className="w-full border rounded-md p-2"
-                value={tarjeta}
-                onChange={(e) => setTarjeta(e.target.value)}
-              />
+              <h3 className="font-semibold text-gray-800">
+                ¿Querés finalizar la compra?
+              </h3>
 
               <div className="flex gap-2">
                 <button
-                  onClick={handlePagar}
+                  onClick={handleContinuar}
                   className="bg-[#0a1d37] text-white px-4 py-2 rounded-md hover:bg-blue-900"
                 >
-                  Pagar
+                  Ir a pagar
                 </button>
                 <button
                   onClick={handleCancelar}
