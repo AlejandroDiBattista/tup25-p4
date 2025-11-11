@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Producto } from "../types";
 import { Button } from "../../components/ui/button";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/ca
 
 export default function CartSidebar() {
   const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const [mounted, setMounted] = useState(false);
   const [items, setItems] = useState<{ id: number; cantidad: number }[]>(() => {
     if (typeof window !== "undefined") {
@@ -20,6 +22,23 @@ export default function CartSidebar() {
   const pendingRef = useRef<Map<number, number>>(new Map());
   const syncTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [syncing, setSyncing] = useState(false);
+  // Pequeño retraso por producto para suavizar clicks
+  const cooldownRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
+  const [cooldownIds, setCooldownIds] = useState<Set<number>>(new Set());
+
+  const startCooldown = (id: number, ms: number = 120) => {
+    const m = new Map(cooldownRef.current);
+    if (m.get(id)) clearTimeout(m.get(id)!);
+    m.set(id, setTimeout(() => {
+      const next = new Set(cooldownIds);
+      next.delete(id);
+      setCooldownIds(next);
+      m.delete(id);
+      cooldownRef.current = m;
+    }, ms));
+    cooldownRef.current = m;
+    setCooldownIds(new Set(cooldownIds).add(id));
+  };
   interface ApiCartItem { id: number; cantidad: number; nombre?: string; precio?: number }
 
   const updateLocal = (list: { id: number; cantidad: number }[], emit: boolean = true) => {
@@ -131,6 +150,7 @@ export default function CartSidebar() {
   };
 
   const inc = (id: number) => {
+    if (cooldownIds.has(id)) return;
     const next = items.map(i => ({ ...i }));
     const it = next.find(i => i.id === id);
     const p = productos.find(pr => pr.id === id);
@@ -142,9 +162,11 @@ export default function CartSidebar() {
         pendingRef.current.set(id, it.cantidad);
         scheduleSync();
       }
+      startCooldown(id);
     }
   };
   const dec = (id: number) => {
+    if (cooldownIds.has(id)) return;
     let next = items.map(i => ({ ...i }));
     const it = next.find(i => i.id === id);
     if (!it) return;
@@ -160,6 +182,7 @@ export default function CartSidebar() {
       pendingRef.current.set(id, nuevo);
       scheduleSync();
     }
+    startCooldown(id);
   };
   const clear = async () => {
     if (token) {
@@ -187,14 +210,30 @@ export default function CartSidebar() {
                 <div className="text-sm text-gray-900">Tu carrito está vacío.</div>
               ) : (
                 enriched.map(p => {
-                  const disabled = syncing; // deshabilito mientras se aplican cambios en lote
+                  const disabled = syncing || cooldownIds.has(p.id); // breve cooldown + sync en lote
                   return (
-                    <div key={p.id} className="flex items-center justify-between text-sm text-gray-900 border rounded-md p-2">
-                      <div>
-                        <div className="font-medium line-clamp-1 max-w-[160px]">{p.titulo}</div>
-                        <div className="text-xs">Cantidad: {p.cantidad}</div>
+                    <div key={p.id} className="flex items-center justify-between gap-3 text-sm text-gray-900 border rounded-md p-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                          {p.imagen ? (
+                            <Image
+                              src={`${API_URL}/${p.imagen}`}
+                              alt={p.titulo}
+                              width={40}
+                              height={40}
+                              className="object-contain w-full h-full"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">IMG</div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium line-clamp-1 max-w-[140px]" title={p.titulo}>{p.titulo}</div>
+                          <div className="text-xs">Cantidad: {p.cantidad}</div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         <Button variant="outline" size="sm" onClick={() => dec(p.id)} disabled={disabled}>-</Button>
                         <Button variant="outline" size="sm" onClick={() => inc(p.id)} disabled={disabled}>+</Button>
                         <div className="w-16 text-right">${(p.precio * p.cantidad).toFixed(2)}</div>
