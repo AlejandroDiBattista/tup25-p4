@@ -19,31 +19,31 @@ from auth.security import (
     get_usuario_actual,
     verificar_password
 )
+# --- ¡AQUÍ ESTÁ LA PRIMERA CORRECCIÓN! ---
 from schemas.carrito_schema import (
     ItemCarritoCreate,
     ItemCarritoUpdate,
     CarritoResponse,
-    ItemCarritoResponse
+    ItemCarritoResponse,
+    ItemCarritoSimpleResponse  # <-- 1. Importamos el nuevo schema simple
 )
-from services.carrito_service import CarritoService
-
-# --- Importaciones para Compra (Commit 5 y 6) ---
-from schemas.compra_schema import CompraCreate, CompraResponse, CompraResumenResponse # <--- Añadido
-from services.compra_service import CompraService
 # ---
+from services.carrito_service import CarritoService
+from schemas.compra_schema import CompraCreate, CompraResponse, CompraResumenResponse
+from services.compra_service import CompraService
 
 app = FastAPI(title="Tienda API")
 
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
-# Configurar CORS
+# Configuración de CORS (ya estaba correcta)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"], 
+    allow_headers=["*", "Authorization", "Content-Type"],
 )
 
 @app.on_event("startup")
@@ -144,9 +144,10 @@ async def obtener_carrito(
 ):
     return await CarritoService.obtener_carrito(session, usuario)
 
+# --- ¡AQUÍ ESTÁ LA SEGUNDA CORRECCIÓN! ---
 @app.post(
     "/carrito",
-    response_model=ItemCarritoResponse, 
+    response_model=ItemCarritoSimpleResponse, # <-- 2. Cambiamos al schema simple
     status_code=status.HTTP_201_CREATED, 
     tags=["Carrito"]
 )
@@ -155,12 +156,15 @@ async def agregar_al_carrito(
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
+    # Esta función devuelve un ItemCarrito (simple), que ahora SÍ coincide
+    # con el response_model 'ItemCarritoSimpleResponse'.
     return await CarritoService.agregar_producto(
         session, 
         usuario, 
         item.producto_id, 
         item.cantidad
     )
+# ---
 
 @app.delete(
     "/carrito/{producto_id}",
@@ -182,7 +186,7 @@ async def quitar_del_carrito(
 
 @app.put(
     "/carrito/{producto_id}",
-    response_model=ItemCarritoResponse, 
+    response_model=ItemCarritoResponse, # <-- Este (PUT) puede seguir usando el complejo
     tags=["Carrito"]
 )
 async def actualizar_cantidad_carrito(
@@ -228,10 +232,6 @@ async def obtener_historial_compras(
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    """
-    (GET /compras)
-    Ver resumen de compras del usuario.
-    """
     return await CompraService.obtener_historial_compras(session, usuario)
 
 @app.get("/compras/{id}", response_model=CompraResponse, tags=["Compra"])
@@ -240,10 +240,6 @@ async def obtener_detalle_compra(
     usuario: Usuario = Depends(get_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    """
-    (GET /compras/{id})
-    Ver detalle de una compra específica.
-    """
     return await CompraService.obtener_detalle_compra(session, usuario, id)
 
 # ---

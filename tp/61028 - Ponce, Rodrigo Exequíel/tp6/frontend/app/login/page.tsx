@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from '../context/AuthContext'; // <-- ¡1. IMPORTAMOS EL CEREBRO!
 
-// --- ESTA ES LA PARTE CORREGIDA ---
-// Usamos el alias '@' que configura shadcn/ui
-import { Button } from "@/components/ui/button";
+// (Importaciones de shadcn/ui)
+import { Button } from '../../components/button';
 import {
   Card,
   CardContent,
@@ -14,23 +14,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-// --- FIN DE LA CORRECCIÓN ---
+} from '../../components/card';
+import { Input } from '../../components/input';
+import { Label } from '../../components/label';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { login } = useAuth(); // <-- 2. OBTENEMOS LA FUNCIÓN 'login' DEL CEREBRO
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     const formBody = new URLSearchParams();
-    formBody.append('username', email); // El campo se llama 'username' en OAuth2
+    formBody.append('username', email);
     formBody.append('password', password);
 
     try {
@@ -48,7 +48,14 @@ export default function LoginPage() {
         throw new Error(data.detail || "Email o contraseña incorrectos");
       }
       
-      localStorage.setItem("token", data.access_token);
+      // --- 3. ¡LA CORRECCIÓN! ---
+      // Ya no usamos localStorage.setItem() aquí.
+      // Usamos la función del "cerebro", que hace AMBAS cosas:
+      // 1. Guarda el token en el estado.
+      // 2. Guarda el token en localStorage.
+      login(data.access_token); 
+      // --- FIN DE LA CORRECCIÓN ---
+
       router.push("/"); 
 
     } catch (err) {
@@ -56,6 +63,7 @@ export default function LoginPage() {
     }
   };
 
+  // ... (El resto de tu 'return' JSX es idéntico y está perfecto)
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">

@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-// Usamos el alias '@' que configura shadcn/ui
-import { Button } from "@/components/ui/button";
+// --- ¡RUTAS RELATIVAS CORREGIDAS! ---
+import { Button } from '../../components/button';
 import {
   Card,
   CardContent,
@@ -13,11 +13,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '../../components/card';
+import { Input } from '../../components/input';
+import { Label } from '../../components/label';
+// --- FIN DE LA CORRECCIÓN ---
 
 export default function RegistrarPage() {
+  // ... (el resto de tu archivo es idéntico y está perfecto) ...
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
