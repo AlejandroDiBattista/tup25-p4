@@ -1,8 +1,17 @@
-import { obtenerProductos } from './services/productos';
-import ProductoCard from './components/ProductoCard';
+import { obtenerProductos } from "./services/productos";
+import ProductoCard from "./components/ProductoCard";
+
+// Definimos el tipo de producto
+type Producto = {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  imagen?: string;
+};
 
 export default async function Home() {
-  const productos = await obtenerProductos();
+  const productos: Producto[] = await obtenerProductos();
 
   return (
     <div className="min-h-screen bg-gray-50">
