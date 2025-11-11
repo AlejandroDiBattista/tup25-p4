@@ -81,17 +81,23 @@ export async function registrar(
 }
 
 export async function iniciarSesion(email: string, password: string) {
-  const data = await apiForm<{ token: string; usuario: unknown }>(
+  const data = await apiForm<{ token: string; usuario: { id: number; nombre: string; email: string } }>(
     "/iniciar-sesion",
     { email, password }
   );
-  if (typeof window !== "undefined") localStorage.setItem("token", data.token);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+  }
   return data;
 }
 
 export async function cerrarSesion() {
   await apiForm("/cerrar-sesion", {});
-  if (typeof window !== "undefined") localStorage.removeItem("token");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+  }
 }
 
 /* =======================
@@ -199,3 +205,18 @@ export const Compras = {
   listar: listarCompras,
   detalle: detalleCompra,
 };
+
+/* =======================
+ * Utils de sesión
+ * ======================= */
+
+export function getUsuarioActual(): { nombre: string; email: string } | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem("usuario");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}

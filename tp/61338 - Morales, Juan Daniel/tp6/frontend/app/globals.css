@@ -1,38 +1,54 @@
 @import "tailwindcss";
 
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primario: #001f3f;
+  --color-primario-hover: #003366;
+  --background: #f8fafc;
+  --foreground: #111827;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
 }
 
+/* --- Layout base --- */
+.container {
+  @apply max-w-6xl mx-auto px-4;
+}
 
-.container { @apply max-w-6xl mx-auto px-4; }
-.btn { @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 border border-gray-300 hover:bg-gray-50; }
-.input { @apply w-full rounded-lg border px-3 py-2 border-gray-300; }
-.card { @apply rounded-2xl border border-gray-200 p-4 shadow-sm; }
+/* --- Botones --- */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 
+  font-medium text-white bg-[var(--color-primario)] 
+  hover:bg-[var(--color-primario-hover)] transition-colors;
+}
 
+.btn-outline {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+  border border-[var(--color-primario)] text-[var(--color-primario)]
+  hover:bg-[var(--color-primario)] hover:text-white transition-colors;
+}
 
-:root.dark .btn { @apply border-gray-700 hover:bg-gray-900; }
-:root.dark .input { @apply border-gray-700 bg-gray-950; }
-:root.dark .card { @apply border-gray-800; }
+/* --- Inputs y tarjetas --- */
+.input {
+  @apply w-full rounded-lg border border-gray-300 px-3 py-2 
+  focus:border-[var(--color-primario)] focus:ring-[var(--color-primario)] focus:ring-1 outline-none;
+}
+
+.card {
+  @apply rounded-2xl border border-gray-200 p-4 shadow-sm bg-white;
+}
+
+/* --- Títulos --- */
+h1, h2, h3 {
+  @apply text-[var(--color-primario)] font-bold;
+}
