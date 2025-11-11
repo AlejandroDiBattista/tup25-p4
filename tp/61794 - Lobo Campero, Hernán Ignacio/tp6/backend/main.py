@@ -3,8 +3,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
 from pathlib import Path
+from database import create_db_and_tables, engine
+from models import Usuario, Producto, Carrito, ItemCarrito, Compra, ItemCompra
+from sqlmodel import Session
 
-app = FastAPI(title="API Productos")
+app = FastAPI(title="API Venti Indumentaria")
+
+# Crear las tablas de la base de datos al iniciar
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    print("✓ Base de datos iniciada correctamente")
 
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
@@ -26,7 +35,7 @@ def cargar_productos():
 
 @app.get("/")
 def root():
-    return {"mensaje": "API de Productos - use /productos para obtener el listado"}
+    return {"mensaje": "API de Venti Indumentaria - use /productos para obtener el listado"}
 
 @app.get("/productos")
 def obtener_productos():
