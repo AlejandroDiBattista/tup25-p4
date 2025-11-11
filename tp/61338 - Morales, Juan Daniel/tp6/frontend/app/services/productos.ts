@@ -1,15 +1,146 @@
-import { Producto } from '../types';
+import { Producto } from "../types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-export async function obtenerProductos(): Promise<Producto[]> {
-  const response = await fetch(`${API_URL}/productos`, {
-    cache: 'no-store'
+function authHeaders(): HeadersInit {
+  if (typeof window === "undefined") return {};
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+async function apiGET<T>(path: string, opts: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    cache: "no-store",
+    ...opts,
+    headers: { ...(opts.headers || {}), ...authHeaders() },
   });
-  
-  if (!response.ok) {
-    throw new Error('Error al obtener productos');
-  }
-  
-  return response.json();
+  if (!res.ok) throw new Error(await safeText(res, "Error en la solicitud"));
+  return res.json();
+}
+
+async function apiForm<T>(path: string, data: Record<string, any>): Promise<T> {
+  const fd = new FormData();
+  Object.entries(data).forEach(([k, v]) => fd.append(k, String(v)));
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    body: fd,
+    headers: { ...authHeaders() },
+  });
+  if (!res.ok) throw new Error(await safeText(res, "Error en la solicitud"));
+  return res.json();
+}
+
+async function apiDELETE<T = any>(path: string): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "DELETE",
+    headers: { ...authHeaders() },
+  });
+  if (!res.ok) throw new Error(await safeText(res, "Error en la solicitud"));
+  return (res.status === 204 ? (undefined as unknown as T) : res.json());
+}
+
+async function safeText(res: Response, fallback: string) {
+  try { return await res.text(); } catch { return fallback; }
+}
+
+/* =======================
+ * Productos
+ * ======================= */
+
+export async function obtenerProductos(
+  q?: string,
+  categoria?: string
+): Promise<Producto[]> {
+  const qs = new URLSearchParams();
+  if (q) qs.set("q", q);
+  if (categoria) qs.set("categoria", categoria);
+  return apiGET<Producto[]>(`/productos?${qs.toString()}`);
+}
+
+export async function obtenerProducto(id: number): Promise<Producto> {
+  return apiGET<Producto>(`/productos/${id}`);
+}
+
+/* =======================
+ * Auth
+ * ======================= */
+
+export async function registrar(nombre: string, email: string, password: string) {
+  return apiForm("/registrar", { nombre, email, password });
+}
+
+export async function iniciarSesion(email: string, password: string) {
+  const data = await apiForm<{ token: string; usuario: any }>("/iniciar-sesion", {
+    email,
+    password,
+  });
+  if (typeof window !== "undefined") localStorage.setItem("token", data.token);
+  return data;
+}
+
+export async function cerrarSesion() {
+  await apiForm("/cerrar-sesion", {});
+  if (typeof window !== "undefined") localStorage.removeItem("token");
+}
+
+/* =======================
+ * Carrito
+ * ======================= */
+
+export async function verCarrito() {
+  return apiGET<{
+    carrito_id: number;
+    estado: string;
+    items: Array<{
+      producto_id: number;
+      nombre: string;
+      cantidad: number;
+      precio_unitario: number;
+      subtotal: number;
+    }>;
+    subtotal: number;
+    iva: number;
+    envio: number;
+    total: number;
+  }>("/carrito");
+}
+
+export async function agregarAlCarrito(producto_id: number, cantidad = 1) {
+  return apiForm("/carrito", { producto_id, cantidad });
+}
+
+export async function quitarDelCarrito(producto_id: number) {
+  return apiDELETE(`/carrito/${producto_id}`);
+}
+
+export async function cancelarCarrito() {
+  return apiForm("/carrito/cancelar", {});
+}
+
+export async function finalizarCompra(direccion: string, tarjeta: string) {
+  return apiForm<{ ok: boolean; compra_id: number; total: number; envio: number }>(
+    "/carrito/finalizar",
+    { direccion, tarjeta }
+  );
+}
+
+/* =======================
+ * Compras
+ * ======================= */
+
+export async function listarCompras() {
+  return apiGET<
+    Array<{ id: number; fecha: string; direccion: string; total: number; envio: number }>
+  >("/compras");
+}
+
+export async function detalleCompra(id: number) {
+  return apiGET<{
+    id: number;
+    fecha: string;
+    direccion: string;
+    total: number;
+    envio: number;
+    items: Array<{ producto_id: number; nombre: string; cantidad: number; precio_unitario: number }>;
+  }>(`/compras/${id}`);
 }
