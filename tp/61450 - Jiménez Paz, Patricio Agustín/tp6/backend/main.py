@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timedelta
 from models import Producto, Usuario
-from schemas import UsuarioRegistro, UsuarioLogin
+from schemas import UsuarioRegistro, UsuarioLogin, ProductoCreateDTO, ProductoUpdateDTO
 from auth import hash_password, verify_password, generar_token, obtener_usuario_actual, verificar_no_autenticado
 from database import get_session, inicializar_tablas, engine
 
@@ -126,10 +126,100 @@ def cerrar_sesion(
     return {"mensaje": "Sesión cerrada exitosamente"}
 
 @app.get("/productos")
-def obtener_productos():
-    with Session(engine) as session:
-        productos = session.exec(select(Producto)).all()
-        return productos
+def obtener_productos(
+    buscar: str | None = None,
+    categoria: str | None = None,
+    session: Session = Depends(get_session)
+):
+    query = select(Producto)
+    
+    if buscar:
+        buscar_lower = f"%{buscar.lower()}%"
+        query = query.where(
+            (Producto.titulo.ilike(buscar_lower)) | 
+            (Producto.descripcion.ilike(buscar_lower))
+        )
+    
+    if categoria:
+        query = query.where(Producto.categoria.ilike(f"%{categoria}%"))
+    
+    productos = session.exec(query).all()
+    return productos
+
+
+@app.get("/productos/{producto_id}")
+def obtener_producto_por_id(producto_id: int, session: Session = Depends(get_session)):
+    producto = session.get(Producto, producto_id)
+    
+    if not producto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Producto no encontrado"
+        )
+    
+    return producto
+
+
+@app.post("/productos", status_code=status.HTTP_201_CREATED)
+def crear_producto(
+    producto_data: ProductoCreateDTO,
+    session: Session = Depends(get_session),
+    usuario: Usuario = Depends(obtener_usuario_actual)
+):
+    nuevo_producto = Producto(**producto_data.model_dump())
+    
+    session.add(nuevo_producto)
+    session.commit()
+    session.refresh(nuevo_producto)
+    
+    return nuevo_producto
+
+
+@app.put("/productos/{producto_id}")
+def actualizar_producto(
+    producto_id: int,
+    producto_data: ProductoUpdateDTO,
+    session: Session = Depends(get_session),
+    usuario: Usuario = Depends(obtener_usuario_actual)
+):
+    producto = session.get(Producto, producto_id)
+    
+    if not producto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Producto no encontrado"
+        )
+    
+    datos_actualizacion = producto_data.model_dump(exclude_unset=True)
+    for key, value in datos_actualizacion.items():
+        setattr(producto, key, value)
+    
+    session.add(producto)
+    session.commit()
+    session.refresh(producto)
+    
+    return producto
+
+
+@app.delete("/productos/{producto_id}")
+def eliminar_producto(
+    producto_id: int,
+    session: Session = Depends(get_session),
+    usuario: Usuario = Depends(obtener_usuario_actual)
+):
+    producto = session.get(Producto, producto_id)
+    
+    if not producto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Producto no encontrado"
+        )
+    
+    session.delete(producto)
+    session.commit()
+    
+    return {"mensaje": "Producto eliminado exitosamente", "id": producto_id}
+
 
 if __name__ == "__main__":
     import uvicorn
