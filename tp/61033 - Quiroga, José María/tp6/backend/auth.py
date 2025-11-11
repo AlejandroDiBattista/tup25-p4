@@ -12,7 +12,8 @@ SECRET_KEY = "change-this-secret-for-prod"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use pbkdf2_sha256 to avoid native bcrypt dependency issues on some systems
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/iniciar-sesion")
 
 # Simple in-memory token blacklist for logout (exercise/demo only)

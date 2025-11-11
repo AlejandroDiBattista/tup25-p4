@@ -3,10 +3,10 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from db import get_session
 from core_models import User
-from auth import get_password_hash, verify_password, create_access_token, revoke_token
+from auth import get_password_hash, verify_password, create_access_token, revoke_token, oauth2_scheme
 from fastapi.security import OAuth2PasswordRequestForm
 
-router = APIRouter()
+router = APIRouter(tags=["Usuarios"]) 
 
 
 class RegisterSchema(BaseModel):
@@ -39,29 +39,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = D
 
 
 @router.post("/cerrar-sesion")
-def logout(token: str = Depends(OAuth2PasswordRequestForm), session: Session = Depends(get_session)):
-    # Simpler: expect token in form password field? For demo we accept form but in practice use Authorization header
-    # Instead accept a bearer token string in 'password' field of form to revoke
-    t = token.password
-    revoke_token(t)
+def logout(token: str = Depends(oauth2_scheme)):
+    """Cerrar sesión: revoca el token JWT recibido en el header Authorization: Bearer <token>"""
+    revoke_token(token)
     return {"ok": True}
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 
-router = APIRouter(prefix="/users", tags=["Usuarios"])
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-fake_users_db = {
-    "admin": {"username": "admin", "password": "1234"},
-    "user": {"username": "user", "password": "abcd"},
-}
-
-@router.post("/iniciar-sesion")
-def login(data: LoginRequest):
-    user = fake_users_db.get(data.username)
-    if not user or user["password"] != data.password:
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    return {"mensaje": "Inicio de sesión exitoso", "usuario": data.username}
