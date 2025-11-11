@@ -16,7 +16,7 @@ export default function CheckoutPage() {
             <input type="text" className="w-full mb-4 p-2 border rounded" placeholder="Dirección" required />
             <label className="block mb-2 text-sm font-medium">Tarjeta</label>
             <input type="text" className="w-full mb-6 p-2 border rounded" placeholder="Tarjeta" required />
-            <button type="submit" className="w-full bg-blue-700 text-white py-2 rounded font-semibold">Confirmar compra</button>
+            <button type="submit" className="w-full bg-blue-700 text-white py-2 rounded font-semibold active:scale-95">Confirmar compra</button>
           </form>
         </div>
       </div>

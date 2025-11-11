@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
@@ -12,9 +12,13 @@ import hashlib
 import json
 from pathlib import Path
 
-
 app = FastAPI(title="API Productos")
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+
+@app.get("/usuarios")
+def listar_usuarios(session: Session = Depends(get_session)):
+    usuarios = session.exec(select(Usuario)).all()
+    return usuarios
 
 app.add_middleware(
     CORSMiddleware,
@@ -69,22 +73,52 @@ def startup():
 # ENDPOINTS
 
 @app.post("/registrar")
-def registrar(nombre: str, email: str, password: str, session: Session = Depends(get_session)):
+async def registrar(request: Request, session: Session = Depends(get_session)):
+    # Permitir tanto form-data como JSON
+    if request.headers.get("content-type", "").startswith("application/json"):
+        data = await request.json()
+        nombre = data.get("nombre")
+        email = data.get("email")
+        password = data.get("password")
+    else:
+        form = await request.form()
+        nombre = form.get("nombre")
+        email = form.get("email")
+        password = form.get("password")
+    print(f"[REGISTRO] Recibido: nombre={nombre}, email={email}")
     if session.exec(select(Usuario).where(Usuario.email == email)).first():
+        print("[REGISTRO] Email ya registrado")
         raise HTTPException(status_code=400, detail="Email ya registrado")
     usuario = Usuario(nombre=nombre, email=email, password=hash_password(password))
     session.add(usuario)
     session.commit()
     session.refresh(usuario)
+    print(f"[REGISTRO] Usuario creado: {usuario}")
     return {"id": usuario.id, "email": usuario.email}
 
 @app.post("/iniciar-sesion")
-def iniciar_sesion(email: str, password: str, session: Session = Depends(get_session)):
+async def iniciar_sesion(request: Request, session: Session = Depends(get_session)):
+    # Permitir tanto form-data como JSON
+    if request.headers.get("content-type", "").startswith("application/json"):
+        data = await request.json()
+        email = data.get("email")
+        password = data.get("password")
+    else:
+        form = await request.form()
+        email = form.get("email")
+        password = form.get("password")
+    print(f"[LOGIN] Email recibido: {email}")
     usuario = session.exec(select(Usuario).where(Usuario.email == email)).first()
-    if not usuario or not verify_password(password, usuario.password):
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    print(f"[LOGIN] Usuario encontrado: {usuario}")
+    if not usuario:
+        print("[LOGIN] Usuario no registrado")
+        raise HTTPException(status_code=404, detail="No se encontró ningún usuario registrado con ese email")
+    if not verify_password(password, usuario.password):
+        print("[LOGIN] Contraseña incorrecta")
+        raise HTTPException(status_code=401, detail="Contraseña incorrecta")
     token = create_jwt(usuario.id)
-    return {"access_token": token, "token_type": "bearer"}
+    print("[LOGIN] Login exitoso")
+    return {"access_token": token, "token_type": "bearer", "nombre": usuario.nombre, "email": usuario.email}
 
 @app.get("/productos")
 def listar_productos(buscar: Optional[str] = None, categoria: Optional[str] = None, session: Session = Depends(get_session)):

@@ -1,6 +1,11 @@
+"use client";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
+const NavBar = dynamic(() => import("../components/NavBar"), { ssr: false });
+
+export default function RegisterPage() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +19,10 @@ import { useRouter } from "next/navigation";
       body: JSON.stringify({ nombre, email, password })
     });
     if (res.ok) {
-      router.push("/");
+      // Simulación: guardar usuario en localStorage
+  localStorage.setItem("usuario", JSON.stringify({ nombre, email }));
+  window.dispatchEvent(new Event('storage'));
+  router.push("/");
     } else {
       alert("Error al registrarse");
     }
@@ -22,14 +30,7 @@ import { useRouter } from "next/navigation";
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-gray-100 border-b border-gray-300 shadow-sm px-8 py-4 flex items-center justify-between">
-        <div className="font-bold text-xl">TP6 Shop</div>
-        <div className="flex gap-4 items-center">
-          <a href="/" className="font-bold text-gray-700 hover:text-blue-600 hover:underline transition">Productos</a>
-          <a href="/login" className="font-bold text-gray-700 hover:text-blue-600 hover:underline transition">Ingresar</a>
-          <a href="/register" className="bg-blue-600 px-4 py-2 rounded font-bold text-white shadow hover:bg-transparent hover:text-blue-600 border border-blue-600 transition">Crear cuenta</a>
-        </div>
-      </nav>
+      <NavBar />
       <div className="flex items-center justify-center py-16">
         <form className="bg-white p-8 rounded shadow-md w-full max-w-md" onSubmit={handleSubmit}>
           <h2 className="text-2xl font-bold mb-6 text-center">Crear cuenta</h2>
@@ -39,7 +40,7 @@ import { useRouter } from "next/navigation";
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full mb-5 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition" placeholder="Correo" required />
           <label className="block mb-2 text-base font-semibold text-gray-700">Contraseña</label>
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full mb-7 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition" placeholder="Contraseña" required />
-          <button type="submit" className="w-full bg-blue-700 text-white py-3 rounded-xl font-bold border border-blue-700 shadow hover:bg-transparent hover:text-blue-700 transition">Registrarme</button>
+          <button type="submit" className="w-full bg-blue-700 text-white py-3 rounded-xl font-bold border border-blue-700 shadow hover:bg-transparent hover:text-blue-700 transition active:scale-95">Registrarme</button>
           <div className="mt-6 text-center text-base">
             ¿Ya tienes cuenta? <a href="/login" className="text-blue-600 font-semibold hover:underline">Inicia sesión</a>
           </div>

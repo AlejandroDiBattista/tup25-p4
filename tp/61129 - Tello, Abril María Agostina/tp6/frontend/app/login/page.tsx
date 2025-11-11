@@ -1,44 +1,80 @@
+
+
 "use client";
+
 import { useState } from "react";
+import NavBar from "../components/NavBar";
 import { useRouter } from "next/navigation";
+
+type ErrorState = {
+  email?: string;
+  password?: string;
+  general?: string;
+};
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<ErrorState>({});
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError({});
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
     });
     if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("usuario", JSON.stringify({ nombre: data.nombre, email: data.email }));
+      window.dispatchEvent(new Event('storage'));
       router.push("/");
     } else {
-      alert("Error al iniciar sesión");
+      let errorMsg = "Error al iniciar sesión";
+      let errorState: ErrorState = {};
+      try {
+        const error = await res.json();
+        if (typeof error === "string") {
+          errorMsg = error;
+        } else if (error.detail) {
+          errorMsg = error.detail;
+        }
+      } catch {}
+      if (res.status === 404) {
+        errorState.email = "Usuario no registrado";
+      } else if (res.status === 401) {
+        errorState.password = "Contraseña incorrecta";
+      } else {
+        errorState.general = errorMsg;
+      }
+      setError(errorState);
     }
   }
 
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-gray-100 border-b border-gray-300 shadow-sm px-8 py-4 flex items-center justify-between">
-        <div className="font-bold text-xl">TP6 Shop</div>
-        <div className="flex gap-4 items-center">
-          <a href="/" className="font-bold text-gray-700 hover:text-blue-600 hover:underline transition">Productos</a>
-          <a href="/login" className="font-bold text-gray-700 hover:text-blue-600 hover:underline transition">Ingresar</a>
-          <a href="/register" className="bg-blue-600 px-4 py-2 rounded font-bold text-white shadow hover:bg-transparent hover:text-blue-600 border border-blue-600 transition">Crear cuenta</a>
-        </div>
-      </nav>
+      <NavBar />
       <div className="flex items-center justify-center py-16">
         <form className="bg-white p-8 rounded shadow-md w-full max-w-md" onSubmit={handleSubmit}>
           <h2 className="text-2xl font-bold mb-6 text-center">Iniciar sesión</h2>
           <label className="block mb-2 text-base font-semibold text-gray-700">Correo</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full mb-5 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition" placeholder="Correo" required />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full mb-2 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition" placeholder="Correo" required />
+          {error.email && (
+            <div className="mb-4 text-left text-red-600 font-bold">{error.email}</div>
+          )}
           <label className="block mb-2 text-base font-semibold text-gray-700">Contraseña</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full mb-7 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition" placeholder="Contraseña" required />
-          <button type="submit" className="w-full bg-blue-700 text-white py-3 rounded-xl font-bold border border-blue-700 shadow hover:bg-transparent hover:text-blue-700 transition">Entrar</button>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full mb-2 px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition" placeholder="Contraseña" required />
+          {error.password && (
+            <div className="mb-4 text-left text-red-600 font-bold">{error.password}</div>
+          )}
+          {error.general && (
+            <div className="mb-4 text-center text-red-600 font-bold">{error.general}</div>
+          )}
+          <button type="submit" className="w-full bg-blue-700 text-white py-3 rounded-xl font-bold border border-blue-700 shadow hover:bg-transparent hover:text-blue-700 transition active:scale-95">Entrar</button>
           <div className="mt-6 text-center text-base">
             ¿No tienes cuenta? <a href="/register" className="text-blue-600 font-semibold hover:underline">Regístrate</a>
           </div>
