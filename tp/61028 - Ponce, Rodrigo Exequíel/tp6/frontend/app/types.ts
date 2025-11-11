@@ -9,8 +9,6 @@ export interface Producto {
   existencia: number;
 }
 
-// --- AÑADE ESTO ---
-
 // Lo que enviamos a la API (POST /carrito)
 export interface ItemCarritoCreate {
   producto_id: number;
@@ -20,7 +18,20 @@ export interface ItemCarritoCreate {
 // Lo que la API nos devuelve
 export interface ItemCarritoResponse {
   id: number;
-  carrito_id: number;
   producto_id: number;
   cantidad: number;
+  // --- ¡Campos nuevos! ---
+  nombre_producto: string;
+  precio_unitario: number;
+  subtotal: number;
+}
+
+// --- ¡NUEVA INTERFAZ! ---
+// Esta es la respuesta completa de GET /carrito
+export interface CarritoResponse {
+  id: number;
+  estado: string;
+  items: ItemCarritoResponse[]; // <-- Una lista de los items de arriba
+  total: number;
+  cantidad_items: number;
 }

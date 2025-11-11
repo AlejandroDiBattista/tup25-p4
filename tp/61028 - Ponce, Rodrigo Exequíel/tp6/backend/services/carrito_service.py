@@ -1,11 +1,16 @@
 from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
-from models.models import Carrito, ItemCarrito, Producto, Usuario # <--- Import from models.models
+from models.models import Carrito, ItemCarrito, Producto, Usuario
+
+# --- ¡IMPORTACIONES AÑADIDAS! ---
+# Importamos los "moldes" (schemas) que necesitamos devolver
+from schemas.carrito_schema import CarritoResponse, ItemCarritoResponse
+# ---
 
 class CarritoService:
     @staticmethod
-    async def obtener_carrito_activo(session: Session, usuario: Usuario) -> Carrito: # <--- Cambiado a Carrito (no opcional)
+    async def obtener_carrito_activo(session: Session, usuario: Usuario) -> Carrito:
         """Obtiene el carrito activo del usuario o crea uno nuevo si no existe"""
         query = select(Carrito).where(
             Carrito.usuario_id == usuario.id,
@@ -29,7 +34,8 @@ class CarritoService:
         cantidad: int
     ) -> ItemCarrito:
         """Agrega un producto al carrito"""
-        # Verificar que el producto existe y tiene stock
+        # (Esta función está perfecta, ya la habíamos arreglado en main.py
+        # para que devuelva un 'ItemCarritoSimpleResponse')
         producto = session.get(Producto, producto_id)
         if not producto:
             raise HTTPException(
@@ -37,7 +43,6 @@ class CarritoService:
                 detail="Producto no encontrado"
             )
         
-        # Regla: No se puede agregar si no hay existencias
         if producto.existencia <= 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -50,10 +55,8 @@ class CarritoService:
                 detail=f"No hay suficiente stock. Disponibles: {producto.existencia}"
             )
 
-        # Obtener o crear carrito activo
         carrito = await CarritoService.obtener_carrito_activo(session, usuario)
 
-        # Verificar si el producto ya está en el carrito
         query = select(ItemCarrito).where(
             ItemCarrito.carrito_id == carrito.id,
             ItemCarrito.producto_id == producto_id
@@ -61,7 +64,6 @@ class CarritoService:
         item_existente = session.exec(query).first()
 
         if item_existente:
-            # Actualizar cantidad
             nueva_cantidad = item_existente.cantidad + cantidad
             if nueva_cantidad > producto.existencia:
                 raise HTTPException(
@@ -71,7 +73,6 @@ class CarritoService:
             item_existente.cantidad = nueva_cantidad
             item = item_existente
         else:
-            # Crear nuevo item
             item = ItemCarrito(
                 carrito_id=carrito.id,
                 producto_id=producto_id,
@@ -88,8 +89,9 @@ class CarritoService:
         session: Session,
         usuario: Usuario,
         producto_id: int
-    ) -> bool: # <--- Cambiado a bool
+    ) -> bool:
         """Quita un producto del carrito. Devuelve True si se eliminó."""
+        # (Esta función está perfecta)
         carrito = await CarritoService.obtener_carrito_activo(session, usuario)
         
         query = select(ItemCarrito).where(
@@ -99,12 +101,11 @@ class CarritoService:
         item = session.exec(query).first()
         
         if not item:
-            # En lugar de lanzar 404, devolvemos False para que main.py lo maneje
             return False
         
         session.delete(item)
         session.commit()
-        return True # <--- Devuelve True al tener éxito
+        return True
 
     @staticmethod
     async def actualizar_cantidad(
@@ -112,22 +113,19 @@ class CarritoService:
         usuario: Usuario,
         producto_id: int,
         cantidad: int
-    ) -> ItemCarrito:
+    ) -> ItemCarritoResponse: # <-- ¡CAMBIO 1: Tipo de retorno corregido!
         """Actualiza la cantidad de un producto en el carrito"""
         
-        # Regla: Si la cantidad es 0, quitar el producto
-        if cantidad == 0:
+        if cantidad <= 0:
+            # (Tu lógica para borrar si la cantidad es 0 está bien)
             await CarritoService.quitar_producto(session, usuario, producto_id)
-            # Devolver un item "fantasma" o manejarlo en el frontend
-            # Para ser simple, lanzamos una excepción de que se debe borrar
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="La cantidad no puede ser 0. Use el endpoint DELETE para eliminar."
+                status_code=status.HTTP_400_BAD_REQUEST, # Aunque 200 estaría bien también
+                detail="Producto eliminado. La cantidad no puede ser 0."
             )
 
         carrito = await CarritoService.obtener_carrito_activo(session, usuario)
         
-        # Verificar que el producto existe y tiene stock
         producto = session.get(Producto, producto_id)
         if not producto:
             raise HTTPException(
@@ -149,24 +147,76 @@ class CarritoService:
         
         if not item:
             raise HTTPException(
-                status_code=status.HTTP_44_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND, # (Tenías 44, lo corregí a 404)
                 detail="Producto no encontrado en el carrito"
             )
         
         item.cantidad = cantidad
+        session.add(item) # <-- Es bueno añadirlo para la sesión
         session.commit()
         session.refresh(item)
-        return item
+        
+        # --- ¡CAMBIO 2: Devolvemos el "molde" complejo! ---
+        return ItemCarritoResponse(
+            id=item.id,
+            producto_id=item.producto_id,
+            cantidad=item.cantidad,
+            nombre_producto=producto.nombre,
+            precio_unitario=producto.precio,
+            subtotal=producto.precio * item.cantidad
+        )
+        # ---
 
     @staticmethod
     async def obtener_carrito(
         session: Session,
         usuario: Usuario
-    ) -> Carrito: # <--- Cambiado a Carrito (no opcional)
+    ) -> CarritoResponse: # <-- ¡CAMBIO 3: Tipo de retorno corregido!
         """Obtiene el carrito activo con todos sus items y cálculos"""
-        carrito = await CarritoService.obtener_carrito_activo(session, usuario)
-        # Asegúrate de que tu esquema CarritoResponse esté cargando los items
-        return carrito
+        
+        # 1. Obtener el carrito de la BD (con sus items simples)
+        carrito_db = await CarritoService.obtener_carrito_activo(session, usuario)
+        session.refresh(carrito_db, ["items"]) # Cargar los items
+        
+        items_response_list: List[ItemCarritoResponse] = []
+        total_carrito = 0.0
+        cantidad_total_items = 0
+
+        # 2. Recorrer los items y calcular los campos que faltan
+        if carrito_db.items:
+            for item in carrito_db.items:
+                # Obtener el producto para sacar su nombre y precio
+                producto = session.get(Producto, item.producto_id)
+                
+                if producto:
+                    subtotal_item = producto.precio * item.cantidad
+                    
+                    # Construir el 'ItemCarritoResponse' (el "molde" complejo)
+                    item_calculado = ItemCarritoResponse(
+                        id=item.id,
+                        producto_id=item.producto_id,
+                        cantidad=item.cantidad,
+                        nombre_producto=producto.nombre,   # <-- Campo calculado
+                        precio_unitario=producto.precio, # <-- Campo calculado
+                        subtotal=subtotal_item          # <-- Campo calculado
+                    )
+                    items_response_list.append(item_calculado)
+                    
+                    # 3. Sumar a los totales del carrito
+                    total_carrito += subtotal_item
+                    cantidad_total_items += item.cantidad
+                else:
+                    # Opcional: manejar si un producto fue borrado pero seguía en el carrito
+                    pass 
+
+        # 4. Devolver el 'CarritoResponse' final (el "molde" que main.py espera)
+        return CarritoResponse(
+            id=carrito_db.id,
+            estado=carrito_db.estado,
+            items=items_response_list,
+            total=total_carrito,
+            cantidad_items=cantidad_total_items
+        )
 
     @staticmethod
     async def vaciar_carrito(
@@ -174,18 +224,15 @@ class CarritoService:
         usuario: Usuario
     ) -> None:
         """Vacía el carrito del usuario (para cancelar compra)"""
+        # (Esta función está perfecta)
         carrito = await CarritoService.obtener_carrito_activo(session, usuario)
         
         if not carrito.items:
-            # El carrito ya está vacío
             return
 
-        # Eliminar todos los items del carrito
         query = select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
         items = session.exec(query).all()
         for item in items:
             session.delete(item)
         
-        # No cambiamos el estado, solo lo vaciamos.
-        # Cambiar el estado a "cancelado" ocurrirá al finalizar o cancelar
         session.commit()

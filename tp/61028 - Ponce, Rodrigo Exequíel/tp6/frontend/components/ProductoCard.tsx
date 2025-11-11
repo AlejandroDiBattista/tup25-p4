@@ -13,12 +13,10 @@ import {
 } from './card';
 import { Badge } from './badge';
 
-// --- 1. IMPORTACIONES NUEVAS ---
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../app/context/AuthContext'; // Para saber si el user está logueado
-import { agregarAlCarrito } from '../app/services/carrito'; // El servicio de API
-// ---
+import { useAuth } from '../app/context/AuthContext';
+import { agregarAlCarrito } from '../app/services/carrito';
 
 interface ProductoCardProps {
   producto: Producto;
@@ -26,57 +24,53 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   
-  // --- 2. HOOKS NUEVOS ---
-  const { isLoggedIn, token } = useAuth(); // Obtenemos el estado de auth y el token
-  const router = useRouter(); // Para redirigir si no está logueado
+  const { isLoggedIn, token } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // ---
+  const [success, setSuccess] = useState<string | null>(null); // <-- 1. NUEVO ESTADO DE ÉXITO
 
   const hayStock = producto.existencia > 0;
   
   const imageId = String(producto.id).padStart(4, '0');
   const imageUrl = `http://localhost:8000/imagenes/${imageId}.png`;
 
-  // --- 3. LÓGICA DEL BOTÓN "AGREGAR AL CARRITO" ---
   const handleAddToCart = async () => {
     setError(null);
-
-    // A. ¿El usuario NO inició sesión?
+    setSuccess(null); // <-- 2. Reseteamos los mensajes
+    
     if (!isLoggedIn || !token) {
       alert("Debes iniciar sesión para agregar productos al carrito.");
-      router.push('/login'); // Lo mandamos a la página de login
+      router.push('/login');
       return;
     }
 
-    // B. El usuario SÍ inició sesión
     setIsLoading(true);
     try {
-      // Llamamos a la API con el ID del producto y el token
       await agregarAlCarrito(
         {
           producto_id: producto.id,
-          cantidad: 1, // Por defecto agregamos 1
+          cantidad: 1,
         },
         token
       );
       
-      alert(`¡"${producto.nombre}" fue agregado al carrito!`);
-      // (En el futuro, aquí podrías actualizar un contador en el Navbar)
+      // alert(`¡"${producto.nombre}" fue agregado al carrito!`); // <-- 3. ELIMINAMOS EL ALERT
+      
+      setSuccess("¡Agregado al carrito!"); // <-- 4. USAMOS EL ESTADO DE ÉXITO
+      
+      router.refresh(); // <-- 5. Refrescamos el stock (esto ahora sí se ejecuta)
 
     } catch (err) {
-      // Atrapamos el error (ej. "Sin stock") que viene de la API
       if (err instanceof Error) {
         setError(err.message);
-        alert(`Error: ${err.message}`); // Mostramos el error
       } else {
         setError("Ocurrió un error desconocido.");
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // <-- 6. Esto ahora se ejecuta inmediatamente
     }
   };
-  // ---
 
   return (
     <Card className="flex flex-col justify-between overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow">
@@ -115,21 +109,23 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             )}
         </div>
         
-        {/* --- 4. BOTÓN MODIFICADO --- */}
         <Button
           className="w-full"
-          disabled={!hayStock || isLoading} // Deshabilitado si no hay stock O si está cargando
-          onClick={handleAddToCart} // Llama a nuestra nueva función async
+          disabled={!hayStock || isLoading}
+          onClick={handleAddToCart}
         >
           {isLoading 
-            ? "Agregando..." // Texto mientras carga
+            ? "Agregando..." 
             : (hayStock ? "Agregar al Carrito" : "Sin Stock")
           }
         </Button>
 
-        {/* 5. MUESTRA DE ERRORES (OPCIONAL) */}
+        {/* --- 7. MOSTRAMOS ÉXITO O ERROR --- */}
         {error && (
           <p className="text-red-500 text-sm mt-2">{error}</p>
+        )}
+        {success && (
+          <p className="text-green-500 text-sm mt-2">{success}</p>
         )}
       </CardFooter>
     </Card>
