@@ -2,18 +2,29 @@ import Image from "next/image";
 
 import type { Producto } from "@/types/product";
 
+const ASSETS_BASE_URL =
+  process.env.NEXT_PUBLIC_ASSETS_URL ?? "http://127.0.0.1:8000";
+
 interface ProductCardProps {
   producto: Producto;
 }
 
+function buildImageUrl(path: string): string {
+  if (path.startsWith("http")) {
+    return path;
+  }
+  return `${ASSETS_BASE_URL}/${path.replace(/^\//, "")}`;
+}
+
 export default function ProductCard({ producto }: ProductCardProps) {
   const agotado = producto.existencia <= 0;
+  const imageUrl = buildImageUrl(producto.imagen);
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow transition hover:shadow-md">
       <div className="relative flex h-64 items-center justify-center bg-slate-50">
         <Image
-          src={producto.imagen}
+          src={imageUrl}
           alt={producto.titulo}
           width={320}
           height={320}
