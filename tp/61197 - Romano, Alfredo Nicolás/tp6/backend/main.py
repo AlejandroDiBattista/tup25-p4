@@ -30,7 +30,11 @@ app.add_middleware(
 )
 
 # Simple session/token store (en memoria)
-sessions = {}
+import hmac
+
+# simple secret for token signing (in production use a secure env var)
+SECRET = b"super-secret-key-change-this"
+
 auth_scheme = HTTPBearer()
 
 
@@ -39,17 +43,25 @@ def hash_password(password: str) -> str:
 
 
 def create_token(user_id: int) -> str:
-    token = f"{user_id}:{uuid.uuid4().hex}"
-    sessions[token] = user_id
+    # token format: <user_id>:<hmac_hex>
+    uid = str(user_id)
+    sig = hmac.new(SECRET, uid.encode("utf-8"), hashlib.sha256).hexdigest()
+    token = f"{uid}:{sig}"
     return token
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)) -> int:
     token = credentials.credentials
-    user_id = sessions.get(token)
-    if not user_id:
+    if not token or ":" not in token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
-    return user_id
+    uid_str, sig = token.split(":", 1)
+    expected = hmac.new(SECRET, uid_str.encode("utf-8"), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(sig, expected):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    try:
+        return int(uid_str)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
 
 
 @app.on_event("startup")
@@ -68,13 +80,13 @@ def on_startup():
                 with open(ruta_productos, "r", encoding="utf-8") as f:
                     productos = json.load(f)
                     for p in productos:
+                        # nuevo modelo Producto usa 'nombre' en lugar de 'titulo'
                         prod = Producto(
-                            titulo=p.get("titulo", ""),
+                            nombre=p.get("titulo", ""),
                             descripcion=p.get("descripcion", ""),
                             precio=float(p.get("precio", 0)),
                             categoria=p.get("categoria", ""),
                             existencia=int(p.get("existencia", 0)),
-                            imagen=p.get("imagen", ""),
                         )
                         session.add(prod)
                     session.commit()
@@ -113,11 +125,7 @@ def iniciar_sesion(form: dict, session: Session = Depends(get_session)):
 
 
 @app.get('/me', response_model=UsuarioRead)
-def me(credentials: HTTPAuthorizationCredentials = Depends(auth_scheme), session: Session = Depends(get_session)):
-    token = credentials.credentials
-    user_id = sessions.get(token)
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+def me(user_id: int = Depends(get_current_user), session: Session = Depends(get_session)):
     user = session.get(Usuario, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -126,32 +134,51 @@ def me(credentials: HTTPAuthorizationCredentials = Depends(auth_scheme), session
 
 @app.post("/cerrar-sesion")
 def cerrar_sesion(credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)):
-    token = credentials.credentials
-    sessions.pop(token, None)
+    # with stateless tokens we don't track sessions in memory; just return ok
     return {"ok": True}
 
 
 # --- Productos ---
-@app.get("/productos", response_model=List[Producto])
+def _map_producto(prod: Producto) -> dict:
+    """Mapea el objeto Producto del modelo (nuevo esquema) a la forma que espera el front.
+
+    Devuelve claves: id, titulo, descripcion, precio, categoria, existencia, imagen, valoracion
+    """
+    # construir nombre de imagen asumida a partir del id si existe
+    imagen = f"imagenes/{prod.id:04d}.png" if getattr(prod, "id", None) else ""
+    return {
+        "id": prod.id,
+        "titulo": getattr(prod, "nombre", ""),
+        "descripcion": getattr(prod, "descripcion", ""),
+        "precio": getattr(prod, "precio", 0.0),
+        "categoria": getattr(prod, "categoria", ""),
+        "existencia": getattr(prod, "existencia", 0),
+        "imagen": imagen,
+        "valoracion": 0.0,
+    }
+
+
+@app.get("/productos")
 def listar_productos(q: str = None, categoria: str = None, session: Session = Depends(get_session)):
     query = select(Producto)
     if q:
         q_like = f"%{q.lower()}%"
+        # buscar en nombre (antes 'titulo') y descripcion
         query = select(Producto).where(
-            (Producto.titulo.ilike(q_like)) | (Producto.descripcion.ilike(q_like))
+            (Producto.nombre.ilike(q_like)) | (Producto.descripcion.ilike(q_like))
         )
     if categoria:
         query = query.where(Producto.categoria == categoria)
     productos = session.exec(query).all()
-    return productos
+    return [_map_producto(p) for p in productos]
 
 
-@app.get("/productos/{producto_id}", response_model=Producto)
+@app.get("/productos/{producto_id}")
 def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
     producto = session.get(Producto, producto_id)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-    return producto
+    return _map_producto(producto)
 
 
 # --- Carrito ---
@@ -178,13 +205,19 @@ def agregar_al_carrito(body: dict, user_id: int = Depends(get_current_user), ses
     item = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id, CarritoItem.producto_id == product_id)).first()
     existing_qty = item.cantidad if item else 0
     new_qty = existing_qty + cantidad
-    if producto.existencia < new_qty:
+    # validar stock disponible (producto.existencia representa stock disponible en tienda)
+    if producto.existencia < cantidad:
         raise HTTPException(status_code=400, detail="No hay suficiente stock")
+
+    # actualizar item y decrementar stock inmediatamente
     if item:
         item.cantidad = new_qty
     else:
         item = CarritoItem(carrito_id=carrito.id, producto_id=product_id, cantidad=cantidad)
         session.add(item)
+
+    # decrementar existencia por la cantidad añadida
+    producto.existencia -= cantidad
     session.commit()
     return {"ok": True}
 
@@ -197,6 +230,10 @@ def quitar_del_carrito(product_id: int, user_id: int = Depends(get_current_user)
     item = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id, CarritoItem.producto_id == product_id)).first()
     if not item:
         raise HTTPException(status_code=404, detail="Producto no en carrito")
+    # restaurar stock del producto según la cantidad en el item
+    prod = session.get(Producto, item.producto_id)
+    if prod:
+        prod.existencia += item.cantidad
     session.delete(item)
     session.commit()
     return {"ok": True}
@@ -212,10 +249,52 @@ def ver_carrito(user_id: int = Depends(get_current_user), session: Session = Dep
     for it in items:
         prod = session.get(Producto, it.producto_id)
         resultado.append({
-            "producto": prod,
+            "producto": _map_producto(prod) if prod else None,
             "cantidad": it.cantidad,
         })
     return {"items": resultado}
+
+
+@app.patch("/carrito/{product_id}")
+def ajustar_cantidad_carrito(product_id: int, body: dict, user_id: int = Depends(get_current_user), session: Session = Depends(get_session)):
+    # body: { "cantidad": N }
+    cantidad = int(body.get("cantidad", 0))
+    carrito = session.exec(select(Carrito).where(Carrito.usuario_id == user_id, Carrito.estado == "open")).first()
+    if not carrito:
+        raise HTTPException(status_code=404, detail="Carrito no encontrado")
+    item = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id, CarritoItem.producto_id == product_id)).first()
+    prod = session.get(Producto, product_id)
+    if cantidad <= 0:
+        if item:
+            # restore stock
+            if prod:
+                prod.existencia += item.cantidad
+            session.delete(item)
+            session.commit()
+        return {"ok": True}
+    if not prod:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    if not item:
+        # create item if none (only if stock available)
+        if prod.existencia < cantidad:
+            raise HTTPException(status_code=400, detail="No hay suficiente stock")
+        item = CarritoItem(carrito_id=carrito.id, producto_id=product_id, cantidad=cantidad)
+        session.add(item)
+        prod.existencia -= cantidad
+        session.commit()
+        return {"ok": True}
+
+    # ajustar existente
+    diff = cantidad - item.cantidad
+    if diff > 0:
+        if prod.existencia < diff:
+            raise HTTPException(status_code=400, detail="No hay suficiente stock")
+        prod.existencia -= diff
+    elif diff < 0:
+        prod.existencia += (-diff)
+    item.cantidad = cantidad
+    session.commit()
+    return {"ok": True}
 
 
 @app.post("/carrito/finalizar")
@@ -237,8 +316,7 @@ def finalizar_compra(body: dict, user_id: int = Depends(get_current_user), sessi
     compra_items = []
     for it in items:
         prod = session.get(Producto, it.producto_id)
-        if prod.existencia < it.cantidad:
-            raise HTTPException(status_code=400, detail=f"Producto {prod.titulo} sin stock suficiente")
+        # asumimos que la existencia ya fue descontada al agregar al carrito
         line_total = prod.precio * it.cantidad
         subtotal += line_total
         # IVA por categoría
@@ -249,7 +327,7 @@ def finalizar_compra(body: dict, user_id: int = Depends(get_current_user), sessi
         compra_items.append({
             "producto_id": prod.id,
             "cantidad": it.cantidad,
-            "nombre": prod.titulo,
+            "nombre": getattr(prod, "nombre", ""),
             "precio_unitario": prod.precio,
         })
 
@@ -262,12 +340,10 @@ def finalizar_compra(body: dict, user_id: int = Depends(get_current_user), sessi
     session.commit()
     session.refresh(compra)
 
-    # crear items de compra y decrementar stock
+    # crear items de compra (el stock ya fue descontado al agregar al carrito)
     for ci in compra_items:
         item = CompraItem(compra_id=compra.id, producto_id=ci["producto_id"], cantidad=ci["cantidad"], nombre=ci["nombre"], precio_unitario=ci["precio_unitario"])
         session.add(item)
-        prod = session.get(Producto, ci["producto_id"])
-        prod.existencia -= ci["cantidad"]
     # finalizar carrito
     carrito.estado = "finalizado"
     session.commit()
@@ -282,6 +358,10 @@ def cancelar_compra(user_id: int = Depends(get_current_user), session: Session =
         return {"ok": True}
     items = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
     for it in items:
+        # restaurar stock
+        prod = session.get(Producto, it.producto_id)
+        if prod:
+            prod.existencia += it.cantidad
         session.delete(it)
     session.commit()
     return {"ok": True}
