@@ -9,3 +9,5 @@ class Usuario(SQLModel, table=True):
     email: str = Field(unique=True, index=True, max_length=255)
     password: str
     fecha_registro: datetime = Field(default_factory=datetime.now)
+    token: Optional[str] = None
+    token_expiracion: Optional[str] = None
