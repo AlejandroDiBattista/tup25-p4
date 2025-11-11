@@ -4,14 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Auth } from "../app/services/productos";
 
+interface Usuario {
+  nombre: string;
+  email: string;
+}
+
 export default function Navbar() {
-  const [usuario, setUsuario] = useState<any | null>(null);
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const raw = localStorage.getItem("usuario");
     if (raw) {
-      setUsuario(JSON.parse(raw));
+      try {
+        const user: Usuario = JSON.parse(raw);
+        setUsuario(user);
+      } catch (e) {
+        console.error("Error al parsear usuario:", e);
+      }
     }
     setCargando(false);
   }, []);
