@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { obtenerProductos, Producto } from './services/productos';
 import ProductoCard from './components/ProductoCard';
-import CartSidebar from './components/CartSidebar';
+import CartPanel from './components/CartPanel';
 import SearchFilters from './components/SearchFilters';
 import useAuthStore from './store/auth';
 import useCartStore from './store/cart';
@@ -13,11 +13,10 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cartOpen, setCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const { user, logout } = useAuthStore();
-  const { itemCount, clearCart } = useCartStore();
+  const { clearCart } = useCartStore();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -94,19 +93,6 @@ export default function Home() {
                 Productos
               </Link>
               
-              {/* Botón del Carrito */}
-              <button
-                onClick={() => setCartOpen(true)}
-                className="relative bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                🛒 Carrito
-                {itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-                    {itemCount}
-                  </span>
-                )}
-              </button>
-              
               {user ? (
                 <>
                   <Link href="/mis-compras" className="text-gray-900 font-semibold hover:text-blue-600">
@@ -146,37 +132,42 @@ export default function Home() {
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <>
-            {/* Búsqueda y Filtros */}
-            <SearchFilters
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              categories={categories}
-              resultCount={productosFiltrados.length}
-            />
+          <div className="flex gap-6">
+            {/* Columna izquierda - Productos */}
+            <div className="flex-1">
+              {/* Búsqueda y Filtros */}
+              <SearchFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                categories={categories}
+                resultCount={productosFiltrados.length}
+              />
 
-            {/* Grid de productos */}
-            {productosFiltrados.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-6xl mb-4">🔍</p>
-                <p className="text-xl text-gray-600 mb-2">No se encontraron productos</p>
-                <p className="text-gray-500">Intenta con otros términos de búsqueda o filtros</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {productosFiltrados.map((producto) => (
-                  <ProductoCard key={producto.id} producto={producto} />
-                ))}
-              </div>
-            )}
-          </>
+              {/* Grid de productos */}
+              {productosFiltrados.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-6xl mb-4">🔍</p>
+                  <p className="text-xl text-gray-900 font-semibold mb-2">No se encontraron productos</p>
+                  <p className="text-gray-900 font-semibold">Intenta con otros términos de búsqueda o filtros</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {productosFiltrados.map((producto) => (
+                    <ProductoCard key={producto.id} producto={producto} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Columna derecha - Carrito */}
+            <div className="w-80 flex-shrink-0">
+              <CartPanel />
+            </div>
+          </div>
         )}
       </main>
-
-      {/* Cart Sidebar */}
-      <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 }
