@@ -65,6 +65,12 @@ export async function obtenerCompras(usuario_id: number) {
   return res.json();
 }
 
+export async function obtenerDetalleCompra(compra_id: number) {
+  const res = await fetch(`${API_URL}/compras/${compra_id}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("No se pudo obtener el detalle de la compra");
+  return res.json();
+}
+
 export async function obtenerProducto(id: number) {
   const res = await fetch(`${API_URL}/productos/${id}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Producto no encontrado");
