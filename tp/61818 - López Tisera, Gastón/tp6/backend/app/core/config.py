@@ -30,6 +30,12 @@ class Settings(BaseSettings):
         description="Minutes before access tokens expire.",
     )
     jwt_algorithm: str = Field(default="HS256", description="JWT signing algorithm.")
+    iva_general: float = Field(default=0.21, description="IVA general 21%")
+    iva_electronica: float = Field(default=0.10, description="IVA electrónica 10%")
+    envio_gratuito_desde: float = Field(
+        default=1000.0, description="Monto mínimo para envío gratuito"
+    )
+    costo_envio: float = Field(default=50.0, description="Costo fijo de envío")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
