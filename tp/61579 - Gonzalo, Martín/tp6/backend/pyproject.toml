@@ -1,18 +1,27 @@
 [project]
-name = "backend"
+# --- Sección Principal de Configuración ---
+name = "backend-tp6"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.13"
+description = "API para el Trabajo Práctico 6 - E-Commerce"
 dependencies = [
-    "fastapi>=0.115.5",
-    "sqlmodel>=0.0.27",
-    "uvicorn[standard]>=0.32.1",
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.20.0",
+    "sqlmodel>=0.0.14",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "aiofiles>=23.1.0",
+    "python-multipart>=0.0.7"
 ]
 
-[dependency-groups]
-dev = [
-    "httpx>=0.28.1",
-    "pytest>=8.4.2",
-    "pytest-asyncio>=1.2.0",
-]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.uvicorn]
+host = "127.0.0.1"
+port = 8000
+reload = true
+
+[tool.setuptools]
+py_modules = ["main"]
+packages = ["models"]
