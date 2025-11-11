@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from database import create_db_and_tables, engine
 from models import Usuario, Producto, Carrito, ItemCarrito, Compra, ItemCompra
-from routes import auth_router
+from routes import auth_router, productos_router
 from sqlmodel import Session
 
 app = FastAPI(title="API Venti Indumentaria")
@@ -30,6 +30,7 @@ app.add_middleware(
 
 # Incluir rutas
 app.include_router(auth_router)
+app.include_router(productos_router)
 
 # Cargar productos desde el archivo JSON
 def cargar_productos():
