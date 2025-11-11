@@ -82,11 +82,13 @@ export function SiteHeader({ active = "products" }: HeaderProps) {
           <Link className={navLinkClasses(active === "products")} href="/">
             Productos
           </Link>
-          <Link className={navLinkClasses(active === "orders")} href="/compras">
-            Mis compras
-          </Link>
+          {usuario && (
+            <Link className={navLinkClasses(active === "orders")} href="/compras">
+              Mis compras
+            </Link>
+          )}
           {usuario ? (
-            <span className="text-sm font-semibold text-slate-900">{usuario.nombre}</span>
+            <span className="text-sm font-semibold text-slate-600">{usuario.nombre}</span>
           ) : (
             <Link className={navLinkClasses(active === "login")} href="/login">
               Ingresar
