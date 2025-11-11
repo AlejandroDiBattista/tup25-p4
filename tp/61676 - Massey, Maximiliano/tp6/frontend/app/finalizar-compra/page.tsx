@@ -111,8 +111,8 @@ export default function FinalizarCompra() {
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-bold text-green-600 mb-2">¡Compra Exitosa!</h2>
-          <p className="text-gray-600 mb-6">Tu pedido ha sido procesado correctamente</p>
-          <p className="text-sm text-gray-500">Redirigiendo a tus compras...</p>
+          <p className="text-gray-900 font-semibold mb-6">Tu pedido ha sido procesado correctamente</p>
+          <p className="text-sm text-gray-900 font-semibold">Redirigiendo a tus compras...</p>
         </div>
       </div>
     );
@@ -123,8 +123,8 @@ export default function FinalizarCompra() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
           <div className="text-6xl mb-4">🛒</div>
-          <h2 className="text-2xl font-bold mb-2">Carrito Vacío</h2>
-          <p className="text-gray-600 mb-6">No tienes productos en tu carrito</p>
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Carrito Vacío</h2>
+          <p className="text-gray-900 font-semibold mb-6">No tienes productos en tu carrito</p>
           <Link
             href="/"
             className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
@@ -149,18 +149,18 @@ export default function FinalizarCompra() {
             </Link>
             
             <nav className="flex items-center gap-4">
-              <Link href="/" className="text-gray-700 hover:text-blue-600">
+              <Link href="/" className="text-gray-900 font-semibold hover:text-blue-600">
                 Productos
               </Link>
-              <Link href="/mis-compras" className="text-gray-700 hover:text-blue-600">
+              <Link href="/mis-compras" className="text-gray-900 font-semibold hover:text-blue-600">
                 Mis compras
               </Link>
-              <span className="text-gray-700">
+              <span className="text-gray-900 font-semibold">
                 {user?.nombre}
               </span>
               <button
                 onClick={handleLogout}
-                className="text-gray-700 hover:text-blue-600"
+                className="text-gray-900 font-semibold hover:text-blue-600"
               >
                 Salir
               </button>
@@ -183,7 +183,7 @@ export default function FinalizarCompra() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Dirección */}
               <div>
-                <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="direccion" className="block text-sm font-bold text-gray-900 mb-2">
                   📍 Dirección de Envío *
                 </label>
                 <textarea
@@ -191,7 +191,7 @@ export default function FinalizarCompra() {
                   value={direccion}
                   onChange={(e) => setDireccion(e.target.value)}
                   placeholder="Calle, número, piso, departamento, ciudad, código postal..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-semibold placeholder:text-gray-400"
                   rows={3}
                   required
                 />
@@ -199,7 +199,7 @@ export default function FinalizarCompra() {
 
               {/* Tarjeta */}
               <div>
-                <label htmlFor="tarjeta" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="tarjeta" className="block text-sm font-bold text-gray-900 mb-2">
                   💳 Número de Tarjeta *
                 </label>
                 <input
@@ -208,11 +208,11 @@ export default function FinalizarCompra() {
                   value={tarjeta}
                   onChange={(e) => handleTarjetaChange(e.target.value)}
                   placeholder="1234 5678 9012 3456"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-gray-900 font-semibold placeholder:text-gray-400"
                   maxLength={19}
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-900 font-semibold mt-1">
                   Solo se guardarán los últimos 4 dígitos
                 </p>
               </div>
@@ -237,7 +237,7 @@ export default function FinalizarCompra() {
                 {loading ? '⏳ Procesando...' : `💳 Pagar $${totals.total.toFixed(2)}`}
               </button>
 
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-gray-900 font-semibold text-center">
                 🔒 Pago seguro y encriptado
               </p>
             </form>
@@ -258,15 +258,15 @@ export default function FinalizarCompra() {
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div className="flex-1">
-                      <p className="font-medium text-sm">
+                      <p className="font-bold text-sm text-gray-900">
                         {item.nombre || item.titulo}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-gray-900 font-semibold">
                         Cantidad: {item.cantidad}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">
+                      <p className="font-semibold text-gray-900">
                         ${(item.precio * item.cantidad).toFixed(2)}
                       </p>
                     </div>
@@ -276,25 +276,25 @@ export default function FinalizarCompra() {
 
               {/* Totales */}
               <div className="space-y-2 pt-4 border-t">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm text-gray-900 font-semibold">
                   <span>Subtotal:</span>
                   <span>${totals.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm text-gray-900 font-semibold">
                   <span>IVA:</span>
                   <span>${totals.iva.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm text-gray-900 font-semibold">
                   <span>Envío:</span>
                   <span>
                     {totals.envio === 0 ? (
-                      <span className="text-green-600 font-semibold">¡Gratis!</span>
+                      <span className="text-green-600 font-bold">¡Gratis!</span>
                     ) : (
                       `$${totals.envio.toFixed(2)}`
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                <div className="flex justify-between font-bold text-lg pt-2 border-t text-gray-900">
                   <span>Total:</span>
                   <span className="text-blue-600">${totals.total.toFixed(2)}</span>
                 </div>

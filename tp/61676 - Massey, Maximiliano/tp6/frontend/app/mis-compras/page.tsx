@@ -139,7 +139,7 @@ export default function MisCompras() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">⏳</div>
-          <p className="text-gray-600">Cargando tus compras...</p>
+          <p className="text-gray-900 font-semibold">Cargando tus compras...</p>
         </div>
       </div>
     );
@@ -157,18 +157,18 @@ export default function MisCompras() {
             </Link>
             
             <nav className="flex items-center gap-4">
-              <Link href="/" className="text-gray-700 hover:text-blue-600">
+              <Link href="/" className="text-gray-900 font-semibold hover:text-blue-600">
                 Productos
               </Link>
               <Link href="/mis-compras" className="text-blue-600 font-semibold">
                 Mis compras
               </Link>
-              <span className="text-gray-700">
+              <span className="text-gray-900 font-semibold">
                 {user?.nombre}
               </span>
               <button
                 onClick={handleLogout}
-                className="text-gray-700 hover:text-blue-600"
+                className="text-gray-900 font-semibold hover:text-blue-600"
               >
                 Salir
               </button>
@@ -190,7 +190,7 @@ export default function MisCompras() {
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
             <div className="text-6xl mb-4">🛍️</div>
             <h2 className="text-2xl font-bold mb-2">No tienes compras aún</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-900 font-semibold mb-6">
               Comienza a explorar nuestros productos y realiza tu primera compra
             </p>
             <Link
@@ -214,7 +214,7 @@ export default function MisCompras() {
                       Compra #{compra.id}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-gray-900 font-semibold">
                     {formatearFecha(compra.fecha)}
                   </div>
                   <div className="text-sm font-bold text-blue-600 mt-2">
@@ -228,7 +228,7 @@ export default function MisCompras() {
               {loadingDetalle ? (
                 <div className="bg-white rounded-lg shadow p-8 text-center">
                   <div className="text-4xl mb-2">⏳</div>
-                  <p className="text-gray-600">Cargando detalle...</p>
+                  <p className="text-gray-900 font-semibold">Cargando detalle...</p>
                 </div>
               ) : detalleCompra ? (
                 <div className="bg-white rounded-lg shadow">
@@ -236,7 +236,7 @@ export default function MisCompras() {
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">
                       Detalle de la compra
                     </h2>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-900 font-semibold">
                       <div>
                         <span className="font-semibold">Compra #:</span> {detalleCompra.id}
                       </div>
@@ -275,10 +275,10 @@ export default function MisCompras() {
                             <div className="font-semibold text-gray-900">
                               {producto.nombre}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-900 font-semibold">
                               Cantidad: {producto.cantidad}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-900 font-semibold">
                               IVA: ${producto.iva.toFixed(2)}
                             </div>
                           </div>
@@ -287,7 +287,7 @@ export default function MisCompras() {
                             <div className="font-bold text-gray-900">
                               ${producto.precio_total.toFixed(2)}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-900 font-semibold">
                               ${producto.precio_unitario.toFixed(2)} c/u
                             </div>
                           </div>
@@ -297,15 +297,15 @@ export default function MisCompras() {
 
                     <div className="mt-6 pt-6 border-t space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Subtotal:</span>
+                        <span className="text-gray-900 font-semibold">Subtotal:</span>
                         <span className="font-semibold">${detalleCompra.subtotal.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">IVA:</span>
+                        <span className="text-gray-900 font-semibold">IVA:</span>
                         <span className="font-semibold">${detalleCompra.iva.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Envío:</span>
+                        <span className="text-gray-900 font-semibold">Envío:</span>
                         <span className="font-semibold">${detalleCompra.envio.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-lg font-bold pt-2 border-t">
@@ -318,7 +318,7 @@ export default function MisCompras() {
               ) : (
                 <div className="bg-white rounded-lg shadow p-8 text-center">
                   <div className="text-4xl mb-2">📦</div>
-                  <p className="text-gray-600">Selecciona una compra para ver el detalle</p>
+                  <p className="text-gray-900 font-semibold">Selecciona una compra para ver el detalle</p>
                 </div>
               )}
             </div>

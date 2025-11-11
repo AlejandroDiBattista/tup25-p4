@@ -113,13 +113,13 @@ export default function RegistroPage() {
                         </Link>
                         
                         <nav className="flex items-center gap-4">
-                            <Link href="/" className="text-gray-700 hover:text-blue-600">
+                            <Link href="/" className="text-gray-900 font-semibold hover:text-blue-600">
                                 Productos
                             </Link>
-                            <Link href="/login" className="text-gray-700 hover:text-blue-600">
+                            <Link href="/login" className="text-gray-900 font-semibold hover:text-blue-600">
                                 Ingresar
                             </Link>
-                            <Link href="/registro" className="text-gray-700 hover:text-blue-600">
+                            <Link href="/registro" className="text-gray-900 font-semibold hover:text-blue-600">
                                 Crear cuenta
                             </Link>
                         </nav>
@@ -130,57 +130,57 @@ export default function RegistroPage() {
             {/* Contenido */}
             <div className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center p-8">
                 <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold mb-6">Crear cuenta</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-gray-900">Crear cuenta</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">
+                        <label className="block text-sm font-bold mb-1 text-gray-900">
                             Nombre
                         </label>
                         <input
                             type="text"
                             value={nombre}
                             onChange={(e) => setNombre(e.target.value)}
-                            className="w-full p-2 border rounded"
+                            className="w-full p-2 border rounded text-gray-900 font-semibold placeholder:text-gray-400"
                             placeholder="Juan Perez"
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">
+                        <label className="block text-sm font-bold mb-1 text-gray-900">
                             Correo
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-2 border rounded"
+                            className="w-full p-2 border rounded text-gray-900 font-semibold placeholder:text-gray-400"
                             placeholder="jperez@mail.com"
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">
+                        <label className="block text-sm font-bold mb-1 text-gray-900">
                             Contraseña
                         </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-2 border rounded"
+                            className="w-full p-2 border rounded text-gray-900 font-semibold placeholder:text-gray-400"
                             placeholder="••••••••"
                             minLength={6}
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">
+                        <label className="block text-sm font-bold mb-1 text-gray-900">
                             Confirmar Contraseña
                         </label>
                         <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full p-2 border rounded"
+                            className="w-full p-2 border rounded text-gray-900 font-semibold placeholder:text-gray-400"
                             placeholder="••••••••"
                             minLength={6}
                             required
@@ -199,8 +199,8 @@ export default function RegistroPage() {
                     </button>
                 </form>
                 <div className="mt-4 text-center text-sm">
-                    <span className="text-gray-600">¿Ya tienes cuenta? </span>
-                    <Link href="/login" className="text-blue-600 hover:underline">
+                    <span className="text-gray-900 font-semibold">¿Ya tienes cuenta? </span>
+                    <Link href="/login" className="text-blue-600 font-bold hover:underline">
                         Inicia sesión
                     </Link>
                 </div>

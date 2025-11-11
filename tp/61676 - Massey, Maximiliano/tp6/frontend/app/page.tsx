@@ -84,13 +84,13 @@ export default function Home() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">TP6 Shop</h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-900 font-semibold mt-1">
                 Catálogo de productos
               </p>
             </div>
             
             <nav className="flex items-center gap-4">
-              <Link href="/" className="text-gray-700 hover:text-blue-600">
+              <Link href="/" className="text-gray-900 font-semibold hover:text-blue-600">
                 Productos
               </Link>
               
@@ -109,27 +109,27 @@ export default function Home() {
               
               {user ? (
                 <>
-                  <Link href="/mis-compras" className="text-gray-700 hover:text-blue-600">
+                  <Link href="/mis-compras" className="text-gray-900 font-semibold hover:text-blue-600">
                     Mis compras
                   </Link>
-                  <span className="text-gray-700">
+                  <span className="text-gray-900 font-semibold">
                     {user.nombre}
                   </span>
                   <button
                     onClick={handleLogout}
-                    className="text-gray-700 hover:text-blue-600"
+                    className="text-gray-900 font-semibold hover:text-blue-600"
                   >
                     Salir
                   </button>
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-gray-700 hover:text-blue-600">
+                  <Link href="/login" className="text-gray-900 font-semibold hover:text-blue-600">
                     Ingresar
                   </Link>
                   <Link 
                     href="/registro" 
-                    className="text-gray-700 hover:text-blue-600"
+                    className="text-gray-900 font-semibold hover:text-blue-600"
                   >
                     Crear cuenta
                   </Link>

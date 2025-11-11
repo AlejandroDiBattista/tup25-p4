@@ -90,8 +90,8 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 {showConfirmClear && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
                         <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
-                            <h3 className="text-lg font-bold mb-2">¿Vaciar carrito?</h3>
-                            <p className="text-gray-600 mb-6">
+                            <h3 className="text-lg font-bold mb-2 text-gray-900">¿Vaciar carrito?</h3>
+                            <p className="text-gray-900 font-semibold mb-6">
                                 Se eliminarán todos los productos del carrito. Esta acción no se puede deshacer.
                             </p>
                             <div className="flex gap-3">
@@ -117,7 +117,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 {/* Items del carrito */}
                 <div className="flex-1 overflow-y-auto p-4">
                     {items.length === 0 ? (
-                        <div className="text-center py-12 text-gray-500">
+                        <div className="text-center py-12 text-gray-900 font-semibold">
                             <p className="text-4xl mb-4">🛒</p>
                             <p className="text-lg">Tu carrito está vacío</p>
                             <p className="text-sm mt-2">Agrega productos para empezar</p>
@@ -139,13 +139,13 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                                         
                                         {/* Detalles */}
                                         <div className="flex-1">
-                                            <h3 className="font-semibold text-sm mb-1">
+                                            <h3 className="font-bold text-sm mb-1 text-gray-900">
                                                 {item.nombre || item.titulo}
                                             </h3>
-                                            <p className="text-sm text-gray-600">
+                                            <p className="text-sm text-gray-900 font-semibold">
                                                 ${item.precio.toFixed(2)}
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-xs text-gray-900 font-semibold">
                                                 Stock disponible: {stockDisponible}
                                             </p>
                                             
@@ -202,7 +202,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                                         
                                         {/* Total del item */}
                                         <div className="text-right">
-                                            <p className="font-semibold">
+                                            <p className="font-semibold text-gray-900">
                                                 ${(item.precio * item.cantidad).toFixed(2)}
                                             </p>
                                         </div>
@@ -218,30 +218,30 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     <div className="border-t p-4 bg-gray-50">
                         {/* Desglose de costos */}
                         <div className="space-y-2 mb-4">
-                            <div className="flex justify-between text-sm">
+                            <div className="flex justify-between text-sm text-gray-900 font-semibold">
                                 <span>Subtotal:</span>
                                 <span>${totals.subtotal.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between text-sm">
+                            <div className="flex justify-between text-sm text-gray-900 font-semibold">
                                 <span>IVA:</span>
                                 <span>${totals.iva.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between text-sm">
+                            <div className="flex justify-between text-sm text-gray-900 font-semibold">
                                 <span>Envío:</span>
                                 <span>
                                     {totals.envio === 0 ? (
-                                        <span className="text-green-600">¡Gratis!</span>
+                                        <span className="text-green-600 font-bold">¡Gratis!</span>
                                     ) : (
                                         `$${totals.envio.toFixed(2)}`
                                     )}
                                 </span>
                             </div>
                             {totals.subtotal < 1000 && totals.subtotal > 0 && (
-                                <p className="text-xs text-gray-600">
+                                <p className="text-xs text-gray-900 font-semibold">
                                     💡 Agrega ${(1000 - totals.subtotal).toFixed(2)} más para envío gratis
                                 </p>
                             )}
-                            <div className="flex justify-between font-bold text-lg border-t pt-2">
+                            <div className="flex justify-between font-bold text-lg border-t pt-2 text-gray-900">
                                 <span>Total:</span>
                                 <span>${totals.total.toFixed(2)}</span>
                             </div>

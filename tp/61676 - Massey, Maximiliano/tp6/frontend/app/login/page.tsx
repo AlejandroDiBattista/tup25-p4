@@ -68,13 +68,13 @@ export default function LoginPage() {
                         </Link>
                         
                         <nav className="flex items-center gap-4">
-                            <Link href="/" className="text-gray-700 hover:text-blue-600">
+                            <Link href="/" className="text-gray-900 font-semibold hover:text-blue-600">
                                 Productos
                             </Link>
-                            <Link href="/login" className="text-gray-700 hover:text-blue-600">
+                            <Link href="/login" className="text-gray-900 font-semibold hover:text-blue-600">
                                 Ingresar
                             </Link>
-                            <Link href="/registro" className="text-gray-700 hover:text-blue-600">
+                            <Link href="/registro" className="text-gray-900 font-semibold hover:text-blue-600">
                                 Crear cuenta
                             </Link>
                         </nav>
@@ -85,29 +85,31 @@ export default function LoginPage() {
             {/* Contenido */}
             <div className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center p-8">
                 <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold mb-6">Iniciar sesión</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-gray-900">Iniciar sesión</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">
+                            <label className="block text-sm font-bold mb-1 text-gray-900">
                                 Correo
                             </label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 border rounded"
+                                className="w-full p-2 border rounded text-gray-900 font-semibold placeholder:text-gray-400"
+                                placeholder="tu@email.com"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">
+                            <label className="block text-sm font-bold mb-1 text-gray-900">
                                 Contraseña
                             </label>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full p-2 border rounded"
+                                className="w-full p-2 border rounded text-gray-900 font-semibold placeholder:text-gray-400"
+                                placeholder="••••••••"
                                 required
                             />
                         </div>
@@ -124,8 +126,8 @@ export default function LoginPage() {
                         </button>
                     </form>
                     <div className="mt-4 text-center text-sm">
-                        <span className="text-gray-600">¿No tienes cuenta? </span>
-                        <Link href="/registro" className="text-blue-600 hover:underline">
+                        <span className="text-gray-900 font-semibold">¿No tienes cuenta? </span>
+                        <Link href="/registro" className="text-blue-600 font-bold hover:underline">
                             Regístrate
                         </Link>
                     </div>
