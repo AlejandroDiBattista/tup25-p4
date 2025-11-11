@@ -51,12 +51,23 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
 
   // Url segura de imagen
   const imagenSrc = producto.imagen ? `${API_URL}/${producto.imagen}` : '/placeholder.png';
+  
+  // Determinar si el producto está agotado
+  const agotado = producto.existencia === 0;
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col">
+      <div className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col ${agotado ? 'opacity-60' : ''}`}>
         <div className="relative h-64 w-full flex items-center justify-center bg-gray-100">
           <img src={imagenSrc} alt={producto.nombre || 'Producto'} className="max-h-56 object-contain p-4" />
+          {/* Overlay "Agotado" */}
+          {agotado && (
+            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+              <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg">
+                Agotado
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="p-4 flex flex-col flex-grow">
@@ -67,9 +78,14 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
 
           <button
             onClick={handleAgregarAlCarrito}
-            className="w-full bg-sky-600 hover:bg-sky-700 text-white py-2 rounded-lg mt-3 font-semibold transition-colors"
+            disabled={agotado}
+            className={`w-full py-2 rounded-lg mt-3 font-semibold transition-colors ${
+              agotado
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                : 'bg-sky-600 hover:bg-sky-700 text-white'
+            }`}
           >
-            🛒 Agregar al carrito
+            {agotado ? '✕ No disponible' : '🛒 Agregar al carrito'}
           </button>
         </div>
       </div>

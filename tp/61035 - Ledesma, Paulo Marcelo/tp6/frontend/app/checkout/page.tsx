@@ -62,7 +62,7 @@ export default function CheckoutPage() {
 
   // Calcular totales con IVA y envío
   const calcularTotales = () => {
-    let subtotal = carrito.total;
+  const subtotal = carrito.total;
     
     // IVA: 21% por defecto, 10% para electrónica
     let iva = 0;
@@ -152,14 +152,23 @@ export default function CheckoutPage() {
             <h2 className="text-xl font-semibold mb-4 text-sky-700">Resumen de tu compra</h2>
 
             <div className="space-y-2 mb-4 pb-4 border-b border-sky-100">
-              {carrito.items.map((item) => (
-                <div key={item.id} className="flex justify-between">
-                  <span>
-                    <strong>{item.producto}</strong> x {item.cantidad}
-                  </span>
-                  <span>${item.subtotal.toFixed(2)}</span>
-                </div>
-              ))}
+              {carrito.items.map((item) => {
+                const esElectronica = item.producto.toLowerCase().includes('electro');
+                const tasaIva = esElectronica ? 0.10 : 0.21;
+                const ivaItem = item.subtotal * tasaIva;
+                return (
+                  <div key={item.id} className="flex justify-between">
+                    <div>
+                      <div className="font-semibold">{item.producto}</div>
+                      <div className="text-sm text-gray-600">Cantidad: {item.cantidad} • ${item.precio_unitario.toFixed(2)} c/u</div>
+                      <div className="text-xs text-gray-500">IVA: ${ivaItem.toFixed(2)}</div>
+                    </div>
+                    <div className="text-right">
+                      <div>${item.subtotal.toFixed(2)}</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Detalles de pago */}
@@ -207,11 +216,11 @@ export default function CheckoutPage() {
 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
+                <span>Total productos:</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>IVA (21% / 10%):</span>
+                <span>IVA:</span>
                 <span>${iva.toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-b border-sky-200 pb-2">

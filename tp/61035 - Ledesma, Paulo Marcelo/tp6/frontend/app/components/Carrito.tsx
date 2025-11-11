@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import AuthModal from "./AuthModal";
+import { useRouter } from 'next/navigation';
 
 interface ItemCarrito {
   id: number;
@@ -103,33 +104,18 @@ export const Carrito = () => {
     }
   };
 
-  // ✅ Finalizar compra
-  const finalizarCompra = async () => {
+  // ✅ Finalizar compra: navegar a la pantalla de confirmación (/checkout)
+  const router = useRouter();
+
+  const finalizarCompra = () => {
     if (!token) {
       setShowAuthModal(true);
       return;
     }
 
-    try {
-      const res = await fetch(`${API_URL}/carrito/finalizar`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          direccion: "Calle Falsa 123, Springfield",
-          tarjeta: "4111111111111111",
-        }),
-      });
-
-      if (!res.ok) throw new Error("Error al finalizar la compra");
-      const data = await res.json();
-      setMensaje(`Compra realizada con éxito (ID: ${data.compra_id})`);
-      fetchCarrito();
-    } catch {
-      setMensaje("No se pudo finalizar la compra");
-    }
+    // Redirigir a la pantalla de checkout/confirmación donde el usuario
+    // completará la dirección y confirmará la compra.
+    router.push('/checkout');
   };
 
   return (
