@@ -39,8 +39,12 @@ def agregar_al_carrito(usuario_id: int, producto_id: int):
             session.refresh(carrito)
 
         producto = session.get(Producto, producto_id)
-        if not producto or producto.existencia <= 0:
-            raise HTTPException(status_code=400, detail="Producto no disponible")
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        # Verificar stock disponible
+        if producto.existencia <= 0:
+            raise HTTPException(status_code=400, detail=f"El producto '{producto.nombre}' está agotado")
 
         item = session.exec(
             select(ItemCarrito).where(
@@ -50,10 +54,15 @@ def agregar_al_carrito(usuario_id: int, producto_id: int):
         ).first()
 
         if item:
-            if item.cantidad >= producto.existencia:
-                raise HTTPException(status_code=400, detail="No hay más stock disponible")
+            # Verificar que no exceda el stock disponible
+            if item.cantidad + 1 > producto.existencia:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Stock insuficiente. Solo quedan {producto.existencia} unidades de '{producto.nombre}'"
+                )
             item.cantidad += 1
         else:
+            # Producto nuevo en el carrito (ya verificamos que hay stock)
             session.add(ItemCarrito(carrito_id=carrito.id, producto_id=producto_id, cantidad=1))
 
         session.commit()

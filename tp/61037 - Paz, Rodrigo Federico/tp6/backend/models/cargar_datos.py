@@ -23,7 +23,7 @@ def cargar_productos_iniciales():
         for p in productos_json:
             nuevo_producto = Producto(
                 id=p.get("id"),
-                nombre=p.get("nombre"),
+                nombre=p.get("nombre") or p.get("titulo"),
                 descripcion=p.get("descripcion"),
                 precio=p.get("precio"),
                 categoria=p.get("categoria"),

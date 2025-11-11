@@ -27,7 +27,10 @@ export default function Home() {
 
     fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") + url)
       .then((res) => res.json())
-      .then((data) => setProductos(data));
+      .then((data) => {
+        console.log("PRODUCTOS DESDE API:", data); // <-- AGREGADO
+        setProductos(data);
+      });
   }, [busqueda, categoria]);
 
   return (
@@ -48,13 +51,13 @@ export default function Home() {
             placeholder="Buscar..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-2/3 border px-3 py-2 rounded"
+            className="w-2/3 border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black shadow-sm"
           />
 
           <select
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
-            className="border px-3 py-2 rounded"
+            className="border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black shadow-sm"
           >
             <option value="todas">Todas las categorías</option>
             <option value="Ropa de hombre">Ropa de hombre</option>

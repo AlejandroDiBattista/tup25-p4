@@ -16,7 +16,7 @@ export default function ProductoCard({ producto }: any) {
     if (!usuarioId) return alert("Debe iniciar sesión para agregar al carrito.");
     try {
       await agregarAlCarrito(Number(usuarioId), producto.id);
-      actualizarCarrito(); // refresca el widget sin recargar página
+      actualizarCarrito(); 
     } catch (e: any) {
       alert(e.message || "No se pudo agregar al carrito");
     }

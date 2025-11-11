@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from sqlmodel import Session, select
 from models.database import engine
 from models.productos import Producto
@@ -24,6 +24,20 @@ def detalle_producto(id: int):
     with Session(engine) as session:
         p = session.get(Producto, id)
         if not p:
-            from fastapi import HTTPException
             raise HTTPException(status_code=404, detail="Producto no encontrado")
         return p
+
+@router.get("/productos/{id}/stock")
+def verificar_stock(id: int):
+    """Endpoint para verificar stock disponible de un producto"""
+    with Session(engine) as session:
+        producto = session.get(Producto, id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        return {
+            "producto_id": producto.id,
+            "nombre": producto.nombre,
+            "existencia": producto.existencia,
+            "disponible": producto.existencia > 0
+        }

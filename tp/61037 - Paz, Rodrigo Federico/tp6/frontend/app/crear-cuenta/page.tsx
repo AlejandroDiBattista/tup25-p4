@@ -21,22 +21,21 @@ export default function CrearCuentaPage() {
       alert("Registro exitoso. Ahora inicia sesión.");
       window.location.href = "/ingresar";
     } else {
-      const err = await respuesta.json().catch(() => ({}));
-      alert(err.detail || "Error al registrarte.");
+      alert("Error al registrarte.");
     }
   };
 
   return (
-    <main className="flex justify-center mt-16 px-4">
-      <div className="bg-white border rounded-lg p-8 w-full max-w-md shadow-sm">
-        <h1 className="text-xl font-semibold mb-6 text-gray-900">Crear cuenta</h1>
+    <main className="flex justify-center py-16 px-4 bg-gray-50">
+      <div className="w-full max-w-md bg-white border rounded-lg p-8 shadow-sm">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-8 text-left">Crear cuenta</h1>
 
-        <form className="space-y-4" onSubmit={handleRegistro}>
+        <form className="space-y-5" onSubmit={handleRegistro}>
           <div>
-            <label className="text-sm text-gray-700">Nombre</label>
+            <label className="text-sm text-gray-900">Nombre</label>
             <input
               type="text"
-              className="border w-full rounded-md px-3 py-2 bg-white"
+              className="w-full border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               required
@@ -44,10 +43,10 @@ export default function CrearCuentaPage() {
           </div>
 
           <div>
-            <label className="text-sm text-gray-700">Correo</label>
+            <label className="text-sm text-gray-900">Correo</label>
             <input
               type="email"
-              className="border w-full rounded-md px-3 py-2 bg-white"
+              className="w-full border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -55,10 +54,10 @@ export default function CrearCuentaPage() {
           </div>
 
           <div>
-            <label className="text-sm text-gray-700">Contraseña</label>
+            <label className="text-sm text-gray-900">Contraseña</label>
             <input
               type="password"
-              className="border w-full rounded-md px-3 py-2 bg-white"
+              className="w-full border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -67,17 +66,17 @@ export default function CrearCuentaPage() {
 
           <button
             type="submit"
-            className="w-full bg-gray-900 text-white font-medium py-2 rounded-md hover:bg-gray-800 transition"
+            className="w-full bg-[#0A2540] hover:bg-[#0D3158] text-white py-2 rounded-md transition font-medium"
           >
             Registrarme
           </button>
 
-          <div className="text-sm text-gray-600 text-center">
+          <p className="text-sm text-gray-600 text-center">
             ¿Ya tienes cuenta?{" "}
-            <a href="/ingresar" className="text-gray-800 hover:underline">
+            <a href="/ingresar" className="text-gray-900 font-medium hover:underline">
               Inicia sesión
             </a>
-          </div>
+          </p>
         </form>
       </div>
     </main>

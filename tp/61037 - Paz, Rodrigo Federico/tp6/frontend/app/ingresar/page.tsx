@@ -28,31 +28,50 @@ export default function IngresarPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-8 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-6 text-center">Iniciar sesión</h2>
+    <main className="flex justify-center py-16 px-4">
+      <div className="w-full max-w-md bg-white border rounded-lg p-8 shadow-sm">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-8 text-left">
+          Iniciar sesión
+        </h1>
 
-      <input
-        className="w-full border p-2 mb-3 rounded"
-        type="email"
-        placeholder="Correo"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <div className="mb-5">
+          <label className="text-sm text-gray-700">Correo</label>
+          <input
+            type="email"
+             className="w-full border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
+        </div>
 
-      <input
-        className="w-full border p-2 mb-4 rounded"
-        type="password"
-        placeholder="Contraseña"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <div className="mb-6">
+          <label className="text-sm text-gray-700">Contraseña</label>
+          <input
+            type="password"
+             className="w-full border rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
+        </div>
 
-      <button
-        onClick={handleLogin}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
-      >
-        Entrar
-      </button>
-    </div>
+        <button
+          onClick={handleLogin}
+          className="w-full bg-[#0A2540] hover:bg-[#0D3158] text-white py-2 rounded-md transition font-medium"
+        >
+          Entrar
+        </button>
+
+        <p className="text-sm text-gray-600 text-center mt-4">
+          ¿No tienes cuenta?{" "}
+          <a href="/crear-cuenta" className="text-gray-900 font-medium hover:underline">
+            Regístrate
+          </a>
+        </p>
+      </div>
+    </main>
   );
 }
