@@ -1,4 +1,3 @@
-import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -9,23 +8,18 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.api import api_router
 from app.core.config import get_settings
-from app.db.session import init_db
+from app.db.session import get_session, init_db
+from app.services.product_loader import load_products_from_json
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """Application lifespan event used for startup tasks."""
     init_db()
+    with next(get_session()) as session:
+        productos_path = Path(__file__).resolve().parent.parent / "productos.json"
+        load_products_from_json(session, productos_path)
     yield
-
-
-def load_productos_from_json() -> list[dict]:
-    """Cargar productos desde el archivo JSON."""
-    productos_path = Path(__file__).resolve().parent.parent / "productos.json"
-    if not productos_path.exists():
-        return []
-    with open(productos_path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def create_app() -> FastAPI:
@@ -54,11 +48,6 @@ def create_app() -> FastAPI:
     @app.get("/", summary="Root endpoint")
     def read_root() -> dict[str, str]:
         return {"message": "API e-commerce TP6 - revise /docs para la documentación."}
-
-    @app.get("/productos", summary="Obtener lista de productos (temporal - desde JSON)")
-    def obtener_productos() -> list[dict]:
-        """Endpoint temporal para obtener productos desde JSON."""
-        return load_productos_from_json()
 
     return app
 
