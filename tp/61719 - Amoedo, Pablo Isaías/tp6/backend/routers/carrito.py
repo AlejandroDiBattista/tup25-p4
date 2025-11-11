@@ -4,6 +4,7 @@ from db.database import engine
 from models.carrito import Carrito
 from models.productos import Producto
 from utils.security import obtener_usuario_actual
+from models.compras import Compra
 
 router = APIRouter()
 
@@ -65,6 +66,17 @@ def comprar(usuario_email: str = Depends(obtener_usuario_actual)):
 
             producto.existencia -= carrito_item.cantidad
             session.add(producto)
+
+            # Registrar en historial
+            compra = Compra(
+                usuario_email=usuario_email,
+                producto_id=producto.id,
+                nombre_producto=producto.nombre,
+                cantidad=carrito_item.cantidad,
+                subtotal=carrito_item.cantidad * producto.precio
+            )
+            session.add(compra)
+
 
             resumen.append({
                 "producto_id": producto.id,

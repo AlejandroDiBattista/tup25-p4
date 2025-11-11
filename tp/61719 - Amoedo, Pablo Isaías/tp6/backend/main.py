@@ -104,8 +104,11 @@ app.openapi = custom_openapi
 
 
 from routers import carrito
-
 app.include_router(carrito.router)
+
+from routers import compras
+app.include_router(compras.router)
+
 
 
 
