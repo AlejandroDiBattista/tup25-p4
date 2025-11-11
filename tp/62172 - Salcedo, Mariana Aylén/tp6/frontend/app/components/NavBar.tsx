@@ -6,6 +6,7 @@ import { ShoppingCart, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
+import { useCart } from '../context/CartContext';
 
 /**
  * Componente de barra de navegación principal
@@ -15,7 +16,7 @@ export default function NavBar() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
-  const cartItemsCount = 0; // TODO: Conectar con carrito en próximo commit
+  const { totalItems } = useCart();
 
   // Verificar si hay usuario logueado
   useEffect(() => {
@@ -77,12 +78,12 @@ export default function NavBar() {
                 <Link href="/cart">
                   <Button variant="outline" size="icon" className="relative">
                     <ShoppingCart className="h-5 w-5" />
-                    {cartItemsCount > 0 && (
+                    {totalItems > 0 && (
                       <Badge 
                         variant="destructive" 
                         className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
                       >
-                        {cartItemsCount}
+                        {totalItems}
                       </Badge>
                     )}
                   </Button>

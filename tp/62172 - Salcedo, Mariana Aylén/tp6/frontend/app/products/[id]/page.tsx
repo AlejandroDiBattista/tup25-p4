@@ -7,10 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Minus, Plus, ShoppingCart, ArrowLeft } from 'lucide-react';
 import { Producto } from '@/app/types';
 import Toast from '@/app/components/Toast';
+import { useCart } from '@/app/context/CartContext';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { agregarAlCarrito } = useCart();
   const [producto, setProducto] = useState<Producto | null>(null);
   const [loading, setLoading] = useState(true);
   const [cantidad, setCantidad] = useState(1);
@@ -49,10 +51,11 @@ export default function ProductDetailPage() {
     }
   };
 
-  const agregarAlCarrito = () => {
-    // Por ahora solo mostramos un toast
-    // En COMMIT 7 implementaremos el Context del carrito
-    setMostrarToast(true);
+  const handleAgregarAlCarrito = () => {
+    if (producto) {
+      agregarAlCarrito(producto, cantidad);
+      setMostrarToast(true);
+    }
   };
 
   if (loading) {
@@ -182,7 +185,7 @@ export default function ProductDetailPage() {
           <Button
             className="w-full"
             size="lg"
-            onClick={agregarAlCarrito}
+            onClick={handleAgregarAlCarrito}
             disabled={producto.existencia === 0}
           >
             <ShoppingCart className="mr-2 h-5 w-5" />
