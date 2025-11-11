@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCart } from '../components/CartProvider';
 
 export default function ReciboPage() {
@@ -8,12 +9,21 @@ export default function ReciboPage() {
   const [direccion, setDireccion] = useState('');
   const [tarjeta, setTarjeta] = useState('');
   const [finalMsg, setFinalMsg] = useState<string | null>(null);
+  const router = useRouter();
 
   async function handleFinalizar(e: React.FormEvent) {
     e.preventDefault();
     setFinalMsg(null);
     try {
-      await finalize(direccion, tarjeta);
+      const resp = await finalize(direccion, tarjeta);
+      // si la API devolvió compra_id, redirigir a mis-compras mostrando esa compra
+      const compraId = resp && (resp.compra_id || resp.id);
+      if (compraId) {
+        // limpiar inputs antes de redirigir
+        setDireccion(''); setTarjeta('');
+        router.push(`/mis-compras?compra=${compraId}`);
+        return;
+      }
       setFinalMsg('Compra finalizada correctamente');
       setDireccion(''); setTarjeta('');
     } catch (e: any) {

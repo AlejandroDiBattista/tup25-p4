@@ -21,7 +21,8 @@ interface CartContextValue {
   removeFromCart: (product_id: number) => Promise<void>;
   setQuantity: (product_id: number, cantidad: number) => Promise<void>;
   count: number;
-  finalize: (direccion: string, tarjeta: string) => Promise<void>;
+
+  finalize: (direccion: string, tarjeta: string) => Promise<any>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
