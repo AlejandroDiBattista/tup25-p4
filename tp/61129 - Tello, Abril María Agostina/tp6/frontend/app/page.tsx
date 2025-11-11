@@ -29,6 +29,21 @@ export default function Home() {
   const [usuario, setUsuario] = useState<{ nombre: string } | null>(null);
 
   useEffect(() => {
+    // Escuchar cambios en localStorage para cerrar sesión globalmente
+    const syncUsuario = () => {
+      const user = typeof window !== "undefined" ? localStorage.getItem("usuario") : null;
+      if (user) {
+        setUsuario(JSON.parse(user));
+      } else {
+        setUsuario(null);
+      }
+    };
+    syncUsuario();
+    window.addEventListener("storage", syncUsuario);
+    return () => window.removeEventListener("storage", syncUsuario);
+  }, []);
+
+  useEffect(() => {
     obtenerProductos().then((data: Producto[]) => {
       setProductos(data);
       setCategorias(Array.from(new Set(data.map((p: Producto) => p.categoria).filter((cat): cat is string => typeof cat === 'string'))));
@@ -37,8 +52,6 @@ export default function Home() {
       data.forEach((p: Producto) => { stockMap[p.id] = typeof p.existencia === 'number' ? p.existencia : (typeof p.stock === 'number' ? p.stock : 0); });
       setProductosStock(stockMap);
     });
-    // Simular usuario logueado
-    setUsuario({ nombre: "Usuario Demo" });
   }, []);
 
     const productosFiltrados = productos.filter((p: Producto) =>
@@ -46,40 +59,48 @@ export default function Home() {
       (busqueda ? (p.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || p.titulo?.toLowerCase().includes(busqueda.toLowerCase())) : true)
     );
 
+
     function agregarAlCarrito(producto: Producto) {
       setCarrito((prev: (Producto & { cantidad: number })[]) => {
         const existe = prev.find((item: Producto & { cantidad: number }) => item.id === producto.id);
         const stockDisponible = productosStock[producto.id] ?? producto.existencia ?? producto.stock ?? 0;
+        let nuevoCarrito;
         if (stockDisponible <= 0) return prev;
         if (existe) {
           if (existe.cantidad < stockDisponible) {
             setProductosStock((s: Record<number, number>) => ({ ...s, [producto.id]: stockDisponible - 1 }));
-            return prev.map((p: Producto & { cantidad: number }) => p.id === producto.id ? { ...p, cantidad: p.cantidad + 1 } : p);
+            nuevoCarrito = prev.map((p: Producto & { cantidad: number }) => p.id === producto.id ? { ...p, cantidad: p.cantidad + 1 } : p);
           } else {
             return prev;
-        }
+          }
         } else {
           setProductosStock((s: Record<number, number>) => ({ ...s, [producto.id]: stockDisponible - 1 }));
-          return [...prev, { ...producto, cantidad: 1 }];
+          nuevoCarrito = [...prev, { ...producto, cantidad: 1 }];
         }
+        localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+        return nuevoCarrito;
       });
     }
 
     function cambiarCantidad(id: number, delta: number) {
-      setCarrito((prev: (Producto & { cantidad: number })[]) => prev.map((item: Producto & { cantidad: number }) => {
-        if (item.id === id) {
-          const stockOriginal = productos.find((p: Producto) => p.id === id)?.existencia ?? productos.find((p: Producto) => p.id === id)?.stock ?? 0;
-          const stockDisponible = productosStock[id] ?? stockOriginal;
-          const nuevaCantidad = item.cantidad + delta;
-          if (nuevaCantidad < 1 || nuevaCantidad > stockOriginal) return item;
-          if (delta > 0 && stockDisponible <= 0) return item;
-          if (delta > 0 && item.cantidad >= stockOriginal) return item;
-          if (delta < 0 && item.cantidad <= 1) return item;
-          setProductosStock((s: Record<number, number>) => ({ ...s, [id]: stockDisponible - delta }));
-          return { ...item, cantidad: nuevaCantidad };
-        }
-        return item;
-      }));
+      setCarrito((prev: (Producto & { cantidad: number })[]) => {
+        const nuevoCarrito = prev.map((item: Producto & { cantidad: number }) => {
+          if (item.id === id) {
+            const stockOriginal = productos.find((p: Producto) => p.id === id)?.existencia ?? productos.find((p: Producto) => p.id === id)?.stock ?? 0;
+            const stockDisponible = productosStock[id] ?? stockOriginal;
+            const nuevaCantidad = item.cantidad + delta;
+            if (nuevaCantidad < 1 || nuevaCantidad > stockOriginal) return item;
+            if (delta > 0 && stockDisponible <= 0) return item;
+            if (delta > 0 && item.cantidad >= stockOriginal) return item;
+            if (delta < 0 && item.cantidad <= 1) return item;
+            setProductosStock((s: Record<number, number>) => ({ ...s, [id]: stockDisponible - delta }));
+            return { ...item, cantidad: nuevaCantidad };
+          }
+          return item;
+        });
+        localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+        return nuevoCarrito;
+      });
     }
 
     // Calcular totales
@@ -133,70 +154,68 @@ export default function Home() {
               </div>
             </div>
             <aside className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 h-fit border border-gray-200" style={{ minWidth: '380px' }}>
-              {usuario ? (
-                carrito.length === 0 ? (
-                  <div className="text-gray-600 text-center">Su carrito está vacío.</div>
-                ) : (
-                  <>
-                    <div className="mb-4 flex flex-col gap-5">
-                      {carrito.map((item: Producto & { cantidad: number }) => {
-                        const stockOriginal = productos.find((p: Producto) => p.id === item.id)?.existencia ?? productos.find((p: Producto) => p.id === item.id)?.stock ?? 0;
-                        const stockDisponible = productosStock[item.id] ?? stockOriginal;
-                        return (
-                          <div key={item.id} className="flex items-center gap-5 p-4 bg-gray-50 rounded-lg shadow border border-gray-200 relative">
-                            <img src={`http://localhost:8000/${item.imagen}`} alt={item.titulo} className="w-16 h-16 object-contain rounded bg-white border border-gray-300" />
-                            <div className="flex-1 flex flex-col gap-1">
-                              <div className="font-semibold text-gray-800 text-base">{item.nombre || item.titulo}</div>
-                              <div className="text-xs text-gray-500">${item.precio.toFixed(2)} c/u</div>
-                              <div className="text-xs text-gray-600 mt-1">Disponible: {stockDisponible}</div>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                              <div className="flex items-center gap-2">
-                                <button className="px-2 py-1 rounded bg-gray-200 text-gray-400 font-bold text-lg active:scale-95 disabled:opacity-50" onClick={() => cambiarCantidad(item.id, -1)} disabled={item.cantidad <= 1}>-</button>
-                                <span className="px-3 font-bold text-lg">{item.cantidad}</span>
-                                <button className="px-2 py-1 rounded bg-gray-200 text-gray-400 font-bold text-lg active:scale-95 disabled:opacity-50" onClick={() => cambiarCantidad(item.id, 1)} disabled={stockDisponible <= 0 || item.cantidad >= stockOriginal}>+</button>
-                              </div>
-                              <span className="text-lg font-bold text-black mt-2">${(item.precio * item.cantidad).toFixed(2)}</span>
-                            </div>
-                            <button className="absolute -top-3 -right-3 text-white bg-red-500 hover:bg-red-700 rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white text-xl font-bold transition" title="Eliminar" onClick={() => {
-                              setCarrito((prev: (Producto & { cantidad: number })[]) => prev.filter((p: Producto & { cantidad: number }) => p.id !== item.id));
-                              setProductosStock((s: Record<number, number>) => ({ ...s, [item.id]: stockOriginal }));
-                            }}>×</button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="border-t pt-6 mt-6 text-base">
-                      <div className="flex justify-between mb-2"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-                      <div className="flex justify-between mb-2"><span>IVA</span><span>${iva.toFixed(2)}</span></div>
-                      <div className="flex justify-between mb-2"><span>Envío</span><span>${envio.toFixed(2)}</span></div>
-                      <div className="flex justify-between font-bold text-xl mt-4"><span>Total</span><span>${total.toFixed(2)}</span></div>
-                      <div className="flex gap-4 mt-8">
-                        <button
-                          className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-bold border border-gray-300 shadow hover:bg-gray-300 transition active:scale-95"
-                          onClick={() => {
-                            setCarrito([]);
-                            // Restaurar stock de todos los productos del carrito
-                            setProductosStock((s) => {
-                              const nuevoStock = { ...s };
-                              carrito.forEach(item => {
-                                const stockOriginal = productos.find((p) => p.id === item.id)?.existencia ?? productos.find((p) => p.id === item.id)?.stock ?? 0;
-                                nuevoStock[item.id] = stockOriginal;
-                              });
-                              return nuevoStock;
-                            });
-                          }}
-                        >Cancelar</button>
-                        <button
-                          className="flex-1 bg-blue-700 text-white py-3 rounded-lg font-bold border border-blue-700 shadow hover:bg-blue-800 transition active:scale-95"
-                          onClick={() => router.push("/checkout")}
-                        >Continuar compra</button>
-                      </div>
-                    </div>
-                  </>
-                )
+              {!usuario ? (
+                <div className="text-gray-600 text-center">Inicie sesión para ver y editar el carrito.</div>
+              ) : carrito.length === 0 ? (
+                <div className="text-gray-600 text-center">Su carrito está vacío.</div>
               ) : (
-                <div className="text-gray-600 text-center">Inicie sesión para ver y editar su carrito.</div>
+                <>
+                  <div className="mb-4 flex flex-col gap-5">
+                    {carrito.map((item: Producto & { cantidad: number }) => {
+                      const stockOriginal = productos.find((p: Producto) => p.id === item.id)?.existencia ?? productos.find((p: Producto) => p.id === item.id)?.stock ?? 0;
+                      const stockDisponible = productosStock[item.id] ?? stockOriginal;
+                      return (
+                        <div key={item.id} className="flex items-center gap-5 p-4 bg-gray-50 rounded-lg shadow border border-gray-200 relative">
+                          <img src={`http://localhost:8000/${item.imagen}`} alt={item.titulo} className="w-16 h-16 object-contain rounded bg-white border border-gray-300" />
+                          <div className="flex-1 flex flex-col gap-1">
+                            <div className="font-semibold text-gray-800 text-base">{item.nombre || item.titulo}</div>
+                            <div className="text-xs text-gray-500">${item.precio.toFixed(2)} c/u</div>
+                            <div className="text-xs text-gray-600 mt-1">Disponible: {stockDisponible}</div>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-2">
+                              <button className="px-2 py-1 rounded bg-gray-200 text-gray-400 font-bold text-lg active:scale-95 disabled:opacity-50" onClick={() => cambiarCantidad(item.id, -1)} disabled={item.cantidad <= 1}>-</button>
+                              <span className="px-3 font-bold text-lg">{item.cantidad}</span>
+                              <button className="px-2 py-1 rounded bg-gray-200 text-gray-400 font-bold text-lg active:scale-95 disabled:opacity-50" onClick={() => cambiarCantidad(item.id, 1)} disabled={stockDisponible <= 0 || item.cantidad >= stockOriginal}>+</button>
+                            </div>
+                            <span className="text-lg font-bold text-black mt-2">${(item.precio * item.cantidad).toFixed(2)}</span>
+                          </div>
+                          <button className="absolute -top-3 -right-3 text-white bg-red-500 hover:bg-red-700 rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white text-xl font-bold transition" title="Eliminar" onClick={() => {
+                            setCarrito((prev: (Producto & { cantidad: number })[]) => prev.filter((p: Producto & { cantidad: number }) => p.id !== item.id));
+                            setProductosStock((s: Record<number, number>) => ({ ...s, [item.id]: stockOriginal }));
+                          }}>×</button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="border-t pt-6 mt-6 text-base">
+                    <div className="flex justify-between mb-2"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+                    <div className="flex justify-between mb-2"><span>IVA</span><span>${iva.toFixed(2)}</span></div>
+                    <div className="flex justify-between mb-2"><span>Envío</span><span>${envio.toFixed(2)}</span></div>
+                    <div className="flex justify-between font-bold text-xl mt-4"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                    <div className="flex gap-4 mt-8">
+                      <button
+                        className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-bold border border-gray-300 shadow hover:bg-gray-300 transition active:scale-95"
+                        onClick={() => {
+                          setCarrito([]);
+                          // Restaurar stock de todos los productos del carrito
+                          setProductosStock((s) => {
+                            const nuevoStock = { ...s };
+                            carrito.forEach(item => {
+                              const stockOriginal = productos.find((p) => p.id === item.id)?.existencia ?? productos.find((p) => p.id === item.id)?.stock ?? 0;
+                              nuevoStock[item.id] = stockOriginal;
+                            });
+                            return nuevoStock;
+                          });
+                        }}
+                      >Cancelar</button>
+                      <button
+                        className="flex-1 bg-blue-700 text-white py-3 rounded-lg font-bold border border-blue-700 shadow hover:bg-blue-800 transition active:scale-95"
+                        onClick={() => router.push("/checkout")}
+                      >Continuar compra</button>
+                    </div>
+                  </div>
+                </>
               )}
             </aside>
           </div>
