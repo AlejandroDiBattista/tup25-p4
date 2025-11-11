@@ -7,27 +7,19 @@ export default function FinalizarCompraPage() {
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
   const [direccion, setDireccion] = useState("");
   const [tarjeta, setTarjeta] = useState("");
-  const [previsualizacion, setPrevisualizacion] = useState<{ subtotal: number; iva: number; envio: number; total: number } | null>(null);
+  const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
     const id = Number(localStorage.getItem("usuario_id"));
     if (!id) window.location.href = "/ingresar";
     setUsuarioId(id || null);
 
-    
-    async function preview() {
+    async function cargarCarrito() {
       if (!id) return;
-      const items = await obtenerCarrito(id);
-      const subtotal = items.reduce((acc: number, it: any) => acc + it.subtotal, 0);
-      const iva = items.reduce((acc: number, it: any) => {
-        const rate = (it.categoria || "").toLowerCase() === "electrónica" ? 0.10 : 0.21;
-        return acc + it.subtotal * rate;
-      }, 0);
-      const envio = subtotal > 1000 ? 0 : 50;
-      const total = +(subtotal + iva + envio).toFixed(2);
-      setPrevisualizacion({ subtotal, iva, envio, total });
+      const data = await obtenerCarrito(id);
+      setItems(data);
     }
-    preview();
+    cargarCarrito();
   }, []);
 
   async function handlePagar(e: React.FormEvent) {
@@ -43,52 +35,109 @@ export default function FinalizarCompraPage() {
     }
   }
 
+  // Cálculos
+  const subtotal = items.reduce((acc, it) => acc + it.subtotal, 0);
+  const ivaTotal = items.reduce((acc, it) => {
+    const rate = (it.categoria || "").toLowerCase() === "electrónica" ? 0.10 : 0.21;
+    return acc + it.subtotal * rate;
+  }, 0);
+  const envio = subtotal > 1000 ? 0 : 50;
+  const total = subtotal + ivaTotal + envio;
+
   return (
-    <main className="max-w-3xl mx-auto mt-10 px-4">
-      <div className="grid md:grid-cols-2 gap-6">
-        <form onSubmit={handlePagar} className="bg-white border rounded-lg p-6 shadow-sm">
-          <h1 className="text-xl font-semibold mb-4 text-gray-900">Finalizar compra</h1>
+    <main className="max-w-7xl mx-auto px-4 py-8">
+      {/* Título */}
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Finalizar compra</h1>
 
-          <label className="text-sm text-gray-700">Dirección</label>
-          <input
-            className="border w-full rounded-md px-3 py-2 bg-white mb-3"
-            value={direccion}
-            onChange={(e) => setDireccion(e.target.value)}
-            required
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* Resumen del carrito (izquierda) */}
+        <div className="bg-white border rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Resumen del carrito</h2>
 
-          <label className="text-sm text-gray-700">Tarjeta (16 dígitos)</label>
-          <input
-            className="border w-full rounded-md px-3 py-2 bg-white mb-4"
-            value={tarjeta}
-            onChange={(e) => setTarjeta(e.target.value)}
-            inputMode="numeric"
-            minLength={16}
-            maxLength={16}
-            required
-          />
+          {/* Lista de productos */}
+          <div className="space-y-4 mb-6">
+            {items.map((item) => {
+              const ivaRate = (item.categoria || "").toLowerCase() === "electrónica" ? 0.10 : 0.21;
+              const ivaItem = item.subtotal * ivaRate;
+              
+              return (
+                <div key={item.producto_id} className="border-b pb-4">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-medium text-gray-900">{item.nombre}</span>
+                    <span className="font-semibold text-gray-900">${item.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <p>Cantidad: {item.cantidad}</p>
+                    <p>IVA: ${ivaItem.toFixed(2)}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
-          >
-            Pagar
-          </button>
-        </form>
-
-        <div className="bg-white border rounded-lg p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-3">Resumen</h2>
-          {previsualizacion ? (
-            <div className="text-sm space-y-1">
-              <div className="flex justify-between"><span>Subtotal:</span><span>${previsualizacion.subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between"><span>IVA:</span><span>${previsualizacion.iva.toFixed(2)}</span></div>
-              <div className="flex justify-between"><span>Envío:</span><span>${previsualizacion.envio.toFixed(2)}</span></div>
-              <div className="flex justify-between font-semibold text-lg mt-2"><span>Total:</span><span>${previsualizacion.total.toFixed(2)}</span></div>
+          {/* Totales */}
+          <div className="space-y-2 border-t pt-4">
+            <div className="flex justify-between text-gray-700">
+              <span>Total productos: ${subtotal.toFixed(2)}</span>
             </div>
-          ) : (
-            <p className="text-gray-600">Cargando resumen…</p>
-          )}
+            <div className="flex justify-between text-gray-700">
+              <span>IVA: ${ivaTotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-gray-700">
+              <span>Envío: ${envio.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between font-bold text-xl text-gray-900 pt-2 border-t">
+              <span>Total a pagar:</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+          </div>
         </div>
+
+        {/* Datos de envío (derecha) */}
+        <div className="bg-white border rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Datos de envío</h2>
+
+          <form onSubmit={handlePagar} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dirección
+              </label>
+              <input
+                type="text"
+                className="border border-gray-300 w-full rounded-md px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tarjeta
+              </label>
+              <input
+                type="text"
+                className="border border-gray-300 w-full rounded-md px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                value={tarjeta}
+                onChange={(e) => setTarjeta(e.target.value)}
+                inputMode="numeric"
+                placeholder="16 dígitos"
+                minLength={16}
+                maxLength={16}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#0A2540] hover:bg-[#0D3158] text-white py-3 rounded-md font-medium mt-6"
+            >
+              Confirmar compra
+            </button>
+          </form>
+        </div>
+
       </div>
     </main>
   );
