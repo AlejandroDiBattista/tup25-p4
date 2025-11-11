@@ -77,7 +77,7 @@ export function SiteHeader({ active = "products" }: HeaderProps) {
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-6">
-        <span className="text-xl font-semibold tracking-tight">TP6 Shop</span>
+        <span className="text-xl font-semibold tracking-tight text-slate-900">TP6 Shop</span>
         <nav className="flex items-center gap-6">
           <Link className={navLinkClasses(active === "products")} href="/">
             Productos
