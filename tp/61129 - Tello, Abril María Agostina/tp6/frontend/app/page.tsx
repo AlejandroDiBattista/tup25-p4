@@ -40,6 +40,20 @@ export default function Home() {
     };
     syncUsuario();
     window.addEventListener("storage", syncUsuario);
+
+    // Recuperar carrito de localStorage al cargar la página
+    if (typeof window !== "undefined") {
+      const carritoGuardado = localStorage.getItem("carrito");
+      if (carritoGuardado) {
+        try {
+          const carritoParseado = JSON.parse(carritoGuardado);
+          if (Array.isArray(carritoParseado)) {
+            setCarrito(carritoParseado);
+          }
+        } catch {}
+      }
+    }
+
     return () => window.removeEventListener("storage", syncUsuario);
   }, []);
 
@@ -47,12 +61,16 @@ export default function Home() {
     obtenerProductos().then((data: Producto[]) => {
       setProductos(data);
       setCategorias(Array.from(new Set(data.map((p: Producto) => p.categoria).filter((cat): cat is string => typeof cat === 'string'))));
-      // Inicializar stock
+      // Inicializar stock considerando el carrito guardado
       const stockMap: Record<number, number> = {};
-      data.forEach((p: Producto) => { stockMap[p.id] = typeof p.existencia === 'number' ? p.existencia : (typeof p.stock === 'number' ? p.stock : 0); });
+      data.forEach((p: Producto) => {
+        const stockOriginal = typeof p.existencia === 'number' ? p.existencia : (typeof p.stock === 'number' ? p.stock : 0);
+        const cantidadEnCarrito = (carrito.find((item) => item.id === p.id)?.cantidad) ?? 0;
+        stockMap[p.id] = stockOriginal - cantidadEnCarrito;
+      });
       setProductosStock(stockMap);
     });
-  }, []);
+  }, [carrito]);
 
     const productosFiltrados = productos.filter((p: Producto) =>
       (categoriaFiltro ? p.categoria === categoriaFiltro : true) &&
@@ -62,21 +80,18 @@ export default function Home() {
 
     function agregarAlCarrito(producto: Producto) {
       setCarrito((prev: (Producto & { cantidad: number })[]) => {
-        const existe = prev.find((item: Producto & { cantidad: number }) => item.id === producto.id);
-        const stockDisponible = productosStock[producto.id] ?? producto.existencia ?? producto.stock ?? 0;
+        const existe = prev.find((item) => item.id === producto.id);
+        const stockOriginal = productos.find((p) => p.id === producto.id)?.existencia ?? productos.find((p) => p.id === producto.id)?.stock ?? 0;
+        const cantidadEnCarrito = existe?.cantidad ?? 0;
+        if (cantidadEnCarrito >= stockOriginal) return prev;
         let nuevoCarrito;
-        if (stockDisponible <= 0) return prev;
         if (existe) {
-          if (existe.cantidad < stockDisponible) {
-            setProductosStock((s: Record<number, number>) => ({ ...s, [producto.id]: stockDisponible - 1 }));
-            nuevoCarrito = prev.map((p: Producto & { cantidad: number }) => p.id === producto.id ? { ...p, cantidad: p.cantidad + 1 } : p);
-          } else {
-            return prev;
-          }
+          nuevoCarrito = prev.map((p) => p.id === producto.id ? { ...p, cantidad: p.cantidad + 1 } : p);
         } else {
-          setProductosStock((s: Record<number, number>) => ({ ...s, [producto.id]: stockDisponible - 1 }));
           nuevoCarrito = [...prev, { ...producto, cantidad: 1 }];
         }
+        // Actualizar productosStock para mostrar correctamente el disponible
+        setProductosStock((s) => ({ ...s, [producto.id]: stockOriginal - (cantidadEnCarrito + 1) }));
         localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
         return nuevoCarrito;
       });
@@ -126,7 +141,9 @@ export default function Home() {
               </div>
               <div className="flex flex-col gap-6">
                 {productosFiltrados.map((producto: Producto) => {
-                  const stockDisponible = productosStock[producto.id] ?? producto.existencia ?? producto.stock ?? 0;
+                  const stockOriginal = productos.find((p) => p.id === producto.id)?.existencia ?? productos.find((p) => p.id === producto.id)?.stock ?? 0;
+                  const cantidadEnCarrito = carrito.find((item) => item.id === producto.id)?.cantidad ?? 0;
+                  const stockDisponible = stockOriginal - cantidadEnCarrito;
                   return (
                     <div key={producto.id} className="bg-white rounded-lg shadow flex flex-row items-center p-4">
                       <img src={`http://localhost:8000/${producto.imagen}`} alt={producto.titulo} className="w-32 h-32 object-contain rounded mr-6 bg-gray-100" />
