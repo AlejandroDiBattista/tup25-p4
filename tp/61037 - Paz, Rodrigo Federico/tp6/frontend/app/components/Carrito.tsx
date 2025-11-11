@@ -8,10 +8,12 @@ import {
   cancelarCarrito,
 } from "../services/productos";
 import { useCarrito } from "../../context/CarritoContext";
+import Toast from "./Toast";
 
 export default function Carrito() {
   const [items, setItems] = useState<any[]>([]);
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
   const { actualizarCarrito } = useCarrito();
 
@@ -84,7 +86,7 @@ export default function Carrito() {
       setItems(nuevos);
       actualizarCarrito();
     } catch (e: any) {
-      alert(e.message || "No se pudo agregar más unidades");
+      setToast({ message: e.message || "No se pudo agregar más unidades", type: "error" });
     }
   }
 
@@ -99,6 +101,7 @@ export default function Carrito() {
 
   return (
     <div className="p-4 border rounded-lg bg-white shadow-sm sticky top-6">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div className="space-y-3">
         {items.map((item) => (
           <div key={item.producto_id} className="border border-gray-200 rounded-lg p-3 bg-white">

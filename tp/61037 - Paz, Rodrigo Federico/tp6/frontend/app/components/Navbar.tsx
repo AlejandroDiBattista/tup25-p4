@@ -40,7 +40,7 @@ export default function Navbar() {
 
     <button
       onClick={handleLogout}
-      className="text-red-600 hover:text-red-700"
+      className="text-gray-900 hover:text-gray-700 font-medium cursor-pointer"
     >
       Salir
     </button>

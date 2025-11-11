@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { finalizarCompra, obtenerCarrito } from "../services/productos";
+import Toast from "../components/Toast";
 
 export default function FinalizarCompraPage() {
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
@@ -22,16 +23,20 @@ export default function FinalizarCompraPage() {
     cargarCarrito();
   }, []);
 
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+
   async function handlePagar(e: React.FormEvent) {
     e.preventDefault();
     if (!usuarioId) return;
     
     try {
       const r = await finalizarCompra(usuarioId, direccion, tarjeta);
-      alert(r.mensaje || `Compra realizada con éxito. Total pagado: $${r.total_pagado}`);
-      window.location.href = "/mis-compras";
+      setToast({ message: `Compra realizada con éxito. Total pagado: $${r.total_pagado}`, type: "success" });
+      setTimeout(() => {
+        window.location.href = "/mis-compras";
+      }, 2000);
     } catch (error: any) {
-      alert(error.message || "Error al finalizar la compra");
+      setToast({ message: error.message || "Error al finalizar la compra", type: "error" });
     }
   }
 
@@ -46,6 +51,8 @@ export default function FinalizarCompraPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      
       {/* Título */}
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Finalizar compra</h1>
 
