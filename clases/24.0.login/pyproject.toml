@@ -1,0 +1,11 @@
+[project]
+name = "24-login"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14.0"
+dependencies = [
+    "fastapi>=0.119.1",
+    "sqlmodel>=0.0.27",
+    "uvicorn>=0.38.0",
+]
