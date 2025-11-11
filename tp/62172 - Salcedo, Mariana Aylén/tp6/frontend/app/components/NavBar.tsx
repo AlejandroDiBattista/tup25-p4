@@ -1,18 +1,43 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ShoppingCart, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from 'react';
 
 /**
  * Componente de barra de navegación principal
  * Muestra logo, navegación, carrito y opciones de usuario
  */
 export default function NavBar() {
-  // TODO: Conectar con estado global en próximo commit
-  const isAuthenticated = false;
-  const cartItemsCount = 0;
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState('');
+  const cartItemsCount = 0; // TODO: Conectar con carrito en próximo commit
+
+  // Verificar si hay usuario logueado
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const usuario = localStorage.getItem('usuario');
+    
+    if (token && usuario) {
+      setIsAuthenticated(true);
+      const userData = JSON.parse(usuario);
+      setUserName(userData.nombre);
+    }
+  }, []);
+
+  // Cerrar sesión
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    setIsAuthenticated(false);
+    setUserName('');
+    router.push('/');
+    router.refresh();
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b">
@@ -63,16 +88,20 @@ export default function NavBar() {
                   </Button>
                 </Link>
 
-                {/* Perfil */}
-                <Link href="/purchases">
-                  <Button variant="outline" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </Link>
+                {/* Nombre del usuario */}
+                <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                  {userName}
+                </span>
 
                 {/* Cerrar sesión */}
-                <Button variant="ghost" size="icon">
-                  <LogOut className="h-5 w-5" />
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleLogout}
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Salir</span>
                 </Button>
               </>
             ) : (
