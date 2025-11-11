@@ -20,27 +20,18 @@ from models import (
 )
 from models.productos import seed_productos
 
-
 # ── App y middlewares ─────────────────────────────────────────────────────────
 app = FastAPI(title="API Productos")
 
-# 📦 Servir imágenes estáticas
 app.mount("/imagenes", StaticFiles(directory=BASE_DIR / "imagenes"), name="imagenes")
 
-# ✅ CORRECCIÓN CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-
 
 # ── Hooks de arranque ─────────────────────────────────────────────────────────
 @app.on_event("startup")
@@ -48,7 +39,6 @@ def on_startup():
     SQLModel.metadata.create_all(engine)
     with Session(engine) as s:
         seed_productos(s, BASE_DIR)
-
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def get_session():
@@ -62,13 +52,10 @@ def auth_user(
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(401, "Token requerido")
     token = authorization.replace("Bearer ", "").strip()
-
     u = session.exec(select(Usuario).where(Usuario.token == token)).first()
     if not u:
         raise HTTPException(401, "Token inválido")
-
     return u.id
-
 
 def _normalize(s: str) -> str:
     s_nfkd = unicodedata.normalize("NFD", s or "")
@@ -93,12 +80,10 @@ def get_or_create_carrito(session: Session, usuario_id: int) -> Carrito:
         session.refresh(carrito)
     return carrito
 
-
 # ── Rutas básicas ─────────────────────────────────────────────────────────────
 @app.get("/")
 def root():
     return {"mensaje": "API de Productos - use /productos, /carrito y /compras"}
-
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
 @app.post("/registrar")
@@ -112,10 +97,7 @@ def registrar(
         ya = session.exec(select(Usuario).where(Usuario.email == email)).first()
         if ya:
             raise HTTPException(400, "Email ya registrado")
-
-        # ✅ Truncar la contraseña a 72 caracteres para evitar error de bcrypt
         hashed = bcrypt.hash(password[:72])
-
         u = Usuario(nombre=nombre, email=email, password_hash=hashed)
         session.add(u)
         session.commit()
@@ -132,16 +114,12 @@ def iniciar_sesion(
     u = session.exec(select(Usuario).where(Usuario.email == email)).first()
     if not u or not bcrypt.verify(password, u.password_hash):
         raise HTTPException(401, "Credenciales inválidas")
-
-    # 🔐 Generar nuevo token y guardarlo en la base
     token = secrets.token_urlsafe(24)
     u.token = token
     session.add(u)
     session.commit()
     session.refresh(u)
-
     return {"token": token, "usuario": {"id": u.id, "nombre": u.nombre, "email": u.email}}
-
 
 @app.post("/cerrar-sesion")
 def cerrar_sesion(
@@ -156,8 +134,6 @@ def cerrar_sesion(
             session.add(u)
             session.commit()
     return {"ok": True}
-
-
 
 # ── Productos ─────────────────────────────────────────────────────────────────
 @app.get("/productos")
@@ -182,7 +158,6 @@ def detalle_producto(pid: int, session: Session = Depends(get_session)):
         raise HTTPException(404, "Producto no encontrado")
     return p
 
-
 # ── Carrito ───────────────────────────────────────────────────────────────────
 @app.get("/carrito")
 def ver_carrito(user_id: int = Depends(auth_user), session: Session = Depends(get_session)):
@@ -191,7 +166,6 @@ def ver_carrito(user_id: int = Depends(auth_user), session: Session = Depends(ge
     detalle: List[dict] = []
     subtotal = 0.0
     iva_total = 0.0
-
     for it in items:
         prod = session.get(Producto, it.producto_id)
         if not prod:
@@ -207,11 +181,9 @@ def ver_carrito(user_id: int = Depends(auth_user), session: Session = Depends(ge
         })
         subtotal += linea_sub
         iva_total += calcular_iva(it, prod)
-
     total_parcial = subtotal + iva_total
     envio = costo_envio(total_parcial)
     total = total_parcial + envio
-
     return {
         "carrito_id": carrito.id,
         "estado": carrito.estado,
@@ -234,11 +206,9 @@ def agregar_carrito(
         raise HTTPException(404, "Producto no encontrado")
     if prod.existencia < cantidad:
         raise HTTPException(400, "Producto sin stock suficiente")
-
     carrito = get_or_create_carrito(session, user_id)
     if carrito.estado != "abierto":
         raise HTTPException(400, "El carrito no está abierto")
-
     item = session.exec(
         select(ItemCarrito).where(
             ItemCarrito.carrito_id == carrito.id,
@@ -253,7 +223,6 @@ def agregar_carrito(
     else:
         item = ItemCarrito(carrito_id=carrito.id, producto_id=producto_id, cantidad=cantidad)
         session.add(item)
-
     session.commit()
     return {"ok": True}
 
@@ -297,35 +266,28 @@ def finalizar_compra(
     carrito = get_or_create_carrito(session, user_id)
     if carrito.estado != "abierto":
         raise HTTPException(400, "Carrito no abierto")
-
     items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
     if not items:
         raise HTTPException(400, "El carrito está vacío")
-
     subtotal = 0.0
     iva_total = 0.0
     detalle_items: List[ItemCompra] = []
-
     for it in items:
         prod = session.get(Producto, it.producto_id)
         if not prod or prod.existencia < it.cantidad:
             raise HTTPException(400, f"Sin stock para {prod.nombre if prod else it.producto_id}")
-
         linea = float(prod.precio) * it.cantidad
         subtotal += linea
         iva_total += calcular_iva(it, prod)
-
         detalle_items.append(ItemCompra(
             producto_id=prod.id,
             cantidad=it.cantidad,
             nombre=prod.nombre,
             precio_unitario=float(prod.precio),
         ))
-
     total_parcial = subtotal + iva_total
     envio = costo_envio(total_parcial)
     total = total_parcial + envio
-
     compra = Compra(
         usuario_id=user_id,
         direccion=direccion,
@@ -336,20 +298,16 @@ def finalizar_compra(
     session.add(compra)
     session.commit()
     session.refresh(compra)
-
     for di in detalle_items:
         di.compra_id = compra.id
         session.add(di)
-
     for it in items:
         prod = session.get(Producto, it.producto_id)
         prod.existencia -= it.cantidad
         session.delete(it)
-
     carrito.estado = "finalizado"
     session.commit()
     return {"ok": True, "compra_id": compra.id, "total": compra.total, "envio": compra.envio}
-
 
 # ── Compras ───────────────────────────────────────────────────────────────────
 @app.get("/compras")
@@ -376,6 +334,7 @@ def detalle_compra(cid: int, user_id: int = Depends(auth_user), session: Session
         "id": c.id,
         "fecha": c.fecha.isoformat(),
         "direccion": c.direccion,
+        "tarjeta": c.tarjeta,  
         "total": c.total,
         "envio": c.envio,
         "items": [

@@ -1,6 +1,9 @@
+// confirmar/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Carrito } from "../services/productos";
 
 interface CarritoItem {
@@ -15,6 +18,7 @@ export default function ConfirmarCompraPage() {
   const [carrito, setCarrito] = useState<CarritoItem[]>([]);
   const [direccion, setDireccion] = useState("");
   const [tarjeta, setTarjeta] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCarrito = async () => {
@@ -46,6 +50,7 @@ export default function ConfirmarCompraPage() {
     try {
       await Carrito.finalizar(direccion, tarjeta);
       alert("Compra confirmada con éxito.");
+      router.push("/compras"); // 👈 redirigir al historial
     } catch (err) {
       alert("Error al confirmar la compra.");
     }
@@ -56,24 +61,17 @@ export default function ConfirmarCompraPage() {
       <h2 className="text-2xl font-bold mb-6">Finalizar compra</h2>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* 🧾 Resumen del carrito */}
         <div className="bg-white p-6 rounded-xl shadow space-y-4">
           <h3 className="text-lg font-semibold">Resumen del carrito</h3>
           {carrito.map((item) => (
             <div key={item.producto_id} className="flex justify-between items-center">
               <div>
                 <p className="text-gray-900 font-medium">{item.nombre}</p>
-                <p className="text-sm text-gray-600">
-                  Cantidad: {item.cantidad}
-                </p>
+                <p className="text-sm text-gray-600">Cantidad: {item.cantidad}</p>
               </div>
               <div className="text-right">
-                <p className="text-gray-900 font-semibold">
-                  ${(item.subtotal).toFixed(2)}
-                </p>
-                <p className="text-sm text-gray-500">
-                  IVA: ${ivaItem(item).toFixed(2)}
-                </p>
+                <p className="text-gray-900 font-semibold">${item.subtotal.toFixed(2)}</p>
+                <p className="text-sm text-gray-500">IVA: ${ivaItem(item).toFixed(2)}</p>
               </div>
             </div>
           ))}
@@ -84,13 +82,10 @@ export default function ConfirmarCompraPage() {
             <p>Total productos: ${subtotal.toFixed(2)}</p>
             <p>IVA: ${ivaTotal.toFixed(2)}</p>
             <p>Envío: ${envio.toFixed(2)}</p>
-            <p className="font-bold text-lg">
-              Total a pagar: ${total.toFixed(2)}
-            </p>
+            <p className="font-bold text-lg">Total a pagar: ${total.toFixed(2)}</p>
           </div>
         </div>
 
-        {/* 📬 Datos de envío */}
         <div className="bg-white p-6 rounded-xl shadow space-y-4">
           <h3 className="text-lg font-semibold">Datos de envío</h3>
           <input

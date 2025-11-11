@@ -1,60 +1,67 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { Compras } from "../../services/productos";
+import { useParams } from "next/navigation";
+import { Compras } from "../../../app/services/productos";
 
-interface ItemCompra {
-  producto_id: number;
-  nombre: string;
-  cantidad: number;
-  precio_unitario: number;
-}
-
-interface CompraDetalleData {
-  id: number;
-  fecha: string;
-  direccion: string;
-  total: number;
-  envio: number;
-  items: ItemCompra[];
-}
-
-export default function CompraDetalle({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const [data, setData] = useState<CompraDetalleData | null>(null);
+export default function DetalleCompra() {
+  const { id } = useParams();
+  const [compra, setCompra] = useState<any>(null);
 
   useEffect(() => {
-    void (async () => {
-      const detalle = await Compras.detalle(Number(params.id));
-      setData(detalle);
-    })();
-  }, [params.id]);
+    const fetchDetalle = async () => {
+      try {
+        const data = await Compras.detalle(Number(id));
+        setCompra(data);
+      } catch (err) {
+        alert("Error al obtener detalle.");
+      }
+    };
+    fetchDetalle();
+  }, [id]);
 
-  if (!data) return <div className="card">Cargando detalle...</div>;
+  if (!compra) return <p className="p-6">Cargando compra...</p>;
+
+  // 🧠 Calcular subtotal e IVA desde el frontend
+  const subtotal = compra.items.reduce(
+    (acc: number, item: any) => acc + item.precio_unitario * item.cantidad,
+    0
+  );
+
+  const iva = subtotal * 0.21; // Si querés aplicar por categoría, avisame y lo ajustamos
 
   return (
-    <div className="space-y-3">
-      <h1 className="text-xl font-semibold">Compra #{data.id}</h1>
+    <main className="max-w-5xl mx-auto py-10 px-4">
+      <h2 className="text-2xl font-bold mb-6">Detalle de la compra</h2>
 
-      <div className="card">
-        <div>Fecha: {new Date(data.fecha).toLocaleString()}</div>
-        <div>Dirección: {data.direccion}</div>
-        <div>Envío: ${data.envio.toFixed(2)}</div>
-        <div className="font-bold">Total: ${data.total.toFixed(2)}</div>
-      </div>
+      <div className="bg-white rounded-xl shadow p-6 space-y-4">
+        <p><strong>Compra #:</strong> {compra.id}</p>
+        <p><strong>Fecha:</strong> {new Date(compra.fecha).toLocaleString()}</p>
+        <p><strong>Dirección:</strong> {compra.direccion}</p>
+        <p><strong>Tarjeta:</strong> {compra.tarjeta}</p>
 
-      <div className="space-y-2">
-        {data.items.map((it) => (
-          <div key={it.producto_id} className="card flex justify-between">
-            <div>{it.nombre}</div>
-            <div>
-              Cant: {it.cantidad} · ${it.precio_unitario.toFixed(2)}
+        <hr />
+
+        <h3 className="text-lg font-semibold">Productos</h3>
+        {compra.items.map((item: any) => (
+          <div key={item.producto_id} className="flex justify-between text-sm">
+            <p>{item.nombre} (x{item.cantidad})</p>
+            <div className="text-right">
+              <p>${item.precio_unitario.toFixed(2)}</p>
+              <p className="text-gray-500 text-xs">
+                IVA: ${(item.precio_unitario * item.cantidad * 0.21).toFixed(2)}
+              </p>
             </div>
           </div>
         ))}
+
+        <hr />
+
+        <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
+        <p><strong>IVA:</strong> ${iva.toFixed(2)}</p>
+        <p><strong>Envío:</strong> ${compra.envio.toFixed(2)}</p>
+        <p className="text-lg font-bold">Total pagado: ${compra.total.toFixed(2)}</p>
       </div>
-    </div>
+    </main>
   );
 }

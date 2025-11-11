@@ -64,11 +64,6 @@ export default function CarritoPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-[#0a1d37] text-white py-4 px-6 flex justify-between items-center shadow-sm">
-        <h1 className="text-xl font-semibold flex items-center gap-2">
-          🛍️ TP6 Shop
-        </h1>
-      </header>
 
       <main className="max-w-4xl mx-auto p-6">
         <h2 className="text-xl font-bold mb-4">Carrito</h2>

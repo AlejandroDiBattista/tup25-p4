@@ -1,48 +1,50 @@
+// compras/page.tsx
+
 "use client";
+
 import { useEffect, useState } from "react";
-import { Compras } from "../services/productos";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Compras } from "../../app/services/productos";
 
 interface Compra {
   id: number;
-  fecha: string;
-  direccion: string;
   total: number;
-  envio: number;
+  fecha: string;
 }
 
-export default function ComprasPage() {
-  const [rows, setRows] = useState<Compra[]>([]);
+export default function HistorialCompras() {
+  const [compras, setCompras] = useState<Compra[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    void (async () => {
-      const data = await Compras.listar();
-      setRows(data);
-    })();
+    const fetchCompras = async () => {
+      try {
+        const data = await Compras.listar();
+        setCompras(data);
+      } catch (err) {
+        alert("Error al cargar historial de compras.");
+      }
+    };
+    fetchCompras();
   }, []);
 
   return (
-    <div className="space-y-3">
-      <h1 className="text-xl font-semibold">Mis compras</h1>
+    <main className="max-w-4xl mx-auto py-10 px-4">
+      <h2 className="text-2xl font-bold mb-6">Mis compras</h2>
 
-      {rows.length === 0 ? (
-        <div className="card text-gray-600">No tenés compras todavía.</div>
-      ) : (
-        rows.map((r) => (
-          <div key={r.id} className="card flex justify-between">
-            <div>
-              <div className="font-semibold">Compra #{r.id}</div>
-              <div className="text-sm">
-                {new Date(r.fecha).toLocaleString()}
-              </div>
-              <div>Total: ${r.total.toFixed(2)}</div>
-            </div>
-            <Link className="btn" href={`/compras/${r.id}`}>
-              Ver detalle
-            </Link>
+      <div className="space-y-4">
+        {compras.map((compra) => (
+          <div
+            key={compra.id}
+            onClick={() => router.push(`/compras/${compra.id}`)}
+            className="cursor-pointer border rounded-lg p-4 shadow hover:bg-gray-50"
+          >
+            <p className="font-semibold">Compra #{compra.id}</p>
+            <p className="text-sm text-gray-600">Fecha: {new Date(compra.fecha).toLocaleString()}</p>
+            <p className="text-sm text-gray-800">Total: ${compra.total.toFixed(2)}</p>
           </div>
-        ))
-      )}
-    </div>
+        ))}
+      </div>
+    </main>
   );
 }
