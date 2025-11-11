@@ -99,38 +99,43 @@ export default function Carrito() {
 
   return (
     <div className="p-4 border rounded-lg bg-white shadow-sm sticky top-6">
-      {items.map((item) => (
-        <div key={item.producto_id} className="flex items-center justify-between py-3 border-b">
-          <div className="flex items-center gap-3">
-            <img
-              src={`${API_URL}/imagenes/${item.producto_id.toString().padStart(4, "0")}.png`}
-              className="w-14 h-14 rounded object-cover"
-            />
-            <div>
-              <p className="text-sm font-medium text-gray-900">{item.nombre}</p>
-              <p className="text-xs text-gray-500">${item.precio.toFixed(2)} c/u</p>
+      <div className="space-y-3">
+        {items.map((item) => (
+          <div key={item.producto_id} className="border border-gray-200 rounded-lg p-3 bg-white">
+            {/* Producto con imagen y nombre */}
+            <div className="flex items-center gap-3 mb-3">
+              <img
+                src={`${API_URL}/imagenes/${item.producto_id.toString().padStart(4, "0")}.png`}
+                className="w-16 h-16 rounded object-cover"
+                alt={item.nombre}
+              />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">{item.nombre}</p>
+                <p className="text-xs text-gray-500">${item.precio.toFixed(2)} c/u</p>
+              </div>
+            </div>
+
+            {/* Controles de cantidad DEBAJO del producto */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Cantidad: {item.cantidad}</span>
+                <button
+                  className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
+                  onClick={() => handleRestar(item.producto_id)}
+                >
+                  −
+                </button>
+                <button
+                  className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
+                  onClick={() => handleSumar(item.producto_id)}
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              className="border rounded px-2 text-sm"
-              onClick={() => handleRestar(item.producto_id)}
-            >
-              -
-            </button>
-            <span className="text-sm">{item.cantidad}</span>
-            <button
-              className="border rounded px-2 text-sm"
-              onClick={() => handleSumar(item.producto_id)}
-            >
-              +
-            </button>
-          </div>
-
-          <p className="text-sm font-semibold">${item.subtotal.toFixed(2)}</p>
-        </div>
-      ))}
+        ))}
+      </div>
 
       <div className="text-sm space-y-1 mt-4">
         <div className="flex justify-between text-gray-700">
