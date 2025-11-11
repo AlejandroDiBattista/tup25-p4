@@ -76,10 +76,13 @@ def obtener_totales(
     """Obtener totales del carrito."""
     cart = _ensure_cart(session, current_user.id)
     if not cart.items:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El carrito está vacío.",
-        )
+        # Retornar totales en 0 cuando el carrito está vacío
+        return {
+            "subtotal": 0.0,
+            "iva": 0.0,
+            "envio": 0.0,
+            "total": 0.0,
+        }
     return calculate_totals(session, cart)
 
 
