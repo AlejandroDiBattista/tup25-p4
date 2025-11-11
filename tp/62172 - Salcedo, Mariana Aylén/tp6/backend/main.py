@@ -75,8 +75,24 @@ def root():
     return {"mensaje": "API E-Commerce - Endpoints: /productos, /registrar, /iniciar-sesion"}
 
 @app.get("/productos")
-def obtener_productos():
+def obtener_productos(
+    busqueda: Optional[str] = None,
+    categoria: Optional[str] = None
+):
     productos = cargar_productos()
+    
+    # Filtrar por búsqueda (en nombre o descripción)
+    if busqueda:
+        busqueda_lower = busqueda.lower()
+        productos = [
+            p for p in productos
+            if busqueda_lower in p["nombre"].lower() or busqueda_lower in p["descripcion"].lower()
+        ]
+    
+    # Filtrar por categoría
+    if categoria and categoria != "todas":
+        productos = [p for p in productos if p["categoria"] == categoria]
+    
     return productos
 
 # ===== ENDPOINTS DE AUTENTICACIÓN =====
