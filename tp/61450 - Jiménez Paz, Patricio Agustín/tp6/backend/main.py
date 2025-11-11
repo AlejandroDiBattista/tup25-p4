@@ -1,16 +1,14 @@
 from fastapi import FastAPI, HTTPException, Depends, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import SQLModel, create_engine, Session, select
+from sqlmodel import Session, select
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
 from models import Producto, Usuario
 from schemas import UsuarioRegistro, UsuarioLogin
-from auth import hash_password, verify_password, generar_token, obtener_usuario_actual
-
-DATABASE_URL = "sqlite:///./database.db"
-engine = create_engine(DATABASE_URL, echo=False)
+from auth import hash_password, verify_password, generar_token, obtener_usuario_actual, verificar_no_autenticado
+from database import get_session, inicializar_tablas, engine
 
 app = FastAPI(title="API Productos")
 
@@ -24,13 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_session():
-    with Session(engine) as session:
-        yield session
-
 
 def inicializar_base_datos():
-    SQLModel.metadata.create_all(engine)
+    inicializar_tablas()
     
     with Session(engine) as session:
         resultado = session.exec(select(Producto)).first()
@@ -54,7 +48,11 @@ def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 @app.post("/registrar", status_code=status.HTTP_201_CREATED)
-def registrar_usuario(usuario_data: UsuarioRegistro, session: Session = Depends(get_session)):
+def registrar_usuario(
+    usuario_data: UsuarioRegistro,
+    session: Session = Depends(get_session),
+    _: bool = Depends(verificar_no_autenticado)
+):
     usuario_existente = session.exec(
         select(Usuario).where(Usuario.email == usuario_data.email)
     ).first()
@@ -79,7 +77,12 @@ def registrar_usuario(usuario_data: UsuarioRegistro, session: Session = Depends(
 
 
 @app.post("/iniciar-sesion")
-def iniciar_sesion(credenciales: UsuarioLogin, response: Response, session: Session = Depends(get_session)):
+def iniciar_sesion(
+    credenciales: UsuarioLogin,
+    response: Response,
+    session: Session = Depends(get_session),
+    _: bool = Depends(verificar_no_autenticado)
+):
     usuario = session.exec(
         select(Usuario).where(Usuario.email == credenciales.email)
     ).first()
@@ -108,15 +111,15 @@ def iniciar_sesion(credenciales: UsuarioLogin, response: Response, session: Sess
 
 
 @app.post("/cerrar-sesion")
-def cerrar_sesion(response: Response, usuario_info: dict = Depends(obtener_usuario_actual), session: Session = Depends(get_session)):
-    token = usuario_info["token"]
-    usuario = session.exec(select(Usuario).where(Usuario.token == token)).first()
-    
-    if usuario:
-        usuario.token = None
-        usuario.token_expiracion = None
-        session.add(usuario)
-        session.commit()
+def cerrar_sesion(
+    response: Response,
+    usuario: Usuario = Depends(obtener_usuario_actual),
+    session: Session = Depends(get_session)
+):
+    usuario.token = None
+    usuario.token_expiracion = None
+    session.add(usuario)
+    session.commit()
     
     response.delete_cookie(key="token", samesite="lax")
     
