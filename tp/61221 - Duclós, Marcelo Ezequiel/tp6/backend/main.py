@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlmodel import Session, select
 from typing import List, Optional
+from pydantic import BaseModel
 
 from database import get_session
 from models import (
@@ -325,8 +326,15 @@ def listar_usuarios(session: Session = Depends(get_session)):
 
 # ==================== ENDPOINTS DE COMPRAS ====================
 
+class DatosCompra(BaseModel):
+    direccion: str = "Av. Corrientes 1234, CABA, Argentina"
+    tarjeta: str = "**** **** **** 1234"
+
+
+
 @app.post("/compra/finalizar")
 async def finalizar_compra_endpoint(
+    datos: DatosCompra = DatosCompra(),
     usuario_actual: Usuario = Depends(obtener_usuario_actual),
     session: Session = Depends(get_session)
 ):
@@ -336,7 +344,7 @@ async def finalizar_compra_endpoint(
         carrito = obtener_o_crear_carrito(session, usuario_actual.id)
         
         # Finalizar compra
-        compra = finalizar_compra(session, carrito)
+        compra = finalizar_compra(session, carrito, datos.direccion, datos.tarjeta)
         
         # Obtener resumen completo de la compra
         resumen = obtener_resumen_compra(session, compra.id)
@@ -519,4 +527,4 @@ async def obtener_estadisticas_compras(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

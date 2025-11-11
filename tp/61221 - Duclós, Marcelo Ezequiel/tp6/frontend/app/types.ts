@@ -47,3 +47,29 @@ export interface Compra {
   envio: number;
   total: number;
 }
+
+export interface CompraItem {
+  id: number;
+  producto_id: number;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+  nombre: string;
+  categoria: string;
+  producto?: Producto;
+}
+
+export interface CompraDetallada {
+  id: number;
+  fecha: string;
+  fecha_compra?: string;
+  direccion: string;
+  tarjeta: string;
+  subtotal: number;
+  descuento: number;
+  iva: number;
+  envio: number;
+  total: number;
+  items: CompraItem[];
+  total_items: number;
+}

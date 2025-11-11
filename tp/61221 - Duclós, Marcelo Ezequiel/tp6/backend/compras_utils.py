@@ -97,13 +97,15 @@ def calcular_envio(subtotal: Decimal) -> Decimal:
         return ReglasNegocio.COSTO_ENVIO_STANDARD
 
 
-def finalizar_compra(session: Session, carrito: Carrito) -> Compra:
+def finalizar_compra(session: Session, carrito: Carrito, direccion: str = None, tarjeta: str = None) -> Compra:
     """
     Finaliza una compra convirtiendo el carrito en una compra
     
     Args:
         session: Sesión de base de datos
         carrito: Carrito a finalizar
+        direccion: Dirección de entrega (opcional)
+        tarjeta: Información de tarjeta (opcional)
         
     Returns:
         Compra creada
@@ -187,8 +189,8 @@ def finalizar_compra(session: Session, carrito: Carrito) -> Compra:
         iva=iva_total,
         total=total,
         fecha=datetime.utcnow(),
-        direccion="Dirección de entrega",  # Placeholder
-        tarjeta="**** 1234"  # Placeholder
+        direccion=direccion or "Av. Corrientes 1234, CABA, Argentina",
+        tarjeta=tarjeta or "**** **** **** 1234"
     )
     session.add(compra)
     session.flush()  # Para obtener el ID de la compra
@@ -246,14 +248,16 @@ def obtener_resumen_compra(session: Session, compra_id: int) -> dict:
         producto = session.get(Producto, item.producto_id)
         items_detalle.append({
             "producto_id": item.producto_id,
-            "titulo": producto.titulo,
+            "nombre": producto.titulo,
             "cantidad": item.cantidad,
             "precio_unitario": float(item.precio_unitario),
-            "subtotal": float(item.precio_unitario * item.cantidad)
+            "subtotal": float(item.precio_unitario * item.cantidad),
+            "categoria": producto.categoria
         })
     
     return {
         "id": compra.id,
+        "fecha": compra.fecha.isoformat(),
         "fecha_compra": compra.fecha.isoformat(),
         "subtotal": float(compra.subtotal),
         "descuento": float(compra.descuento),
@@ -262,6 +266,8 @@ def obtener_resumen_compra(session: Session, compra_id: int) -> dict:
         "envio_gratis": compra.envio == 0 and compra.subtotal >= ReglasNegocio.MONTO_ENVIO_GRATIS,
         "iva": float(compra.iva),
         "total": float(compra.total),
+        "direccion": compra.direccion,
+        "tarjeta": compra.tarjeta,
         "items": items_detalle,
         "total_items": sum(item.cantidad for item in items_compra),
         "porcentaje_descuento": float((compra.descuento / compra.subtotal * 100) if compra.subtotal > 0 else 0)

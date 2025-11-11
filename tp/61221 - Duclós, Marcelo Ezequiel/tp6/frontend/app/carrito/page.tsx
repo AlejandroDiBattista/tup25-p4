@@ -104,40 +104,50 @@ export default function CarritoPage() {
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-medium text-gray-900 truncate">
+                    <h3 className="text-lg font-bold text-gray-900 truncate leading-tight">
                       {item.producto.titulo}
                     </h3>
-                    <p className="text-sm text-gray-500">{item.producto.categoria}</p>
-                    <p className="text-lg font-bold text-blue-600 mt-1">
+                    <p className="text-sm font-medium text-gray-700 mt-1">{item.producto.categoria}</p>
+                    <p className="text-xl font-black text-blue-600 mt-2">
                       ${item.producto.precio}
                     </p>
                   </div>
 
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
-                      className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
-                    >
-                      -
-                    </button>
-                    <span className="text-lg font-medium min-w-[2rem] text-center">
-                      {item.cantidad}
-                    </span>
-                    <button
-                      onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
-                      className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
-                    >
-                      +
-                    </button>
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
+                        className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center font-bold text-red-700 transition-colors"
+                      >
+                        -
+                      </button>
+                      <span className="text-lg font-bold min-w-[2rem] text-center text-gray-900">
+                        {item.cantidad}
+                      </span>
+                      <button
+                        onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
+                        disabled={item.cantidad >= item.producto.existencia}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-colors ${
+                          item.cantidad >= item.producto.existencia
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-green-100 hover:bg-green-200 text-green-700'
+                        }`}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <div className="text-xs text-gray-600 text-center">
+                      Stock: {item.producto.existencia}
+                    </div>
                   </div>
 
                   <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-xl font-black text-gray-900 mb-2">
                       ${(item.producto.precio * item.cantidad).toFixed(2)}
                     </p>
                     <button
                       onClick={() => removerProducto(item.producto.id)}
-                      className="text-red-600 hover:text-red-700 text-sm mt-1"
+                      className="text-red-600 hover:text-red-800 text-sm font-semibold"
                     >
                       Eliminar
                     </button>
@@ -152,46 +162,50 @@ export default function CarritoPage() {
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Resumen del pedido</h2>
               
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-800 font-semibold">Subtotal</span>
+                  <span className="font-bold text-gray-900 text-lg">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">IVA</span>
-                  <span className="font-medium">${iva.toFixed(2)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-800 font-semibold">IVA</span>
+                  <span className="font-bold text-gray-900 text-lg">${iva.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Envío</span>
-                  <span className="font-medium">
-                    {envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-800 font-semibold">Envío</span>
+                  <span className="font-bold text-lg">
+                    {envio === 0 ? (
+                      <span className="text-green-600">Gratis</span>
+                    ) : (
+                      <span className="text-gray-900">${envio.toFixed(2)}</span>
+                    )}
                   </span>
                 </div>
-                <hr className="my-4" />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                <hr className="my-4 border-gray-300" />
+                <div className="flex justify-between items-center text-xl font-black">
+                  <span className="text-gray-900">Total</span>
+                  <span className="text-blue-600">${total.toFixed(2)}</span>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <Link
                   href="/checkout"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center block font-medium"
+                  className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors text-center block font-bold text-lg shadow-md hover:shadow-lg"
                 >
                   Continuar compra
                 </Link>
                 <Link
                   href="/"
-                  className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors text-center block"
+                  className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors text-center block font-semibold"
                 >
                   Seguir comprando
                 </Link>
               </div>
 
               {envio === 0 && (
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-800">
+                <div className="mt-4 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                  <p className="text-sm font-bold text-green-800 text-center">
                     🎉 ¡Felicidades! Tu pedido califica para envío gratuito
                   </p>
                 </div>

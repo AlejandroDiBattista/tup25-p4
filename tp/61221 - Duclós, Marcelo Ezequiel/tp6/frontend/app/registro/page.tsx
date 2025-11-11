@@ -28,6 +28,18 @@ export default function RegistroPage() {
       setLoading(false);
       return;
     }
+    
+    if (!/[A-Za-z]/.test(formData.contraseña)) {
+      setError('La contraseña debe contener al menos una letra');
+      setLoading(false);
+      return;
+    }
+    
+    if (!/[0-9]/.test(formData.contraseña)) {
+      setError('La contraseña debe contener al menos un número');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:8000/registrar', {
@@ -97,7 +109,7 @@ export default function RegistroPage() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="nombre" className="block text-sm font-bold text-gray-900 mb-2">
                 Nombre
               </label>
               <div className="mt-1">
@@ -108,14 +120,14 @@ export default function RegistroPage() {
                   required
                   value={formData.nombre}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 border-2 border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
                   placeholder="Juan Pérez"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-bold text-gray-900 mb-2">
                 Correo
               </label>
               <div className="mt-1">
@@ -127,14 +139,14 @@ export default function RegistroPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 border-2 border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
                   placeholder="juan@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="contraseña" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="contraseña" className="block text-sm font-bold text-gray-900 mb-2">
                 Contraseña
               </label>
               <div className="mt-1">
@@ -146,7 +158,7 @@ export default function RegistroPage() {
                   required
                   value={formData.contraseña}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 border-2 border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>

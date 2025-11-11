@@ -29,32 +29,36 @@ export default function CheckoutPage() {
       return;
     }
 
-    try {
-      // Simular agregado de productos al carrito en el backend
-      for (const item of items) {
-        await fetch('http://localhost:8000/carrito', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            producto_id: item.producto.id,
-            cantidad: item.cantidad,
-          }),
-        });
-      }
+    if (!datosEnvio.direccion.trim()) {
+      setError('Por favor ingresa una dirección de entrega');
+      setLoading(false);
+      return;
+    }
 
-      // Finalizar compra
-      const response = await fetch('http://localhost:8000/compra/finalizar', {
+    if (!datosEnvio.tarjeta.trim()) {
+      setError('Por favor ingresa la información de tu tarjeta');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Finalizar compra con los datos de envío
+      const response = await fetch(`${API_URL}/compra/finalizar`, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          direccion: datosEnvio.direccion,
+          tarjeta: datosEnvio.tarjeta
+        }),
       });
 
       if (response.ok) {
         vaciarCarrito();
+        // Forzar recarga de productos enviando señal
+        window.localStorage.setItem('forceProductRefresh', Date.now().toString());
         router.push('/compras?success=true');
       } else {
         const errorData = await response.json();
@@ -113,21 +117,21 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">
+                      <h3 className="font-bold text-gray-900 truncate text-base leading-tight">
                         {item.producto.titulo}
                       </h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm font-semibold text-blue-600 mt-1">
                         Cantidad: {item.cantidad}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm font-medium text-gray-700 mt-1">
                         IVA: {item.producto.categoria.toLowerCase().includes('electrón') ? '21%' : '10.5%'}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-lg">
+                      <p className="font-black text-xl text-gray-900">
                         ${(item.producto.precio * item.cantidad).toFixed(2)}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm font-medium text-gray-600 mt-1">
                         ${item.producto.precio} c/u
                       </p>
                     </div>
@@ -138,20 +142,30 @@ export default function CheckoutPage() {
 
             {/* Totales */}
             <div className="bg-white rounded-lg p-6 mt-6 shadow-sm">
-              <h3 className="font-bold text-lg mb-4">Resumen de costos</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Total productos: ${subtotal.toFixed(2)}</span>
+              <h3 className="font-black text-xl mb-6 text-gray-900">Resumen de costos</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-gray-800">Total productos:</span>
+                  <span className="font-bold text-lg text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>IVA: ${iva.toFixed(2)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-gray-800">IVA:</span>
+                  <span className="font-bold text-lg text-gray-900">${iva.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Envío: {envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}</span>
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-gray-800">Envío:</span>
+                  <span className="font-bold text-lg">
+                    {envio === 0 ? (
+                      <span className="text-green-600">Gratis</span>
+                    ) : (
+                      <span className="text-gray-900">${envio.toFixed(2)}</span>
+                    )}
+                  </span>
                 </div>
-                <hr className="my-3" />
-                <div className="flex justify-between font-bold text-xl">
-                  <span>Total a pagar: ${total.toFixed(2)}</span>
+                <hr className="my-4 border-gray-300" />
+                <div className="flex justify-between items-center font-black text-2xl">
+                  <span className="text-gray-900">Total a pagar:</span>
+                  <span className="text-blue-600">${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -164,7 +178,7 @@ export default function CheckoutPage() {
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="direccion" className="block text-sm font-bold text-gray-900 mb-3">
                       Dirección
                     </label>
                     <input
@@ -174,7 +188,7 @@ export default function CheckoutPage() {
                       required
                       value={datosEnvio.direccion}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
                       placeholder="Calle, número, ciudad, código postal"
                     />
                   </div>
@@ -182,9 +196,9 @@ export default function CheckoutPage() {
               </div>
 
               <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h3 className="font-medium text-gray-900 mb-4">Información de pago</h3>
+                <h3 className="font-bold text-gray-900 mb-6 text-lg">Información de pago</h3>
                 <div>
-                  <label htmlFor="tarjeta" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="tarjeta" className="block text-sm font-bold text-gray-900 mb-3">
                     Tarjeta
                   </label>
                   <input
@@ -194,7 +208,7 @@ export default function CheckoutPage() {
                     required
                     value={datosEnvio.tarjeta}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
                     placeholder="**** **** **** 1234"
                     maxLength={19}
                   />
@@ -211,7 +225,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={loading || !datosEnvio.direccion || !datosEnvio.tarjeta}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors font-bold text-lg shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Procesando compra...' : 'Confirmar compra'}
                 </button>
@@ -219,7 +233,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => router.push('/carrito')}
-                  className="w-full mt-3 border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full mt-4 border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
                 >
                   ✕ Cancelar
                 </button>
