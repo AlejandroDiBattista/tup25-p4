@@ -7,6 +7,8 @@ const ASSETS_BASE_URL =
 
 interface ProductCardProps {
   producto: Producto;
+  onAddToCart?: (producto: Producto) => void | Promise<void>;
+  isAdding?: boolean;
 }
 
 function buildImageUrl(path: string): string {
@@ -16,7 +18,11 @@ function buildImageUrl(path: string): string {
   return `${ASSETS_BASE_URL}/${path.replace(/^\//, "")}`;
 }
 
-export default function ProductCard({ producto }: ProductCardProps) {
+export default function ProductCard({
+  producto,
+  onAddToCart,
+  isAdding = false,
+}: ProductCardProps) {
   const agotado = producto.existencia <= 0;
   const imageUrl = buildImageUrl(producto.imagen);
 
@@ -65,10 +71,12 @@ export default function ProductCard({ producto }: ProductCardProps) {
           ${producto.precio.toFixed(2)}
         </span>
         <button
+          type="button"
+          onClick={() => onAddToCart?.(producto)}
           className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-          disabled={agotado}
+          disabled={agotado || isAdding || !onAddToCart}
         >
-          {agotado ? "Sin stock" : "Agregar al carrito"}
+          {agotado ? "Sin stock" : isAdding ? "Agregando..." : "Agregar al carrito"}
         </button>
       </footer>
     </article>
