@@ -68,7 +68,14 @@ def agregar_al_carrito(
     item_existente = session.exec(statement).first()
     
     if item_existente:
-        item_existente.cantidad += cantidad
+        nueva_cantidad = item_existente.cantidad + cantidad
+        # Validar que la nueva cantidad total no exceda el stock
+        if producto.existencia < nueva_cantidad:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Stock insuficiente. Disponible: {producto.existencia}, en carrito: {item_existente.cantidad}"
+            )
+        item_existente.cantidad = nueva_cantidad
     else:
         nuevo_item = ItemCarrito(
             carrito_id=carrito.id,

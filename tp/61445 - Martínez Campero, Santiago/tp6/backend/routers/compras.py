@@ -72,6 +72,13 @@ def finalizar_compra(
                 detail=f"Product {item.producto_id} not found"
             )
         
+        # Verificar stock disponible
+        if producto.existencia < item.cantidad:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Stock insuficiente para {producto.nombre}. Disponible: {producto.existencia}, solicitado: {item.cantidad}"
+            )
+        
         precio_item = producto.precio * item.cantidad
         subtotal += precio_item
         
@@ -90,6 +97,10 @@ def finalizar_compra(
             precio_total=precio_item
         )
         items_compra.append(item_compra)
+        
+        # Reducir el stock del producto
+        producto.existencia -= item.cantidad
+        session.add(producto)
         
         # Guardar info del producto para la respuesta
         items_info.append({

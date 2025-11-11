@@ -29,7 +29,9 @@ export default function AdminProductForm({ producto, onSuccess, onCancel }: Admi
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'precio' || name === 'existencia' ? parseFloat(value) : value,
+      [name]: name === 'precio' || name === 'existencia' 
+        ? (value === '' ? 0 : parseFloat(value) || 0) 
+        : value,
     }));
   };
 
@@ -87,6 +89,20 @@ export default function AdminProductForm({ producto, onSuccess, onCancel }: Admi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      {producto && producto.existencia === 0 && (
+        <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">⚠️</span>
+            <div>
+              <h3 className="text-lg font-bold text-red-900">Producto Agotado</h3>
+              <p className="text-red-700">
+                Este producto no tiene stock. Actualiza la existencia para reabastecerlo.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
         <Label htmlFor="nombre">Nombre del Producto</Label>
         <Input
@@ -128,7 +144,14 @@ export default function AdminProductForm({ producto, onSuccess, onCancel }: Admi
         </div>
 
         <div>
-          <Label htmlFor="existencia">Existencia (unidades)</Label>
+          <Label htmlFor="existencia">
+            Existencia (unidades)
+            {producto && producto.existencia === 0 && (
+              <span className="text-orange-600 font-bold ml-2">
+                - Producto AGOTADO
+              </span>
+            )}
+          </Label>
           <Input
             id="existencia"
             name="existencia"
@@ -136,8 +159,17 @@ export default function AdminProductForm({ producto, onSuccess, onCancel }: Admi
             value={formData.existencia}
             onChange={handleChange}
             placeholder="0"
-            className="mt-1"
+            className={`mt-1 ${
+              producto && producto.existencia === 0 
+                ? 'border-orange-500 focus:ring-orange-500 border-2' 
+                : ''
+            }`}
           />
+          {producto && producto.existencia === 0 && (
+            <p className="text-sm text-orange-600 mt-1">
+              💡 Ingresa la cantidad de unidades para reabastecer este producto
+            </p>
+          )}
         </div>
       </div>
 
@@ -155,7 +187,14 @@ export default function AdminProductForm({ producto, onSuccess, onCancel }: Admi
 
       <div className="flex gap-3 pt-4">
         <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700">
-          {loading ? 'Guardando...' : producto ? 'Actualizar Producto' : 'Crear Producto'}
+          {loading 
+            ? 'Guardando...' 
+            : producto 
+              ? producto.existencia === 0 
+                ? '🔄 Reabastecer Producto' 
+                : 'Actualizar Producto'
+              : 'Crear Producto'
+          }
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>

@@ -49,7 +49,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </div>
 
           <div className="border-t pt-3 mt-auto">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-3">
               <span className="text-2xl font-bold text-blue-600">
                 ${producto.precio.toFixed(2)}
               </span>
@@ -57,6 +57,26 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
                 {producto.existencia} disponibles
               </span>
             </div>
+            
+            {/* Botón de estado */}
+            {producto.existencia === 0 ? (
+              <div className="w-full">
+                <button
+                  disabled
+                  className="w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-lg cursor-not-allowed opacity-90"
+                >
+                  AGOTADO
+                </button>
+              </div>
+            ) : (
+              <div className="w-full">
+                <button
+                  className="w-full py-2 px-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Ver detalles
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

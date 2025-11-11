@@ -137,10 +137,22 @@ export default function AdminPage() {
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {producto.existencia}
+                          {producto.existencia === 0 ? '🔴 AGOTADO' : `✅ ${producto.existencia} unid.`}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm space-x-2">
+                        {producto.existencia === 0 && (
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setEditando(producto);
+                              setMostrando('crear');
+                            }}
+                            className="bg-orange-600 hover:bg-orange-700 text-white"
+                          >
+                            Reabastecer
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="outline"

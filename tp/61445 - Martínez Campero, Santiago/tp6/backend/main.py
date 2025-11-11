@@ -13,6 +13,7 @@ from routers import productos as productos_router
 from routers import autenticacion as autenticacion_router
 from routers import carrito as carrito_router
 from routers import compras as compras_router
+from routers import admin as admin_router
 from models import Producto
 
 # Crear la aplicación FastAPI
@@ -39,6 +40,7 @@ app.include_router(productos_router.router)
 app.include_router(autenticacion_router.router)
 app.include_router(carrito_router.router)
 app.include_router(compras_router.router)
+app.include_router(admin_router.router)
 
 
 def cargar_productos_iniciales():

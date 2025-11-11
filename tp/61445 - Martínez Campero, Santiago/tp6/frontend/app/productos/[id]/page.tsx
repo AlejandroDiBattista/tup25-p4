@@ -184,10 +184,18 @@ export default function ProductoDetailPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-800 font-medium">
-                    Producto sin stock
-                  </p>
+                <div className="space-y-4">
+                  <button
+                    disabled
+                    className="w-full h-16 text-2xl font-bold bg-red-500 text-white rounded-lg cursor-not-allowed opacity-90"
+                  >
+                    AGOTADO
+                  </button>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-800 font-medium text-center">
+                      Este producto no tiene stock disponible
+                    </p>
+                  </div>
                 </div>
               )}
 
