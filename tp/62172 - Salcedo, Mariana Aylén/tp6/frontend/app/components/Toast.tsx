@@ -19,15 +19,15 @@ export default function Toast({ mensaje, onClose, duracion = 3000 }: ToastProps)
   }, [onClose, duracion]);
 
   return (
-    <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-5 duration-300">
-      <div className="bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px]">
-        <CheckCircle className="h-6 w-6 flex-shrink-0" />
-        <p className="flex-1 font-medium">{mensaje}</p>
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 animate-in zoom-in-95 duration-300">
+      <div className="bg-green-600 text-white px-8 py-6 rounded-lg shadow-2xl flex items-center gap-4 min-w-[350px]">
+        <CheckCircle className="h-8 w-8 flex-shrink-0" />
+        <p className="flex-1 font-medium text-lg">{mensaje}</p>
         <button
           onClick={onClose}
           className="text-white hover:text-gray-200 transition-colors"
         >
-          <X className="h-5 w-5" />
+          <X className="h-6 w-6" />
         </button>
       </div>
     </div>

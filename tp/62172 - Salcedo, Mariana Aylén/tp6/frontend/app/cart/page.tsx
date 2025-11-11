@@ -5,6 +5,16 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import Toast from '../components/Toast';
@@ -14,6 +24,7 @@ export default function CartPage() {
   const { items, actualizarCantidad, eliminarDelCarrito, vaciarCarrito, totalPrecio } = useCart();
   const [mostrarToast, setMostrarToast] = useState(false);
   const [mensajeToast, setMensajeToast] = useState('');
+  const [mostrarDialogoVaciar, setMostrarDialogoVaciar] = useState(false);
 
   const handleActualizarCantidad = (productoId: number, nuevaCantidad: number) => {
     actualizarCantidad(productoId, nuevaCantidad);
@@ -26,11 +37,10 @@ export default function CartPage() {
   };
 
   const handleVaciarCarrito = () => {
-    if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
-      vaciarCarrito();
-      setMensajeToast('Carrito vaciado');
-      setMostrarToast(true);
-    }
+    vaciarCarrito();
+    setMensajeToast('Carrito vaciado');
+    setMostrarToast(true);
+    setMostrarDialogoVaciar(false);
   };
 
   const handleFinalizarCompra = async () => {
@@ -88,7 +98,7 @@ export default function CartPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleVaciarCarrito}
+                onClick={() => setMostrarDialogoVaciar(true)}
                 className="text-red-600 hover:text-red-700"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -235,6 +245,27 @@ export default function CartPage() {
           </Card>
         </div>
       </div>
+
+      {/* Diálogo de confirmación para vaciar carrito */}
+      <AlertDialog open={mostrarDialogoVaciar} onOpenChange={setMostrarDialogoVaciar}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Vaciar carrito?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Se eliminarán todos los productos del carrito. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleVaciarCarrito}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Vaciar carrito
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

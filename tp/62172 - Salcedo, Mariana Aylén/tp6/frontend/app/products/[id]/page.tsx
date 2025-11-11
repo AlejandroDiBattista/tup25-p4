@@ -51,10 +51,39 @@ export default function ProductDetailPage() {
     }
   };
 
-  const handleAgregarAlCarrito = () => {
+  const handleAgregarAlCarrito = async () => {
     if (producto) {
-      agregarAlCarrito(producto, cantidad);
-      setMostrarToast(true);
+      try {
+        // Llamar al backend para descontar stock
+        const response = await fetch('http://localhost:8000/carrito/agregar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            producto_id: producto.id,
+            cantidad: cantidad
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.detail || 'Error al agregar al carrito');
+          return;
+        }
+
+        // Si todo está bien, agregar al carrito localmente
+        agregarAlCarrito(producto, cantidad);
+        setMostrarToast(true);
+        
+        // Actualizar el producto con el nuevo stock
+        const data = await response.json();
+        setProducto({ ...producto, existencia: data.stock_restante });
+        setCantidad(1);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al agregar al carrito');
+      }
     }
   };
 

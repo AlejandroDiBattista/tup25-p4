@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlmodel import Session, select
+from sqlmodel import Session, select, SQLModel
 import json
 from pathlib import Path
 from typing import Optional, List
@@ -11,6 +11,11 @@ from database import create_db_and_tables, get_session
 from models.usuario import Usuario, UsuarioCreate, UsuarioLogin, UsuarioResponse, Token
 from models.compra import Compra, CompraItem, CompraCreate, CompraResponse, CompraItemResponse
 from auth import hash_password, verify_password, create_access_token, verify_token
+
+# Modelo para agregar al carrito
+class AgregarCarritoRequest(SQLModel):
+    producto_id: int
+    cantidad: int = 1
 
 app = FastAPI(title="API E-Commerce")
 
@@ -70,6 +75,12 @@ def cargar_productos():
     ruta_productos = Path(__file__).parent / "productos.json"
     with open(ruta_productos, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
+
+def guardar_productos(productos):
+    """Guardar productos actualizados en el archivo JSON"""
+    ruta_productos = Path(__file__).parent / "productos.json"
+    with open(ruta_productos, "w", encoding="utf-8") as archivo:
+        json.dump(productos, archivo, indent=4, ensure_ascii=False)
 
 @app.get("/")
 def root():
@@ -193,6 +204,39 @@ def obtener_usuario_actual(usuario_actual: Usuario = Depends(get_current_user)):
     )
 
 # ===== ENDPOINTS DE COMPRAS =====
+
+@app.post("/carrito/agregar")
+def agregar_al_carrito(request: AgregarCarritoRequest):
+    """Descontar stock al agregar producto al carrito"""
+    productos = cargar_productos()
+    
+    # Buscar producto
+    producto = next((p for p in productos if p["id"] == request.producto_id), None)
+    if not producto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Producto no encontrado"
+        )
+    
+    # Validar stock
+    if request.cantidad > producto["existencia"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Stock insuficiente. Solo quedan {producto['existencia']} unidades"
+        )
+    
+    # Descontar stock
+    producto["existencia"] -= request.cantidad
+    
+    # Guardar productos actualizados
+    guardar_productos(productos)
+    
+    return {
+        "mensaje": "Producto agregado al carrito",
+        "producto_id": request.producto_id,
+        "cantidad": request.cantidad,
+        "stock_restante": producto["existencia"]
+    }
 
 @app.post("/carrito/finalizar", response_model=CompraResponse, status_code=status.HTTP_201_CREATED)
 def finalizar_compra(

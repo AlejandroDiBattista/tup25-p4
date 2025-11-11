@@ -6,7 +6,7 @@
         "descripcion": "Mochila resistente para uso diario con funda acolchada para laptop de 15 pulgadas.",
         "categoria": "Ropa de hombre",
         "valoracion": 3.9,
-        "existencia": 5,
+        "existencia": 3,
         "imagen": "imagenes/0001.png"
     },
     {
@@ -56,7 +56,7 @@
         "descripcion": "Anillo de oro micropavé con garantía de satisfacción y cambios dentro de 30 días.",
         "categoria": "Joyería",
         "valoracion": 3.9,
-        "existencia": 5,
+        "existencia": 4,
         "imagen": "imagenes/0006.png"
     },
     {
@@ -66,7 +66,7 @@
         "descripcion": "Anillo princesa chapado en plata, regalo ideal para compromisos, bodas o aniversarios.",
         "categoria": "Joyería",
         "valoracion": 3,
-        "existencia": 5,
+        "existencia": 4,
         "imagen": "imagenes/0007.png"
     },
     {
@@ -76,7 +76,7 @@
         "descripcion": "Aros Pierced Owl túnel doble en acero inoxidable chapado en oro rosa.",
         "categoria": "Joyería",
         "valoracion": 1.9,
-        "existencia": 5,
+        "existencia": 4,
         "imagen": "imagenes/0008.png"
     },
     {
