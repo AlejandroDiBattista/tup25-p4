@@ -4,6 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from db.database import create_db_and_tables, load_initial_data, engine
 from models.productos import Producto
+from routers import auth
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
+from fastapi.openapi.models import SecuritySchemeType
+from fastapi.openapi.models import OAuth2 as OAuth2Model
+from fastapi.openapi.models import OAuthFlowPassword
+from fastapi.openapi.utils import get_openapi
+
 
 app = FastAPI(title="API Productos")
 
@@ -39,5 +47,35 @@ if __name__ == "__main__":
 
 from routers import auth
 app.include_router(auth.router)
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="TP6 API",
+        version="1.0.0",
+        description="Documentación del trabajo práctico",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+        }
+    }
+    openapi_schema["security"] = [{"BearerAuth": []}]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+
+from routers import productos
+app.include_router(productos.router)
+
+
+
+
+
 
 
