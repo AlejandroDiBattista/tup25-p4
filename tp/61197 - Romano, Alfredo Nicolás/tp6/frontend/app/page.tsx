@@ -18,7 +18,7 @@ export default function Home() {
   }, [productos, q, categoria]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black-50">
       <main className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2">
           <div className="flex gap-4 mb-6">
@@ -63,7 +63,7 @@ export default function Home() {
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex items-center gap-2">
                         <button
-                          className="px-2 py-1 bg-gray-200 rounded text-sm"
+                          className="px-2 py-1 bg-black-200 rounded text-sm"
                           onClick={async () => {
                             try {
                               const newQty = Math.max(0, (it.cantidad || 0) - 1);
@@ -79,9 +79,9 @@ export default function Home() {
                         >
                           -
                         </button>
-                        <div className="px-3 py-1 bg-gray-100 rounded text-sm">{it.cantidad}</div>
+                        <div className="px-3 py-1 bg-black-100 rounded text-sm">{it.cantidad}</div>
                         <button
-                          className="px-2 py-1 bg-gray-200 rounded text-sm"
+                          className="px-2 py-1 bg-black-200 rounded text-sm"
                           onClick={async () => {
                             try {
                               const max = it.producto.existencia || 0;

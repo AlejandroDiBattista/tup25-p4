@@ -65,7 +65,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           {producto.descripcion}
         </p>
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-black bg-gray-100 px-2 py-1 rounded">
+          <span className="text-xs text-black bg-blackgray-100 px-2 py-1 rounded">
             {producto.categoria}
           </span>
           <div className="flex items-center gap-1">
