@@ -124,11 +124,12 @@ export default function Home() {
       });
     }
 
-    // Calcular totales
-    const subtotal = carrito.reduce((acc: number, item: Producto & { cantidad: number }) => acc + item.precio * item.cantidad, 0);
-    const iva = subtotal * 0.21;
-    const envio = carrito.length > 0 ? 50 : 0;
-    const total = subtotal + iva + envio;
+  // Calcular totales
+  const subtotal = carrito.reduce((acc: number, item: Producto & { cantidad: number }) => acc + item.precio * item.cantidad, 0);
+  const iva = subtotal * 0.21;
+  // Envío gratis si subtotal + iva > 1000
+  const envio = (carrito.length > 0 && (subtotal + iva) > 1000) ? 0 : (carrito.length > 0 ? 50 : 0);
+  const total = subtotal + iva + envio;
 
     return (
       <div className="min-h-screen bg-gray-50">
