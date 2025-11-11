@@ -95,6 +95,20 @@ def obtener_productos(
     
     return productos
 
+@app.get("/productos/{producto_id}")
+def obtener_producto(producto_id: int):
+    """Obtener un producto específico por ID"""
+    productos = cargar_productos()
+    producto = next((p for p in productos if p["id"] == producto_id), None)
+    
+    if not producto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Producto no encontrado"
+        )
+    
+    return producto
+
 # ===== ENDPOINTS DE AUTENTICACIÓN =====
 
 @app.post("/registrar", response_model=Token, status_code=status.HTTP_201_CREATED)
