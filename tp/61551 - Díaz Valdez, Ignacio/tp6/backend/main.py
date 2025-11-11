@@ -9,6 +9,7 @@ from collections import OrderedDict
 from db import create_db, get_session, engine
 from models.productos import Producto
 from sqlmodel import select
+from sqlalchemy import func
 from auth import UsuarioCreate, create_access_token, authenticate_user, get_current_user, get_password_hash
 from auth import Token as TokenSchema
 from models.usuario import Usuario
@@ -76,11 +77,32 @@ def root(request: Request, format: str | None = None):
 
 
 @app.get("/productos")
-def obtener_productos():
-    """Intentar leer productos desde la base de datos; si no hay datos, hacer fallback al JSON original."""
+def obtener_productos(q: str | None = None, categoria: str | None = None):
+    """Listado de productos con filtros opcionales.
+
+    Query params:
+    - q: busca coincidencias parciales (case-insensitive) en título, descripción o categoría.
+    - categoria: filtra por categoría exacta.
+
+    Intenta leer desde la base de datos; si falla o está vacía, hace fallback al JSON de semillas.
+    Respuesta normalizada: { "value": [...], "Count": n }
+    """
     try:
         with get_session() as session:
-            resultados = session.exec(select(Producto)).all()
+            consulta = select(Producto)
+            # Filtro por categoría
+            if categoria:
+                consulta = consulta.where(Producto.categoria == categoria)
+            # Búsqueda textual (case-insensitive)
+            if q:
+                qn = f"%{q.strip().lower()}%"
+                consulta = consulta.where(
+                    func.lower(Producto.titulo).like(qn)
+                    | func.lower(Producto.descripcion).like(qn)
+                    | func.lower(Producto.categoria).like(qn)
+                )
+
+            resultados = session.exec(consulta).all()
             if resultados:
                 # Orden deseado de claves (igual al JSON fuente):
                 claves = [
@@ -114,9 +136,19 @@ def obtener_productos():
         # cualquier problema con la BD -> fallback
         pass
 
-    # Fallback al JSON, pero normalizando al formato { value, Count }
+    # Fallback al JSON, aplicando los mismos filtros y normalizando al formato { value, Count }
     try:
         lista = cargar_productos_desde_json()
+        if categoria:
+            lista = [p for p in lista if str(p.get("categoria", "")) == categoria]
+        if q:
+            qn = q.strip().lower()
+            def coincide(p: dict) -> bool:
+                tit = str(p.get("titulo", "")).lower()
+                desc = str(p.get("descripcion", "")).lower()
+                cat = str(p.get("categoria", "")).lower()
+                return (qn in tit) or (qn in desc) or (qn in cat)
+            lista = [p for p in lista if coincide(p)]
         return {"value": lista, "Count": len(lista)}
     except Exception as e:
         # Si ni la BD ni el JSON funcionan, devolver error claro
