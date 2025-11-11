@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
-from database import create_db_and_tables, load_initial_data, engine
+from db.database import create_db_and_tables, load_initial_data, engine
 from models.productos import Producto
 
 app = FastAPI(title="API Productos")
@@ -36,5 +36,8 @@ def obtener_productos():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+from routers import auth
+app.include_router(auth.router)
 
 
