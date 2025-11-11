@@ -21,10 +21,11 @@ export interface SesionData {
 }
 
 export interface ItemCarrito {
+  id: number;
+  carrito_id: number;
   producto_id: number;
   cantidad: number;
-  nombre: string;
-  precio: number;
+  precio_unitario: number;
 }
 
 export interface Carrito {
@@ -32,6 +33,15 @@ export interface Carrito {
   usuario_id: number;
   estado: string;
   items: ItemCarrito[];
+}
+
+export interface ItemCompra {
+  id: number;
+  compra_id: number;
+  producto_id: number;
+  cantidad: number;
+  nombre: string;
+  precio_unitario: number;
 }
 
 export interface Compra {
@@ -42,5 +52,6 @@ export interface Compra {
   total: number;
   envio: number;
   iva: number;
-  items: ItemCarrito[];
+  tarjeta_ultimos_digitos: string;
+  items: ItemCompra[];
 }

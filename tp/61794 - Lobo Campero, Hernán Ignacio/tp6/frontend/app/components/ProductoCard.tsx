@@ -1,5 +1,12 @@
+'use client';
+
 import { Producto } from '../types';
 import Image from 'next/image';
+import { Button } from './ui/button';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { agregarAlCarrito } from '../services/carrito';
+import { useRouter } from 'next/navigation';
 
 interface ProductoCardProps {
   producto: Producto;
@@ -7,7 +14,32 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
+  const { token, isAutenticado } = useAuth();
+  const router = useRouter();
+  const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAgregarCarrito = async () => {
+    if (!isAutenticado) {
+      router.push('/auth');
+      return;
+    }
+
+    if (!token) return;
+
+    try {
+      setIsAdding(true);
+      setError(null);
+      await agregarAlCarrito(token, producto.id, 1);
+      // Redirigir al carrito
+      router.push('/carrito');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
@@ -36,7 +68,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             <span className="text-sm text-gray-700">{producto.valoracion}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-3">
           <span className="text-2xl font-bold text-blue-600">
             ${producto.precio}
           </span>
@@ -44,6 +76,16 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             Stock: {producto.existencia}
           </span>
         </div>
+        {error && (
+          <p className="text-xs text-red-600 mb-2">{error}</p>
+        )}
+        <Button
+          className="w-full"
+          onClick={handleAgregarCarrito}
+          disabled={isAdding || producto.existencia === 0}
+        >
+          {isAdding ? 'Agregando...' : producto.existencia === 0 ? 'Sin stock' : 'Agregar al carrito'}
+        </Button>
       </div>
     </div>
   );
