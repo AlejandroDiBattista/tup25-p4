@@ -373,7 +373,12 @@ async def finalizar_compra(
 
 @app.get("/compras")
 async def obtener_compras(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
-    compras = db.exec(select(Compra).where(Compra.usuario_id == current_user.id)).all()
+    # Ordenar por fecha descendente (de más reciente a más antigua)
+    compras = db.exec(
+        select(Compra)
+        .where(Compra.usuario_id == current_user.id)
+        .order_by(Compra.fecha.desc())
+    ).all()
     return [{"id": c.id, "total": c.total, "fecha": c.fecha, "direccion": c.direccion, "tarjeta": c.tarjeta} for c in compras]
 
 @app.get("/compras/{compra_id}")
@@ -470,6 +475,35 @@ async def cancelar_carrito(
     
     return {
         "mensaje": "Carrito vaciado exitosamente",
+        "items_eliminados": count
+    }
+
+@app.post("/carrito/cancelar")
+async def cancelar_compra(
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Cancelar compra (vaciar carrito) - Endpoint requerido por README"""
+    # Obtener todos los items del carrito
+    items = db.exec(
+        select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)
+    ).all()
+    
+    if not items:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El carrito está vacío, no hay compra para cancelar"
+        )
+    
+    # Eliminar todos los items
+    count = len(items)
+    for item in items:
+        db.delete(item)
+    
+    db.commit()
+    
+    return {
+        "mensaje": "Compra cancelada exitosamente",
         "items_eliminados": count
     }
 

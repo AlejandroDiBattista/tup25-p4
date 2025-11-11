@@ -215,6 +215,37 @@ class TestCarrito:
         # Verificar que está vacío
         carrito = client.get("/carrito", headers=headers_auth).json()
         assert len(carrito) == 0
+    
+    def test_cancelar_compra(self, client: TestClient, headers_auth):
+        """Test: Cancelar compra (POST /carrito/cancelar)"""
+        # Agregar productos al carrito
+        client.post(
+            "/carrito/agregar/1",
+            json={"cantidad": 2},
+            headers=headers_auth
+        )
+        client.post(
+            "/carrito/agregar/2",
+            json={"cantidad": 1},
+            headers=headers_auth
+        )
+        
+        # Cancelar compra usando POST /carrito/cancelar
+        response = client.post("/carrito/cancelar", headers=headers_auth)
+        assert response.status_code == 200
+        data = response.json()
+        assert "mensaje" in data
+        assert data["items_eliminados"] == 2
+        
+        # Verificar que el carrito está vacío
+        carrito = client.get("/carrito", headers=headers_auth).json()
+        assert len(carrito) == 0
+    
+    def test_cancelar_compra_carrito_vacio(self, client: TestClient, headers_auth):
+        """Test: Intentar cancelar compra con carrito vacío"""
+        response = client.post("/carrito/cancelar", headers=headers_auth)
+        assert response.status_code == 400
+        assert "vacío" in response.json()["detail"].lower()
 
 
 # ============================================================================

@@ -2,8 +2,8 @@
 
 ## 📋 Resumen de Tests
 
-**Total de tests: 25**  
-**Tests exitosos: 25 ✅**  
+**Total de tests: 27**  
+**Tests exitosos: 27 ✅**  
 **Cobertura: Productos, Autenticación, Carrito, Compras**
 
 ---
@@ -26,13 +26,15 @@
 - ✅ Acceso sin token (unauthorized)
 - ✅ Acceso con token inválido (unauthorized)
 
-### 3. **Tests de Carrito** (6 tests)
+### 3. **Tests de Carrito** (8 tests)
 - ✅ Ver carrito vacío
 - ✅ Agregar producto al carrito
 - ✅ Agregar producto inexistente (error)
 - ✅ Agregar más cantidad que stock (error)
 - ✅ Quitar producto del carrito
-- ✅ Vaciar carrito completo
+- ✅ Vaciar carrito completo (DELETE /carrito)
+- ✅ Cancelar compra (POST /carrito/cancelar)
+- ✅ Cancelar compra con carrito vacío (error)
 
 ### 4. **Tests de Compras** (6 tests)
 - ✅ Finalizar compra exitosamente
