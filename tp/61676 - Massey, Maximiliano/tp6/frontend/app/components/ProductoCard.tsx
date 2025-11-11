@@ -41,19 +41,29 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all ${
+      sinStock ? 'opacity-75 border-2 border-red-300' : ''
+    }`}>
       <div className="relative h-64 bg-gray-100">
         <Image
           src={producto.imagen.startsWith('http') ? producto.imagen : `${API_URL}/${producto.imagen}`}
           alt={producto.nombre || producto.titulo || "Imagen del producto"}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain p-4"
+          className={`object-contain p-4 transition-all ${sinStock ? 'grayscale blur-[1px]' : ''}`}
           unoptimized
           onError={(e) => {
             e.currentTarget.src = 'https://via.placeholder.com/300x300/f3f4f6/9ca3af?text=Producto';
           }}
         />
+        {/* Badge AGOTADO */}
+        {sinStock && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-red-600 text-white px-8 py-4 rounded-lg shadow-2xl transform rotate-[-15deg] border-4 border-white">
+              <span className="text-2xl font-bold tracking-wider">AGOTADO</span>
+            </div>
+          </div>
+        )}
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
@@ -91,13 +101,13 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </div>
         </div>
         
-        {/* Botón Agregar al Carrito */}
+        {/* Botón Agregar al Carrito o Estado Agotado */}
         <button
           onClick={handleAddToCart}
           disabled={sinStock || loading}
-          className={`w-full py-2 rounded-lg font-semibold transition-colors ${
+          className={`w-full py-2 rounded-lg font-semibold transition-all ${
             sinStock
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? 'bg-red-500 text-white cursor-not-allowed hover:bg-red-600'
               : loading
               ? 'bg-gray-400 text-white cursor-wait'
               : added
@@ -106,7 +116,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           }`}
         >
           {sinStock
-            ? cantidadEnCarrito > 0 ? '🛒 Todo en carrito' : '❌ Agotado' 
+            ? '❌ AGOTADO' 
             : loading 
             ? '⏳ Agregando...'
             : added 
