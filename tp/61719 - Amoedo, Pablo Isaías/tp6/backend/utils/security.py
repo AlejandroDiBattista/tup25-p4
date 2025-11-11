@@ -25,8 +25,12 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def crear_token(datos: dict) -> str:
     to_encode = datos.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+    to_encode.update({
+        "exp": expire,
+        "sub": datos["sub"]  # ✅ usamos "sub" como estándar
+    })
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
