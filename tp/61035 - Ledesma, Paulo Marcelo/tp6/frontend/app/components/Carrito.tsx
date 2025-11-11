@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import AuthModal from "./AuthModal";
 
 interface ItemCarrito {
   id: number;
@@ -184,28 +183,8 @@ export const Carrito = () => {
         )}
       </aside>
 
-      {/* 🔒 Modal de autenticación */}
-      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Acceso requerido</DialogTitle>
-          </DialogHeader>
-          <p className="text-gray-600 text-sm mb-4">
-            Debes iniciar sesión o crear una cuenta para continuar.
-          </p>
-          <DialogFooter className="flex flex-col sm:flex-row justify-center gap-3">
-            <Button onClick={() => (window.location.href = "/login")} variant="default">
-              Iniciar sesión
-            </Button>
-            <Button onClick={() => (window.location.href = "/registro")} variant="outline">
-              Crear cuenta
-            </Button>
-            <Button variant="ghost" onClick={() => setShowAuthModal(false)}>
-              ❌
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 🔒 Modal de autenticación (componente reutilizable) */}
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </>
   );
 };
