@@ -17,8 +17,9 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     if (agotado) return;
     try {
       setLoading(true);
-      await agregarAlCarrito(producto.id, 1);
-      alert('Producto agregado al carrito');
+  await agregarAlCarrito(producto.id, 1);
+  // Disparar evento global para que el Sidebar se refresque sin F5
+  window.dispatchEvent(new Event('cart-updated'));
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Error al agregar';
       alert(msg);

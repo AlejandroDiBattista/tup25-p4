@@ -26,6 +26,9 @@ export default function SidebarCarrito() {
 
   useEffect(() => {
     Promise.resolve().then(() => cargar());
+    function handleCartUpdated() { cargar(); }
+    window.addEventListener('cart-updated', handleCartUpdated);
+    return () => window.removeEventListener('cart-updated', handleCartUpdated);
   }, []);
 
   async function onCancelar() {
@@ -81,13 +84,13 @@ export default function SidebarCarrito() {
             ))}
           </div>
           <div className="mt-3 text-sm space-y-1">
-            <div className="flex justify-between"><span>Subtotal</span><span>${resumen.subtotal.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>IVA</span><span>${resumen.iva.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>Envío</span><span>${resumen.envio.toFixed(2)}</span></div>
-            <div className="flex justify-between font-semibold"><span>Total</span><span>${resumen.total.toFixed(2)}</span></div>
+            <div className="flex justify-between"><span>Subtotal</span><span>{resumen.items.length ? `$${resumen.subtotal.toFixed(2)}` : '-'}</span></div>
+            <div className="flex justify-between"><span>IVA</span><span>{resumen.items.length ? `$${resumen.iva.toFixed(2)}` : '-'}</span></div>
+            <div className="flex justify-between"><span>Envío</span><span>{resumen.items.length ? `$${resumen.envio.toFixed(2)}` : '-'}</span></div>
+            <div className="flex justify-between font-semibold"><span>Total</span><span>{resumen.items.length ? `$${resumen.total.toFixed(2)}` : '-'}</span></div>
           </div>
           <div className="mt-3 flex gap-2">
-            <a href="/checkout" className="bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-2 text-sm text-center flex-1">Continuar compra</a>
+            <a href="/checkout" className="bg-gray-900 hover:bg-black text-white rounded px-3 py-2 text-sm text-center flex-1">Continuar compra</a>
             <button onClick={onCancelar} className="bg-gray-200 hover:bg-gray-300 rounded px-3 py-2 text-sm">Cancelar</button>
           </div>
         </div>

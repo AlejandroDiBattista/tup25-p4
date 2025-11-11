@@ -1,11 +1,7 @@
 "use client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
-}
+import { getToken } from './auth';
 
 export async function agregarAlCarrito(producto_id: number, cantidad = 1) {
   const token = getToken();
@@ -23,5 +19,7 @@ export async function agregarAlCarrito(producto_id: number, cantidad = 1) {
     const txt = await res.text();
     throw new Error(txt || 'Error al agregar al carrito');
   }
-  return res.json();
+  const data = await res.json();
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('cart-updated'));
+  return data;
 }

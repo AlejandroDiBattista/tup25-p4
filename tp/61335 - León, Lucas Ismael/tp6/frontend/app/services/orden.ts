@@ -14,7 +14,9 @@ export async function cancelarCarrito() {
   if (!token) throw new Error('No autenticado');
   const res = await fetch(`${API_URL}/carrito/cancelar`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) throw new Error('No se pudo cancelar el carrito');
-  return res.json();
+  const data = await res.json();
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('cart-updated'));
+  return data;
 }
 
 export async function actualizarCantidad(producto_id: number, cantidad: number) {
@@ -29,7 +31,9 @@ export async function actualizarCantidad(producto_id: number, cantidad: number) 
     const msg = await res.text();
     throw new Error(msg || 'No se pudo actualizar la cantidad');
   }
-  return res.json();
+  const data = await res.json();
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('cart-updated'));
+  return data;
 }
 
 export async function finalizarCompra(direccion: string, tarjeta: string) {
@@ -40,8 +44,20 @@ export async function finalizarCompra(direccion: string, tarjeta: string) {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ direccion, tarjeta }),
   });
-  if (!res.ok) throw new Error('No se pudo finalizar la compra');
-  return res.json();
+  if (!res.ok) {
+    // Leer mensaje del backend si existe
+    let msg = 'No se pudo finalizar la compra';
+    try {
+      const data = await res.json();
+      if (data?.detail) msg = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+    } catch {
+      try { msg = (await res.text()) || msg; } catch {}
+    }
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('cart-updated'));
+  return data;
 }
 
 export async function listarCompras() {

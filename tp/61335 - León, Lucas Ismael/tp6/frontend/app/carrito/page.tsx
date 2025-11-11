@@ -44,6 +44,7 @@ export default function CarritoPage() {
 
   if (loading) return <p>Cargando...</p>;
   if (!data) return <p>No hay datos del carrito.</p>;
+  const carritoVacio = !data.items || data.items.length === 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,7 +83,13 @@ export default function CarritoPage() {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={onFinalizar} className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2">Finalizar compra</button>
+        <button
+          onClick={onFinalizar}
+          disabled={carritoVacio}
+          className={`rounded px-4 py-2 text-white ${carritoVacio ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-black'}`}
+        >
+          Finalizar compra
+        </button>
         <button onClick={onCancelar} className="bg-gray-200 hover:bg-gray-300 rounded px-4 py-2">Cancelar</button>
       </div>
     </div>

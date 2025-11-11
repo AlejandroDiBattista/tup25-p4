@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
@@ -84,11 +84,11 @@ def seed_productos(session: Session):
 # =============================
 # Dependencias y seguridad
 # =============================
-SECRET_KEY = os.getenv("JWT_SECRET", "SECRET_DEMO_CHANGE_ME")
+SECRET_KEY = "tp6-61335-secret"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/iniciar-sesion")
 
 # Lista negra de tokens (por jti) en memoria
@@ -129,10 +129,14 @@ def get_current_user(
         jti: str | None = payload.get("jti")
         if jti and jti in TOKEN_BLACKLIST:
             raise cred_exc
-        user_id: int | None = payload.get("sub")
-        if user_id is None:
+        user_id_raw = payload.get("sub")
+        if user_id_raw is None:
             raise cred_exc
-    except JWTError:
+        try:
+            user_id = int(user_id_raw)
+        except Exception:
+            raise cred_exc
+    except JWTError as e:
         raise cred_exc
 
     user = session.get(Usuario, user_id)
@@ -159,6 +163,7 @@ class AgregarAlCarrito(BaseModel):
     producto_id: int
     cantidad: int
 
+
 class ActualizarCantidadItem(BaseModel):
     producto_id: int
     cantidad: int  # nueva cantidad absoluta (>=0)
@@ -169,9 +174,6 @@ class FinalizarCompraData(BaseModel):
     tarjeta: str
 
 
-# =============================
-# Hooks de inicio
-# =============================
 @app.on_event("startup")
 def on_startup():
     crear_bd_y_tablas()
@@ -187,28 +189,6 @@ def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
 
-# =============================
-# Productos
-# =============================
-@app.get("/productos")
-def obtener_productos(
-    categoria: Optional[str] = Query(None, description="Filtrar por categoría"),
-    buscar: Optional[str] = Query(None, description="Texto a buscar en título o descripción"),
-    session: Session = Depends(get_session),
-):
-    """Listar productos con filtros opcionales (categoría, búsqueda por texto)."""
-
-    stmt = select(Producto)
-    if categoria:
-        stmt = stmt.where(Producto.categoria.ilike(f"%{categoria}%"))
-    if buscar:
-        like = f"%{buscar}%"
-        stmt = stmt.where((Producto.titulo.ilike(like)) | (Producto.descripcion.ilike(like)))
-    stmt = stmt.order_by(Producto.id)
-    productos = session.exec(stmt).all()
-    return productos
-
-
 @app.get("/productos/{producto_id}")
 def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
     prod = session.get(Producto, producto_id)
@@ -217,13 +197,8 @@ def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
     return prod
 
 
-# =============================
-# Autenticación
-# =============================
 @app.post("/registrar", status_code=201)
 def registrar_usuario(datos: UsuarioCreate, session: Session = Depends(get_session)):
-    """Registrar usuario con email único y contraseña hasheada."""
-
     if obtener_usuario_por_email(session, datos.email):
         raise HTTPException(status_code=400, detail="El email ya está registrado")
     user = Usuario(nombre=datos.nombre, email=datos.email, password_hash=hashear_password(datos.password))
@@ -235,15 +210,28 @@ def registrar_usuario(datos: UsuarioCreate, session: Session = Depends(get_sessi
 
 @app.post("/iniciar-sesion", response_model=TokenResponse)
 def iniciar_sesion(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
-    """Iniciar sesión y obtener token JWT."""
-
     user = obtener_usuario_por_email(session, form_data.username)
     if not user or not verificar_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    # jti simple: user_id + timestamp
     jti = f"{user.id}-{int(datetime.utcnow().timestamp())}"
-    access_token = crear_token({"sub": user.id, "jti": jti})
+    access_token = crear_token({"sub": str(user.id), "jti": jti})
     return TokenResponse(access_token=access_token)
+
+
+@app.get("/productos")
+def obtener_productos(
+    categoria: Optional[str] = Query(None, description="Filtrar por categoría"),
+    buscar: Optional[str] = Query(None, description="Texto a buscar en título o descripción"),
+    session: Session = Depends(get_session),
+):
+    stmt = select(Producto)
+    if categoria:
+        stmt = stmt.where(Producto.categoria.ilike(f"%{categoria}%"))
+    if buscar:
+        like = f"%{buscar}%"
+        stmt = stmt.where((Producto.titulo.ilike(like)) | (Producto.descripcion.ilike(like)))
+    stmt = stmt.order_by(Producto.id)
+    return session.exec(stmt).all()
 
 
 @app.post("/cerrar-sesion")
@@ -284,7 +272,8 @@ def calcular_resumen_carrito(session: Session, carrito: Carrito):
         subtotal += linea
         iva_total += obtener_aliquota_iva(prod.categoria) * it.precio_unitario * it.cantidad
 
-    envio = 0.0 if subtotal > 1000 else 50.0
+    # Si no hay items, el envío debe ser 0. Caso contrario: gratis si subtotal>1000, sino $50.
+    envio = 0.0 if not items else (0.0 if subtotal > 1000 else 50.0)
     total = subtotal + iva_total + envio
 
     # Representación amigable
@@ -478,7 +467,18 @@ def detalle_compra(compra_id: int, user: Usuario = Depends(get_current_user), se
     if not compra or compra.usuario_id != user.id:
         raise HTTPException(status_code=404, detail="Compra no encontrada")
     items = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
-    return {"compra": compra, "items": items}
+    # Enriquecer items con título de producto y subtotal para la vista de historial
+    items_detalle = []
+    for it in items:
+        prod = session.get(Producto, it.producto_id)
+        items_detalle.append({
+            "producto_id": it.producto_id,
+            "titulo": prod.titulo if prod else f"Producto {it.producto_id}",
+            "cantidad": it.cantidad,
+            "precio_unitario": it.precio_unitario,
+            "subtotal": it.cantidad * it.precio_unitario,
+        })
+    return {"compra": compra, "items": items_detalle}
 
 
 # =============================
@@ -489,7 +489,7 @@ def me(user: Usuario = Depends(get_current_user)):
     return {"id": user.id, "nombre": user.nombre, "email": user.email}
 
 
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# =============================
+# Endpoints de depuración (desarrollo)
+# =============================
+# (Endpoints de depuración removidos para la entrega.)

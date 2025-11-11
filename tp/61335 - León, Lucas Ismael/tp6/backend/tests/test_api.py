@@ -1,11 +1,18 @@
 import os
+import sys
 import tempfile
 import time
 import uuid
+from pathlib import Path
 from typing import Optional
 
 import pytest
 from fastapi.testclient import TestClient
+
+# Asegurar que el directorio raíz del backend esté en sys.path para `from main import app`
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
 
 
 def make_client():
@@ -14,8 +21,13 @@ def make_client():
     db_path = os.path.join(tmpdir.name, "test_ecommerce.db")
     os.environ["DB_PATH"] = db_path
 
-    # Importar la app después de setear DB_PATH
-    from main import app
+    # Importar la app después de setear DB_PATH y crear tablas/seed explícitamente
+    from main import app, crear_bd_y_tablas, engine, seed_productos
+    from sqlmodel import Session
+
+    crear_bd_y_tablas()
+    with Session(engine) as s:
+        seed_productos(s)
 
     client = TestClient(app)
     # Adjuntar el temporary dir para que no se coleccione

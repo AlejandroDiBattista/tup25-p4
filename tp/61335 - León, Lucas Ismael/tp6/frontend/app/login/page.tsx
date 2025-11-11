@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { setToken } from '../services/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+ 
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,8 +24,15 @@ export default function LoginPage() {
       });
       if (!res.ok) throw new Error('Credenciales inválidas');
       const data = await res.json();
-      localStorage.setItem('token', data.access_token);
-      router.push('/');
+      setToken(data.access_token);
+      try {
+        const ok = await fetch(`${API_URL}/me`, { headers: { Authorization: `Bearer ${data.access_token}` } });
+        if (!ok.ok) throw new Error('Token inválido tras login');
+      } catch {
+        setToken(null);
+        throw new Error('No se pudo validar la sesión. Intenta nuevamente.');
+      }
+      window.location.replace('/');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al iniciar sesión';
       alert(message);

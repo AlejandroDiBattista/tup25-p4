@@ -26,9 +26,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="bg-gray-50">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>        
-        {/* Header principal */}
         <Header />
-        {/* Contenedor central acorde al mock (ancho ~1280 y panel blanco) */}
         <div className="flex-1 w-full">
           <main className="max-w-6xl mx-auto w-full bg-transparent px-4 py-6">{children}</main>
         </div>
