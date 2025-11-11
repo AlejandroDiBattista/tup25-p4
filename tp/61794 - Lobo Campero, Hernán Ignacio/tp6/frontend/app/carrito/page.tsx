@@ -54,13 +54,19 @@ export default function CarritoPage() {
   }, [isAutenticado, token]);
 
   const eliminarItem = async (itemId: number) => {
-    if (!token) return;
+    if (!token) {
+      setError("Sesión expirada. Por favor inicia sesión nuevamente.");
+      return;
+    }
 
     try {
+      setError(null);
       const nuevoCarrito = await eliminarDelCarrito(token, itemId);
       setCarrito(nuevoCarrito);
     } catch (err: any) {
-      setError(err.message);
+      const mensajeError = err.message || "Error al eliminar el producto";
+      setError(mensajeError);
+      console.error("Error al eliminar:", err);
     }
   };
 
@@ -89,21 +95,36 @@ export default function CarritoPage() {
   };
 
   const handleCheckout = async () => {
-    if (!token || !carrito) return;
+    if (!token || !carrito) {
+      setError("Sesión expirada. Por favor inicia sesión nuevamente.");
+      return;
+    }
 
-    if (!direccion || !tarjeta) {
-      setError("Por favor completa todos los campos");
+    if (!direccion.trim()) {
+      setError("Por favor ingresa una dirección de envío");
+      return;
+    }
+
+    if (!tarjeta.trim()) {
+      setError("Por favor ingresa el número de tarjeta");
+      return;
+    }
+
+    if (tarjeta.length < 4) {
+      setError("Por favor ingresa al menos los últimos 4 dígitos de la tarjeta");
       return;
     }
 
     try {
       setIsFinalizando(true);
-      await finalizarCompra(token, direccion, tarjeta);
       setError(null);
+      await finalizarCompra(token, direccion, tarjeta);
       // Redirigir a compras o mostrar confirmación
       window.location.href = "/compras";
     } catch (err: any) {
-      setError(err.message);
+      const mensajeError = err.message || "Error al finalizar la compra";
+      setError(mensajeError);
+      console.error("Error al finalizar compra:", err);
     } finally {
       setIsFinalizando(false);
     }

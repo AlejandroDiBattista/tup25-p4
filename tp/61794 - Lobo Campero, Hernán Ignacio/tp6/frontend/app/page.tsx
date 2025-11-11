@@ -21,15 +21,18 @@ export default function Home() {
     const cargarDatos = async () => {
       try {
         setIsLoading(true);
+        setError(null);
         const [productosData, categoriasData] = await Promise.all([
           obtenerProductos(),
           obtenerCategorias(),
         ]);
         setProductos(productosData);
         setProductosFiltrados(productosData);
-        setCategorias(categoriasData);
+        setCategorias(categoriasData || []);
       } catch (err) {
-        setError('No se pudo conectar con el servidor. Por favor, verifica que el backend esté corriendo en http://localhost:8000');
+        const mensajeError = err instanceof Error ? err.message : 'Error desconocido';
+        setError('No se pudo conectar con el servidor. Por favor, verifica que el backend esté corriendo en http://localhost:8000. Detalle: ' + mensajeError);
+        console.error("Error cargando datos:", err);
       } finally {
         setIsLoading(false);
       }

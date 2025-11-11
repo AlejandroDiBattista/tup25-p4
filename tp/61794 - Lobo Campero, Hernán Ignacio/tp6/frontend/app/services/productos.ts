@@ -41,5 +41,6 @@ export async function obtenerCategorias(): Promise<string[]> {
     throw new Error('Error al obtener categorías');
   }
   
-  return response.json();
+  const data = await response.json();
+  return data.categorias || [];
 }

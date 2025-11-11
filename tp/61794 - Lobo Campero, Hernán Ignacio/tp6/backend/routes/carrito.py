@@ -77,69 +77,85 @@ def agregar_al_carrito(
     token: Optional[str] = Query(None),
     session: Session = Depends(get_session)
 ):
-    """Agregar un producto al carrito"""
-    usuario_id = obtener_usuario_id(token)
-    
-    # Verificar que el producto existe
-    producto = session.query(Producto).filter(Producto.id == request.producto_id).first()
-    if not producto:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Producto no encontrado"
-        )
-    
-    # Verificar que hay existencia
-    if producto.existencia < request.cantidad:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"No hay suficiente existencia. Disponibles: {producto.existencia}"
-        )
-    
-    # Obtener o crear carrito activo
-    carrito = session.query(Carrito).filter(
-        and_(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")
-    ).first()
-    
-    if not carrito:
-        carrito = Carrito(usuario_id=usuario_id, estado="activo")
-        session.add(carrito)
-        session.flush()  # Obtener el ID del carrito
-    
-    # Verificar si el producto ya está en el carrito
-    item_existente = session.query(ItemCarrito).filter(
-        and_(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == request.producto_id)
-    ).first()
-    
-    if item_existente:
-        # Actualizar cantidad
-        nueva_cantidad = item_existente.cantidad + request.cantidad
-        if producto.existencia < nueva_cantidad:
+    """Agregar un producto al carrito con validaciones completas"""
+    try:
+        usuario_id = obtener_usuario_id(token)
+        
+        # Validar cantidad
+        if request.cantidad <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="La cantidad debe ser mayor a 0"
+            )
+        
+        # Verificar que el producto existe
+        producto = session.query(Producto).filter(Producto.id == request.producto_id).first()
+        if not producto:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Producto no encontrado"
+            )
+        
+        # Verificar que hay existencia
+        if producto.existencia < request.cantidad:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"No hay suficiente existencia. Disponibles: {producto.existencia}"
             )
-        item_existente.cantidad = nueva_cantidad
-    else:
-        # Crear nuevo item
-        item = ItemCarrito(
-            carrito_id=carrito.id,
-            producto_id=request.producto_id,
-            cantidad=request.cantidad,
-            precio_unitario=producto.precio
+        
+        # Obtener o crear carrito activo
+        carrito = session.query(Carrito).filter(
+            and_(Carrito.usuario_id == usuario_id, Carrito.estado == "activo")
+        ).first()
+        
+        if not carrito:
+            carrito = Carrito(usuario_id=usuario_id, estado="activo")
+            session.add(carrito)
+            session.flush()
+        
+        # Verificar si el producto ya está en el carrito
+        item_existente = session.query(ItemCarrito).filter(
+            and_(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == request.producto_id)
+        ).first()
+        
+        if item_existente:
+            # Actualizar cantidad
+            nueva_cantidad = item_existente.cantidad + request.cantidad
+            if producto.existencia < nueva_cantidad:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"No hay suficiente existencia. Disponibles: {producto.existencia}"
+                )
+            item_existente.cantidad = nueva_cantidad
+        else:
+            # Crear nuevo item
+            item = ItemCarrito(
+                carrito_id=carrito.id,
+                producto_id=request.producto_id,
+                cantidad=request.cantidad,
+                precio_unitario=producto.precio
+            )
+            session.add(item)
+        
+        session.commit()
+        
+        # Obtener items del carrito actualizado
+        items = session.query(ItemCarrito).filter(ItemCarrito.carrito_id == carrito.id).all()
+        
+        return {
+            "id": carrito.id,
+            "usuario_id": carrito.usuario_id,
+            "estado": carrito.estado,
+            "items": [{"id": item.id, "carrito_id": item.carrito_id, "producto_id": item.producto_id, "cantidad": item.cantidad, "precio_unitario": item.precio_unitario} for item in items]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error al agregar producto al carrito"
         )
-        session.add(item)
-    
-    session.commit()
-    
-    # Obtener items del carrito actualizado
-    items = session.query(ItemCarrito).filter(ItemCarrito.carrito_id == carrito.id).all()
-    
-    return {
-        "id": carrito.id,
-        "usuario_id": carrito.usuario_id,
-        "estado": carrito.estado,
-        "items": [{"id": item.id, "carrito_id": item.carrito_id, "producto_id": item.producto_id, "cantidad": item.cantidad, "precio_unitario": item.precio_unitario} for item in items]
-    }
 
 
 @router.delete("/carrito/item/{item_id}", response_model=dict)
