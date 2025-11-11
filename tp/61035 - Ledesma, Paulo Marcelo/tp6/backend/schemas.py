@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class UsuarioCreate(BaseModel):
     nombre: str
@@ -11,6 +12,13 @@ class UsuarioLogin(BaseModel):
     password: str
 
 
+class UsuarioData(BaseModel):
+    id: int
+    nombre: str
+    email: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user: Optional[UsuarioData] = None

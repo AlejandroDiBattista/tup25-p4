@@ -4,13 +4,13 @@ import AuthModal from './AuthModal';
 
 export interface Producto {
   id: number;
-  titulo: string;
+  nombre: string;
   descripcion: string;
   categoria: string;
-  valoracion: number;
+  valoracion?: number;
   precio: number;
   existencia: number;
-  imagen?: string; // ahora opcional
+  imagen?: string;
 }
 
 interface ProductoCardProps {
@@ -40,7 +40,9 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       });
 
       if (!res.ok) throw new Error('Error al agregar producto al carrito');
-      alert(`✅ ${producto.titulo} agregado al carrito`);
+      
+      // Disparar evento personalizado para que el Carrito se actualice
+      window.dispatchEvent(new CustomEvent('agregarAlCarrito', { detail: { nombre: producto.nombre } }));
     } catch (error) {
       console.error(error);
       alert('❌ No se pudo agregar al carrito');
@@ -54,11 +56,11 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     <>
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col">
         <div className="relative h-64 w-full flex items-center justify-center bg-gray-100">
-          <img src={imagenSrc} alt={producto.titulo || 'Producto'} className="max-h-56 object-contain p-4" />
+          <img src={imagenSrc} alt={producto.nombre || 'Producto'} className="max-h-56 object-contain p-4" />
         </div>
 
         <div className="p-4 flex flex-col flex-grow">
-          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{producto.titulo}</h3>
+          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{producto.nombre}</h3>
           <p className="text-sm text-gray-600 mb-3 line-clamp-2">{producto.descripcion}</p>
           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{producto.categoria}</span>
           <span className="text-2xl font-bold text-blue-600 mt-2">${producto.precio}</span>

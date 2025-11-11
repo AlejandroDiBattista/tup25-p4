@@ -66,7 +66,11 @@ def login(data: UsuarioLogin, session: Session = Depends(get_session)):
         raise HTTPException(401, "Credenciales incorrectas")
 
     token = create_token({"sub": user.email})
-    return {"access_token": token, "token_type": "bearer"}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": user.id, "nombre": user.nombre, "email": user.email}
+    }
 
 
 # ✅ Obtener usuario actual desde token

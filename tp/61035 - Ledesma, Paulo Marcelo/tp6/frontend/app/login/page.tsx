@@ -35,8 +35,10 @@ export default function LoginPage() {
       if (!token) throw new Error("Respuesta inválida del servidor");
 
       localStorage.setItem("tp6_token", token);
-      // opción: guardar usuario si viene en la respuesta
       if (data.user) localStorage.setItem("tp6_user", JSON.stringify(data.user));
+
+      // Disparar evento personalizado para actualizar componentes en la misma ventana
+      window.dispatchEvent(new CustomEvent('authChanged'));
 
       router.push("/");
     } catch (err) {

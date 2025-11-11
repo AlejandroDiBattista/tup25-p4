@@ -51,6 +51,14 @@ export const Carrito = () => {
 
   useEffect(() => {
     fetchCarrito();
+
+    // Escuchar evento personalizado cuando se agrega un producto al carrito
+    const handleAgregarAlCarrito = () => {
+      fetchCarrito();
+    };
+
+    window.addEventListener('agregarAlCarrito', handleAgregarAlCarrito);
+    return () => window.removeEventListener('agregarAlCarrito', handleAgregarAlCarrito);
   }, [fetchCarrito]);
 
   // ✅ Eliminar producto
@@ -127,7 +135,7 @@ export const Carrito = () => {
   return (
     <>
       {/* 🛒 Carrito lateral */}
-      <aside className="w-80 bg-white/80 rounded-2xl shadow-lg p-4 sticky top-4 h-fit border border-gray-200">
+      <aside className="w-80 bg-gradient-to-b from-white to-sky-50 rounded-2xl shadow-lg p-4 sticky top-20 h-fit border border-sky-200">
         <h2 className="text-lg font-semibold mb-3 text-sky-700 flex items-center gap-2">
           🛒 Carrito
         </h2>

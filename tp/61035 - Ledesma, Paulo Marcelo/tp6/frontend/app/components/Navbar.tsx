@@ -1,77 +1,35 @@
 "use client";
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/lib/useAuth';
 
 export default function Navbar() {
-  const [isLogged, setIsLogged] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return Boolean(localStorage.getItem('tp6_token'));
-  });
-
-  const [userName, setUserName] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const raw = localStorage.getItem('tp6_user');
-      if (raw) {
-        const u = JSON.parse(raw);
-        return u?.nombre || u?.email || null;
-      }
-    } catch {
-      // ignore parse errors
-    }
-    return null;
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    // Evitar alertas automáticas de Next.js en modo dev cuando hay mismatch de server/client
-    // (ej. "Please refresh the page and try again"). Sobrescribimos temporalmente window.alert
-  const originalAlert = window.alert.bind(window) as typeof window.alert;
-  window.alert = (message?: unknown) => {
-      try {
-        const text = String(message ?? '');
-        if (text.includes('Please refresh the page and try again')) {
-          console.debug('[Navbar] suppressed Next.js alert:', text);
-          return;
-        }
-      } catch {
-        // ignore
-      }
-      originalAlert(message);
-    };
-
-    return () => {
-      window.alert = originalAlert;
-    };
-  }, []);
+  const { isLogged, userName } = useAuth();
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('tp6_token');
-      localStorage.removeItem('tp6_user');
-    }
-    setIsLogged(false);
-    setUserName(null);
+    localStorage.removeItem('tp6_token');
+    localStorage.removeItem('tp6_user');
+    // Disparar evento personalizado para actualizar componentes en la misma ventana
+    window.dispatchEvent(new CustomEvent('authChanged'));
     window.location.href = '/';
   };
 
   return (
-    <nav className="w-full bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-50 flex justify-between items-center px-6 py-3">
-      <div className="text-xl font-semibold text-sky-600">🛍️ De Todo Un Poco</div>
+    <nav className="w-full bg-gradient-to-r from-sky-700 to-sky-600 shadow-md sticky top-0 z-50 flex justify-between items-center px-6 py-4">
+      <div className="text-xl font-semibold text-white">🛍️ De Todo Un Poco</div>
 
-      <div className="flex gap-4 items-center">
-        <Link href="/" className="hover:text-sky-600">Inicio</Link>
-        {!isLogged ? (
+      <div className="flex gap-6 items-center">
+        {isLogged ? (
           <>
-            <Link href="/login" className="hover:text-sky-600">Ingresar</Link>
-            <Link href="/registro" className="hover:text-sky-600">Crear usuario</Link>
+            <span className="text-sm font-semibold text-white">¡Hola, {userName}!</span>
+            <Link href="/" className="text-white hover:text-sky-100 transition">Inicio</Link>
+            <Link href="/compras" className="text-white hover:text-sky-100 transition">Mis compras</Link>
+            <button onClick={handleLogout} className="text-white hover:text-sky-100 font-semibold transition">Cerrar sesión</button>
           </>
         ) : (
           <>
-            <span className="text-sm text-slate-600">Hola, {userName}</span>
-            <Link href="/compras" className="hover:text-sky-600">Mis compras</Link>
-            <button onClick={handleLogout} className="text-red-500 hover:underline">Cerrar sesión</button>
+            <Link href="/" className="text-white hover:text-sky-100 transition">Inicio</Link>
+            <Link href="/login" className="text-white hover:text-sky-100 transition">Ingresar</Link>
+            <Link href="/registrar" className="text-white hover:text-sky-100 transition">Crear usuario</Link>
           </>
         )}
       </div>

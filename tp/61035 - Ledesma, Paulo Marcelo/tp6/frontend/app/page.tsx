@@ -5,13 +5,13 @@ import { Carrito } from './components/Carrito';
 
 interface Producto {
   id: number;
-  titulo: string;
+  nombre: string;
   descripcion: string;
   categoria: string;
-  valoracion: number;
+  valoracion?: number;
   precio: number;
   existencia: number;
-  imagen: string;
+  imagen?: string;
 }
 
 export default function Home() {
@@ -59,28 +59,28 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col gap-6 p-6 min-h-screen">
+    <main className="flex flex-col gap-6 p-6 min-h-screen bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50">
       <div className="flex gap-6">
         <div className="flex-1">
-          <form onSubmit={handleSearch} className="flex gap-2 mb-6 flex-wrap items-center">
+          <form onSubmit={handleSearch} className="flex gap-2 mb-6 flex-wrap items-center bg-white rounded-lg p-4 shadow-sm border border-sky-200">
             <input
               type="text"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar productos..."
-              className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
             />
             <select
               value={categoriaSeleccionada}
               onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-              className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
             >
               <option value="">Todas las categorías</option>
               {categorias.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            <button type="submit" className="bg-sky-600 text-white px-4 py-2 rounded-lg">
+            <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-semibold transition">
               Buscar
             </button>
             <button
@@ -90,7 +90,7 @@ export default function Home() {
                 setCategoriaSeleccionada('');
                 setProductosFiltrados(productos);
               }}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg"
+              className="bg-slate-400 hover:bg-slate-500 text-white px-4 py-2 rounded-lg font-semibold transition"
             >
               Mostrar todos
             </button>
