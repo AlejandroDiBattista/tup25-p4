@@ -73,7 +73,7 @@ def calcular_iva(item: ItemCarrito, producto: Producto) -> float:
     return item.cantidad * float(producto.precio) * tasa
 
 def costo_envio(subtotal_con_iva: float) -> float:
-    return 0.0 if subtotal_con_iva > 50000 else 1000.0
+    return 0.0 if subtotal_con_iva > 1000 else 50.0
 
 def get_or_create_carrito(session: Session, usuario_id: int) -> Carrito:
     carrito = session.exec(
