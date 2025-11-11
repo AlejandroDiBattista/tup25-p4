@@ -1,17 +1,66 @@
-import { obtenerProductos } from './services/productos';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { obtenerProductos, obtenerCategorias } from './services/productos';
 import ProductoCard from './components/ProductoCard';
 import Header from './components/Header';
 import { Producto } from './types';
+import { Input } from './components/ui/input';
+import { Button } from './components/ui/button';
 
-export default async function Home() {
-  let productos: Producto[] = [];
-  let error: string | null = null;
+export default function Home() {
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [productosFiltrados, setProductosFiltrados] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [busqueda, setBusqueda] = useState('');
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(null);
 
-  try {
-    productos = await obtenerProductos();
-  } catch (err) {
-    error = 'No se pudo conectar con el servidor. Por favor, verifica que el backend esté corriendo en http://localhost:8000';
-  }
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setIsLoading(true);
+        const [productosData, categoriasData] = await Promise.all([
+          obtenerProductos(),
+          obtenerCategorias(),
+        ]);
+        setProductos(productosData);
+        setProductosFiltrados(productosData);
+        setCategorias(categoriasData);
+      } catch (err) {
+        setError('No se pudo conectar con el servidor. Por favor, verifica que el backend esté corriendo en http://localhost:8000');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    cargarDatos();
+  }, []);
+
+  useEffect(() => {
+    // Filtrar productos
+    let filtrados = productos;
+
+    // Filtrar por categoría
+    if (categoriaSeleccionada) {
+      filtrados = filtrados.filter(
+        (p) => p.categoria.toLowerCase() === categoriaSeleccionada.toLowerCase()
+      );
+    }
+
+    // Filtrar por búsqueda
+    if (busqueda.trim()) {
+      const termino = busqueda.toLowerCase();
+      filtrados = filtrados.filter(
+        (p) =>
+          p.titulo.toLowerCase().includes(termino) ||
+          p.descripcion.toLowerCase().includes(termino)
+      );
+    }
+
+    setProductosFiltrados(filtrados);
+  }, [busqueda, categoriaSeleccionada, productos]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -22,7 +71,7 @@ export default async function Home() {
             Catálogo de Productos
           </h2>
           <p className="text-gray-600 mt-2">
-            {productos.length > 0 ? `${productos.length} productos disponibles` : 'Cargando productos...'}
+            {isLoading ? 'Cargando productos...' : `${productosFiltrados.length} productos disponibles`}
           </p>
         </div>
       </header>
@@ -33,17 +82,62 @@ export default async function Home() {
             ⚠️ {error}
           </div>
         )}
-        
-        {productos.length > 0 ? (
+
+        {/* Buscador y filtros */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Buscar productos
+              </label>
+              <Input
+                type="text"
+                placeholder="Busca por nombre o descripción..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Filtrar por categoría
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={categoriaSeleccionada === null ? 'default' : 'outline'}
+                  onClick={() => setCategoriaSeleccionada(null)}
+                >
+                  Todas las categorías
+                </Button>
+                {categorias.map((cat) => (
+                  <Button
+                    key={cat}
+                    variant={categoriaSeleccionada === cat ? 'default' : 'outline'}
+                    onClick={() => setCategoriaSeleccionada(cat)}
+                  >
+                    {cat}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Grid de productos */}
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">Cargando productos...</p>
+          </div>
+        ) : productosFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {productos.map((producto) => (
+            {productosFiltrados.map((producto) => (
               <ProductoCard key={producto.id} producto={producto} />
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-600 text-lg">
-              No hay productos disponibles en este momento.
+              No hay productos que coincidan con tu búsqueda.
             </p>
           </div>
         )}
