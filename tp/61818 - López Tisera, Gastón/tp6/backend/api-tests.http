@@ -97,3 +97,13 @@ Authorization: Bearer {{token}}
 POST {{baseUrl}}/carrito/cancelar
 Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
+
+### Compras - historial
+GET {{baseUrl}}/compras
+Accept: {{contentType}}
+Authorization: Bearer {{token}}
+
+### Compras - detalle (reemplazar ID adquirido)
+GET {{baseUrl}}/compras/1
+Accept: {{contentType}}
+Authorization: Bearer {{token}}
