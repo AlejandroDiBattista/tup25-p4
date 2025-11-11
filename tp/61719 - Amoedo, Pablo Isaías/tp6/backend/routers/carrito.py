@@ -42,4 +42,62 @@ def ver_carrito(usuario_email: str = Depends(obtener_usuario_actual)):
             })
 
         return {"carrito": carrito}
+    
+@router.post("/comprar")
+def comprar(usuario_email: str = Depends(obtener_usuario_actual)):
+    with Session(engine) as session:
+        items = session.exec(
+            select(Carrito, Producto)
+            .join(Producto, Producto.id == Carrito.producto_id)
+            .where(Carrito.usuario_email == usuario_email)
+        ).all()
 
+        if not items:
+            raise HTTPException(status_code=400, detail="El carrito está vacío.")
+
+        resumen = []
+        for carrito_item, producto in items:
+            if producto.existencia < carrito_item.cantidad:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"No hay suficiente stock para el producto '{producto.nombre}'."
+                )
+
+            producto.existencia -= carrito_item.cantidad
+            session.add(producto)
+
+            resumen.append({
+                "producto_id": producto.id,
+                "nombre": producto.nombre,
+                "cantidad": carrito_item.cantidad,
+                "subtotal": carrito_item.cantidad * producto.precio
+            })
+
+            session.delete(carrito_item)
+
+        session.commit()
+
+        total = sum(item["subtotal"] for item in resumen)
+
+        return {
+            "mensaje": "Compra realizada con éxito.",
+            "resumen": resumen,
+            "total": total
+        }
+
+@router.delete("/carrito/{producto_id}")
+def eliminar_producto_carrito(producto_id: int, usuario_email: str = Depends(obtener_usuario_actual)):
+    with Session(engine) as session:
+        item = session.exec(
+            select(Carrito)
+            .where(Carrito.usuario_email == usuario_email)
+            .where(Carrito.producto_id == producto_id)
+        ).first()
+
+        if not item:
+            raise HTTPException(status_code=404, detail="Producto no encontrado en el carrito.")
+
+        session.delete(item)
+        session.commit()
+
+        return {"mensaje": f"Producto con ID {producto_id} eliminado del carrito."}
