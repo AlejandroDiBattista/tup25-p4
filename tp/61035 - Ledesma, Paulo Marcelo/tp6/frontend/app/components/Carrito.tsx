@@ -83,6 +83,36 @@ export const Carrito = () => {
     }
   };
 
+  // ✅ Cambiar cantidad de un producto
+  const cambiarCantidad = async (itemId: number, nuevaCantidad: number) => {
+    if (!token) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (nuevaCantidad < 1) {
+      await eliminarItem(itemId);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/carrito/${itemId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ cantidad: nuevaCantidad }),
+      });
+
+      if (!res.ok) throw new Error("Error al actualizar cantidad");
+      fetchCarrito();
+    } catch (err) {
+      console.error(err);
+      setMensaje("No se pudo actualizar la cantidad");
+    }
+  };
+
   // ✅ Vaciar carrito
   const vaciarCarrito = async () => {
     if (!token) {
@@ -135,19 +165,52 @@ export const Carrito = () => {
         ) : (
           <>
             {items.map((item) => (
-              <div key={item.id} className="border-b py-2 flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-800">{item.producto}</p>
-                  <p className="text-sm text-gray-500">
-                    {item.cantidad} × ${item.precio_unitario}
-                  </p>
+              <div key={item.id} className="border-b py-3 flex flex-col gap-2">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-800 text-sm">{item.producto}</p>
+                    <p className="text-xs text-gray-500">
+                      ${item.precio_unitario.toFixed(2)} c/u
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => eliminarItem(item.id)}
+                    className="text-red-500 hover:text-red-700 text-xs font-semibold ml-2"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <button
-                  onClick={() => eliminarItem(item.id)}
-                  className="text-red-500 hover:text-red-700 text-sm font-semibold"
-                >
-                  ✕
-                </button>
+
+                {/* Controles de cantidad (+/-) */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => cambiarCantidad(item.id, item.cantidad - 1)}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-semibold"
+                    disabled={item.cantidad <= 1}
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    value={item.cantidad}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      if (val >= 1) cambiarCantidad(item.id, val);
+                    }}
+                    className="w-12 text-center border border-gray-300 rounded text-xs py-1"
+                    min="1"
+                  />
+                  <button
+                    onClick={() => cambiarCantidad(item.id, item.cantidad + 1)}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-semibold"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <p className="text-right text-sm font-semibold text-sky-700">
+                  ${item.subtotal.toFixed(2)}
+                </p>
               </div>
             ))}
 

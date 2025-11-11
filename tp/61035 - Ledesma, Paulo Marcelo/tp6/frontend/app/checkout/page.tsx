@@ -144,32 +144,35 @@ export default function CheckoutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-semibold mb-6 text-sky-700">Finalizar Compra</h1>
+        <h1 className="text-3xl font-semibold mb-2 text-sky-700">Confirmar Compra</h1>
+        <p className="text-sm text-gray-600 mb-6">Revisa tu pedido y completa los datos de envío y pago para finalizar.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Resumen del carrito */}
           <div className="md:col-span-2 bg-white rounded-lg shadow-lg p-6 border border-sky-200">
-            <h2 className="text-xl font-semibold mb-4 text-sky-700">Resumen de tu compra</h2>
+            <h2 className="text-xl font-semibold mb-4 text-sky-700">Resumen del pedido</h2>
 
-            <div className="space-y-2 mb-4 pb-4 border-b border-sky-100">
+            <div className="space-y-3 mb-4 pb-4 border-b border-sky-100">
               {carrito.items.map((item) => {
                 const esElectronica = item.producto.toLowerCase().includes('electro');
                 const tasaIva = esElectronica ? 0.10 : 0.21;
                 const ivaItem = item.subtotal * tasaIva;
                 return (
-                  <div key={item.id} className="flex justify-between">
-                    <div>
-                      <div className="font-semibold">{item.producto}</div>
+                  <div key={item.id} className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-800">{item.producto}</div>
                       <div className="text-sm text-gray-600">Cantidad: {item.cantidad} • ${item.precio_unitario.toFixed(2)} c/u</div>
                       <div className="text-xs text-gray-500">IVA: ${ivaItem.toFixed(2)}</div>
                     </div>
-                    <div className="text-right">
-                      <div>${item.subtotal.toFixed(2)}</div>
+                    <div className="text-right font-semibold text-sky-700">
+                      ${item.subtotal.toFixed(2)}
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            <p className="text-xs text-gray-500 mb-4">💡 Para cambiar cantidades o eliminar productos, vuelve atrás y edita tu carrito.</p>
 
             {/* Detalles de pago */}
             <form onSubmit={handleFinalizarCompra} className="space-y-4">

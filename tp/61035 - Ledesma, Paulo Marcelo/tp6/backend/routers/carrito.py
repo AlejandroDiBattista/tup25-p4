@@ -116,6 +116,47 @@ def eliminar_item_carrito(
     return {"mensaje": "Producto eliminado del carrito correctamente"}
 
 
+# ✅ NUEVO: actualizar cantidad de un item en el carrito (PATCH)
+@router.patch("/{item_id}")
+def actualizar_cantidad_item(
+    item_id: int,
+    data: dict,
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_session)
+):
+    carrito = db.exec(
+        select(Carrito).where(Carrito.usuario_id == usuario.id, Carrito.estado == "abierto")
+    ).first()
+
+    if not carrito:
+        raise HTTPException(400, "No hay carrito activo")
+
+    item = db.exec(
+        select(ItemCarrito).where(
+            ItemCarrito.id == item_id,
+            ItemCarrito.carrito_id == carrito.id
+        )
+    ).first()
+
+    if not item:
+        raise HTTPException(404, "El producto no está en el carrito")
+
+    nueva_cantidad = data.get("cantidad")
+    if not nueva_cantidad or nueva_cantidad < 1:
+        raise HTTPException(400, "Cantidad debe ser mayor a 0")
+
+    # Validar stock disponible
+    if item.producto.existencia < nueva_cantidad:
+        raise HTTPException(400, f"Stock insuficiente para '{item.producto.nombre}'. Disponible: {item.producto.existencia}")
+
+    item.cantidad = nueva_cantidad
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+
+    return {"mensaje": "Cantidad actualizada correctamente", "cantidad": item.cantidad}
+
+
 # ✅ NUEVO: vaciar carrito sin borrarlo (para test 4.6)
 @router.post("/cancelar")
 def cancelar_carrito(
