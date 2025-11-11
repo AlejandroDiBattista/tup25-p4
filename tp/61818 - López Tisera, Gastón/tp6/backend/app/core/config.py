@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import List
 
-from pydantic import AnyHttpUrl, Field
+from pydantic import AnyHttpUrl, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +21,15 @@ class Settings(BaseSettings):
         ],
         description="Allowed origins for CORS.",
     )
+    secret_key: SecretStr = Field(
+        default=SecretStr("super-secret-development-key"),
+        description="Secret key for JWT token signing.",
+    )
+    access_token_expire_minutes: int = Field(
+        default=60,
+        description="Minutes before access tokens expire.",
+    )
+    jwt_algorithm: str = Field(default="HS256", description="JWT signing algorithm.")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
