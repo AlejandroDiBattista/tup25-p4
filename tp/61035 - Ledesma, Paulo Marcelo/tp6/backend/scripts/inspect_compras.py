@@ -1,9 +1,14 @@
+# inspect_compras.py - simple inspector for compras and itemcompra
 import sqlite3, json, os
+from pathlib import Path
+
+DB = Path(__file__).resolve().parents[0] / 'database.db'
+# fallback hardcoded path
 DB = r"D:\UTN\Programacion\2do\2doCuatri\TP1\tup25-p4\tp\61035 - Ledesma, Paulo Marcelo\tp6\backend\database.db"
 if not os.path.exists(DB):
     print('DB not found:', DB)
     raise SystemExit(1)
-con = sqlite3.connect(DB)
+con = sqlite3.connect(str(DB))
 cur = con.cursor()
 compras = cur.execute("SELECT id, fecha, total, direccion, tarjeta, envio FROM compra ORDER BY id DESC").fetchall()
 out = []
