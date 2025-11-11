@@ -1,6 +1,6 @@
  'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
 interface ItemCompra {
@@ -26,6 +26,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function ComprasPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [compras, setCompras] = useState<Compra[]>([]);
   const [compraSeleccionada, setCompraSeleccionada] = useState<Compra | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,8 +68,12 @@ export default function ComprasPage() {
 
         const data = await res.json();
         setCompras(data);
-        // Seleccionar la primera compra por defecto (cargar detalle si hace falta)
-        if (data.length > 0) {
+        // Si hay query param ?compra=ID, cargar ese detalle. Sino la primera compra.
+        const compraParam = searchParams ? searchParams.get('compra') : null;
+        if (compraParam) {
+          const id = Number(compraParam);
+          if (!isNaN(id)) await loadCompraDetalle(id);
+        } else if (data.length > 0) {
           await loadCompraDetalle(data[0].id);
         }
       } catch (err) {
@@ -79,7 +84,7 @@ export default function ComprasPage() {
     };
 
     fetchCompras();
-  }, [token, loadCompraDetalle]);
+  }, [token, loadCompraDetalle, searchParams]);
 
   
 
@@ -148,7 +153,7 @@ export default function ComprasPage() {
                   {compras.map((compra) => (
                     <button
                       key={compra.id}
-                      onClick={() => setCompraSeleccionada(compra)}
+                      onClick={() => loadCompraDetalle(compra.id)}
                       className={`w-full text-left p-3 rounded-lg transition border-l-4 ${
                         compraSeleccionada?.id === compra.id
                           ? 'bg-sky-100 border-sky-600 shadow'
