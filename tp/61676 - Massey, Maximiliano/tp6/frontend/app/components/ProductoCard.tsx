@@ -11,19 +11,30 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  const { addItem } = useCartStore();
+  const { addItem, items } = useCartStore();
   const [added, setAdded] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Calcular stock disponible (stock total - cantidad en carrito)
+  const cantidadEnCarrito = items.find(item => item.id === producto.id)?.cantidad || 0;
+  const stockDisponible = producto.existencia - cantidadEnCarrito;
+  const sinStock = stockDisponible <= 0;
+
   const handleAddToCart = async () => {
+    if (sinStock) {
+      alert(`No hay más stock disponible de este producto. Ya tienes ${cantidadEnCarrito} en el carrito.`);
+      return;
+    }
+
     setLoading(true);
     try {
       await addItem(producto, 1);
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al agregar al carrito:', error);
-      alert('Error al agregar al carrito. Por favor, inicia sesión primero.');
+      const errorMessage = error?.message || 'Error al agregar al carrito';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -64,17 +75,28 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           <span className="text-2xl font-bold text-blue-600">
             ${producto.precio}
           </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
+          <div className="text-right">
+            <span className={`text-xs font-semibold ${
+              stockDisponible === 0 ? 'text-red-600' : 
+              stockDisponible <= 3 ? 'text-orange-600' : 
+              'text-green-600'
+            }`}>
+              {stockDisponible === 0 ? 'Sin stock' : `Disponible: ${stockDisponible}`}
+            </span>
+            {cantidadEnCarrito > 0 && (
+              <div className="text-xs text-blue-600 mt-0.5">
+                En carrito: {cantidadEnCarrito}
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Botón Agregar al Carrito */}
         <button
           onClick={handleAddToCart}
-          disabled={producto.existencia === 0 || loading}
+          disabled={sinStock || loading}
           className={`w-full py-2 rounded-lg font-semibold transition-colors ${
-            producto.existencia === 0
+            sinStock
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : loading
               ? 'bg-gray-400 text-white cursor-wait'
@@ -83,8 +105,8 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
               : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
         >
-          {producto.existencia === 0 
-            ? '❌ Agotado' 
+          {sinStock
+            ? cantidadEnCarrito > 0 ? '🛒 Todo en carrito' : '❌ Agotado' 
             : loading 
             ? '⏳ Agregando...'
             : added 

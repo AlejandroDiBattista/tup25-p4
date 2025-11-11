@@ -226,26 +226,58 @@ async def agregar_al_carrito(
     db: Session = Depends(get_db)
 ):
     cantidad = request.cantidad
-    # Verificar producto
-    productos = cargar_productos()
-    producto = next((p for p in productos if p["id"] == producto_id), None)
+    
+    # Obtener producto de la base de datos
+    producto = db.exec(select(Producto).where(Producto.id == producto_id)).first()
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     
-    if producto.get("existencia", 0) < cantidad:
-        raise HTTPException(status_code=400, detail="Stock insuficiente")
+    # Buscar item existente en el carrito
+    item = db.exec(
+        select(ItemCarrito).where(
+            ItemCarrito.usuario_id == current_user.id, 
+            ItemCarrito.producto_id == producto_id
+        )
+    ).first()
     
-    # Buscar item existente
-    item = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id, ItemCarrito.producto_id == producto_id)).first()
+    # Calcular nueva cantidad total
+    cantidad_actual_carrito = item.cantidad if item else 0
+    nueva_cantidad_total = cantidad_actual_carrito + cantidad
     
+    # Verificar stock disponible contra la nueva cantidad total
+    if producto.existencia < nueva_cantidad_total:
+        stock_disponible = producto.existencia - cantidad_actual_carrito
+        if stock_disponible <= 0:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"No hay más stock disponible. Ya tienes {cantidad_actual_carrito} unidades en el carrito."
+            )
+        else:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Stock insuficiente. Solo puedes agregar {stock_disponible} unidades más (tienes {cantidad_actual_carrito} en el carrito, stock total: {producto.existencia})"
+            )
+    
+    # Actualizar o crear item en el carrito
     if item:
-        item.cantidad += cantidad
+        item.cantidad = nueva_cantidad_total
     else:
-        item = ItemCarrito(usuario_id=current_user.id, producto_id=producto_id, cantidad=cantidad)
+        item = ItemCarrito(
+            usuario_id=current_user.id, 
+            producto_id=producto_id, 
+            cantidad=cantidad
+        )
         db.add(item)
     
     db.commit()
-    return {"mensaje": "Producto agregado al carrito"}
+    db.refresh(item)
+    
+    return {
+        "mensaje": "Producto agregado al carrito",
+        "cantidad_en_carrito": item.cantidad,
+        "stock_disponible": producto.existencia,
+        "stock_restante": producto.existencia - item.cantidad
+    }
 
 @app.delete("/carrito/quitar/{producto_id}")
 async def quitar_del_carrito(producto_id: int, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -342,7 +374,104 @@ async def finalizar_compra(
 @app.get("/compras")
 async def obtener_compras(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
     compras = db.exec(select(Compra).where(Compra.usuario_id == current_user.id)).all()
-    return [{"id": c.id, "total": c.total, "fecha": c.fecha, "direccion": c.direccion} for c in compras]
+    return [{"id": c.id, "total": c.total, "fecha": c.fecha, "direccion": c.direccion, "tarjeta": c.tarjeta} for c in compras]
+
+@app.get("/compras/{compra_id}")
+async def obtener_detalle_compra(
+    compra_id: int,
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Obtener detalle completo de una compra específica"""
+    # Buscar la compra
+    compra = db.exec(
+        select(Compra).where(
+            Compra.id == compra_id,
+            Compra.usuario_id == current_user.id
+        )
+    ).first()
+    
+    if not compra:
+        raise HTTPException(status_code=404, detail="Compra no encontrada")
+    
+    # Obtener los items de la compra
+    items = db.exec(
+        select(CompraItem).where(CompraItem.compra_id == compra_id)
+    ).all()
+    
+    # Calcular subtotal e IVA desglosado
+    subtotal = 0
+    iva_total = 0
+    productos = []
+    
+    for item in items:
+        precio_total = item.precio_unitario * item.cantidad
+        subtotal += precio_total
+        
+        # Obtener producto para saber su categoría y calcular IVA
+        producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
+        if producto:
+            tasa_iva = 0.10 if producto.categoria == "electronics" else 0.21
+            iva_item = precio_total * tasa_iva
+            iva_total += iva_item
+            
+            productos.append({
+                "id": item.producto_id,
+                "nombre": item.nombre,
+                "cantidad": item.cantidad,
+                "precio_unitario": item.precio_unitario,
+                "precio_total": precio_total,
+                "iva": iva_item,
+                "imagen": producto.imagen if producto else ""
+            })
+        else:
+            productos.append({
+                "id": item.producto_id,
+                "nombre": item.nombre,
+                "cantidad": item.cantidad,
+                "precio_unitario": item.precio_unitario,
+                "precio_total": precio_total,
+                "iva": 0,
+                "imagen": ""
+            })
+    
+    return {
+        "id": compra.id,
+        "fecha": compra.fecha,
+        "direccion": compra.direccion,
+        "tarjeta": compra.tarjeta,
+        "subtotal": subtotal,
+        "iva": iva_total,
+        "envio": compra.envio,
+        "total": compra.total,
+        "productos": productos
+    }
+
+@app.delete("/carrito")
+async def cancelar_carrito(
+    current_user: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Vaciar el carrito del usuario (cancelar compra)"""
+    # Obtener todos los items del carrito
+    items = db.exec(
+        select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)
+    ).all()
+    
+    if not items:
+        return {"mensaje": "El carrito ya está vacío", "items_eliminados": 0}
+    
+    # Eliminar todos los items
+    count = len(items)
+    for item in items:
+        db.delete(item)
+    
+    db.commit()
+    
+    return {
+        "mensaje": "Carrito vaciado exitosamente",
+        "items_eliminados": count
+    }
 
 if __name__ == "__main__":
     import uvicorn

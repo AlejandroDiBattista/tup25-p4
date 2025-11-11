@@ -57,7 +57,9 @@ const useCartStore = create<CartState>((set, get) => ({
                 })
                 
                 if (!response.ok) {
-                    throw new Error('Error al agregar al carrito')
+                    const errorData = await response.json().catch(() => ({}))
+                    const errorMessage = errorData.detail || 'Error al agregar al carrito'
+                    throw new Error(errorMessage)
                 }
                 
                 // Sincronizar con backend después de agregar
@@ -72,13 +74,24 @@ const useCartStore = create<CartState>((set, get) => ({
                 const existingItem = state.items.find((item) => item.id === producto.id)
                 
                 if (existingItem) {
+                    // Verificar stock antes de agregar localmente
+                    const nuevaCantidad = existingItem.cantidad + cantidad
+                    if (nuevaCantidad > producto.existencia) {
+                        throw new Error(`Stock insuficiente. Solo hay ${producto.existencia} unidades disponibles.`)
+                    }
+                    
                     return {
                         items: state.items.map((item) =>
                             item.id === producto.id
-                                ? { ...item, cantidad: item.cantidad + cantidad }
+                                ? { ...item, cantidad: nuevaCantidad }
                                 : item
                         ),
                     }
+                }
+                
+                // Verificar stock antes de crear nuevo item
+                if (cantidad > producto.existencia) {
+                    throw new Error(`Stock insuficiente. Solo hay ${producto.existencia} unidades disponibles.`)
                 }
                 
                 return {
