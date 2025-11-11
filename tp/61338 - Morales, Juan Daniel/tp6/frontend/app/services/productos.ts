@@ -144,3 +144,26 @@ export async function detalleCompra(id: number) {
     items: Array<{ producto_id: number; nombre: string; cantidad: number; precio_unitario: number }>;
   }>(`/compras/${id}`);
 }
+export const Productos = {
+  listar: obtenerProductos,
+  detalle: obtenerProducto,
+};
+
+export const Auth = {
+  login: iniciarSesion,
+  registrar,
+  logout: cerrarSesion,
+};
+
+export const Carrito = {
+  ver: verCarrito,
+  agregar: agregarAlCarrito,
+  quitar: quitarDelCarrito,
+  cancelar: cancelarCarrito,
+  finalizar: finalizarCompra,
+};
+
+export const Compras = {
+  listar: listarCompras,
+  detalle: detalleCompra,
+};

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Producto } from "../types";
-import { agregarAlCarrito } from "../services/productos";
+import { Carrito } from "../services/productos";
 import { useState } from "react";
 
 interface ProductoCardProps {
@@ -34,7 +34,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   const handleAdd = async () => {
     setLoading(true);
     try {
-      await agregarAlCarrito(producto.id, 1);
+      await Carrito.agregar(producto.id, 1);
       alert("Agregado al carrito");
     } catch (e: any) {
       alert(e?.message || "Error al agregar");

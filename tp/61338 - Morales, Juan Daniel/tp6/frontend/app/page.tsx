@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ProductoCard from "./components/ProductoCard";
-import { obtenerProductos } from "./services/productos";
+import { Productos } from "./services/productos";
 import { Producto } from "./types";
 
 export default function Home() {
@@ -16,10 +16,10 @@ export default function Home() {
     setLoading(true);
     setErr(null);
     try {
-      const data = await obtenerProductos(q || undefined, categoria || undefined);
+      const data = await Productos.listar(q || undefined, categoria || undefined);
       setProductos(data);
-    } catch (e: any) {
-      setErr(e?.message || "Error al cargar productos");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Error al cargar productos");
     } finally {
       setLoading(false);
     }
