@@ -13,6 +13,11 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const [loading, setLoading] = useState(false);
 
+  const nombre = producto.nombre || "Producto";
+  const descripcion = producto.descripcion || "Sin descripción disponible";
+  const categoria = producto.categoria || "Sin categoría";
+  const existencia = producto.existencia ?? 0;
+
   // Soporta ambos formatos:
   // - imagen: "imagenes/0001.png"  -> usa tal cual
   // - imagen: "0001.png"           -> prefix "/imagenes/"
@@ -24,7 +29,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     return `${API_URL}/imagenes/${producto.imagen}`;
   })();
 
-  const agotado = (producto.existencia ?? 0) <= 0;
+  const agotado = existencia <= 0;
 
   const handleAdd = async () => {
     setLoading(true);
@@ -43,7 +48,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       <div className="relative h-64 bg-gray-100">
         <Image
           src={imagenSrc}
-          alt={producto.nombre}
+          alt={nombre}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain p-4"
@@ -52,24 +57,20 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       </div>
 
       <div className="p-4 space-y-3">
-        <h3 className="text-lg font-semibold line-clamp-2">{producto.nombre}</h3>
+        <h3 className="text-lg font-semibold line-clamp-2">{nombre}</h3>
 
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {producto.descripcion}
-        </p>
+        <p className="text-sm text-gray-600 line-clamp-2">{descripcion}</p>
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
+            {categoria}
           </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
+          <span className="text-xs text-gray-500">Stock: {existencia}</span>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold">
-            ${Number(producto.precio).toFixed(2)}
+            ${Number(producto.precio ?? 0).toFixed(2)}
           </span>
 
           <button

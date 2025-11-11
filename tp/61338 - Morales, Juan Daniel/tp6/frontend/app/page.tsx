@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import ProductoCard from "./components/ProductoCard";
 import { obtenerProductos } from "./services/productos";
+import { Producto } from "./types";
 
 export default function Home() {
   const [q, setQ] = useState("");
   const [categoria, setCategoria] = useState("");
-  const [productos, setProductos] = useState<any[]>([]);
+  const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
@@ -56,7 +57,11 @@ export default function Home() {
           <button className="btn" onClick={load}>Filtrar</button>
           <button
             className="btn"
-            onClick={() => { setQ(""); setCategoria(""); load(); }}
+            onClick={() => {
+              setQ("");
+              setCategoria("");
+              load();
+            }}
           >
             Limpiar
           </button>
