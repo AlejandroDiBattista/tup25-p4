@@ -36,8 +36,9 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     try {
       await Carrito.agregar(producto.id, 1);
       alert("Agregado al carrito");
-    } catch (e: any) {
-      alert(e?.message || "Error al agregar");
+    } catch (e) {
+  const msg = e instanceof Error ? e.message : "Error al agregar";
+  alert(msg);
     } finally {
       setLoading(false);
     }

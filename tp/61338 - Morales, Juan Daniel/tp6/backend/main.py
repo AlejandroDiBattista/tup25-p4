@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from pathlib import Path
 from typing import Optional, Dict, List
 
@@ -17,25 +16,30 @@ DB_URL = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 engine = create_engine(DB_URL, echo=False)
 
 from models import (
-    Usuario, Producto, Carrito, ItemCarrito, Compra, ItemCompra  # tus modelos en __init__.py
+    Usuario, Producto, Carrito, ItemCarrito, Compra, ItemCompra
 )
-from models.productos import seed_productos  # tu seed adaptado del punto 1.5
+from models.productos import seed_productos
 
 
 # ── App y middlewares ─────────────────────────────────────────────────────────
 app = FastAPI(title="API Productos")
 
-# Imágenes estáticas (si las usás)
+# 📦 Servir imágenes estáticas
 app.mount("/imagenes", StaticFiles(directory=BASE_DIR / "imagenes"), name="imagenes")
 
-# CORS abierto para dev
+# ✅ CORRECCIÓN CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Token store simple en memoria (MVP)
+# Token store en memoria
 TOKENS: Dict[str, int] = {}  # token -> usuario_id
 
 
@@ -43,7 +47,6 @@ TOKENS: Dict[str, int] = {}  # token -> usuario_id
 @app.on_event("startup")
 def on_startup():
     SQLModel.metadata.create_all(engine)
-    # Seed productos desde productos.json si la tabla está vacía
     with Session(engine) as s:
         seed_productos(s, BASE_DIR)
 
@@ -67,7 +70,6 @@ def _normalize(s: str) -> str:
     return "".join(c for c in s_nfkd if unicodedata.category(c) != "Mn").lower().strip()
 
 def calcular_iva(item: ItemCarrito, producto: Producto) -> float:
-    # 10% si la categoría parece "electrónica", 21% resto
     cat = _normalize(producto.categoria)
     tasa = 0.10 if cat.startswith("electro") else 0.21
     return item.cantidad * float(producto.precio) * tasa
@@ -101,13 +103,20 @@ def registrar(
     password: str = Form(...),
     session: Session = Depends(get_session),
 ):
-    ya = session.exec(select(Usuario).where(Usuario.email == email)).first()
-    if ya:
-        raise HTTPException(400, "Email ya registrado")
-    u = Usuario(nombre=nombre, email=email, password_hash=bcrypt.hash(password))
-    session.add(u)
-    session.commit()
-    return {"ok": True, "msg": "registrado"}
+    try:
+        ya = session.exec(select(Usuario).where(Usuario.email == email)).first()
+        if ya:
+            raise HTTPException(400, "Email ya registrado")
+
+        # ✅ Truncar la contraseña a 72 caracteres para evitar error de bcrypt
+        hashed = bcrypt.hash(password[:72])
+
+        u = Usuario(nombre=nombre, email=email, password_hash=hashed)
+        session.add(u)
+        session.commit()
+        return {"ok": True, "msg": "registrado"}
+    except Exception as e:
+        raise HTTPException(500, f"Error al registrar usuario: {e}")
 
 @app.post("/iniciar-sesion")
 def iniciar_sesion(
@@ -137,11 +146,9 @@ def listar_productos(
     session: Session = Depends(get_session),
 ):
     prods = session.exec(select(Producto)).all()
-    # filtro por q
     if q:
         ql = _normalize(q)
         prods = [p for p in prods if ql in _normalize(p.nombre) or ql in _normalize(p.descripcion)]
-    # filtro por categoría
     if categoria:
         cat = _normalize(categoria)
         prods = [p for p in prods if _normalize(p.categoria) == cat]
@@ -277,7 +284,6 @@ def finalizar_compra(
     iva_total = 0.0
     detalle_items: List[ItemCompra] = []
 
-    # Validar stock y calcular totales
     for it in items:
         prod = session.get(Producto, it.producto_id)
         if not prod or prod.existencia < it.cantidad:
@@ -309,12 +315,10 @@ def finalizar_compra(
     session.commit()
     session.refresh(compra)
 
-    # persistir items de compra
     for di in detalle_items:
         di.compra_id = compra.id
         session.add(di)
 
-    # descontar stock y vaciar carrito
     for it in items:
         prod = session.get(Producto, it.producto_id)
         prod.existencia -= it.cantidad
@@ -361,5 +365,3 @@ def detalle_compra(cid: int, user_id: int = Depends(auth_user), session: Session
             } for it in items
         ]
     }
-
-

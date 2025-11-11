@@ -18,7 +18,10 @@ async function apiGET<T>(path: string, opts: RequestInit = {}): Promise<T> {
   return res.json();
 }
 
-async function apiForm<T>(path: string, data: Record<string, any>): Promise<T> {
+async function apiForm<T>(
+  path: string,
+  data: Record<string, string | number | boolean | File>
+): Promise<T> {
   const fd = new FormData();
   Object.entries(data).forEach(([k, v]) => fd.append(k, String(v)));
   const res = await fetch(`${API_URL}${path}`, {
@@ -30,17 +33,21 @@ async function apiForm<T>(path: string, data: Record<string, any>): Promise<T> {
   return res.json();
 }
 
-async function apiDELETE<T = any>(path: string): Promise<T> {
+async function apiDELETE<T = unknown>(path: string): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     method: "DELETE",
     headers: { ...authHeaders() },
   });
   if (!res.ok) throw new Error(await safeText(res, "Error en la solicitud"));
-  return (res.status === 204 ? (undefined as unknown as T) : res.json());
+  return res.status === 204 ? (undefined as unknown as T) : res.json();
 }
 
 async function safeText(res: Response, fallback: string) {
-  try { return await res.text(); } catch { return fallback; }
+  try {
+    return await res.text();
+  } catch {
+    return fallback;
+  }
 }
 
 /* =======================
@@ -65,15 +72,19 @@ export async function obtenerProducto(id: number): Promise<Producto> {
  * Auth
  * ======================= */
 
-export async function registrar(nombre: string, email: string, password: string) {
+export async function registrar(
+  nombre: string,
+  email: string,
+  password: string
+) {
   return apiForm("/registrar", { nombre, email, password });
 }
 
 export async function iniciarSesion(email: string, password: string) {
-  const data = await apiForm<{ token: string; usuario: any }>("/iniciar-sesion", {
-    email,
-    password,
-  });
+  const data = await apiForm<{ token: string; usuario: unknown }>(
+    "/iniciar-sesion",
+    { email, password }
+  );
   if (typeof window !== "undefined") localStorage.setItem("token", data.token);
   return data;
 }
@@ -117,11 +128,16 @@ export async function cancelarCarrito() {
   return apiForm("/carrito/cancelar", {});
 }
 
-export async function finalizarCompra(direccion: string, tarjeta: string) {
-  return apiForm<{ ok: boolean; compra_id: number; total: number; envio: number }>(
-    "/carrito/finalizar",
-    { direccion, tarjeta }
-  );
+export async function finalizarCompra(
+  direccion: string,
+  tarjeta: string
+) {
+  return apiForm<{
+    ok: boolean;
+    compra_id: number;
+    total: number;
+    envio: number;
+  }>("/carrito/finalizar", { direccion, tarjeta });
 }
 
 /* =======================
@@ -130,7 +146,13 @@ export async function finalizarCompra(direccion: string, tarjeta: string) {
 
 export async function listarCompras() {
   return apiGET<
-    Array<{ id: number; fecha: string; direccion: string; total: number; envio: number }>
+    Array<{
+      id: number;
+      fecha: string;
+      direccion: string;
+      total: number;
+      envio: number;
+    }>
   >("/compras");
 }
 
@@ -141,9 +163,19 @@ export async function detalleCompra(id: number) {
     direccion: string;
     total: number;
     envio: number;
-    items: Array<{ producto_id: number; nombre: string; cantidad: number; precio_unitario: number }>;
+    items: Array<{
+      producto_id: number;
+      nombre: string;
+      cantidad: number;
+      precio_unitario: number;
+    }>;
   }>(`/compras/${id}`);
 }
+
+/* =======================
+ * Exports organizados
+ * ======================= */
+
 export const Productos = {
   listar: obtenerProductos,
   detalle: obtenerProducto,
