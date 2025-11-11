@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Producto } from "../types";
 import { Button } from "../../components/ui/button";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/ca
 
 export default function CartSidebar() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [items, setItems] = useState<{ id: number; cantidad: number }[]>(() => {
     if (typeof window !== "undefined") {
       return JSON.parse(localStorage.getItem("carrito") || "[]");
@@ -15,6 +16,10 @@ export default function CartSidebar() {
   });
   const [productos, setProductos] = useState<Producto[]>([]);
   const [token, setToken] = useState<string | null>(() => (typeof window !== "undefined" ? localStorage.getItem("token") : null));
+  // Cola de sincronización por producto: product_id -> cantidad deseada final
+  const pendingRef = useRef<Map<number, number>>(new Map());
+  const syncTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [syncing, setSyncing] = useState(false);
   interface ApiCartItem { id: number; cantidad: number; nombre?: string; precio?: number }
 
   const updateLocal = (list: { id: number; cantidad: number }[], emit: boolean = true) => {
@@ -26,17 +31,19 @@ export default function CartSidebar() {
   const fetchCart = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch("http://localhost:8000/carrito", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) return;
       const data = await res.json();
       const fromApi: { id: number; cantidad: number }[] = (data.productos || []).map((p: ApiCartItem) => ({ id: p.id, cantidad: p.cantidad }));
-      updateLocal(fromApi, false);
+      // Sólo cargar inicial si no hay cambios pendientes
+      if (pendingRef.current.size === 0 && !syncing) {
+        updateLocal(fromApi, false);
+      }
     } catch {}
-  }, [token]);
+  }, [token, syncing]);
 
   useEffect(() => {
+    setMounted(true);
     if (typeof window === "undefined") return;
     const t = localStorage.getItem("token");
     fetch("http://localhost:8000/productos").then(r=>r.json()).then(setProductos);
@@ -94,50 +101,64 @@ export default function CartSidebar() {
 
   
 
-  const inc = async (id: number) => {
+  const scheduleSync = () => {
+    if (!token) return; // sin token no sincronizo servidor
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+    syncTimerRef.current = setTimeout(async () => {
+      const pending = new Map(pendingRef.current); // copia estable
+      if (pending.size === 0) { syncTimerRef.current = null; return; }
+      setSyncing(true);
+      try {
+        for (const [id, qty] of pending.entries()) {
+          // DELETE siempre para estado limpio
+          await fetch(`http://localhost:8000/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+          if (qty > 0) {
+            // un único POST con cantidad total (backend lo suma como qty? si no, repetir)
+            await fetch("http://localhost:8000/carrito", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ producto_id: id, cantidad: qty }),
+            });
+          }
+        }
+        pendingRef.current.clear();
+        await fetchCart();
+      } finally {
+        setSyncing(false);
+        syncTimerRef.current = null;
+      }
+    }, 150); // debounce más corto
+  };
+
+  const inc = (id: number) => {
     const next = items.map(i => ({ ...i }));
     const it = next.find(i => i.id === id);
     const p = productos.find(pr => pr.id === id);
     if (!it || !p) return;
     if (it.cantidad < p.existencia) {
+      it.cantidad += 1;
+      updateLocal(next);
       if (token) {
-        await fetch("http://localhost:8000/carrito", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ producto_id: id, cantidad: 1 }),
-        });
-        await fetchCart();
-      } else {
-        it.cantidad += 1;
-        updateLocal(next);
+        pendingRef.current.set(id, it.cantidad);
+        scheduleSync();
       }
     }
   };
-  const dec = async (id: number) => {
+  const dec = (id: number) => {
     let next = items.map(i => ({ ...i }));
     const it = next.find(i => i.id === id);
     if (!it) return;
-    if (token) {
-      if (it.cantidad > 1) {
-        // Reemplazo: DELETE y luego POST con cantidad-1
-        await fetch(`http://localhost:8000/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-        await fetch("http://localhost:8000/carrito", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ producto_id: id, cantidad: it.cantidad - 1 }),
-        });
-      } else {
-        await fetch(`http://localhost:8000/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-      }
-      await fetchCart();
+    if (it.cantidad > 1) {
+      it.cantidad -= 1;
+      updateLocal(next);
     } else {
-      if (it.cantidad > 1) {
-        it.cantidad -= 1;
-        updateLocal(next);
-      } else {
-        next = next.filter(i => i.id !== id);
-        updateLocal(next);
-      }
+      next = next.filter(i => i.id !== id);
+      updateLocal(next);
+    }
+    if (token) {
+      const nuevo = next.find(i => i.id === id)?.cantidad || 0;
+      pendingRef.current.set(id, nuevo);
+      scheduleSync();
     }
   };
   const clear = async () => {
@@ -155,35 +176,46 @@ export default function CartSidebar() {
         <CardTitle>Carrito</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3 max-h-[320px] overflow-auto pr-1">
-          {enriched.length === 0 ? (
-            <div className="text-sm text-gray-900">Tu carrito está vacío.</div>
-          ) : (
-            enriched.map(p => (
-              <div key={p.id} className="flex items-center justify-between text-sm text-gray-900 border rounded-md p-2">
-                <div>
-                  <div className="font-medium line-clamp-1 max-w-[160px]">{p.titulo}</div>
-                  <div className="text-xs">Cantidad: {p.cantidad}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => dec(p.id)}>-</Button>
-                  <Button variant="outline" size="sm" onClick={() => inc(p.id)}>+</Button>
-                  <div className="w-16 text-right">${(p.precio * p.cantidad).toFixed(2)}</div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-        <div className="mt-4 text-sm text-gray-900 space-y-1">
-          <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-          <div className="flex justify-between"><span>IVA</span><span>${iva.toFixed(2)}</span></div>
-          <div className="flex justify-between"><span>Envío</span><span>${envio.toFixed(2)}</span></div>
-          <div className="flex justify-between font-semibold border-t pt-2"><span>Total</span><span>${total.toFixed(2)}</span></div>
-        </div>
-        <div className="mt-4 flex gap-2">
-          <Button variant="outline" className="flex-1" onClick={clear}>Cancelar</Button>
-          <Button className="flex-1" onClick={() => router.push(token ? "/compra" : "/login")}>Continuar compra</Button>
-        </div>
+        {!mounted ? (
+          <div className="text-sm text-gray-600">Cargando carrito...</div>
+        ) : !token ? (
+          <div className="rounded-lg border border-gray-200 bg-white text-gray-600 px-3 py-2 text-sm">Inicia sesión para ver y editar tu carrito.</div>
+        ) : (
+          <>
+            <div className="space-y-3 max-h-[320px] overflow-auto pr-1">
+              {enriched.length === 0 ? (
+                <div className="text-sm text-gray-900">Tu carrito está vacío.</div>
+              ) : (
+                enriched.map(p => {
+                  const disabled = syncing; // deshabilito mientras se aplican cambios en lote
+                  return (
+                    <div key={p.id} className="flex items-center justify-between text-sm text-gray-900 border rounded-md p-2">
+                      <div>
+                        <div className="font-medium line-clamp-1 max-w-[160px]">{p.titulo}</div>
+                        <div className="text-xs">Cantidad: {p.cantidad}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => dec(p.id)} disabled={disabled}>-</Button>
+                        <Button variant="outline" size="sm" onClick={() => inc(p.id)} disabled={disabled}>+</Button>
+                        <div className="w-16 text-right">${(p.precio * p.cantidad).toFixed(2)}</div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <div className="mt-4 text-sm text-gray-900 space-y-1">
+              <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span>IVA</span><span>${iva.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span>Envío</span><span>${envio.toFixed(2)}</span></div>
+              <div className="flex justify-between font-semibold border-t pt-2"><span>Total</span><span>${total.toFixed(2)}</span></div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={clear}>Cancelar</Button>
+              <Button className="flex-1" onClick={() => router.push(token ? "/compra" : "/login")}>Continuar compra</Button>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

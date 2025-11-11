@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Producto } from "../types";
+import { useState } from "react";
 import { Button } from "../../components/ui/button";
 
 interface ProductoRowProps {
@@ -10,7 +11,11 @@ interface ProductoRowProps {
 
 export default function ProductoRow({ producto, onAdd, isLogged = false }: ProductoRowProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  const agotado = producto.existencia <= 0;
+  // Stock visual local: no impacta backend
+  const [visualStock, setVisualStock] = useState(producto.existencia);
+  const agotado = visualStock <= 0;
+
+  // Solo visual: no sincroniza con backend; se reinicia al recargar
 
   return (
     <div className="flex items-start justify-between bg-white border rounded-md p-4 shadow-sm">
@@ -36,10 +41,14 @@ export default function ProductoRow({ producto, onAdd, isLogged = false }: Produ
       {/* Derecha: precio, stock y botón */}
       <div className="flex flex-col items-end gap-3 min-w-[180px]">
         <div className="text-gray-900 font-semibold">${producto.precio.toFixed(2)}</div>
-        <div className="text-xs text-gray-900">Disponible: {producto.existencia}</div>
+        <div className="text-xs text-gray-900">Disponible: {visualStock}</div>
         <Button
           className={`${agotado || !isLogged ? "bg-gray-200 text-gray-900 hover:bg-gray-200" : ""}`}
-          onClick={() => !agotado && isLogged && onAdd(producto.id)}
+          onClick={() => {
+            if (agotado || !isLogged) return;
+            onAdd(producto.id);
+            setVisualStock(s => (s > 0 ? s - 1 : 0));
+          }}
           disabled={agotado || !isLogged}
         >
           {agotado ? "Agotado" : isLogged ? "Agregar al carrito" : "Ingresá para comprar"}
