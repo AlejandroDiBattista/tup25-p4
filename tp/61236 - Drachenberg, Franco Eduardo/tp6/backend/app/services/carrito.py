@@ -1,7 +1,9 @@
+import unicodedata
+
 from sqlmodel import Session, select
 
-from app.models import Carrito, ItemCarrito, Producto
-from app.schemas.carrito import CarritoRead, ItemCarritoRead
+from app.models import Carrito, Compra, ItemCarrito, ItemCompra, Producto
+from app.schemas.carrito import CarritoRead, CheckoutResponse, ItemCarritoRead
 
 
 class CarritoCerradoError(Exception):
@@ -17,6 +19,10 @@ class StockInsuficienteError(Exception):
 
 
 class ItemCarritoNoEncontradoError(Exception):
+    pass
+
+
+class CarritoVacioError(Exception):
     pass
 
 
@@ -151,3 +157,86 @@ def cancel_cart(session: Session, usuario_id: int) -> CarritoRead:
     session.refresh(carrito)
 
     return build_cart_summary(session, carrito)
+
+
+def finalize_cart(
+    session: Session,
+    usuario_id: int,
+    direccion: str,
+    tarjeta: str,
+) -> CheckoutResponse:
+    carrito = get_or_create_active_cart(session, usuario_id)
+    session.refresh(carrito)
+
+    if carrito.estado != "abierto":
+        raise CarritoCerradoError("El carrito no está disponible para modificaciones")
+
+    statement = (
+        select(ItemCarrito, Producto)
+        .join(Producto, ItemCarrito.producto_id == Producto.id)
+        .where(ItemCarrito.carrito_id == carrito.id)
+    )
+    items = session.exec(statement).all()
+
+    if not items:
+        raise CarritoVacioError("El carrito está vacío")
+
+    lineas: list[tuple[ItemCarrito, Producto]] = []
+    subtotal_raw = 0.0
+    iva_raw = 0.0
+
+    for item, producto in items:
+        if item.cantidad > producto.existencia:
+            raise StockInsuficienteError("No hay stock suficiente para completar la compra")
+
+        line_subtotal = producto.precio * item.cantidad
+        subtotal_raw += line_subtotal
+        tasa_iva = 0.10 if _es_categoria_electronica(producto.categoria) else 0.21
+        iva_raw += line_subtotal * tasa_iva
+        lineas.append((item, producto))
+
+    envio = 0.0 if subtotal_raw >= 1000 else 50.0
+    subtotal = round(subtotal_raw, 2)
+    iva = round(iva_raw, 2)
+    total = round(subtotal + iva + envio, 2)
+
+    compra = Compra(
+        usuario_id=usuario_id,
+        direccion=direccion,
+        tarjeta=tarjeta,
+        total=total,
+        envio=envio,
+    )
+    session.add(compra)
+    session.flush()
+
+    for item, producto in lineas:
+        producto.existencia -= item.cantidad
+        session.add(
+            ItemCompra(
+                compra_id=compra.id,
+                producto_id=producto.id,
+                nombre=producto.nombre,
+                precio_unitario=producto.precio,
+                cantidad=item.cantidad,
+            )
+        )
+        session.delete(item)
+
+    carrito.estado = "finalizado"
+    session.commit()
+    session.refresh(compra)
+
+    return CheckoutResponse(
+        compra_id=compra.id,
+        subtotal=subtotal,
+        iva=iva,
+        envio=envio,
+        total=total,
+    )
+
+
+def _es_categoria_electronica(categoria: str) -> bool:
+    normalizado = unicodedata.normalize("NFKD", categoria)
+    plano = "".join(caracter for caracter in normalizado if not unicodedata.combining(caracter)).lower()
+    return "electro" in plano

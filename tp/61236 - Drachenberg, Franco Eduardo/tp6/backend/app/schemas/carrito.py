@@ -6,6 +6,11 @@ class ItemCarritoCreate(BaseModel):
     cantidad: int = Field(ge=1)
 
 
+class CheckoutRequest(BaseModel):
+    direccion: str = Field(min_length=1, max_length=255)
+    tarjeta: str = Field(min_length=12, max_length=32)
+
+
 class ItemCarritoRead(BaseModel):
     producto_id: int
     nombre: str
@@ -19,3 +24,11 @@ class CarritoRead(BaseModel):
     estado: str
     total: float
     items: list[ItemCarritoRead]
+
+
+class CheckoutResponse(BaseModel):
+    compra_id: int
+    subtotal: float
+    iva: float
+    envio: float
+    total: float
