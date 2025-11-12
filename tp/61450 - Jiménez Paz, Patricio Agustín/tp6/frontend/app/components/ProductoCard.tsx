@@ -1,5 +1,14 @@
+'use client';
+
 import { Producto } from '../types';
 import Image from 'next/image';
+import { Button } from '@/app/components/ui/button';
+import { Badge } from '@/app/components/ui/badge';
+import { ShoppingCart } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { agregarAlCarrito } from '../services/carrito';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface ProductoCardProps {
   producto: Producto;
@@ -7,7 +16,26 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const { isAuthenticated } = useAuth();
+  const [loading, setLoading] = useState(false);
   
+  const handleAgregarAlCarrito = async () => {
+    if (!isAuthenticated) {
+      toast.error('Debes iniciar sesión para agregar productos al carrito');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await agregarAlCarrito(producto.id, 1);
+      toast.success('¡Producto agregado al carrito exitosamente!');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al agregar el producto al carrito');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-64 bg-gray-100">
@@ -19,6 +47,11 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           className="object-contain p-4"
           unoptimized
         />
+        {producto.existencia === 0 && (
+          <div className="absolute inset-0 bg-black opacity-50 flex items-center justify-center">
+            <Badge variant="destructive" className="text-lg opacity-100">Sin Stock</Badge>
+          </div>
+        )}
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
@@ -28,22 +61,30 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           {producto.descripcion}
         </p>
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+          <Badge variant="secondary" className="text-xs">
             {producto.categoria}
-          </span>
+          </Badge>
           <div className="flex items-center gap-1">
             <span className="text-yellow-500">★</span>
             <span className="text-sm text-gray-700">{producto.valoracion}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-3">
           <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio}
+            ${producto.precio.toFixed(2)}
           </span>
           <span className="text-xs text-gray-500">
             Stock: {producto.existencia}
           </span>
         </div>
+        <Button 
+          onClick={handleAgregarAlCarrito} 
+          disabled={loading || producto.existencia === 0}
+          className={`w-full ${producto.existencia === 0 ? 'cursor-not-allowed' : ''}`}
+        >
+          <ShoppingCart className="mr-2 h-4 w-4" />
+          {loading ? 'Agregando...' : 'Agregar al Carrito'}
+        </Button>
       </div>
     </div>
   );
