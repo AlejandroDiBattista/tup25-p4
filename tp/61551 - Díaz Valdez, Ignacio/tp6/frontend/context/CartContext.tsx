@@ -1,0 +1,90 @@
+"use client";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  obtenerCarrito,
+  agregarAlCarrito,
+  finalizarCarrito,
+  CarritoResumen,
+  Compra
+} from "../lib/api";
+
+interface CartState {
+  open: boolean;
+  loading: boolean;
+  data: CarritoResumen | null;
+  lastAdded?: number; // producto_id para animación
+  toggle: () => void;
+  close: () => void;
+  refresh: () => Promise<void>;
+  add: (producto_id: number, cantidad?: number) => Promise<void>;
+  checkout: (direccion: string, tarjeta: string) => Promise<Compra>;
+  count: number;
+}
+
+const CartContext = createContext<CartState | undefined>(undefined);
+
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<CarritoResumen | null>(null);
+  const [lastAdded, setLastAdded] = useState<number | undefined>();
+
+  const computeCount = (d: CarritoResumen | null) =>
+    d?.items.reduce((acc, it) => acc + it.cantidad, 0) || 0;
+
+  const refresh = useCallback(async () => {
+    try {
+      setLoading(true);
+      const c = await obtenerCarrito();
+      setData(c);
+    } catch (e) {
+      // si no autenticado ignorar
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // cargar al montar si hay token
+    if (typeof window !== "undefined" && localStorage.getItem("token")) {
+      refresh();
+    }
+  }, [refresh]);
+
+  const add = async (producto_id: number, cantidad: number = 1) => {
+    await agregarAlCarrito(producto_id, cantidad);
+    setLastAdded(producto_id);
+    await refresh();
+    // abrir automáticamente
+    setOpen(true);
+    // limpiar animación luego de 1.5s
+    setTimeout(() => setLastAdded(undefined), 1500);
+  };
+
+  const checkout = async (direccion: string, tarjeta: string) => {
+    const compra = await finalizarCarrito(direccion, tarjeta);
+    await refresh();
+    return compra;
+  };
+
+  const value: CartState = {
+    open,
+    loading,
+    data,
+    lastAdded,
+    toggle: () => setOpen(o => !o),
+    close: () => setOpen(false),
+    refresh,
+    add,
+    checkout,
+    count: computeCount(data)
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart debe usarse dentro de CartProvider");
+  return ctx;
+}
