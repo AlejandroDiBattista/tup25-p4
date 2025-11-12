@@ -30,3 +30,8 @@ class ProductoUpdateDTO(BaseModel):
     existencia: int | None = None
     valoracion: float | None = None
     imagen: str | None = None
+
+
+class CarritoAgregar(BaseModel):
+    producto_id: int
+    cantidad: int
