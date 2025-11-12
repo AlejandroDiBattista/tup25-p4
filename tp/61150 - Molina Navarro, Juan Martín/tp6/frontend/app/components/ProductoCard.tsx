@@ -89,7 +89,7 @@ export default function ProductoCard({
           </p>
           {onAdd && (
             <Button
-              className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+              className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 disabled:pointer-events-none disabled:bg-slate-900 disabled:text-white disabled:opacity-100 disabled:hover:bg-slate-800"
               onClick={handleAddClick}
               disabled={disabled || sinStock}
             >

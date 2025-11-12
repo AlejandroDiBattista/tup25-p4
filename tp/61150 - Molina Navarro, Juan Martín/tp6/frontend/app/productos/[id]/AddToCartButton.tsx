@@ -103,7 +103,7 @@ export function AddToCartButton({
   return (
     <>
       <Button
-        className="rounded-xl bg-slate-900 py-6 text-base text-white hover:bg-slate-800"
+        className="rounded-xl bg-slate-900 py-6 text-base text-white hover:bg-slate-800 disabled:pointer-events-none disabled:bg-slate-900 disabled:text-white disabled:opacity-100 disabled:hover:bg-slate-800"
         onClick={handleAddToCart}
         disabled={isAdding || !disponible}
         type="button"
