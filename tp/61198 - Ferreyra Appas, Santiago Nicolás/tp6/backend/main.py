@@ -82,3 +82,63 @@ def iniciar_sesion(
 def cerrar_sesion():
     # implementación simple, el cliente sólo descarta el token
     return {"ok": True}
+
+
+@app.on_event("startup")
+def on_startup():
+    crear_bd_y_tablas()
+    with Session(engine) as session:
+        cargar_productos_iniciales(session)
+
+
+# =============
+# PRODUCTOS
+# =============
+
+@app.get("/productos", response_model=list[schemas.ArticuloPublico])
+def listar_productos(
+    categoria: str | None = None,
+    q: str | None = None,
+    session: Session = Depends(get_session),
+):
+    query = select(Articulo)
+    if categoria:
+        query = query.where(Articulo.categoria == categoria)
+    if q:
+        like = f"%{q.lower()}%"
+        query = query.where(Articulo.titulo.ilike(like))  # type: ignore[attr-defined]
+
+    articulos = session.exec(query).all()
+    return [
+        schemas.ArticuloPublico(
+            id=a.id,
+            titulo=a.titulo,
+            descripcion=a.descripcion,
+            precio=a.precio,
+            categoria=a.categoria,
+            existencias=a.existencias,
+            imagen=a.imagen,
+            agotado=a.existencias <= 0,
+            es_electronico=a.es_electronico,
+        )
+        for a in articulos
+    ]
+
+
+@app.get("/productos/{articulo_id}", response_model=schemas.ArticuloPublico)
+def obtener_producto(articulo_id: int, session: Session = Depends(get_session)):
+    articulo = session.get(Articulo, articulo_id)
+    if not articulo:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    return schemas.ArticuloPublico(
+        id=articulo.id,
+        titulo=articulo.titulo,
+        descripcion=articulo.descripcion,
+        precio=articulo.precio,
+        categoria=articulo.categoria,
+        existencias=articulo.existencias,
+        imagen=articulo.imagen,
+        agotado=articulo.existencias <= 0,
+        es_electronico=articulo.es_electronico,
+    )
