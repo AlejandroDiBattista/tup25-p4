@@ -16,6 +16,10 @@ class StockInsuficienteError(Exception):
     pass
 
 
+class ItemCarritoNoEncontradoError(Exception):
+    pass
+
+
 def get_or_create_active_cart(session: Session, usuario_id: int) -> Carrito:
     statement = (
         select(Carrito)
@@ -103,6 +107,28 @@ def add_item_to_cart(
     else:
         item.cantidad = nueva_cantidad
 
+    session.commit()
+    session.refresh(carrito)
+
+    return build_cart_summary(session, carrito)
+
+
+def remove_item_from_cart(
+    session: Session,
+    usuario_id: int,
+    producto_id: int,
+) -> CarritoRead:
+    carrito = get_or_create_active_cart(session, usuario_id)
+    session.refresh(carrito)
+
+    if carrito.estado != "abierto":
+        raise CarritoCerradoError("El carrito no está disponible para modificaciones")
+
+    item = session.get(ItemCarrito, (carrito.id, producto_id))
+    if not item:
+        raise ItemCarritoNoEncontradoError("El producto no está en el carrito")
+
+    session.delete(item)
     session.commit()
     session.refresh(carrito)
 
