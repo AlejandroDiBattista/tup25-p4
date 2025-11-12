@@ -13,15 +13,14 @@ export async function registrarUsuario(nombre: string, email: string, password: 
     return response.json()
 }
 
-export async function iniciarSesion(email: string, password: string) {
+export async function iniciarSesionService(email: string, password: string) {
     const response = await fetch(`${API_URL}/iniciar-sesion`, {
         "method": "POST",
         "headers": {"Content-Type": "application/json"},
         "body": JSON.stringify({email, password})
     })
 
-    if (!response.ok)
-        throw new Error("Credenciales Inválidas")
+    if (!response.ok) throw new Error("Credenciales Inválidas")
 
     return response.json()
 }

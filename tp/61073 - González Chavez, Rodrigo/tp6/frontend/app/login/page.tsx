@@ -8,6 +8,7 @@ import {Input} from "../components/ui/input"
 import {Card, CardContent, CardHeader, CardTitle} from "../components/ui/card"
 import {Eye, EyeOff} from "lucide-react"
 import { toast } from "sonner"
+import { iniciarSesionService } from "../services/auth"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
@@ -15,28 +16,17 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false)
     const router = useRouter()
     const {iniciarSesion} = useAuthStore()
-    const API_URL = process.env.NEXT_PUBLIC_API_URL
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const response = await fetch (`${API_URL}/iniciar-sesion`, {
-                "method": "POST",
-                "headers": {"Content-Type": "application/json"},
-                "body": JSON.stringify({email, password})
-            })
-            if (!response.ok) {
-                toast.error("Email o Contraseña incorrectos")
-                return
-            }
-
-            const data = await response.json()
+            const data = await iniciarSesionService(email, password)
             iniciarSesion(data.access_token, data.nombre)
             toast.success("Inicio de sesión exitoso")
             router.push("/")
         } catch (error) {
             console.error("Error al iniciar sesión", error)
-            toast.error("No se pudo conectar con el servidor")
+            toast.error("Email o contraseña incorrectos")
         }
     }
 

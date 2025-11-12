@@ -58,7 +58,8 @@ export default function RegisterPage() {
                     <p className="text-sm mt-4 text-center">
                         ¿Ya tenés cuenta? {""}
                         <a href="/login" className="text-black-600 hover:underline">
-                        Iniciar Sesión</a>
+                            Iniciar Sesión
+                        </a>
                     </p>
                 </CardContent>
             </Card>

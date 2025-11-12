@@ -1,10 +1,11 @@
 from fastapi import FastAPI, HTTPException, Depends, status, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from typing import Optional
 import jwt
 import bcrypt
+import asyncio
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
@@ -49,6 +50,9 @@ def crear_token(payload: dict):
     return jwt.encode(datos, SECRET_KEY, algorithm=ALGORITHM)
 
 def verificar_token(token: str):
+    if not token or token.lower() in ["null", "undefined", "bearer", "none"]:
+        raise Exception("Token vacío o inválido")
+    
     try:
         datos = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return datos
@@ -170,6 +174,7 @@ def registrar(data: dict, session: Session=Depends(get_session)):
     usuario = Usuario(nombre=nombre, email=email, contraseña=hashed)
     session.add(usuario)
     session.commit()
+
     return {"mensaje": "Usuario registrado exitosamente"}
 
 @app.post("/iniciar-sesion")
@@ -229,172 +234,181 @@ def obtener_producto(producto_id: int, session: Session=Depends(get_session)):
     return producto
 
 
-@app.get("/carrito")
-def ver_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
-    carrito = session.exec(select(Carrito).where(Carrito.usuario_id == usuario.id)).first()
+def obtener_carrito_abierto(usuario: Usuario, session: Session):
+    carrito = session.exec(
+        select(Carrito).where(
+            Carrito.usuario_id == usuario.id,
+            Carrito.estado == "abierto"
+        )
+    ).first()
     if not carrito:
         carrito = Carrito(usuario_id=usuario.id, estado="abierto")
         session.add(carrito)
         session.commit()
         session.refresh(carrito)
-        return {"items": []}
-    
-    items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
-    return {"items": items}
+    return carrito
 
+@app.get("/carrito")
+def ver_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    carrito = obtener_carrito_abierto(usuario, session)
+    items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
+
+    productos = []
+    subtotal = iva = 0
+    for item in items:
+        prod = session.get(Producto, item.producto_id)
+        if not prod:
+            continue
+        sub = prod.precio * item.cantidad
+        subtotal += sub
+        iva_rate = 0.10 if "electronica" in prod.categoria.lower() else 0.21
+        iva += sub * iva_rate
+        productos.append({
+            "producto_id": prod.id,
+            "nombre": prod.nombre,
+            "precio": prod.precio,
+            "cantidad": item.cantidad,
+            "imagen": prod.imagen if hasattr(prod, 'imagen') else None
+        })
+
+    envio = 0 if subtotal > 1000 else 50
+    total = subtotal + iva + envio
+
+    return {
+        "productos": productos,
+        "subtotal": subtotal,
+        "iva": iva,
+        "envio": envio,
+        "total": total
+    }
 
 @app.post("/carrito")
-def agregar_al_carrito(data: dict, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
-    producto_id = data.get("producto_id")
-    cantidad = data.get("cantidad", 1)
+def agregar_al_carrito(request: Request, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
+    data = asyncio.run(request.json())
+    producto_id = data["producto_id"]
+    cantidad = int(data.get("cantidad", 1))
+
     producto = session.get(Producto, producto_id)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-    if producto.existencia < cantidad:
-        raise HTTPException(status_code=400, detail="Producto agotado")
-    if cantidad <= 0:
-        raise HTTPException(status_code=400, detail="La cantidad debe ser mayor a cero")
-
-    carrito = session.exec(select(Carrito).where(
-        Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
-        )).first()
-    if not carrito:
-        carrito = Carrito(usuario_id=usuario.id)
-        session.add(carrito)
-        session.commit()
-        session.refresh(carrito)
     
-    item = session.exec(select(ItemCarrito).where(
-        ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto.id
-        )).first()
-    if item:
-        item.cantidad += cantidad
+    carrito = obtener_carrito_abierto(usuario, session)
+    item = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)).first()
+    if item and cantidad < 0:
+        nueva_cantidad = item.cantidad + cantidad
+        if nueva_cantidad <= 0:
+            session.delete(item)
+            producto.existencia += item.cantidad
+        else:
+            diferencia -= cantidad
+            producto.existencia += diferencia
+            item.cantidad = nueva_cantidad
+            session.add(item)
+        session.add(producto)
+        session.commit()
+        return {"Mensaje": "Cantidad actualizada correctamente"}
+    if not item and cantidad < 0:
+        raise HTTPException(status_code=400, detail="No puedes restar un producto no presente")
+    if producto.existencia < cantidad:
+        raise HTTPException(status_code=400, detail="Stock insuficiente")
+    if not item:
+        item = ItemCarrito(
+            carrito_id=carrito.id,
+            producto_id=producto.id,
+            cantidad=cantidad,
+            precio_unitario=producto.precio
+        )
     else:
-        item = ItemCarrito(carrito_id=carrito.id, producto_id=producto.id, cantidad=cantidad)
-        session.add(item)
+        item.cantidad += cantidad
 
+    producto.existencia -= cantidad
+
+    session.add_all([item, producto])
+    
     session.commit()
-    return {"Mensaje": "Producto agregado al carrito"}
+
+    return {"Mensaje": "Carrito actualizado correctamente"}
 
 @app.delete("/carrito/{producto_id}")
 def eliminar_producto(producto_id: int, usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
-    carrito = session.exec(select(Carrito).where(
-        Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
-        )).first()
-    if not carrito:
-        raise HTTPException(status_code=404, detail="Carrito vacío")
-    
-    item = session.exec(select(ItemCarrito).where(
-        ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id
-        )).first()
+    carrito = obtener_carrito_abierto(usuario, session)    
+    item = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id, ItemCarrito.producto_id == producto_id)).first()
     if not item:
         raise HTTPException(status_code=404, detail="El Producto no está en el carrito")
-
+    
     producto = session.get(Producto, producto_id)
-    producto.existencia += item.cantidad
+    if producto:
+        producto.existencia += item.cantidad
+        session.add(producto)
     
     session.delete(item)
     session.commit()
-    if item.cantidad >= 2:
-        return {"Mensaje": "Productos eliminados del carrito"}
-    else:
-        return {"Mensaje": "Producto eliminado del carrito"} 
+
+    return {"Mensaje": f"Producto {producto.nombre} eliminado del carrito. Stock devuelto"} 
 
 @app.post("/carrito/cancelar")
 def cancelar_carrito(usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
-    carrito = session.exec(select(Carrito).where(
-        Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
-    )).first()
-    if carrito:
-        items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
-        for item in items:
-            producto = session.get(Producto, item.producto_id)
-            if producto:
-                producto.existencia += item.cantidad
-            session.delete(item)
+    carrito = obtener_carrito_abierto(usuario, session)
+    if not carrito:
+        HTTPException(status_code=400, detail="No hay carrito abierto")
+    
+    items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()    
+    for item in items:
+        prod = session.get(Producto, item.producto_id)
+        if prod:
+            prod.existencia += item.cantidad
+            session.add(prod)
+        session.delete(item)
 
-        session.delete(carrito)
-        session.commit()
-        return {"Mensaje": "Carrito cancelado"}
+    carrito.estado = "cancelado"
+    session.add(carrito)
+    session.commit()
+    return {"Mensaje": "Carrito cancelado y stock restablecido"}
     
 @app.post("/carrito/finalizar")
 def finalizar_carrito(data: dict = Body(...), usuario: Usuario=Depends(usuario_actual), session: Session=Depends(get_session)):
-    try:
-        direccion = data.get("direccion")
-        tarjeta = data.get("tarjeta")
+    direccion = data.get("direccion")
+    tarjeta = data.get("tarjeta")
+    if not direccion or not tarjeta:
+        raise HTTPException(status_code=400, detail="Faltan datos de envío o pago")
 
-        carrito = session.exec(select(Carrito).where(
-            Carrito.usuario_id == usuario.id, Carrito.estado == "abierto"
-        )).first()
-        if not carrito:
-            raise HTTPException(status_code=404, detail="No hay carrito abierto")
-
-        items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
-        if not items:
-            raise HTTPException(status_code=404, detail="Carrito vacío")
+    carrito = obtener_carrito_abierto(usuario, session)
+    items = session.exec(select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)).all()
+    if not items:
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
     
-        subtotal = 0
-        iva_total = 0
-        envio = 50
+    subtotal = iva = 0
+    for item in items:
+        prod = session.get(Producto, item.producto_id)
+        if not prod:
+            continue
+        sub = prod.precio * item.cantidad
+        subtotal += sub
+        iva += sub * (0.10 if "electronica" in prod.categoria.lower() else 0.21)
+    
+    envio = 0 if subtotal > 1000 else 50
+    total = subtotal + iva + envio
 
-        for item in items:
-            producto = session.get(Producto, item.producto_id)
-            if not producto:
-                raise HTTPException(status_code=404, detail="Producto no encontrado")
-        
-            if producto.categoria.lower() == "electronica":
-                iva = 0.10
-            else:
-                iva = 0.21
+    compra = Compra(usuario_id=usuario.id, fecha=datetime.utcnow(), direccion=direccion, tarjeta=tarjeta, total=total, envio=envio)
+    session.add(compra)
+    session.commit()
+    session.refresh(compra)
 
-            iva_total += producto.precio * item.cantidad * iva
-            subtotal += producto.precio * item.cantidad
-
-            if producto.existencia < item.cantidad:
-                raise HTTPException(status_code=400, detail=f"Stock insuficiente de {producto.nombre}")
-            producto.existencia -= item.cantidad
-            session.add(producto)
-
-        if subtotal > 1000:
-            envio = 0
-
-        total = subtotal + iva_total + envio
-
-        compra = Compra(usuario_id=usuario.id, direccion=direccion, tarjeta=tarjeta, total=total, envio=envio)
-        session.add(compra)
-        session.commit()
-        session.refresh(compra)
-
-        for item in items:
-            producto = session.get(Producto, item.producto_id)
-            detalle = ItemCompra(
+    for item in items:
+        prod = session.get(Producto, item.producto_id)
+        if prod:
+            session.add(ItemCompra(
                 compra_id=compra.id,
-                producto_id=producto.id, 
-                nombre=producto.nombre, 
+                producto_id=item.producto_id,
                 cantidad=item.cantidad,
-                precio_unitario=producto.precio
-            )
-            session.add(detalle)
+                nombre=prod.nombre,
+                precio_unitario=prod.precio
+            ))
+        session.delete(item)
 
-        for item in items:
-            session.delete(item)
-    
-        carrito.estado = "cerrado"
-        session.commit()
+    session.commit()
 
-        return {
-            "Mensaje": "Compra finalizada exitosamente",
-            "compra_id": compra.id,
-            "total": total,
-            "subtotal": subtotal,
-            "iva_total": iva_total,
-            "envio": envio,
-            "tarjeta": tarjeta
-        }
-    except Exception as e:
-        print("❌ ERROR al finalizar compra:", str(e))
-        session.rollback()
-        raise HTTPException(status_code=500, detail="Error interno al finalizar compra")
+    return {"Mensaje": "Compra finalizada exitosamente", "compra_id": compra.id}
 
 
 @app.get("/compras")
@@ -410,7 +424,18 @@ def obtener_compra(compra_id: int, usuario: Usuario=Depends(usuario_actual), ses
     
     items = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
 
-    return {"compra": compra, "items": items}
+    detalle = []
+    for item in items:
+        producto = session.get(Producto, item.producto_id)
+        detalle.append({
+            "id": item.id,
+            "nombre": item.nombre,
+            "cantidad": item.cantidad,
+            "precio_unitario": item.precio_unitario,
+            "categoria": producto.categoria if producto else None
+        })
+
+    return {"compra": compra, "items": detalle}
 
 if __name__ == "__main__":
     import uvicorn

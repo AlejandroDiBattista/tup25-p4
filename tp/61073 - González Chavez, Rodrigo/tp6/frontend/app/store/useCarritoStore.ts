@@ -1,100 +1,73 @@
-import {create} from "zustand"
-import {persist} from "zustand/middleware"
-import { Producto } from "../types"
-import { eliminarProducto, cancelarCarrito, verCarrito } from "../services/carrito"
-import { useAuthStore } from "./useAuthStore"
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { carritoService} from "../services/carrito"
+import {CarritoState, CarritoResponse, ProductoCarrito} from "../types"
 
-interface ItemCarrito {
-    producto: Producto
-    cantidad: number
-}
-
-interface CarritoState {
-    items: ItemCarrito[]
-    ver: (token: string) => Promise<void>
-    agregar: (producto: Producto) => void
-    disminuir: (id: number) => void
-    eliminar: (id: number) => Promise<void>
-    vaciar: () => Promise<void>
-    limpiarLocal: () => void
-}
-
-export const useCarritoStore = create<CarritoState>() (
-    persist (
+export const useCarritoStore = create<CarritoState>()(
+    persist(
         (set, get) => ({
-            items: [],
+            productos: [],
+            subtotal: 0,
+            iva: 0,
+            envio: 0,
+            total: 0,
+            cargando: false,
 
-            ver: async (token) => {
-                try {
-                    const data = await verCarrito(token)
-                    if (data && Array.isArray(data.productos)) {
-                        const items = data.productos.map((item: any) => ({
-                            producto: item.producto || item,
-                            cantidad: item.cantidad ?? 1
-                        }))
-                        set({items})
-                    }
-                } catch (error) {
-                    console.error("Error al obtener el carrito: ", error)
-                }
-            },
-
-            agregar: (producto) =>
-                set((state) => {
-                    const existente = state.items.find((i) => i.producto.id == producto.id)
-                    if (existente) {
-                        return {
-                            items: state.items.map((i) =>
-                            i.producto.id === producto.id ? {...i,  cantidad: i.cantidad + 1} : i
-                            )
-                        }
-                    } else {
-                        return {
-                            items: [...state.items, {producto, cantidad: 1}]
-                        }     
-                    }
-                }),
-
-            disminuir: (id) =>
-                set((state) => {
-                    const existente = state.items.find((i) => i.producto.id === id)
-                    if (!existente) return state
-
-                    if (existente.cantidad <= 1) {
-                        return {
-                            items: state.items.filter((i) => i.producto.id !== id)
-                        }
-                    }
-                    return {
-                        items: state.items.map((i) => i.producto.id === id ? {...i, cantidad: i.cantidad - 1} : i)
-                    }
-                }),
-
-            eliminar: async (id) => {
-                const {token} = useAuthStore.getState()
-                if (token) {
-                    await eliminarProducto(id, token)
-                }
-                set((state) => ({
-                    items: state.items.filter((i) => i.producto.id !== id)
-                }))
-            },
-
-            vaciar: async () => {
-                const {token} = useAuthStore.getState()
-                if (token) {
-                    await cancelarCarrito(token)
-                }
-                set({items: []})
-            },
-            
-            limpiarLocal: () => {
-                localStorage.removeItem("carrito-storage")
-                set({items: []})
+        /** Cargar carrito desde el backend */
+        cargarCarrito: async () => {
+            set({ cargando: true });
+            try {
+                const data = await carritoService.verCarrito();
+                set({
+                    productos: data.productos,
+                    subtotal: data.subtotal,
+                    iva: data.iva,
+                    envio: data.envio,
+                    total: data.total,
+                });
+            } catch (error) {
+                console.error("Error al cargar carrito:", error);
+            } finally {
+                set({ cargando: false });
             }
+        },
+
+        /** Agregar nuevo producto (desde la card) */
+        agregarProducto: async (producto_id) => {
+            await carritoService.actualizarCantidad(producto_id, 1);
+            await get().cargarCarrito();
+        },
+
+        /** Aumentar cantidad de producto (desde carrito lateral) */
+        aumentarCantidad: async (producto_id) => {
+            await carritoService.actualizarCantidad(producto_id, 1);
+            await get().cargarCarrito();
+        },
+
+        /** Disminuir cantidad (desde carrito lateral) */
+        disminuirCantidad: async (producto_id) => {
+            await carritoService.actualizarCantidad(producto_id, -1);
+            await get().cargarCarrito();
+        },
+
+        /** Eliminar producto completo */
+        eliminarProducto: async (producto_id) => {
+            await carritoService.eliminarProducto(producto_id);
+            await get().cargarCarrito();
+        },
+
+        /** Cancelar carrito completo */
+        cancelarCarrito: async () => {
+            await carritoService.cancelarCarrito();
+            set({ productos: [], subtotal: 0, iva: 0, envio: 0, total: 0 });
+        },
+
+        /** Finalizar compra */
+        finalizarCompra: async (direccion, tarjeta) => {
+            await carritoService.finalizarCompra(direccion, tarjeta);
+            set({ productos: [], subtotal: 0, iva: 0, envio: 0, total: 0 });
+        },
         }),
-        {
-            name: "carrito-storage"
-        }
+        { name: "carrito-store" }
     )
 )
