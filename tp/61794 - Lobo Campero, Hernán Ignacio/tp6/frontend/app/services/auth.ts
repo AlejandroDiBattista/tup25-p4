@@ -3,7 +3,7 @@ import { SesionData, Usuario } from '../types';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function registrar(nombre: string, email: string, password: string): Promise<SesionData> {
-  const response = await fetch(`${API_URL}/registrar`, {
+  const response = await fetch(`${API_URL}/api/registrar`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -16,11 +16,15 @@ export async function registrar(nombre: string, email: string, password: string)
     throw new Error(error.detail || 'Error al registrar usuario');
   }
 
-  return response.json();
+  const data = await response.json();
+  return {
+    usuario: data.usuario,
+    token: data.access_token,
+  };
 }
 
 export async function iniciarSesion(email: string, password: string): Promise<SesionData> {
-  const response = await fetch(`${API_URL}/iniciar-sesion`, {
+  const response = await fetch(`${API_URL}/api/iniciar-sesion`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -33,11 +37,15 @@ export async function iniciarSesion(email: string, password: string): Promise<Se
     throw new Error(error.detail || 'Error al iniciar sesión');
   }
 
-  return response.json();
+  const data = await response.json();
+  return {
+    usuario: data.usuario,
+    token: data.access_token,
+  };
 }
 
 export async function cerrarSesion(token: string): Promise<void> {
-  const response = await fetch(`${API_URL}/cerrar-sesion`, {
+  const response = await fetch(`${API_URL}/api/cerrar-sesion`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,

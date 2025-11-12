@@ -34,20 +34,9 @@ app.include_router(productos_router)
 app.include_router(carrito_router)
 app.include_router(compras_router)
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
-
 @app.get("/")
 def root():
-    return {"mensaje": "API de Venti Indumentaria - use /productos para obtener el listado"}
-
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
+    return {"mensaje": "API de Venti Indumentaria - use /api/productos para obtener el listado"}
 
 if __name__ == "__main__":
     import uvicorn

@@ -50,13 +50,13 @@ export default function Registro({ onLoginClick }: RegistroProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-3xl text-center">Venti Indumentaria</CardTitle>
+            <CardTitle className="text-3xl text-center">Crear cuenta</CardTitle>
             <CardDescription className="text-center">
-              Crea tu nueva cuenta
+              Completa el formulario para comenzar
             </CardDescription>
           </CardHeader>
           <CardContent>

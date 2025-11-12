@@ -95,98 +95,142 @@ export default function ComprasPage() {
     : null;
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Mis Compras</h1>
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-4xl font-bold mb-8 text-black">Mis compras</h1>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Lista de compras */}
-        <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Historial ({compras.length})</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Lista de compras - IZQUIERDA */}
+          <div>
+            <div className="space-y-3">
               {compras.map((compra) => (
                 <div
                   key={compra.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition ${
-                    selectedCompra === compra.id ? "bg-blue-50 border-blue-500" : ""
-                  }`}
                   onClick={() => setSelectedCompra(compra.id)}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition ${
+                    selectedCompra === compra.id
+                      ? "border-gray-900 bg-gray-50"
+                      : "border-gray-300 hover:border-gray-400"
+                  }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold">Compra #{compra.id}</h3>
-                      <p className="text-sm text-gray-600">
-                        {new Date(compra.fecha).toLocaleDateString("es-AR")}
-                      </p>
-                      <p className="text-sm">{compra.items.length} items</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold">${compra.total.toFixed(2)}</p>
-                      <p className="text-sm text-gray-600">Total</p>
-                    </div>
-                  </div>
+                  <h3 className="font-bold text-gray-900">Compra #{compra.id}</h3>
+                  <p className="text-sm text-gray-600">
+                    {new Date(compra.fecha).toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Total: ${compra.total.toFixed(2)}
+                  </p>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
 
-        {/* Detalles de compra */}
-        {compraSeleccionada && (
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Detalles - Compra #{compraSeleccionada.id}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2 border-b pb-3">
-                  <div className="text-sm">
-                    <p className="font-semibold">Fecha:</p>
-                    <p>{new Date(compraSeleccionada.fecha).toLocaleDateString("es-AR")}</p>
+          {/* Detalles de compra - DERECHA */}
+          {compraSeleccionada ? (
+            <div>
+              <div className="bg-white border border-gray-300 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-6 text-black">Detalle de la compra</h2>
+
+                <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-300">
+                  <div>
+                    <p className="text-sm text-gray-600">Compra #:</p>
+                    <p className="font-semibold text-gray-900">{compraSeleccionada.id}</p>
                   </div>
-                  <div className="text-sm">
-                    <p className="font-semibold">Dirección:</p>
-                    <p>{compraSeleccionada.direccion}</p>
+                  <div>
+                    <p className="text-sm text-gray-600">Fecha:</p>
+                    <p className="font-semibold text-gray-900">
+                      {new Date(compraSeleccionada.fecha).toLocaleDateString("es-AR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
                   </div>
-                  <div className="text-sm">
-                    <p className="font-semibold">Tarjeta:</p>
-                    <p>****{compraSeleccionada.tarjeta_ultimos_digitos}</p>
+                  <div>
+                    <p className="text-sm text-gray-600">Dirección:</p>
+                    <p className="font-semibold text-gray-900">{compraSeleccionada.direccion}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Tarjeta:</p>
+                    <p className="font-semibold text-gray-900">
+                      •••• •••• •••• {compraSeleccionada.tarjeta_ultimos_digitos}
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="font-bold">Items:</h4>
-                  {compraSeleccionada.items.map((item) => (
-                    <div key={item.id} className="text-sm p-2 bg-gray-50 rounded">
-                      <p className="font-semibold">{item.nombre}</p>
-                      <p>
-                        {item.cantidad} x ${item.precio_unitario.toFixed(2)} = $
-                        {(item.cantidad * item.precio_unitario).toFixed(2)}
-                      </p>
-                    </div>
-                  ))}
+                <div className="mb-6">
+                  <h3 className="font-bold text-gray-900 mb-4">Productos</h3>
+                  <div className="space-y-4">
+                    {compraSeleccionada.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex justify-between items-start border-b border-gray-200 pb-3 last:border-b-0"
+                      >
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">{item.nombre}</p>
+                          <p className="text-sm text-gray-600">Cantidad: {item.cantidad}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900">
+                            ${(item.cantidad * item.precio_unitario).toFixed(2)}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            IVA: ${(
+                              (item.precio_unitario * item.cantidad * 0.21)
+                            ).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="border-t pt-3 space-y-2">
-                  <div className="flex justify-between text-sm">
+                <div className="space-y-2 border-t border-gray-300 pt-4">
+                  <div className="flex justify-between text-gray-700">
+                    <span>Subtotal:</span>
+                    <span className="font-semibold text-gray-900">
+                      ${(
+                        compraSeleccionada.total -
+                        compraSeleccionada.iva -
+                        compraSeleccionada.envio
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
                     <span>IVA:</span>
-                    <span>${compraSeleccionada.iva.toFixed(2)}</span>
+                    <span className="font-semibold text-gray-900">
+                      ${compraSeleccionada.iva.toFixed(2)}
+                    </span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-gray-700">
                     <span>Envío:</span>
-                    <span>${compraSeleccionada.envio.toFixed(2)}</span>
+                    <span className="font-semibold text-gray-900">
+                      ${compraSeleccionada.envio.toFixed(2)}
+                    </span>
                   </div>
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total:</span>
+                  <div className="flex justify-between text-lg font-bold border-t border-gray-300 pt-3 text-black">
+                    <span>Total pagado:</span>
                     <span>${compraSeleccionada.total.toFixed(2)}</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">
+              <p className="text-gray-500 text-center">
+                Selecciona una compra para ver los detalles
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

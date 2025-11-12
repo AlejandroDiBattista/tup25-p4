@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from typing import Optional
 
-# Configuración de hash de contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configuración de hash de contraseñas usando argon2 (más estable que bcrypt en Python 3.14)
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # Configuración de JWT
 SECRET_KEY = "tu-clave-secreta-muy-segura-cambiar-en-produccion"
@@ -36,9 +36,9 @@ def decode_token(token: str) -> Optional[dict]:
     """Decodifica un token JWT"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        usuario_id: int = payload.get("sub")
+        usuario_id: str = payload.get("sub")
         if usuario_id is None:
             return None
-        return {"usuario_id": usuario_id}
+        return {"sub": usuario_id}
     except JWTError:
         return None

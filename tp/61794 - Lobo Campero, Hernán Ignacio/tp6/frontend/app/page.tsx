@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { obtenerProductos, obtenerCategorias } from './services/productos';
 import ProductoCard from './components/ProductoCard';
-import Header from './components/Header';
 import { Producto } from './types';
 import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
@@ -67,18 +66,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h2 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h2>
-          <p className="text-gray-600 mt-2">
-            {isLoading ? 'Cargando productos...' : `${productosFiltrados.length} productos disponibles`}
-          </p>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-4 py-8">
         {error && (
           <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
@@ -124,6 +111,13 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Contador de productos */}
+        <div className="mb-6">
+          <p className="text-sm text-gray-600">
+            {isLoading ? 'Cargando productos...' : `${productosFiltrados.filter(p => p.existencia > 0).length} productos disponibles`}
+          </p>
         </div>
 
         {/* Grid de productos */}

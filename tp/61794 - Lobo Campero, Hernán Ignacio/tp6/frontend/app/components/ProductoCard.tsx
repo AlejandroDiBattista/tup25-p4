@@ -80,7 +80,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           <p className="text-xs text-red-600 mb-2">{error}</p>
         )}
         <Button
-          className="w-full"
+          className={`w-full ${producto.existencia === 0 ? 'bg-gray-300 text-gray-600 hover:bg-gray-300 cursor-not-allowed' : ''}`}
           onClick={handleAgregarCarrito}
           disabled={isAdding || producto.existencia === 0}
         >

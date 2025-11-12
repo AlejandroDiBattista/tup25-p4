@@ -179,113 +179,140 @@ export default function CarritoPage() {
   const { subtotal, iva, envio, total } = calcularTotales();
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Mi Carrito</h1>
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-4xl font-bold mb-8 text-black">Finalizar compra</h1>
 
-      {error && (
-        <Alert className="mb-4">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        {error && (
+          <Alert className="mb-4 bg-red-50 border-red-200">
+            <AlertTitle className="text-red-800">Error</AlertTitle>
+            <AlertDescription className="text-red-700">{error}</AlertDescription>
+          </Alert>
+        )}
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Lista de items */}
-        <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Items en el carrito ({carrito.items.length})</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {carrito.items.map((item) => {
-                const producto = productos[item.producto_id];
-                if (!producto) return null;
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Resumen del carrito - IZQUIERDA */}
+          <div>
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-6 text-black">Resumen del carrito</h2>
+              
+              <div className="space-y-6">
+                {carrito.items.map((item) => {
+                  const producto = productos[item.producto_id];
+                  if (!producto) return null;
 
-                return (
-                  <div key={item.id} className="flex gap-4 p-4 border rounded-lg">
-                    <div className="flex-1">
-                      <h3 className="font-bold">{producto.titulo}</h3>
-                      <p className="text-sm text-gray-600">${item.precio_unitario.toFixed(2)}</p>
-                      <p className="text-sm">Cantidad: {item.cantidad}</p>
-                      <p className="text-sm font-semibold">
-                        Subtotal: ${(item.cantidad * item.precio_unitario).toFixed(2)}
-                      </p>
+                  return (
+                    <div key={item.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                      <div className="flex justify-between items-start mb-1">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900">{producto.titulo}</h3>
+                          <p className="text-sm text-gray-600">Cantidad: {item.cantidad}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-900">${(item.cantidad * item.precio_unitario).toFixed(2)}</p>
+                          <p className="text-xs text-gray-600">
+                            IVA: ${((producto && producto.categoria && producto.categoria.toLowerCase() === "electrónica" ? 0.1 : 0.21) * item.cantidad * item.precio_unitario).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => eliminarItem(item.id)}
+                        className="text-xs text-red-600 hover:text-red-800 hover:bg-red-50 p-0 h-auto"
+                      >
+                        Eliminar
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => eliminarItem(item.id)}
-                    >
-                      Eliminar
-                    </Button>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        </div>
+                  );
+                })}
+              </div>
 
-        {/* Resumen de compra */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Resumen de compra</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2 border-b pb-2">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+              <div className="border-t border-gray-200 mt-6 pt-4 space-y-2">
+                <div className="flex justify-between text-gray-700">
+                  <span>Total productos:</span>
+                  <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-gray-700">
                   <span>IVA:</span>
-                  <span>${iva.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">${iva.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-gray-700">
                   <span>Envío:</span>
-                  <span>${envio.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">${envio.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold border-t border-gray-200 pt-3 text-black">
+                  <span>Total a pagar:</span>
+                  <span>${total.toFixed(2)}</span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
-
-              {!showCheckout ? (
-                <Button className="w-full" onClick={() => setShowCheckout(true)}>
-                  Proceder al pago
-                </Button>
-              ) : (
-                <div className="space-y-3">
+          {/* Datos de envío - DERECHA */}
+          <div>
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-6 text-black">Datos de envío</h2>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Dirección
+                  </label>
                   <Input
-                    placeholder="Dirección de entrega"
+                    placeholder="Ingresa tu dirección de entrega"
                     value={direccion}
                     onChange={(e) => setDireccion(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <Input
-                    placeholder="Número de tarjeta"
-                    value={tarjeta}
-                    onChange={(e) => setTarjeta(e.target.value)}
-                  />
-                  <Button
-                    className="w-full"
-                    onClick={handleCheckout}
-                    disabled={isFinalizando}
-                  >
-                    {isFinalizando ? "Procesando..." : "Confirmar compra"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setShowCheckout(false)}
-                  >
-                    Cancelar
-                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Tarjeta
+                  </label>
+                  <Input
+                    placeholder="Últimos 4 dígitos"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={tarjeta}
+                    onChange={(e) => {
+                      // Solo permitir números y máximo 4 caracteres
+                      const valor = e.target.value.replace(/\D/g, '').slice(0, 4);
+                      setTarjeta(valor);
+                    }}
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <Button
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition"
+                  onClick={handleCheckout}
+                  disabled={isFinalizando}
+                >
+                  {isFinalizando ? "Procesando..." : "Confirmar compra"}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full border-gray-300 text-gray-900 hover:bg-gray-50 font-semibold py-3 rounded-lg transition"
+                  onClick={async () => {
+                    try {
+                      if (token) {
+                        await cancelarCarrito(token);
+                        window.location.href = "/";
+                      }
+                    } catch (err: any) {
+                      setError(err.message || "Error al cancelar carrito");
+                    }
+                  }}
+                >
+                  Cancelar compra
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
