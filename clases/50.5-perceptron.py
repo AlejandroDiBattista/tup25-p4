@@ -1,69 +1,75 @@
 import random
 import matplotlib.pyplot as plt
 
-w0 = 1
-w1 = 1
-b  = 2
+w0, w1, b = 0, 0, 0
 
-xs = [[0,0],
-      [0,1],
-      [1,0],
-      [1,1]]
-y = [1, 
-     1, 
-     1, 
-     0]  # Salidas esperadas para AND
+X = [  
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1]
+    ]
 
-def evaluar(x):
-    return w0 * x[0] + w1 * x[1] + b
+y = [   0, 
+        0, 
+        0, 
+        1]  # Función AND
 
-def activacion(x):
-    return 1 if x >= 0 else 0
 
-def predecir(x):
-    return activacion(evaluar(x))  
+def perceptron(x1, x2):
+    return 1 if (w0 * x1 + w1 * x2 + b) >= 0 else 0
 
-def buscar_solucion():
-    for i in range(10_000_000):
-        w0 += random.uniform(-2, 2)
-        w1 += random.uniform(-2, 2)
-        b  += random.uniform(-2, 2)
+def buscar_solucion_aleatoria(X, y):
+    global w0, w1, b
+    print("\n== Buscando solución aleatoria ==")
+    for i in range(1_000_000):
+        w0 = random.uniform(-2, 2)
+        w1 = random.uniform(-2, 2)
+        b  = random.uniform(-2, 2)
 
-        for x_i, y_i in zip(xs, y):
-            salida = predecir(x_i)
-            if salida != y_i:
-                break
-        else:
-            print(f"Se encontró una solución: (en {i} iteraciones)")
-            for x_i, y_i in zip(xs, y):
-                print(f"x: {x_i} = {y_i} <=> {predecir(x_i)}")
-            break
-    else:
-        print("No se encontró una solución.")
+        y_p = [perceptron(x1, x2) for x1, x2 in X]
+        if y_p == y:
+            print(f">> {w0=:0.2f}, {w1=:0.2f}, {b=:0.2f} (en {i})")
+            return
 
-print("== Finalizado")
 
-errores = []
-def aprender(epochs=1000):
-    for epoch in range(epochs):
-        for x_i, y_i in zip(xs, y):
-            salida = predecir(x_i)
-            error = y_i - salida
-            ajuste = 0.01 * error
-            global w0, w1, b
-            w0 += ajuste * x_i[0]
-            w1 += ajuste * x_i[1]
-            b  += ajuste
-        errores.append(error)
-        if error == 0:
-            print(f"Convergió en la época {epoch}")
-            break
+def buscar_solucion_exhaustiva(X, y):
+    global w0, w1, b
+    print("\n== Buscando solución exhaustiva ==")
+    for w0 in range(-2, 3):
+        for w1 in range(-2, 3):
+            for b in range(-4, 5):
 
-print("== Iniciando aprendizaje")
-aprender()
-print("== Aprendizaje finalizado")
-for x_i, y_i in zip(xs, y):
-    print(f"x: {x_i} = {y_i} <=> {predecir(x_i)}")
+                y_p = [perceptron(x1, x2) for x1, x2 in X]
+                if y_p == y:
+                    print(f">> {w0=:0.2f}, {w1=:0.2f}, {b=:0.2f}")
+                    return
 
-plt.plot(errores)
-# Perceptrón simple para la función NAND
+
+def buscar_solucion_aprendizaje(X, y, ajuste=0.1, epochs=1000):
+    global w0, w1, b
+    w0 = random.uniform(-2, 2)
+    w1 = random.uniform(-2, 2)
+    b  = random.uniform(-2, 2)
+
+    print("\n== Buscando solución por aprendizaje ==")
+    for i in range(epochs):
+        errores = 0
+        for (x1, x2), yr in zip(X, y):
+            yp = perceptron(x1, x2)
+
+            error = yr - yp # cálculo del error
+            w0 += error  * x1 * ajuste
+            w1 += error  * x2 * ajuste
+            b  += error  * ajuste
+            errores += abs(error)
+            
+        if errores == 0:
+            print(f">> {w0=:0.2f}, {w1=:0.2f}, {b=:0.2f} (en {i} epochs)")
+            return
+
+# buscar_solucion_aleatoria(X, y)
+buscar_solucion_exhaustiva(X, y)
+buscar_solucion_aprendizaje(X, y)
+for x1, x2 in X:
+    print(f"perceptron({x1}, {x2}) = {perceptron(x1, x2)}")
