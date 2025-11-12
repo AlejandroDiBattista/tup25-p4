@@ -3,18 +3,7 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { obtenerProductos } from './services/productos';
 import NavBarClient from "./components/NavBarClient";
-
-type Producto = {
-  id: number;
-  nombre?: string;
-  titulo?: string;
-  descripcion?: string;
-  categoria?: string;
-  precio: number;
-  existencia?: number;
-  stock?: number;
-  imagen?: string;
-};
+import { Producto } from './types';
 
 export default function Home() {
   const [mensajeCarrito, setMensajeCarrito] = useState<{ id: number, mensaje: string } | null>(null);
@@ -31,8 +20,7 @@ export default function Home() {
   function actualizarStock(nuevosProductos: Producto[]) {
     let stockMap: Record<number, number> = {};
     nuevosProductos.forEach((p: Producto) => {
-      const stockOriginal = typeof p.existencia === 'number' ? p.existencia : (typeof p.stock === 'number' ? p.stock : 0);
-      stockMap[p.id] = stockOriginal;
+      stockMap[p.id] = p.existencia || 0;
     });
     setProductosStock(stockMap);
   }
@@ -73,7 +61,7 @@ export default function Home() {
       // Inicializar stock considerando el carrito guardado
       let stockMap: Record<number, number> = {};
       data.forEach((p: Producto) => {
-        const stockOriginal = typeof p.existencia === 'number' ? p.existencia : (typeof p.stock === 'number' ? p.stock : 0);
+        const stockOriginal = p.existencia || 0;
         const cantidadEnCarrito = (carrito.find((item) => item.id === p.id)?.cantidad) ?? 0;
         stockMap[p.id] = stockOriginal - cantidadEnCarrito;
       });
@@ -93,7 +81,7 @@ export default function Home() {
     }
     setCarrito((prev: (Producto & { cantidad: number })[]) => {
       const existe = prev.find((item) => item.id === producto.id);
-      const stockOriginal = productos.find((p) => p.id === producto.id)?.existencia ?? productos.find((p) => p.id === producto.id)?.stock ?? 0;
+      const stockOriginal = productos.find((p) => p.id === producto.id)?.existencia ?? 0;
       const cantidadEnCarrito = existe?.cantidad ?? 0;
       if (cantidadEnCarrito >= stockOriginal) return prev;
       let nuevoCarrito;
@@ -114,7 +102,7 @@ export default function Home() {
     setCarrito((prev: (Producto & { cantidad: number })[]) => {
       const nuevoCarrito = prev.map((item: Producto & { cantidad: number }) => {
         if (item.id === id) {
-          const stockOriginal = productos.find((p: Producto) => p.id === id)?.existencia ?? productos.find((p: Producto) => p.id === id)?.stock ?? 0;
+          const stockOriginal = productos.find((p: Producto) => p.id === id)?.existencia ?? 0;
           const stockDisponible = productosStock[id] ?? stockOriginal;
           const nuevaCantidad = item.cantidad + delta;
           if (nuevaCantidad < 1 || nuevaCantidad > stockOriginal) return item;
@@ -139,7 +127,7 @@ export default function Home() {
       // Restaurar stock del producto eliminado
       const productoEliminado = prev.find((item) => item.id === id);
       if (productoEliminado) {
-        const stockOriginal = productos.find((p: Producto) => p.id === id)?.existencia ?? productos.find((p: Producto) => p.id === id)?.stock ?? 0;
+        const stockOriginal = productos.find((p: Producto) => p.id === id)?.existencia ?? 0;
         setProductosStock((s: Record<number, number>) => ({ ...s, [id]: stockOriginal }));
       }
       
@@ -177,7 +165,7 @@ export default function Home() {
             </div>
             <div className="flex flex-col gap-6">
               {productosFiltrados.map((producto: Producto) => {
-                const stockOriginal = productos.find((p) => p.id === producto.id)?.existencia ?? productos.find((p) => p.id === producto.id)?.stock ?? 0;
+                const stockOriginal = producto.existencia ?? 0;
                 const cantidadEnCarrito = carrito.find((item) => item.id === producto.id)?.cantidad ?? 0;
                 const stockDisponible = stockOriginal - cantidadEnCarrito;
                 return (
@@ -219,7 +207,7 @@ export default function Home() {
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Tu Carrito</h3>
                 <div className="mb-6 flex flex-col gap-4">
                   {carrito.map((item: Producto & { cantidad: number }) => {
-                    const stockOriginal = productos.find((p: Producto) => p.id === item.id)?.existencia ?? productos.find((p: Producto) => p.id === item.id)?.stock ?? 0;
+                    const stockOriginal = item.existencia ?? 0;
                     const stockDisponible = productosStock[item.id] ?? stockOriginal;
                     const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
                     const ivaTasa = esElectronico ? 0.10 : 0.21;
@@ -317,7 +305,7 @@ export default function Home() {
                         setProductosStock((s) => {
                           const nuevoStock = { ...s };
                           carrito.forEach((item: Producto & { cantidad: number }) => {
-                            const stockOriginal = productos.find((p: Producto) => p.id === item.id)?.existencia ?? productos.find((p: Producto) => p.id === item.id)?.stock ?? 0;
+                            const stockOriginal = item.existencia ?? 0;
                             nuevoStock[item.id] = stockOriginal;
                           });
                           return nuevoStock;
