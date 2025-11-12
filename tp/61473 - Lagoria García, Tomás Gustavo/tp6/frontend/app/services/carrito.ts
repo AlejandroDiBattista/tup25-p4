@@ -1,5 +1,6 @@
 import { Carrito, AgregarCarritoRequest, CompraCreate } from '../types';
 import { obtenerToken } from './auth';
+import { ApiClient } from '../utils/api-client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -18,7 +19,7 @@ function getHeaders() {
  * Obtener carrito actual del usuario
  */
 export async function obtenerCarrito(): Promise<Carrito> {
-  const response = await fetch(`${API_URL}/carrito`, {
+  const response = await ApiClient.fetch(`${API_URL}/carrito`, {
     headers: getHeaders(),
     cache: 'no-store'
   });
@@ -39,7 +40,7 @@ export async function agregarAlCarrito(
 ): Promise<Carrito> {
   const body: AgregarCarritoRequest = { producto_id, cantidad };
   
-  const response = await fetch(`${API_URL}/carrito`, {
+  const response = await ApiClient.fetch(`${API_URL}/carrito`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify(body)
@@ -60,7 +61,7 @@ export async function agregarAlCarrito(
  * Quitar producto del carrito
  */
 export async function quitarDelCarrito(producto_id: number): Promise<Carrito> {
-  const response = await fetch(`${API_URL}/carrito/${producto_id}`, {
+  const response = await ApiClient.fetch(`${API_URL}/carrito/${producto_id}`, {
     method: 'DELETE',
     headers: getHeaders()
   });
@@ -77,7 +78,7 @@ export async function quitarDelCarrito(producto_id: number): Promise<Carrito> {
  * Cancelar carrito (vaciar)
  */
 export async function cancelarCarrito(): Promise<void> {
-  const response = await fetch(`${API_URL}/carrito/cancelar`, {
+  const response = await ApiClient.fetch(`${API_URL}/carrito/cancelar`, {
     method: 'POST',
     headers: getHeaders()
   });
@@ -97,7 +98,7 @@ export async function finalizarCompra(
 ): Promise<any> {
   const body: CompraCreate = { direccion, tarjeta };
   
-  const response = await fetch(`${API_URL}/carrito/finalizar`, {
+  const response = await ApiClient.fetch(`${API_URL}/carrito/finalizar`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify(body)

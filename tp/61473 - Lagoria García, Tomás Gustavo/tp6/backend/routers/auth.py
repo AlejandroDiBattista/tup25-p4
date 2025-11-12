@@ -13,8 +13,8 @@ from dependencies.auth import get_usuario_actual
 
 router = APIRouter(tags=["Autenticación"])
 
-# Duración del token: 7 días
-TOKEN_EXPIRATION_DAYS = 7
+# Duración del token: 2 horas
+TOKEN_EXPIRATION_HOURS = 2
 
 
 @router.post("/registrar", response_model=UsuarioResponse, status_code=201)
@@ -88,7 +88,7 @@ def iniciar_sesion(
     
     # Generar nuevo token
     token = generar_token()
-    token_expiration = datetime.now() + timedelta(days=TOKEN_EXPIRATION_DAYS)
+    token_expiration = datetime.now() + timedelta(hours=TOKEN_EXPIRATION_HOURS)
     
     # Actualizar usuario con el nuevo token
     usuario.token = token

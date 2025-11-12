@@ -9,6 +9,7 @@ import {
   eliminarUsuario,
   cerrarSesion as cerrarSesionAPI
 } from '../services/auth';
+import { ApiClient } from '../utils/api-client';
 
 interface AuthContextType {
   usuario: Usuario | null;
@@ -26,6 +27,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuarioState] = useState<Usuario | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Registrar el handler de sesión expirada
+  useEffect(() => {
+    ApiClient.setUnauthorizedHandler(() => {
+      // Limpiar sesión automáticamente
+      eliminarToken();
+      eliminarUsuario();
+      setUsuarioState(null);
+      setTokenState(null);
+      
+      // Redirigir a login después de un momento
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2000);
+    });
+  }, []);
 
   // Cargar usuario y token del localStorage al montar
   useEffect(() => {
