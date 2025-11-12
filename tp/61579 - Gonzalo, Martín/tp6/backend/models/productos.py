@@ -24,3 +24,7 @@ class Producto(SQLModel, table=True):
     
     # Guardaremos solo el nombre del archivo (ej: "0001.png")
     imagen: Optional[str] = Field(default=None)
+    
+    class Config:
+        # Asegurar que la serialización sea correcta
+        from_attributes = True

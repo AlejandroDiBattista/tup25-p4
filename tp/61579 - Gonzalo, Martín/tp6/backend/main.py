@@ -130,10 +130,17 @@ def get_producto(producto_id: int, session: Session = Depends(get_session)):
     Obtiene un producto específico por su ID.
     (Prueba 2.5 y 2.6 de api-tests.http)
     """
-    producto = session.get(Producto, producto_id)
-    if not producto:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
-    return producto
+    try:
+        producto = session.get(Producto, producto_id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        return producto
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"ERROR en get_producto: {e}")
+        print(f"Traceback: {type(e).__name__}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
 
 # --- 9. Modelos Pydantic para Autenticación ---
 
@@ -391,17 +398,55 @@ class CompraPublic(BaseModel):  # <-- ¡ES BASEMODEL! (NO hereda de Compra)
     total: float
     items: List[CompraItemPublic] = []
 
+
+class CompraListPublic(BaseModel):
+    """Modelo para mostrar una compra en la lista de compras (con items incluidos)."""
+    id: int
+    fecha: datetime
+    direccion: str
+    total: float
+    items: List[CompraItemPublic] = []
+
 # --- 16. Endpoints del Historial de Compras ---
 
 
-@app.get("/compras", response_model=List[Compra])
+@app.get("/compras", response_model=List[CompraListPublic])
 def get_historial_compras(
     current_user: Usuario = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
+    # Obtener todas las compras del usuario
     statement = select(Compra).where(Compra.usuario_id == current_user.id)
     compras = session.exec(statement).all()
-    return compras
+    
+    # Para cada compra, obtener sus items
+    compras_con_items = []
+    for compra in compras:
+        statement_items = select(CompraItem).where(
+            CompraItem.compra_id == compra.id
+        )
+        items_db = session.exec(statement_items).all()
+        
+        # Convertir items a CompraItemPublic
+        items_publicos = [
+            CompraItemPublic(
+                producto_id=item.producto_id,
+                cantidad=item.cantidad,
+                precio_unitario=item.precio_unitario
+            )
+            for item in items_db
+        ]
+        
+        compra_publica = CompraListPublic(
+            id=compra.id,
+            fecha=compra.fecha,
+            direccion=compra.direccion,
+            total=compra.total,
+            items=items_publicos
+        )
+        compras_con_items.append(compra_publica)
+    
+    return compras_con_items
 
 
 @app.get("/compras/{compra_id}", response_model=CompraPublic)
