@@ -1,50 +1,63 @@
-import { Producto } from '../types';
-import Image from 'next/image';
+'use client';
 
-interface ProductoCardProps {
-  producto: Producto;
-}
+import React from 'react';
 
-export default function ProductoCard({ producto }: ProductoCardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-64 bg-gray-100">
-        <Image
-          src={`${API_URL}/${producto.imagen}`}
-          alt={producto.titulo}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-contain p-4"
-          unoptimized
-        />
-      </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {producto.descripcion}
-        </p>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
-          </span>
-          <div className="flex items-center gap-1">
-            <span className="text-yellow-500">★</span>
-            <span className="text-sm text-gray-700">{producto.valoracion}</span>
-          </div>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio}
-          </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
+export type Producto = {
+	id: number;
+	titulo: string;
+	descripcion: string;
+	precio: number;
+	categoria: string;
+	existencias: number;
+	imagen: string;
+	agotado: boolean;
+};
+
+type Props = {
+	producto: Producto;
+	onAdd: (id: number) => void;
+};
+
+export const ProductCard: React.FC<Props> = ({ producto, onAdd }) => {
+	return (
+		<article className="flex flex-col rounded-xl border bg-white shadow-sm overflow-hidden">
+			<div className="h-40 w-full overflow-hidden bg-slate-100 flex items-center justify-center">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img
+					src={producto.imagen}
+					alt={producto.titulo}
+					className="h-full object-contain"
+				/>
+			</div>
+			<div className="flex flex-1 flex-col gap-2 p-4">
+				<header>
+					<h3 className="font-semibold text-slate-900 line-clamp-2">
+						{producto.titulo}
+					</h3>
+					<p className="text-xs text-slate-500 mt-1">{producto.categoria}</p>
+				</header>
+				<p className="text-sm text-slate-600 line-clamp-3">{producto.descripcion}</p>
+				<div className="mt-auto flex items-center justify-between pt-2">
+					<div>
+						<span className="text-lg font-bold">${producto.precio.toFixed(2)}</span>
+						<p className="text-xs text-slate-500">
+							Stock:{' '}
+							{producto.agotado ? (
+								<span className="text-red-600 font-semibold">Agotado</span>
+							) : (
+								producto.existencias
+							)}
+						</p>
+					</div>
+					<button
+						className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white disabled:bg-slate-300"
+						disabled={producto.agotado}
+						onClick={() => onAdd(producto.id)}
+					>
+						Añadir
+					</button>
+				</div>
+			</div>
+		</article>
+	);
+};
