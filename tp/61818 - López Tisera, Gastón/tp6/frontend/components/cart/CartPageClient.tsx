@@ -123,7 +123,7 @@ export function CartPageClient({
       setFormState({ direccion: "", tarjeta: "" });
 
       setTimeout(() => {
-        router.push(`/compras/${purchase.compra_id}`);
+        router.push("/compras");
       }, 1200);
     } catch (err) {
       const message =

@@ -27,9 +27,12 @@ export function ProductListHorizontal({ productos }: ProductListHorizontalProps)
   const handleAddToCart = async (producto: Producto) => {
     if (!user) return;
     
-    // Verificar si ya tiene el máximo en el carrito
+    // Verificar stock disponible
     const cartItem = cart?.items.find((item) => item.producto_id === producto.id);
-    if (cartItem && cartItem.cantidad >= producto.existencia) {
+    const cantidadEnCarrito = cartItem?.cantidad ?? 0;
+    const stockDisponible = producto.existencia - cantidadEnCarrito;
+    
+    if (stockDisponible <= 0) {
       return; // No agregar más si ya alcanzó el stock
     }
     
@@ -54,7 +57,11 @@ export function ProductListHorizontal({ productos }: ProductListHorizontalProps)
   return (
     <div className="flex flex-col gap-4">
       {productos.map((producto) => {
-        const agotado = producto.existencia <= 0;
+        // Calcular stock disponible restando lo que está en el carrito
+        const cartItem = cart?.items.find((item) => item.producto_id === producto.id);
+        const cantidadEnCarrito = cartItem?.cantidad ?? 0;
+        const stockDisponible = producto.existencia - cantidadEnCarrito;
+        const agotado = stockDisponible <= 0;
         const imageUrl = buildImageUrl(producto.imagen);
         const isLoading = loading === producto.id;
 
@@ -102,7 +109,7 @@ export function ProductListHorizontal({ productos }: ProductListHorizontalProps)
                   ${producto.precio.toFixed(2)}
                 </p>
                 <p className="text-xs text-slate-500">
-                  Disponible: {producto.existencia}
+                  Disponible: {stockDisponible}
                 </p>
               </div>
               <button

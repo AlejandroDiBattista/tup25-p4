@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
-import { fetchPurchases } from "@/lib/api/cart";
+import { fetchPurchases, fetchPurchaseDetail } from "@/lib/api/cart";
 import type { Purchase } from "@/types/purchase";
 
 const formatCurrency = (value: number) =>
@@ -17,21 +17,39 @@ const formatCurrency = (value: number) =>
 
 const formatDate = (isoDate: string) =>
   new Date(isoDate).toLocaleString("es-AR", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
 export function PurchaseHistoryClient(): JSX.Element {
   const router = useRouter();
   const { user, token, loading: authLoading } = useAuth();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const totalGastado = useMemo(
     () => purchases.reduce((acc, purchase) => acc + purchase.total, 0),
     [purchases],
   );
+
+  const subtotalPurchase = useMemo(() => {
+    if (!selectedPurchase) return 0;
+    return selectedPurchase.items.reduce(
+      (acc, item) => acc + item.precio_unitario * item.cantidad,
+      0,
+    );
+  }, [selectedPurchase]);
+
+  const ivaPurchase = useMemo(() => {
+    if (!selectedPurchase) return 0;
+    return selectedPurchase.total - subtotalPurchase - selectedPurchase.envio;
+  }, [selectedPurchase, subtotalPurchase]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -48,6 +66,10 @@ export function PurchaseHistoryClient(): JSX.Element {
         if (!ignore) {
           setPurchases(data);
           setError(null);
+          // Seleccionar la primera compra por defecto
+          if (data.length > 0) {
+            await loadPurchaseDetail(data[0].id);
+          }
         }
       } catch (err) {
         if (!ignore) {
@@ -80,10 +102,27 @@ export function PurchaseHistoryClient(): JSX.Element {
     return undefined;
   }, [authLoading, user, router]);
 
+  const loadPurchaseDetail = async (purchaseId: number) => {
+    if (!token) return;
+    setLoadingDetail(true);
+    try {
+      const detail = await fetchPurchaseDetail(token, purchaseId);
+      setSelectedPurchase(detail);
+    } catch (err) {
+      console.error("Error al cargar detalle:", err);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  const handleSelectPurchase = (purchaseId: number) => {
+    void loadPurchaseDetail(purchaseId);
+  };
+
   return (
     <>
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-10">
+        <div className="flex w-full flex-col gap-3 px-8 py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.15em] text-blue-600">
             Historial de compras
           </p>
@@ -95,7 +134,7 @@ export function PurchaseHistoryClient(): JSX.Element {
             adquiridos.
           </p>
           {purchases.length > 0 && (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600">
               Total gastado:{" "}
               <span className="font-semibold text-slate-900">
                 {formatCurrency(totalGastado)}
@@ -107,17 +146,19 @@ export function PurchaseHistoryClient(): JSX.Element {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
+      <main className="flex w-full flex-1">
         {loading ? (
-          <div className="flex min-h-[30vh] flex-col items-center justify-center text-sm text-slate-500">
+          <div className="flex w-full flex-col items-center justify-center text-sm text-slate-500">
             Cargando tus compras...
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
-            {error}
+          <div className="w-full p-8">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+              {error}
+            </div>
           </div>
         ) : purchases.length === 0 ? (
-          <div className="flex min-h-[30vh] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <div className="flex w-full flex-col items-center justify-center p-12 text-center">
             <span className="text-4xl" aria-hidden="true">
               📦
             </span>
@@ -136,36 +177,139 @@ export function PurchaseHistoryClient(): JSX.Element {
             </Link>
           </div>
         ) : (
-          <section className="space-y-4">
-            {purchases.map((purchase) => (
-              <article
-                key={purchase.id}
-                className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md md:flex-row md:items-center md:justify-between"
-              >
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    Compra #{purchase.id}
-                  </h2>
-                  <p className="text-sm text-slate-500">
-                    {formatDate(purchase.fecha)} • {purchase.items.length} producto
-                    {purchase.items.length === 1 ? "" : "s"}
-                  </p>
-                  <p className="text-sm text-slate-600">
-                    Envío: {formatCurrency(purchase.envio)} • Total:{" "}
-                    <span className="font-semibold text-blue-600">
-                      {formatCurrency(purchase.total)}
-                    </span>
-                  </p>
+          <>
+            {/* Lista de compras - 35% izquierda */}
+            <section className="w-[35%] border-r border-slate-200 bg-white p-6">
+              <div className="space-y-3">
+                {purchases.map((purchase) => (
+                  <button
+                    key={purchase.id}
+                    onClick={() => handleSelectPurchase(purchase.id)}
+                    className={`w-full rounded-lg border p-4 text-left transition ${
+                      selectedPurchase?.id === purchase.id
+                        ? "border-slate-900 bg-slate-50"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    <h2 className="text-base font-semibold text-slate-900">
+                      Compra #{purchase.id}
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {formatDate(purchase.fecha)}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                      Total: {formatCurrency(purchase.total)}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Detalle de compra - 65% derecha */}
+            <section className="w-[65%] bg-slate-50 p-8">
+              {loadingDetail ? (
+                <div className="flex h-full flex-col items-center justify-center text-sm text-slate-500">
+                  Cargando detalle...
                 </div>
-                <Link
-                  href={`/compras/${purchase.id}`}
-                  className="inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-                >
-                  Ver detalle
-                </Link>
-              </article>
-            ))}
-          </section>
+              ) : !selectedPurchase ? (
+                <div className="flex h-full flex-col items-center justify-center text-sm text-slate-500">
+                  Seleccioná una compra para ver el detalle
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <h1 className="text-2xl font-bold text-slate-900">
+                      Detalle de la compra
+                    </h1>
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-white p-6">
+                    <div className="mb-4 flex items-start justify-between">
+                      <div>
+                        <h2 className="text-lg font-semibold text-slate-900">
+                          Compra #: {selectedPurchase.id}
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-600">
+                          Fecha: {formatDate(selectedPurchase.fecha)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 border-t border-slate-200 pt-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Dirección:</span>
+                        <span className="font-medium text-slate-900">
+                          {selectedPurchase.direccion}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Tarjeta:</span>
+                        <span className="font-medium text-slate-900">
+                          {selectedPurchase.tarjeta}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-white p-6">
+                    <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                      Productos
+                    </h3>
+                    <div className="space-y-3">
+                      {selectedPurchase.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between border-b border-slate-100 pb-3 last:border-b-0 last:pb-0"
+                        >
+                          <div className="flex-1">
+                            <p className="font-medium text-slate-900">{item.nombre}</p>
+                            <p className="text-sm text-slate-500">
+                              Cantidad: {item.cantidad}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-slate-900">
+                              {formatCurrency(item.precio_unitario * item.cantidad)}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              IVA: {formatCurrency(item.precio_unitario * item.cantidad * 0.21)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 space-y-2 border-t border-slate-200 pt-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Subtotal:</span>
+                        <span className="font-medium text-slate-900">
+                          {formatCurrency(subtotalPurchase)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">IVA:</span>
+                        <span className="font-medium text-slate-900">
+                          {formatCurrency(ivaPurchase)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Envío:</span>
+                        <span className="font-medium text-slate-900">
+                          {formatCurrency(selectedPurchase.envio)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-200 pt-2 text-lg font-bold">
+                        <span className="text-slate-900">Total pagado:</span>
+                        <span className="text-slate-900">
+                          {formatCurrency(selectedPurchase.total)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+          </>
         )}
       </main>
     </>
