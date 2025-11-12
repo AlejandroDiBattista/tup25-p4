@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { ProductCard } from '../components/ProductCard';
+import SearchBar from '../components/SearchBar';
 
 interface Producto {
   id: number;
@@ -16,8 +17,18 @@ interface Producto {
 
 export default function HomePage() {
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Memoized filtered products to avoid recalculating on every render
+  const filteredProductos = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return productos;
+    return productos.filter((p) =>
+      p.nombre.toLowerCase().includes(q) || (p.descripcion || '').toLowerCase().includes(q)
+    );
+  }, [productos, query]);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -49,6 +60,8 @@ export default function HomePage() {
           </div>
         )}
 
+        <SearchBar query={query} onChange={setQuery} />
+
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -61,19 +74,25 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {productos.map((p) => (
-              <ProductCard
-                key={p.id}
-                producto={{
-                  id: p.id,
-                  nombre: p.nombre,
-                  precio: p.precio,
-                  imagen: p.imagen,
-                  disponible: p.stock,
-                  descripcion: p.descripcion,
-                }}
-              />
-            ))}
+            {filteredProductos.length === 0 ? (
+              <div className="col-span-full bg-white p-8 rounded-lg shadow text-center">
+                <p className="text-gray-500">No se encontraron productos para "{query}".</p>
+              </div>
+            ) : (
+              filteredProductos.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  producto={{
+                    id: p.id,
+                    nombre: p.nombre,
+                    precio: p.precio,
+                    imagen: p.imagen,
+                    disponible: p.stock,
+                    descripcion: p.descripcion,
+                  }}
+                />
+              ))
+            )}
           </div>
         )}
       </div>
