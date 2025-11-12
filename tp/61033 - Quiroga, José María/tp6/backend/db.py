@@ -29,12 +29,14 @@ def init_db(load_products: bool = True):
                         data = json.load(f)
                     with Session(engine) as session:
                         for item in data:
-                            # Only add if not exists (by nombre)
-                            stmt = select(Product).where(Product.nombre == item.get("nombre"))
+                            # Support files that use either "nombre" or "titulo" for the product name
+                            name = item.get("nombre") or item.get("titulo") or ""
+                            # Only add if not exists (by nombre/title)
+                            stmt = select(Product).where(Product.nombre == name)
                             result = session.exec(stmt).first()
                             if result is None:
                                 prod = Product(
-                                    nombre=item.get("nombre", ""),
+                                    nombre=name,
                                     descripcion=item.get("descripcion", ""),
                                     precio=float(item.get("precio", 0)),
                                     categoria=item.get("categoria", ""),
