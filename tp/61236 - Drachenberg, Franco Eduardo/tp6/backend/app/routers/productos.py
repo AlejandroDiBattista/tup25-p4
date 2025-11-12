@@ -1,7 +1,7 @@
+import unicodedata
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, or_
 from sqlmodel import Session, select
 
 from app.api.deps import get_session
@@ -17,22 +17,26 @@ def listar_productos(
     buscar: Optional[str] = Query(default=None, description="Buscar en nombre y descripción"),
     session: Session = Depends(get_session),
 ) -> list[ProductoRead]:
-    statement = select(Producto)
+    productos = session.exec(select(Producto)).all()
 
     if categoria:
-        statement = statement.where(func.lower(Producto.categoria) == categoria.lower())
+        categoria_filtrada = _normalize(categoria)
+        productos = [
+            producto
+            for producto in productos
+            if categoria_filtrada in _normalize(producto.categoria)
+        ]
 
     if buscar:
-        like_pattern = f"%{buscar.lower()}%"
-        statement = statement.where(
-            or_(
-                func.lower(Producto.nombre).like(like_pattern),
-                func.lower(Producto.descripcion).like(like_pattern),
-            )
-        )
+        termino_busqueda = _normalize(buscar)
+        productos = [
+            producto
+            for producto in productos
+            if termino_busqueda in _normalize(producto.nombre)
+            or termino_busqueda in _normalize(producto.descripcion)
+        ]
 
-    statement = statement.order_by(Producto.nombre)
-    productos = session.exec(statement).all()
+    productos.sort(key=lambda producto: _normalize(producto.nombre))
     return productos
 
 
@@ -42,4 +46,11 @@ def obtener_producto(producto_id: int, session: Session = Depends(get_session)) 
     if not producto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
     return producto
+
+
+def _normalize(value: Optional[str]) -> str:
+    if not value:
+        return ""
+    normalized = unicodedata.normalize("NFKD", value)
+    return "".join(char for char in normalized if not unicodedata.combining(char)).lower()
 
