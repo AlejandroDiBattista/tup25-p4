@@ -30,6 +30,12 @@ export interface TokenResponse {
   token_type: string;
 }
 
+export interface UsuarioSesion {
+  id: number;
+  nombre?: string;
+  email?: string;
+}
+
 export interface ItemCarrito {
   producto_id: number;
   nombre: string;
