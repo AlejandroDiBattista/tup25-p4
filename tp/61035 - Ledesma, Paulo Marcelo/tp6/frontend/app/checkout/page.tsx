@@ -142,7 +142,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 p-6">
+    <main className="min-h-screen bg-gradient-to-b from-yellow-50 via-yellow-100 to-white p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-semibold mb-2 text-sky-700">Confirmar Compra</h1>
         <p className="text-sm text-gray-600 mb-6">Revisa tu pedido y completa los datos de envío y pago para finalizar.</p>

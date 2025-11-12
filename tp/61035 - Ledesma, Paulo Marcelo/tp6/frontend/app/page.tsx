@@ -59,28 +59,35 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col gap-6 p-6 min-h-screen bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50">
+    <main className="flex flex-col gap-6 p-6 min-h-screen bg-gradient-to-b from-yellow-50 via-yellow-100 to-white">
+
       <div className="flex gap-6">
         <div className="flex-1">
-          <form onSubmit={handleSearch} className="flex gap-2 mb-6 flex-wrap items-center bg-white rounded-lg p-4 shadow-sm border border-sky-200">
+          <form
+            onSubmit={handleSearch}
+            className="flex gap-2 mb-6 flex-wrap items-center bg-yellow-50/50 backdrop-blur-md rounded-lg p-4 shadow-sm border border-yellow-200"
+          >
             <input
               type="text"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar productos..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+              className="flex-1 px-3 py-2 border border-yellow-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-300"
             />
             <select
               value={categoriaSeleccionada}
               onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+              className="px-3 py-2 border border-yellow-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-300"
             >
               <option value="">Todas las categorías</option>
               {categorias.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+            <button
+              type="submit"
+              className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold transition"
+            >
               Buscar
             </button>
             <button
@@ -90,7 +97,7 @@ export default function Home() {
                 setCategoriaSeleccionada('');
                 setProductosFiltrados(productos);
               }}
-              className="bg-slate-400 hover:bg-slate-500 text-white px-4 py-2 rounded-lg font-semibold transition"
+              className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-lg font-semibold transition"
             >
               Mostrar todos
             </button>
@@ -108,7 +115,7 @@ export default function Home() {
         </div>
 
         <aside className="w-80">
-          <Carrito />
+          <Carrito className="bg-yellow-50/50 backdrop-blur-md rounded-lg p-4 shadow-lg" />
         </aside>
       </div>
     </main>

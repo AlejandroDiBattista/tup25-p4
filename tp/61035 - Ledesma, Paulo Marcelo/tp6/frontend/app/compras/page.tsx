@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -22,8 +22,6 @@ interface Compra {
   envio?: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 export default function ComprasPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,13 +34,13 @@ export default function ComprasPage() {
 
   const loadCompraDetalle = useCallback(async (compraId: number) => {
     if (!token) return;
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     try {
       const res = await fetch(`${API_URL}/compras/${compraId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Error al obtener detalle de compra');
       const data = await res.json();
-      // El backend responde { compra, items } en el detalle
       const detalle = data.compra ? { ...data.compra, items: data.items } : data;
       setCompraSeleccionada(detalle);
     } catch (err) {
@@ -52,6 +50,8 @@ export default function ComprasPage() {
   }, [token]);
 
   useEffect(() => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
     const fetchCompras = async () => {
       if (!token) {
         setError('Debes iniciar sesión');
@@ -68,7 +68,7 @@ export default function ComprasPage() {
 
         const data = await res.json();
         setCompras(data);
-        // Si hay query param ?compra=ID, cargar ese detalle. Sino la primera compra.
+
         const compraParam = searchParams ? searchParams.get('compra') : null;
         if (compraParam) {
           const id = Number(compraParam);
@@ -86,30 +86,6 @@ export default function ComprasPage() {
     fetchCompras();
   }, [token, loadCompraDetalle, searchParams]);
 
-  
-
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">Cargando compras...</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!token) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-4">Debes iniciar sesión</h1>
-          <Button onClick={() => router.push('/login')}>Ir a login</Button>
-        </div>
-      </main>
-    );
-  }
-
-  // Calcular subtotal, IVA y envío de una compra
   const calcularDetalles = (compra: Compra) => {
     let subtotal = 0;
     let iva = 0;
@@ -126,8 +102,29 @@ export default function ComprasPage() {
     return { subtotal, iva, envio };
   };
 
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-yellow-50 via-yellow-100 to-white p-6 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Cargando compras...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!token) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-yellow-50 via-yellow-100 to-white p-6 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-4">Debes iniciar sesión</h1>
+          <Button onClick={() => router.push('/login')}>Ir a login</Button>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-sky-50 via-sky-100 to-slate-50 p-6">
+    <main className="min-h-screen bg-gradient-to-b from-yellow-50 via-yellow-100 to-white p-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-semibold mb-2 text-sky-700">Mis compras</h1>
         <p className="text-sm text-gray-600 mb-6">Historial de tus compras realizadas</p>
@@ -145,7 +142,7 @@ export default function ComprasPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Lista de compras (sidebar) */}
+            {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-gradient-to-b from-gray-200 to-white rounded-lg shadow-lg p-4 border border-gray-300 max-h-96 overflow-y-auto">
                 <h2 className="text-lg font-semibold mb-4 text-gray-800">Historial</h2>
@@ -173,17 +170,14 @@ export default function ComprasPage() {
               </div>
             </div>
 
-            {/* Detalle de compra */}
+            {/* Detalle */}
             <div className="lg:col-span-3">
               {compraSeleccionada ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Productos y datos de envío */}
                   <div className="lg:col-span-2 bg-gradient-to-b from-gray-200 to-white rounded-lg shadow-lg p-6 border border-gray-300">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">
                       Compra #{compraSeleccionada.id}
                     </h2>
-
-                    {/* Información general */}
                     <div className="grid grid-cols-2 gap-4 mb-6 pb-4 border-b border-gray-300">
                       <div>
                         <p className="text-xs text-gray-600 uppercase font-semibold">Fecha</p>
@@ -203,7 +197,6 @@ export default function ComprasPage() {
                       </div>
                     </div>
 
-                    {/* Productos */}
                     <h3 className="text-lg font-semibold mb-3 text-gray-800">Productos</h3>
                     <div className="space-y-3 mb-6 pb-4 border-b border-gray-300">
                       {(compraSeleccionada.items || []).map((item) => {
@@ -231,11 +224,9 @@ export default function ComprasPage() {
                     </Button>
                   </div>
 
-                  {/* Totales (sidebar derecho) */}
                   <div>
                     <div className="bg-gradient-to-b from-gray-200 to-white rounded-lg shadow-lg p-6 border border-gray-300 h-fit">
                       <h3 className="text-lg font-semibold mb-4 text-gray-800">Resumen</h3>
-
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-700">Total productos:</span>

@@ -1,7 +1,11 @@
-"use client";
+'use client';
 import { useEffect, useState, useCallback } from "react";
 import AuthModal from "./AuthModal";
 import { useRouter } from 'next/navigation';
+
+interface CarritoProps {
+  className?: string;
+}
 
 interface ItemCarrito {
   id: number;
@@ -11,7 +15,7 @@ interface ItemCarrito {
   subtotal: number;
 }
 
-export const Carrito = () => {
+export const Carrito = ({ className }: CarritoProps) => {
   const [items, setItems] = useState<ItemCarrito[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -19,13 +23,9 @@ export const Carrito = () => {
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  // Usar la misma clave que el resto de la app (tp6_token)
   const token = typeof window !== "undefined" ? localStorage.getItem("tp6_token") : null;
 
-  // ✅ Cargar el carrito
   const fetchCarrito = useCallback(async () => {
-    // No forzar el modal de autenticación al cargar la página.
-    // Si no hay token, mostramos un carrito vacío en lugar de abrir el diálogo.
     if (!token) {
       setItems([]);
       setTotal(0);
@@ -53,7 +53,6 @@ export const Carrito = () => {
   useEffect(() => {
     fetchCarrito();
 
-    // Escuchar evento personalizado cuando se agrega un producto al carrito
     const handleAgregarAlCarrito = () => {
       fetchCarrito();
     };
@@ -62,7 +61,6 @@ export const Carrito = () => {
     return () => window.removeEventListener('agregarAlCarrito', handleAgregarAlCarrito);
   }, [fetchCarrito]);
 
-  // ✅ Eliminar producto
   const eliminarItem = async (itemId: number) => {
     if (!token) {
       setShowAuthModal(true);
@@ -83,7 +81,6 @@ export const Carrito = () => {
     }
   };
 
-  // ✅ Cambiar cantidad de un producto
   const cambiarCantidad = async (itemId: number, nuevaCantidad: number) => {
     if (!token) {
       setShowAuthModal(true);
@@ -113,7 +110,6 @@ export const Carrito = () => {
     }
   };
 
-  // ✅ Vaciar carrito
   const vaciarCarrito = async () => {
     if (!token) {
       setShowAuthModal(true);
@@ -134,32 +130,28 @@ export const Carrito = () => {
     }
   };
 
-  // ✅ Finalizar compra: navegar a la pantalla de confirmación (/checkout)
   const router = useRouter();
-
   const finalizarCompra = () => {
     if (!token) {
       setShowAuthModal(true);
       return;
     }
-
-    // Redirigir a la pantalla de checkout/confirmación donde el usuario
-    // completará la dirección y confirmará la compra.
     router.push('/checkout');
   };
 
   return (
     <>
-      {/* 🛒 Carrito lateral */}
-      <aside className="w-80 bg-gradient-to-b from-white to-sky-50 rounded-2xl shadow-lg p-4 sticky top-20 h-fit border border-sky-200">
-        <h2 className="text-lg font-semibold mb-3 text-sky-700 flex items-center gap-2">
+      <aside
+        className={`w-80 bg-yellow-400/50 backdrop-blur-md rounded-2xl shadow-lg p-4 sticky top-20 h-fit border border-yellow-500 transition ${className || ''}`}
+      >
+        <h2 className="text-lg font-semibold mb-3 text-white flex items-center gap-2">
           🛒 Carrito
         </h2>
 
         {loading ? (
-          <p className="text-gray-500 text-sm">Cargando...</p>
+          <p className="text-gray-700 text-sm">Cargando...</p>
         ) : items.length === 0 ? (
-          <p className="text-gray-500 text-sm text-center py-6">
+          <p className="text-gray-700 text-sm text-center py-6">
             Tu carrito está vacío
           </p>
         ) : (
@@ -169,7 +161,7 @@ export const Carrito = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <p className="font-medium text-gray-800 text-sm">{item.producto}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-700">
                       ${item.precio_unitario.toFixed(2)} c/u
                     </p>
                   </div>
@@ -181,11 +173,10 @@ export const Carrito = () => {
                   </button>
                 </div>
 
-                {/* Controles de cantidad (+/-) */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => cambiarCantidad(item.id, item.cantidad - 1)}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-semibold"
+                    className="bg-yellow-300 hover:bg-yellow-400 text-gray-800 px-2 py-1 rounded text-xs font-semibold"
                     disabled={item.cantidad <= 1}
                   >
                     −
@@ -202,32 +193,32 @@ export const Carrito = () => {
                   />
                   <button
                     onClick={() => cambiarCantidad(item.id, item.cantidad + 1)}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-semibold"
+                    className="bg-yellow-300 hover:bg-yellow-400 text-gray-800 px-2 py-1 rounded text-xs font-semibold"
                   >
                     +
                   </button>
                 </div>
 
-                <p className="text-right text-sm font-semibold text-sky-700">
+                <p className="text-right text-sm font-semibold text-white">
                   ${item.subtotal.toFixed(2)}
                 </p>
               </div>
             ))}
 
-            <div className="mt-4 text-right font-semibold text-sky-700">
+            <div className="mt-4 text-right font-semibold text-white">
               Total: ${total.toFixed(2)}
             </div>
 
             <div className="flex gap-2 mt-4">
               <button
                 onClick={vaciarCarrito}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm font-semibold"
+                className="flex-1 bg-yellow-300 hover:bg-yellow-400 text-gray-800 py-2 rounded-lg text-sm font-semibold"
               >
                 Vaciar
               </button>
               <button
                 onClick={finalizarCompra}
-                className="flex-1 bg-sky-600 hover:bg-sky-700 text-white py-2 rounded-lg text-sm font-semibold"
+                className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg text-sm font-semibold"
               >
                 Finalizar
               </button>
@@ -240,8 +231,8 @@ export const Carrito = () => {
         )}
       </aside>
 
-      {/* 🔒 Modal de autenticación (componente reutilizable) */}
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </>
   );
 };
+
