@@ -109,8 +109,8 @@ def init_db():
     """Crear tablas y poblar productos desde productos.json si la tabla está vacía."""
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
-        count = session.exec(select(Producto)).count()
-        if count == 0:
+        productos_existentes = session.exec(select(Producto)).all()
+        if len(productos_existentes) == 0:
             # poblar desde productos.json
             ruta_productos = Path(__file__).parent / "productos.json"
             try:
@@ -137,23 +137,44 @@ def init_db():
 init_db()
 
 # ----- ENDPOINTS DE AUTENTICACIÓN -----
+
+# Modelos de entrada/salida
+from pydantic import BaseModel
+
+class UsuarioRegistro(BaseModel):
+    email: str
+    password: str
+    nombre: str = ""
+
+class UsuarioLogin(BaseModel):
+    email: str
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+
 @app.post("/registrar")
-def registrar_usuario(usuario: dict):
-    if any(u["email"] == usuario["email"] for u in usuarios):
+def registrar_usuario(usuario: UsuarioRegistro):
+    if any(u["email"] == usuario.email for u in usuarios):
         raise HTTPException(status_code=400, detail="Usuario ya existe")
-    usuarios.append(usuario)
+    usuarios.append({
+        "email": usuario.email,
+        "password": usuario.password,
+        "nombre": usuario.nombre
+    })
     return {"mensaje": "Usuario registrado correctamente"}
 
 @app.post("/iniciar-sesion")
-def iniciar_sesion(datos: dict):
+def iniciar_sesion(datos: UsuarioLogin):
     for u in usuarios:
-        if u["email"] == datos["email"] and u["password"] == datos["password"]:
+        if u["email"] == datos.email and u["password"] == datos.password:
             token = f"token-{u['email']}"
             tokens[token] = u["email"]
-            return {
-                "access_token": token,
-                "token_type": "bearer"
-            }
+            return TokenResponse(
+                access_token=token,
+                token_type="bearer"
+            )
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
 
@@ -236,7 +257,7 @@ def ver_carrito(usuario: Optional[str] = None, auth_user: Optional[str] = Depend
     usuario = auth_user or usuario
     if usuario:
         return carrito.get(usuario, [])
-    return carrito  
+    return carrito
 
 # --- ENDPOINTS DE COMPRAS ---
 
@@ -303,7 +324,6 @@ def finalizar_compra(payload: dict, auth_user: str = Depends(get_user_strict)):
     carrito[usuario] = []
 
     return {"compra_id": new_id, "mensaje": "Compra finalizada correctamente"}
-
 # ----- ROOT -----
 @app.get("/")
 def root():
