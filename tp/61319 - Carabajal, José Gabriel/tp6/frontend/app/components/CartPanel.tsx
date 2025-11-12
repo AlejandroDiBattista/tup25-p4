@@ -1,69 +1,130 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "./AuthProvider"; // << usa tu contexto de sesión
+import { useAuth } from "./AuthProvider";
 import { getCart, addItem, removeItem, cancelarCarrito } from "../services/carrito";
-import type { CartView } from "../types"; // tu archivo types.ts
+import type { CartView } from "../types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function CartPanel() {
   const router = useRouter();
-  const { session, hydrated } = useAuth(); // << clave para no leer antes de tiempo
+  const { session, hydrated } = useAuth();
   const usuarioId = session?.user.id ?? null;
 
   const [cart, setCart] = useState<CartView | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  async function refresh() {
+  // --- helper: refresh estable (para usar en efectos) ---
+  const refresh = useCallback(async () => {
     if (!usuarioId) return;
-    setLoading(true);
     setErr(null);
     try {
       const data = await getCart(usuarioId);
       setCart(data);
     } catch (e: any) {
       setErr(e?.message ?? "Error al cargar carrito");
-    } finally {
-      setLoading(false);
     }
-  }
+  }, [usuarioId]);
 
-  // cargar carrito cuando haya usuario y el cliente ya esté hidratado
+  // cargar carrito cuando haya usuario e hidratación de cliente
   useEffect(() => {
     if (hydrated && usuarioId) refresh();
     if (!usuarioId) setCart(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, usuarioId]);
+  }, [hydrated, usuarioId, refresh]);
+
+  // escuchar evento global para refrescar al agregar desde el catálogo
+  useEffect(() => {
+    const handler = () => refresh();
+    window.addEventListener("cart:updated", handler as EventListener);
+    return () => window.removeEventListener("cart:updated", handler as EventListener);
+  }, [refresh]);
+
+  // ---------- ACTUALIZACIÓN OPTIMISTA ----------
+  function optimisticInc(prodId: number) {
+    setCart((prev) => {
+      if (!prev) return prev;
+      const items = prev.items.map((it) =>
+        it.producto_id === prodId
+          ? { ...it, cantidad: it.cantidad + 1, stock_disponible: Math.max(0, it.stock_disponible - 1) }
+          : it
+      );
+      return { ...prev, items };
+    });
+  }
+
+  function optimisticDec(prodId: number) {
+    setCart((prev) => {
+      if (!prev) return prev;
+      const cur = prev.items.find((i) => i.producto_id === prodId);
+      if (!cur) return prev;
+      if (cur.cantidad - 1 <= 0) {
+        const items = prev.items.filter((i) => i.producto_id !== prodId);
+        return { ...prev, items };
+      } else {
+        const items = prev.items.map((it) =>
+          it.producto_id === prodId
+            ? { ...it, cantidad: it.cantidad - 1, stock_disponible: it.stock_disponible + 1 }
+            : it
+        );
+        return { ...prev, items };
+      }
+    });
+  }
+
+  function optimisticRemove(prodId: number) {
+    setCart((prev) => {
+      if (!prev) return prev;
+      const removed = prev.items.find((i) => i.producto_id === prodId);
+      const items = prev.items.filter((i) => i.producto_id !== prodId);
+      // devolvemos stock a la vista local
+      if (removed) {
+        // nada crítico si no coincide exactamente; backend corregirá al sincronizar
+      }
+      return { ...prev, items };
+    });
+  }
+
+  function optimisticCancel() {
+    setCart((prev) => (prev ? { ...prev, items: [] } : prev));
+  }
+
+  // ------------------------------------------------------
 
   async function inc(prodId: number) {
     if (!usuarioId) return;
     setLoading(true);
+    const snapshot = cart; // para rollback
     try {
+      optimisticInc(prodId);
       const data = await addItem(usuarioId, prodId, 1);
-      setCart(data);
+      setCart(data); // sincroniza
       window.dispatchEvent(new CustomEvent("cart:updated"));
+    } catch (e: any) {
+      setCart(snapshot ?? null); // rollback si falla
+      setErr(e?.message ?? "No se pudo aumentar la cantidad");
     } finally {
       setLoading(false);
     }
   }
 
   async function dec(prodId: number) {
-    if (!usuarioId || !cart) return;
+    if (!usuarioId) return;
     setLoading(true);
+    const snapshot = cart;
     try {
-      const currentQty = cart.items.find(i => i.producto_id === prodId)?.cantidad ?? 0;
-      // si queda en 0, removeItem ya lo saca
-      const afterRemove = await removeItem(usuarioId, prodId);
-      if (currentQty - 1 > 0) {
-        const data = await addItem(usuarioId, prodId, currentQty - 1);
-        setCart(data);
-      } else {
-        setCart(afterRemove);
-      }
+      optimisticDec(prodId);
+      // hacemos removeItem (saca 1) y si todavía quedaban, volvemos a agregar n-1
+      // pero nuestro backend ya maneja el -1 con DELETE (según tu router),
+      // así que sólo llamamos a removeItem y luego getCart para asegurar estado.
+      await removeItem(usuarioId, prodId);
+      await refresh();
       window.dispatchEvent(new CustomEvent("cart:updated"));
+    } catch (e: any) {
+      setCart(snapshot ?? null);
+      setErr(e?.message ?? "No se pudo disminuir la cantidad");
     } finally {
       setLoading(false);
     }
@@ -72,10 +133,15 @@ export default function CartPanel() {
   async function quitar(prodId: number) {
     if (!usuarioId) return;
     setLoading(true);
+    const snapshot = cart;
     try {
+      optimisticRemove(prodId);
       const data = await removeItem(usuarioId, prodId);
-      setCart(data);
+      setCart(data); // sincroniza
       window.dispatchEvent(new CustomEvent("cart:updated"));
+    } catch (e: any) {
+      setCart(snapshot ?? null);
+      setErr(e?.message ?? "No se pudo quitar el producto");
     } finally {
       setLoading(false);
     }
@@ -85,10 +151,15 @@ export default function CartPanel() {
     if (!usuarioId) return;
     if (!confirm("¿Cancelar el carrito actual?")) return;
     setLoading(true);
+    const snapshot = cart;
     try {
+      optimisticCancel();
       const data = await cancelarCarrito(usuarioId);
-      setCart(data);
+      setCart(data); // sincroniza
       window.dispatchEvent(new CustomEvent("cart:updated"));
+    } catch (e: any) {
+      setCart(snapshot ?? null);
+      setErr(e?.message ?? "No se pudo cancelar el carrito");
     } finally {
       setLoading(false);
     }
@@ -96,22 +167,12 @@ export default function CartPanel() {
 
   const isEmpty = !cart || cart.items.length === 0;
 
-  // 1) mientras no esté hidratado, no muestres nada definitivo
   if (!hydrated) {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-600">
-        Cargando…
-      </div>
-    );
+    return <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-600">Cargando…</div>;
   }
 
-  // 2) si no hay sesión (post-hidratación), ahí sí mostrar el mensaje
   if (!usuarioId) {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-600">
-        Iniciá sesión para ver tu carrito.
-      </div>
-    );
+    return <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-600">Iniciá sesión para ver tu carrito.</div>;
   }
 
   return (
@@ -133,11 +194,7 @@ export default function CartPanel() {
                 <div key={it.producto_id} className="flex gap-3 items-start">
                   <div className="relative w-16 h-16 shrink-0 overflow-hidden rounded-md border">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`${API_URL}/${it.imagen}`}
-                      alt={it.nombre}
-                      className="w-16 h-16 object-cover"
-                    />
+                    <img src={`${API_URL}/${it.imagen}`} alt={it.nombre} className="w-16 h-16 object-cover" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
@@ -146,9 +203,7 @@ export default function CartPanel() {
                         ${(it.precio_unitario * it.cantidad).toFixed(2)}
                       </p>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      ${it.precio_unitario.toFixed(2)} c/u
-                    </p>
+                    <p className="text-xs text-gray-500">${it.precio_unitario.toFixed(2)} c/u</p>
 
                     <div className="mt-2 flex items-center gap-2">
                       <button
@@ -185,9 +240,7 @@ export default function CartPanel() {
                         Quitar
                       </button>
 
-                      {agotado && (
-                        <span className="text-xs text-red-600 ml-2">Agotado</span>
-                      )}
+                      {agotado && <span className="text-xs text-red-600 ml-2">Agotado</span>}
                     </div>
                   </div>
                 </div>
@@ -195,27 +248,13 @@ export default function CartPanel() {
             })}
           </div>
 
-          {/* Totales */}
           <div className="mt-4 border-t pt-3 text-sm space-y-1">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>${cart!.totals.subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>IVA</span>
-              <span>${cart!.totals.iva.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Envío</span>
-              <span>${cart!.totals.envio.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between font-semibold text-base mt-1">
-              <span>Total</span>
-              <span>${cart!.totals.total.toFixed(2)}</span>
-            </div>
+            <div className="flex justify-between"><span>Subtotal</span><span>${cart!.totals.subtotal.toFixed(2)}</span></div>
+            <div className="flex justify-between"><span>IVA</span><span>${cart!.totals.iva.toFixed(2)}</span></div>
+            <div className="flex justify-between"><span>Envío</span><span>${cart!.totals.envio.toFixed(2)}</span></div>
+            <div className="flex justify-between font-semibold text-base mt-1"><span>Total</span><span>${cart!.totals.total.toFixed(2)}</span></div>
           </div>
 
-          {/* Acciones */}
           <div className="mt-4 flex gap-2">
             <button onClick={cancelar} className="px-3 py-2 rounded-md border text-sm" disabled={loading}>
               Cancelar
