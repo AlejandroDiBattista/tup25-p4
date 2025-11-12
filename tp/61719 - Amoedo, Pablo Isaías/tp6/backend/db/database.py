@@ -1,11 +1,12 @@
 from sqlmodel import SQLModel, create_engine, Session, select
 import json
+import os
 from models.productos import Producto
 
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
-engine = create_engine(sqlite_url, echo=True)
+engine = create_engine(sqlite_url, echo=False)
 
 
 def create_db_and_tables():
@@ -21,7 +22,12 @@ def load_initial_data():
             return  # Ya hay productos, no cargar de nuevo
 
         # Cargar JSON de productos
-        with open("productos.json", "r", encoding="utf-8") as f:
+        # Obtener la ruta del directorio actual
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        backend_dir = os.path.dirname(current_dir)
+        json_file = os.path.join(backend_dir, "productos.json")
+        
+        with open(json_file, "r", encoding="utf-8") as f:
             productos_data = json.load(f)
 
         # Insertar productos iniciales

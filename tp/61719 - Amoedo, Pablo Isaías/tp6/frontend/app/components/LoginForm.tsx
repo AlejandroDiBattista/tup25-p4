@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { login } from "@/lib/auth";
+import { login, saveToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ export default function LoginForm() {
     e.preventDefault();
     try {
       const res = await login(email, password);
-      localStorage.setItem("token", res.access_token);
+      saveToken(res.access_token);
       router.push("/productos");
     } catch (err) {
       alert("Credenciales incorrectas");
