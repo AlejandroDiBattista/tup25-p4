@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from ..database import get_session
-from ..models import Compra, CompraItem
+from models import Compra, CompraItem
 from ..deps import get_current_user
 
 router = APIRouter(prefix="/compras", tags=["compras"]) 

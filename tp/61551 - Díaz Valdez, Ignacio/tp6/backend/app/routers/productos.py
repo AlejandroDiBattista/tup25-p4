@@ -6,7 +6,7 @@ from collections import OrderedDict
 from pathlib import Path
 import json
 from ..database import get_session
-from ..models import Producto
+from models import Producto
 
 router = APIRouter(prefix="/productos", tags=["productos"])
 

@@ -1,9 +1,9 @@
-"""
-Archivo mantenido solo para compatibilidad.
+"""DEPRECADO: No usar este módulo.
 
-Nota: El paquete real de modelos vive en la carpeta `models/`.
-No declares modelos aquí para evitar conflictos de import.
+Existe un paquete `models/` que es la única fuente de verdad.
+Importar este archivo provoca un error para evitar colisiones con el paquete.
 """
 
-# Re-export conveniente para código legado que haga `from models import Producto`
-from models.productos import Producto  # noqa: F401
+raise ImportError(
+	"No uses backend/models.py. Usa el paquete 'models/' (from models import ...)."
+)

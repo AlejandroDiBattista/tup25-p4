@@ -17,7 +17,7 @@ from jose import jwt, JWTError
 from pydantic import BaseModel, EmailStr
 from sqlmodel import select
 from .database import get_session
-from .models import Usuario
+from models import Usuario
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-please")
 ALGORITHM = "HS256"

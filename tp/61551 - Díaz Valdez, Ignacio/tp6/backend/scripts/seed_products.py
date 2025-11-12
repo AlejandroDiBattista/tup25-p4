@@ -8,8 +8,8 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from db import engine, create_db
-from models.productos import Producto
+from app.database import engine, create_db_and_tables as create_db
+from models import Producto
 
 
 def load_productos_file() -> list:

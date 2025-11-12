@@ -10,7 +10,7 @@ from pydantic import BaseModel, EmailStr
 from sqlmodel import select
 
 from db import get_session  # compat wrapper hacia app.database
-from app.models import Usuario  # usar único origen de verdad para modelos
+from models import Usuario  # origen de verdad: paquete models/
 
 
 # Configuración de seguridad (usar variable de entorno en producción)

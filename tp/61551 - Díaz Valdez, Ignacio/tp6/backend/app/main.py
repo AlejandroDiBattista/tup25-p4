@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .database import create_db_and_tables, get_session
 from .routers import auth, productos, carrito, compras
-from .models import Producto
+from models import Producto
 from sqlmodel import select
 from sqlalchemy import func
 from pathlib import Path

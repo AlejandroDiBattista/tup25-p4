@@ -34,7 +34,7 @@ def create_db_and_tables() -> None:
     """Crea todas las tablas declaradas en los modelos si no existen."""
     # Importación perezosa para asegurar que los modelos registren su metadata
     # y a la vez evitar ciclos de importación.
-    from . import models  # noqa: F401
+    import models  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
 
@@ -58,7 +58,7 @@ engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_threa
 
 def init_db():
     """Compatibilidad: inicializa tablas. Usar create_db_and_tables() en código nuevo."""
-    from . import models  # noqa: F401  (registro de modelos)
+    import models  # noqa: F401  (registro de modelos)
     SQLModel.metadata.create_all(engine)
 
 def create_db_and_tables():

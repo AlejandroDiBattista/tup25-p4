@@ -9,7 +9,7 @@ Endpoints:
 from fastapi import APIRouter, HTTPException, Body
 from sqlmodel import select
 from ..database import get_session
-from ..models import Usuario
+from models import Usuario
 from ..deps import (
     UsuarioCreate,
     UsuarioLogin,

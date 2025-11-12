@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, Body, status
+from pydantic import BaseModel, Field
 from sqlmodel import select
 from ..database import get_session
-from ..models import Carrito, CarritoItem, Producto, Compra, CompraItem
+from models import Carrito, CarritoItem, Producto, Compra, CompraItem
 from ..deps import get_current_user
 
 router = APIRouter(prefix="/carrito", tags=["carrito"])
+
+class CheckoutPayload(BaseModel):
+    direccion: str = Field(min_length=3)
+    tarjeta: str = Field(min_length=4, description="Solo para demo; no almacenar en prod")
 
 def _calcular_totales(carrito: Carrito):
     detalles = []
@@ -91,28 +96,53 @@ def agregar_item_legacy(data: dict = Body(...), current=Depends(get_current_user
     return agregar_item(data, current)
 
 @router.post("/finalizar")
-def finalizar_compra(current=Depends(get_current_user)):
+def finalizar_compra(payload: CheckoutPayload = Body(...), current=Depends(get_current_user)):
     with get_session() as session:
         carrito = session.exec(select(Carrito).where(Carrito.usuario_id == current.id)).first()
         if not carrito or not carrito.items:
             raise HTTPException(status_code=400, detail="Carrito vacío")
-        compra = Compra(usuario_id=current.id, total=0)
+        # Revalidar stock antes de confirmar
+        for it in carrito.items:
+            if not it.producto:
+                continue
+            existencia = int(it.producto.existencia or 0)
+            if existencia < int(it.cantidad):
+                raise HTTPException(status_code=400, detail=f"Producto {it.producto_id} sin stock suficiente")
+
+        # Calcular totales con IVA/envío
+        detalles, subtotal, iva_total, envio, total, total_final = _calcular_totales(carrito)
+
+        compra = Compra(usuario_id=current.id, total=total_final)
         session.add(compra)
         session.commit()
         session.refresh(compra)
-        total = 0
+
         for it in carrito.items:
-            if it.producto:
-                subtotal = it.cantidad * it.producto.precio
-                total += subtotal
-                ci = CompraItem(compra_id=compra.id, producto_id=it.producto_id, cantidad=it.cantidad, precio_unitario=it.producto.precio)
-                session.add(ci)
-        compra.total = total
-        # vaciar carrito
+            if not it.producto:
+                continue
+            # Descontar stock
+            it.producto.existencia = int(it.producto.existencia or 0) - int(it.cantidad)
+            # Crear item de compra (snapshot de precio)
+            ci = CompraItem(
+                compra_id=compra.id,
+                producto_id=it.producto_id,
+                cantidad=it.cantidad,
+                precio_unitario=it.producto.precio,
+            )
+            session.add(ci)
+        # Vaciar carrito
         for it in list(carrito.items):
             session.delete(it)
         session.commit()
-        return {"compra_id": compra.id, "total": compra.total}
+        return {
+            "compra_id": compra.id,
+            "subtotal": subtotal,
+            "iva": iva_total,
+            "envio": envio,
+            "total": total,
+            "total_final": total_final,
+            "direccion": payload.direccion,
+        }
 
 @router.post("/cancelar")
 def cancelar_carrito(current=Depends(get_current_user)):
