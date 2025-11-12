@@ -10,12 +10,12 @@ export function AuthCard({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-8 shadow">
-      <div className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
-        {subtitle ? (
+    <div className="rounded-lg border border-slate-200 bg-white p-10 shadow-sm">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900">{title}</h1>
+        {subtitle && (
           <p className="mt-2 text-sm text-slate-600">{subtitle}</p>
-        ) : null}
+        )}
       </div>
       {children}
     </div>

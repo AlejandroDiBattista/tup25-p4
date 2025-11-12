@@ -49,6 +49,13 @@ export function CartPageClient({
   const handleIncrease = async (productoId: number) => {
     setItemProcessingId(productoId);
     try {
+      const producto = productosMap.get(productoId);
+      const cartItem = cartItems.find((i) => i.producto_id === productoId);
+      if (producto && cartItem && cartItem.cantidad >= producto.existencia) {
+        setFormError("No hay stock suficiente para la cantidad total solicitada.");
+        setFormSuccess(null);
+        return;
+      }
       await addItem({ producto_id: productoId, cantidad: 1 });
       setFormSuccess("Se agregó otra unidad al carrito.");
       setFormError(null);
@@ -181,15 +188,9 @@ export function CartPageClient({
             )}
           </div>
 
-          {error && (
+          {(formError || error) && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          {formError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {formError}
+              {formError ?? error}
             </div>
           )}
 

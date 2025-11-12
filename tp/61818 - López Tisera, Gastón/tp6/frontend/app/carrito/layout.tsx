@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export default function PurchasesLayout({
+export default function CarritoLayout({
   children,
 }: {
   children: ReactNode;

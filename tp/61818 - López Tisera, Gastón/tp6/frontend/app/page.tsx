@@ -1,4 +1,4 @@
-import { ProductCatalog } from "@/components/catalog/ProductCatalog";
+import { ProductCatalogWithCart } from "@/components/catalog/ProductCatalogWithCart";
 import { fetchProductos } from "@/lib/products";
 
 type PageSearchParams =
@@ -36,10 +36,9 @@ export default async function Home({
   ).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
   return (
-    <ProductCatalog
+    <ProductCatalogWithCart
       productos={productosFiltrados}
       categorias={categoriasDisponibles}
-      totalCatalogo={catalogoCompleto.length}
       filters={{ search, categoria }}
     />
   );

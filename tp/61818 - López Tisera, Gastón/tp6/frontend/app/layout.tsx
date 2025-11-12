@@ -32,13 +32,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 text-slate-900 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-white text-slate-900 antialiased`}
       >
         <Providers>
           <SiteHeader />
-          <main className="mx-auto w-full max-w-6xl px-6 py-10">
-            {children}
-          </main>
+          {children}
         </Providers>
       </body>
     </html>

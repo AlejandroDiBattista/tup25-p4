@@ -8,8 +8,9 @@ class CartItemBase(BaseModel):
     cantidad: int = Field(..., ge=1)
 
 
-class CartItemCreate(CartItemBase):
-    pass
+class CartItemCreate(BaseModel):
+    producto_id: int = Field(..., gt=0)
+    cantidad: int  # Sin restricción de mínimo para permitir decrementos
 
 
 class CartItemRead(CartItemBase):

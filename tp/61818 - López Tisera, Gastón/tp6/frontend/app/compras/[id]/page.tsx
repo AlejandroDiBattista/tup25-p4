@@ -3,13 +3,14 @@ import { notFound } from "next/navigation";
 import { PurchaseDetailClient } from "@/components/purchases/PurchaseDetailClient";
 
 interface PurchaseDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function PurchaseDetailPage({
+export default async function PurchaseDetailPage({
   params,
-}: PurchaseDetailPageProps): JSX.Element {
-  const purchaseId = Number(params.id);
+}: PurchaseDetailPageProps): Promise<JSX.Element> {
+  const { id } = await params;
+  const purchaseId = Number(id);
 
   if (Number.isNaN(purchaseId) || purchaseId <= 0) {
     notFound();

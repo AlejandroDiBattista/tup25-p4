@@ -23,25 +23,40 @@ def add_item_to_cart(session: Session, user: User, producto_id: int, cantidad: i
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado.")
 
-    if product.existencia < cantidad:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No hay stock suficiente para el producto.",
-        )
-
     cart = _get_active_cart(session, user)
 
     for item in cart.items:
         if item.producto_id == producto_id:
             nueva_cantidad = item.cantidad + cantidad
-            if product.existencia < nueva_cantidad:
+            
+            # Si la nueva cantidad es <= 0, eliminar el item
+            if nueva_cantidad <= 0:
+                cart.items.remove(item)
+                break
+            
+            # Validar stock solo si estamos aumentando
+            if cantidad > 0 and product.existencia < nueva_cantidad:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="No hay stock suficiente para la cantidad total solicitada.",
                 )
+            
             item.cantidad = nueva_cantidad
             break
     else:
+        # Agregar nuevo item solo si cantidad es positiva
+        if cantidad <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="La cantidad debe ser mayor a 0.",
+            )
+        
+        if product.existencia < cantidad:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No hay stock suficiente para el producto.",
+            )
+        
         cart.items.append(CartItem(producto_id=producto_id, cantidad=cantidad))
 
     cart.updated_at = datetime.utcnow()
