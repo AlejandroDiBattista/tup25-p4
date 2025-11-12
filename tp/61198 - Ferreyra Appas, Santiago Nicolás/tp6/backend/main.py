@@ -322,3 +322,153 @@ def cancelar_compra(
     session.commit()
     session.refresh(carrito)
     return _carrito_a_schema(carrito)
+
+
+# =============
+# FINALIZAR COMPRA
+# =============
+
+@app.post("/carrito/finalizar", response_model=schemas.CompraDetalle)
+def finalizar_compra(
+    datos: schemas.DatosEnvioPago,
+    cliente: Cliente = Depends(get_cliente_actual),
+    session: Session = Depends(get_session),
+):
+    carrito = _obtener_carrito_abierto(session, cliente)
+    if not carrito.lineas:
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
+
+    # verificar stock
+    for linea in carrito.lineas:
+        if linea.articulo is None:
+            raise HTTPException(status_code=400, detail="Producto inexistente")
+        if linea.cantidad > linea.articulo.existencias:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No hay stock suficiente para {linea.articulo.titulo}",
+            )
+
+    subtotal, iva, envio, total = _calcular_totales(carrito.lineas)
+
+    # descontar stock y crear orden
+    orden = Orden(
+        cliente_id=cliente.id,
+        direccion_envio=datos.direccion,
+        tarjeta=datos.tarjeta,
+        subtotal=subtotal,
+        iva=iva,
+        costo_envio=envio,
+        total=total,
+    )
+    session.add(orden)
+    session.commit()
+    session.refresh(orden)
+
+    productos_publicos: list[schemas.LineaCarritoPublica] = []
+
+    for linea in carrito.lineas:
+        articulo = linea.articulo
+        articulo.existencias -= linea.cantidad
+        session.add(articulo)
+
+        renglon = LineaOrden(
+            orden_id=orden.id,
+            articulo_id=articulo.id,
+            nombre_producto=articulo.titulo,
+            cantidad=linea.cantidad,
+            precio_unitario=linea.precio_unitario,
+        )
+        session.add(renglon)
+
+        productos_publicos.append(
+            schemas.LineaCarritoPublica(
+                articulo_id=articulo.id,
+                nombre=articulo.titulo,
+                imagen=articulo.imagen,
+                cantidad=linea.cantidad,
+                precio_unitario=articulo.precio_unitario,
+                subtotal=linea.cantidad * linea.precio_unitario,
+            )
+        )
+
+    # cerrar carrito actual
+    for linea in list(carrito.lineas):
+        session.delete(linea)
+    carrito.estado = "cerrado"
+    carrito.actualizado = datetime.utcnow()
+    session.add(carrito)
+
+    # crear nuevo carrito vacío para próximas compras
+    nuevo_carrito = CarritoCompra(cliente_id=cliente.id)
+    session.add(nuevo_carrito)
+
+    session.commit()
+    session.refresh(orden)
+
+    return schemas.CompraDetalle(
+        id=orden.id,
+        fecha=orden.fecha,
+        direccion_envio=orden.direccion_envio,
+        tarjeta=orden.tarjeta,
+        subtotal=orden.subtotal,
+        iva=orden.iva,
+        costo_envio=orden.costo_envio,
+        total=orden.total,
+        productos=productos_publicos,
+    )
+
+
+# =============
+# COMPRAS
+# =============
+
+@app.get("/compras", response_model=list[schemas.CompraResumen])
+def listar_compras(
+    cliente: Cliente = Depends(get_cliente_actual),
+    session: Session = Depends(get_session),
+):
+    query = select(Orden).where(Orden.cliente_id == cliente.id).order_by(Orden.fecha.desc())
+    compras = session.exec(query).all()
+    return [
+        schemas.CompraResumen(id=c.id, fecha=c.fecha, total=c.total) for c in compras
+    ]
+
+
+@app.get("/compras/{compra_id}", response_model=schemas.CompraDetalle)
+def detalle_compra(
+    compra_id: int,
+    cliente: Cliente = Depends(get_cliente_actual),
+    session: Session = Depends(get_session),
+):
+    orden = session.get(Orden, compra_id)
+    if not orden or orden.cliente_id != cliente.id:
+        raise HTTPException(status_code=404, detail="Compra no encontrada")
+
+    lineas = session.exec(
+        select(LineaOrden).where(LineaOrden.orden_id == orden.id)
+    ).all()
+
+    productos: list[schemas.LineaCarritoPublica] = []
+    for l in lineas:
+        productos.append(
+            schemas.LineaCarritoPublica(
+                articulo_id=l.articulo_id,
+                nombre=l.nombre_producto,
+                imagen="",
+                cantidad=l.cantidad,
+                precio_unitario=l.precio_unitario,
+                subtotal=l.cantidad * l.precio_unitario,
+            )
+        )
+
+    return schemas.CompraDetalle(
+        id=orden.id,
+        fecha=orden.fecha,
+        direccion_envio=orden.direccion_envio,
+        tarjeta=orden.tarjeta,
+        subtotal=orden.subtotal,
+        iva=orden.iva,
+        costo_envio=orden.costo_envio,
+        total=orden.total,
+        productos=productos,
+    )
