@@ -27,21 +27,35 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Agregar producto y guardar en localStorage
-  const agregarAlCarrito = (producto: Producto) => {
-    setCartItems((prev) => {
-      const existente = prev.find((p) => p.id === producto.id);
-      const nuevoCarrito = existente
-        ? prev.map((p) =>
-            p.id === producto.id
-              ? { ...p, cantidad: p.cantidad + 1 }
-              : p
-          )
-        : [...prev, { ...producto, cantidad: 1 }];
+const agregarAlCarrito = (producto: Producto) => {
+  setCartItems((prev) => {
+    const existente = prev.find((p) => p.id === producto.id) as ItemCarrito | undefined;
 
-      localStorage.setItem("carrito", JSON.stringify(nuevoCarrito)); // guarda
-      return nuevoCarrito;
-    });
-  };
+    // stock disponible (usar la propiedad que corresponda: existencia o stock)
+    const disponible = (producto as any).existencia ?? (producto as any).stock ?? 0;
+
+    if (existente) {
+      const nuevaCantidad = existente.cantidad + 1;
+      if (nuevaCantidad > disponible) {
+        alert(`No hay stock suficiente. Disponible: ${disponible}`);
+        return prev;
+      }
+      const nuevo = prev.map((p) =>
+        p.id === producto.id ? { ...p, cantidad: nuevaCantidad } : p
+      );
+      localStorage.setItem("carrito", JSON.stringify(nuevo));
+      return nuevo;
+    } else {
+      if (1 > disponible) {
+        alert(`Producto agotado`);
+        return prev;
+      }
+      const nuevo = [...prev, { ...producto, cantidad: 1 }];
+      localStorage.setItem("carrito", JSON.stringify(nuevo));
+      return nuevo;
+    }
+  });
+};
 
   const eliminarDelCarrito = (id: number) => {
     setCartItems((prev) => {

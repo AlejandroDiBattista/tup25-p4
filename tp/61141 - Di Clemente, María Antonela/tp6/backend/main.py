@@ -138,18 +138,47 @@ def agregar_al_carrito(
     session: Session = Depends(get_session),
     usuario: Usuario = Depends(get_current_user)
 ):
-    # Validar que el usuario logueado sea válido
+    # Validar usuario
     if not usuario or not usuario.id:
         raise HTTPException(status_code=403, detail="Usuario no válido")
 
-    # Asignar el usuario logueado al carrito
-    print("Usuario logueado:", usuario)
-    item.usuario_id = usuario.id
+    # Buscar producto
+    producto = session.get(Producto, item.producto_id)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
 
-    session.add(item)
-    session.commit()
-    session.refresh(item)
-    return item
+    # Buscar si ya hay un item del mismo producto para este usuario
+    existente = session.exec(
+        select(CarritoItem).where(
+            (CarritoItem.usuario_id == usuario.id) &
+            (CarritoItem.producto_id == item.producto_id)
+        )
+    ).first()
+
+    if existente:
+        nueva_cantidad = existente.cantidad + item.cantidad
+        if nueva_cantidad > producto.existencia:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No hay stock suficiente. Disponible: {producto.existencia}, intentás: {nueva_cantidad}"
+            )
+        existente.cantidad = nueva_cantidad
+        session.add(existente)
+        session.commit()
+        session.refresh(existente)
+        return existente
+    else:
+        # Nuevo item: validar stock
+        if item.cantidad > producto.existencia:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No hay stock suficiente. Disponible: {producto.existencia}, intentás: {item.cantidad}"
+            )
+        item.usuario_id = usuario.id
+        session.add(item)
+        session.commit()
+        session.refresh(item)
+        return item
 
 # Ver contenido del carrito
 @app.get("/carrito/", response_model=list[CarritoItem])

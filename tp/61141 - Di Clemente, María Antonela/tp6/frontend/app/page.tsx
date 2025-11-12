@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import ProductoCard from "./components/ProductoCard";
-import Carrito from "./components/Carrito";
-import { useCarrito } from "./components/CarritoContext";
+import { useRouter } from "next/navigation"; 
+import { obtenerProductos } from './services/productos';
+import ProductoCard from './components/ProductoCard';
+import { useState, useEffect } from 'react';
+import Carrito from './components/Carrito';
 import { Producto } from "./types";
-import { obtenerProductos } from "./services/productos";
+import { useCarrito } from "./components/CarritoContext";
+
 
 export default function Home() {
+  const router = useRouter();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [categoria, setCategoria] = useState("Todas las categorias");
@@ -38,8 +41,16 @@ export default function Home() {
           <h1 className="text-xl font-bold text-gray-900 font-serif tracking-tight">TP6 Shop</h1>
           <nav className="flex gap-4">
             <button className="text-gray-700 hover:text-blue-600">Productos</button>
-            <button className="text-gray-700 hover:text-blue-600">Ingresar</button>
-            <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button
+              onClick={() => router.push("/iniciar-sesion")} // <-- REDIRIGE A LOGIN
+              className="text-gray-700 hover:text-blue-600"
+            >
+              Ingresar
+            </button>
+            <button
+              onClick={() => router.push("/registrar")} // <-- REDIRIGE A REGISTRO
+              className="bg-black text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
               Crear cuenta
             </button>
           </nav>

@@ -19,7 +19,7 @@ export default function RegistrarPage() {
         body: JSON.stringify({
           nombre,
           email: correo,
-          contraseña: contrasena,
+          password: contrasena,
         }),
       });
 
@@ -27,7 +27,8 @@ export default function RegistrarPage() {
         alert("Usuario registrado correctamente");
         router.push("/iniciar-sesion");
       } else {
-        alert("Error al registrar usuario");
+        const data = await response.json();
+        alert(data.detail || "Error al registrar usuario");
       }
     } catch (error) {
       console.error(error);

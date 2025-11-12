@@ -11,6 +11,22 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto, onAgregar }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const { cartItems } = useCarrito();
+
+   const handleAgregar = () => {
+    // Ver cuántos de este producto ya están en el carrito
+    const itemEnCarrito = cartItems.find((item) => item.id === producto.id);
+    const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+
+    // Si ya no hay más stock disponible, mostramos alerta
+    if (cantidadEnCarrito >= producto.existencia) {
+      alert("No hay más stock disponible de este producto");
+      return;
+    }
+
+    // Si todavía hay stock, lo agregamos
+    onAgregar(producto);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex items-start gap-4 p-4">
@@ -37,12 +53,18 @@ export default function ProductoCard({ producto, onAgregar }: ProductoCardProps)
         <div className="flex flex-col items-end justify-start">
           <span className="text-xl font-bold text-black mb-1">${producto.precio}</span>
           <span className="text-xs text-gray-500 mb-2">Stock: {producto.existencia}</span>
-          <button
-            onClick={() => onAgregar(producto)}
-            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors mt-3"
-          >
-            Agregar al carrito
+            <button
+              onClick={handleAgregar}
+              disabled={producto.existencia === 0}
+              className={`px-4 py-2 rounded-lg mt-3 transition-colors ${
+                producto.existencia === 0
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-black text-white hover:bg-gray-800"
+               }`}
+            >
+              {producto.existencia === 0 ? "Agotado" : "Agregar al carrito"}
           </button>
+
         </div>
       </div>
     </div>

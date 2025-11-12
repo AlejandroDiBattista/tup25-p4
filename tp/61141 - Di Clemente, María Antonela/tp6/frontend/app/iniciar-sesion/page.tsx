@@ -10,8 +10,31 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
+
+  try {
+    const formData = new FormData();
+    formData.append("username", email); 
+    formData.append("password", password);
+
+    const response = await fetch("http://localhost:8000/iniciar-sesion", {
+      method: "POST",
+      body: formData, // enviamos como FormData
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.detail || "Usuario o contraseña incorrectos");
+    }
+
+    const data = await response.json();
+    // Guardar token en localStorage
+    localStorage.setItem("token", data.access_token);
+    router.push("/"); // Redirige al home
+  } catch (err: any) {
+    setError(err.message || "Error en el inicio de sesión");
+  }
 
     try {
       // Simulación de llamada a backend
@@ -85,7 +108,7 @@ export default function Login() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             ¿No tienes cuenta?{" "}
-            <a href="/registro" className="text-blue-600 hover:underline">
+            <a href="/registrar" className="text-blue-600 hover:underline">
               Crear cuenta
             </a>
           </p>
