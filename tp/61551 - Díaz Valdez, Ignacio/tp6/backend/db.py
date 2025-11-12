@@ -1,22 +1,22 @@
-from pathlib import Path
-from sqlmodel import SQLModel, create_engine, Session
+"""Compatibilidad: delega toda la infraestructura de DB al módulo moderno app.database.
 
-# Importar modelos específicos para que se registren en metadata antes de create_all
-from models.productos import Producto  # noqa: F401
-from models.usuario import Usuario  # noqa: F401
-from models.carrito import Carrito, CarritoItem  # noqa: F401
-from models.compra import Compra, CompraItem  # noqa: F401
+Este archivo existe solo para no romper scripts antiguos que importaban
+`db.engine`, `db.get_session()` o `db.create_db()`.
+"""
 
-# Base de datos SQLite en el mismo directorio del backend
-DATABASE_PATH = Path(__file__).parent / "database.db"
-DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+from app.database import (  # type: ignore
+    engine,
+    get_session as _get_session,
+    create_db_and_tables as _create_db_and_tables,
+)
+from sqlmodel import Session
 
-# engine compartido
-engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
 
-def create_db():
-    """Crear todas las tablas declaradas en los modelos (si no existen)."""
-    SQLModel.metadata.create_all(engine)
+def get_session() -> Session:
+    """Wrapper compatible."""
+    return _get_session()
 
-def get_session():
-    return Session(engine)
+
+def create_db() -> None:
+    """Wrapper compatible (equivalente a create_db_and_tables)."""
+    _create_db_and_tables()

@@ -26,7 +26,7 @@ GET {{baseUrl}}/
 Accept: {{contentType}}
 
 ### 1.2 - Ver documentación interactiva
-# GET {{baseUrl}}/docs
+ GET {{baseUrl}}/docs
 
 
 ### ========================================
