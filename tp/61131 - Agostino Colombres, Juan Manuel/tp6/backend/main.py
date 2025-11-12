@@ -138,7 +138,6 @@ app = FastAPI(title="API Productos")
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
-# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
