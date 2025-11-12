@@ -13,22 +13,20 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",                         // 👈 base del proyecto frontend
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["app/*"],                     // 👈 apunta a todo dentro de app/
+      "@/lib/*": ["lib/*"],                 // 👈 apunta a lib/
+      "@/components/*": ["app/components/*"], // 👈 apunta a componentes globales
+      "@/services/*": ["app/services/*"]    // 👈 apunta a lógica de API
     }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
