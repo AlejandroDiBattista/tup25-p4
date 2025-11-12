@@ -34,6 +34,8 @@ export interface Carrito {
 
 export interface CompraItem {
   producto_id: number;
+  titulo: string;
+  imagen?: string;
   cantidad: number;
   precio_unitario: number;
   subtotal: number;
