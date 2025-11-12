@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
-import ProductCard from '../components/ProductCard'
+import ProductCard from '../components/ProductCardFixed'
 import { fetchProductos, addToCart } from '../lib/api'
 
 export default function Home(){
