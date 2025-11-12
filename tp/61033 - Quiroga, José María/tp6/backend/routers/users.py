@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel
 from sqlmodel import Session, select
 from db import get_session
@@ -29,10 +29,29 @@ def registrar(data: RegisterSchema, session: Session = Depends(get_session)):
 
 
 @router.post("/iniciar-sesion")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
-    stmt = select(User).where(User.email == form_data.username)
+async def login(request: Request, session: Session = Depends(get_session)):
+    """
+    Login endpoint accepting either OAuth2 form data (application/x-www-form-urlencoded)
+    or JSON body {"email":..., "password":...} for convenience (used by REST clients).
+    """
+    # Try JSON first if content-type is application/json
+    content_type = request.headers.get("content-type", "")
+    if content_type.startswith("application/json"):
+        body = await request.json()
+        username = body.get("email") or body.get("username")
+        password = body.get("password")
+    else:
+        # fallback to form data (OAuth2PasswordRequestForm compatible)
+        form = await request.form()
+        username = form.get("username") or form.get("email")
+        password = form.get("password")
+
+    if not username or not password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing credentials")
+
+    stmt = select(User).where(User.email == username)
     user = session.exec(stmt).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect credentials")
     token = create_access_token({"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer"}
