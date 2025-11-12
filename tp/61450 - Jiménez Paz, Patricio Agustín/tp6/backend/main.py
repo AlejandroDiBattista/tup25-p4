@@ -18,7 +18,7 @@ app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,12 +49,21 @@ def on_startup():
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
+@app.get("/me")
+def obtener_usuario_info(
+    usuario: Usuario = Depends(obtener_usuario_actual)
+):
+    return {
+        "id": usuario.id,
+        "nombre": usuario.nombre,
+        "email": usuario.email
+    }
+
 
 @app.post("/registrar", status_code=status.HTTP_201_CREATED)
 def registrar_usuario(
     usuario_data: UsuarioRegistro,
-    session: Session = Depends(get_session),
-    _: bool = Depends(verificar_no_autenticado)
+    session: Session = Depends(get_session)
 ):
     usuario_existente = session.exec(
         select(Usuario).where(Usuario.email == usuario_data.email)
@@ -82,8 +91,7 @@ def registrar_usuario(
 def iniciar_sesion(
     credenciales: UsuarioLogin,
     response: Response,
-    session: Session = Depends(get_session),
-    _: bool = Depends(verificar_no_autenticado)
+    session: Session = Depends(get_session)
 ):
     usuario = session.exec(
         select(Usuario).where(Usuario.email == credenciales.email)
@@ -95,6 +103,7 @@ def iniciar_sesion(
             detail="Email o contraseña incorrectos"
         )
     
+    # Generar nuevo token (sobrescribe sesión anterior si existe)
     usuario.token = generar_token()
     usuario.token_expiracion = (datetime.now() + timedelta(hours=1)).isoformat()
     
