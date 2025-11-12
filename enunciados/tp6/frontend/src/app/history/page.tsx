@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
 
 interface OrderItem {
   id: string | number;
@@ -25,23 +26,44 @@ interface Order {
 }
 
 export default function HistoryPage() {
+  const { isAuthenticated } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const savedOrders = localStorage.getItem('ordenes');
-    if (savedOrders) {
-      try {
-        setOrders(JSON.parse(savedOrders));
-      } catch (e) {
-        console.error('Error al cargar órdenes:', e);
+    if (isAuthenticated) {
+      const savedOrders = localStorage.getItem('ordenes');
+      if (savedOrders) {
+        try {
+          setOrders(JSON.parse(savedOrders));
+        } catch (e) {
+          console.error('Error al cargar órdenes:', e);
+        }
       }
+    } else {
+      // Si no está autenticado, limpiar las órdenes
+      setOrders([]);
     }
     setIsHydrated(true);
-  }, []);
+  }, [isAuthenticated]);
 
   if (!isHydrated) {
     return null;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow text-center max-w-md">
+          <h1 className="text-3xl font-bold mb-4">Historial de compras</h1>
+          <p className="text-gray-600 mb-6">Para ver tu historial de compras, debes iniciar sesión primero.</p>
+          <Link href="/login" className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition inline-block mb-3">
+            Iniciar sesión
+          </Link>
+          <p className="text-gray-500 text-sm">¿No tienes cuenta? <Link href="/register" className="text-black font-semibold hover:underline">Regístrate aquí</Link></p>
+        </div>
+      </div>
+    );
   }
 
   return (
