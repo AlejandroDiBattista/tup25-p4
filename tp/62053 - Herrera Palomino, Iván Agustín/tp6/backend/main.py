@@ -63,6 +63,7 @@ class Compra(SQLModel, table=True):
     tarjeta: Optional[str]
     total: float = 0.0
     envio: float = 0.0
+    estado: str = Field(default="completada")  # completada, cancelada
 
 
 class ItemCompra(SQLModel, table=True):
@@ -132,6 +133,17 @@ def on_startup():
     except Exception:
         # no queremos detener el startup por un problema no crítico de migración
         pass
+    
+    # Si la columna 'estado' no existe en la tabla compra, agregarla
+    try:
+        with engine.begin() as conn:
+            cols = [r[1] for r in conn.execute(text("PRAGMA table_info('compra')")).all()]
+            if 'estado' not in cols:
+                conn.execute(text("ALTER TABLE compra ADD COLUMN estado TEXT DEFAULT 'completada'"))
+    except Exception:
+        # no queremos detener el startup por un problema no crítico de migración
+        pass
+    
     # seed productos.json if Producto table empty
     with Session(engine) as session:
         existe = session.exec(select(Producto)).first()
@@ -445,7 +457,21 @@ def cancelar_carrito(user: Usuario = Depends(get_current_user), session: Session
 @app.get("/compras")
 def ver_compras(user: Usuario = Depends(get_current_user), session: Session = Depends(get_session)):
     compras = session.exec(select(Compra).where(Compra.usuario_id == user.id)).all()
-    return compras
+    # Incluir información del estado de cada compra
+    compras_info = []
+    for compra in compras:
+        items = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
+        compras_info.append({
+            "id": compra.id,
+            "fecha": compra.fecha,
+            "direccion": compra.direccion,
+            "tarjeta": compra.tarjeta,
+            "total": compra.total,
+            "envio": compra.envio,
+            "estado": getattr(compra, "estado", "completada"),  # compatibilidad con compras anteriores
+            "cantidad_items": len(items)
+        })
+    return compras_info
 
 
 @app.get("/compras/{compra_id}")
@@ -455,6 +481,55 @@ def detalle_compra(compra_id: int, user: Usuario = Depends(get_current_user), se
         raise HTTPException(status_code=404, detail="Compra no encontrada")
     items = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
     return {"compra": compra, "items": items}
+
+
+@app.post("/compras/{compra_id}/cancelar")
+def cancelar_compra(compra_id: int, user: Usuario = Depends(get_current_user), session: Session = Depends(get_session)):
+    """Cancelar una compra y reponer el stock de los productos"""
+    compra = session.get(Compra, compra_id)
+    if not compra:
+        raise HTTPException(status_code=404, detail="Compra no encontrada")
+    
+    if compra.usuario_id != user.id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para cancelar esta compra")
+    
+    if compra.estado == "cancelada":
+        raise HTTPException(status_code=400, detail="La compra ya está cancelada")
+    
+    # Obtener los items de la compra
+    items_compra = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
+    
+    if not items_compra:
+        raise HTTPException(status_code=400, detail="No se encontraron items en esta compra")
+    
+    # Reponer el stock de cada producto
+    productos_actualizados = []
+    for item in items_compra:
+        producto = session.get(Producto, item.producto_id)
+        if producto:
+            # Reponer la cantidad que se había descontado
+            producto.existencia += item.cantidad
+            session.add(producto)
+            productos_actualizados.append({
+                "producto_id": producto.id,
+                "nombre": producto.nombre,
+                "cantidad_repuesta": item.cantidad,
+                "stock_actual": producto.existencia
+            })
+    
+    # Marcar la compra como cancelada
+    compra.estado = "cancelada"
+    session.add(compra)
+    
+    # Guardar todos los cambios
+    session.commit()
+    
+    return {
+        "ok": True,
+        "mensaje": "Compra cancelada exitosamente",
+        "compra_id": compra.id,
+        "productos_actualizados": productos_actualizados
+    }
 
 
 if __name__ == "__main__":
