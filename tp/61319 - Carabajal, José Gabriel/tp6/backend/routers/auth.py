@@ -65,3 +65,11 @@ def iniciar_sesion(
         access_token=token,
         user=UserOut(id=user.id, nombre=user.nombre, email=user.email),
     )
+
+@router.post("/cerrar-sesion", status_code=status.HTTP_204_NO_CONTENT)
+def cerrar_sesion():
+    """
+    Cierre de sesión 'stateless':
+    """
+    return  # 204 sin cuerpo
+

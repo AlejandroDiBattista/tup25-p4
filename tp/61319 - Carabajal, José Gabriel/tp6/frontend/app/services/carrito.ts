@@ -6,7 +6,6 @@ export type CartViewItem = {
   precio_unitario: number;
   cantidad: number;
   imagen: string;
-  // nuevos
   stock_disponible: number;
   max_cantidad: number;
 };

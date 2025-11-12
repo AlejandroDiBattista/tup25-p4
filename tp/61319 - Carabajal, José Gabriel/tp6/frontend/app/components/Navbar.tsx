@@ -72,7 +72,7 @@ export default function Navbar() {
                 <button
                     onClick={() => {
                     logout();
-                    // si querés redirigir, podés usar location o router, pero no es necesario
+                    
                     }}
                     className="px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
                 >

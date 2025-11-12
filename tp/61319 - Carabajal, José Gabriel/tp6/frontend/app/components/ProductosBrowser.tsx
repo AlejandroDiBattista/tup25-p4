@@ -16,7 +16,6 @@ export default function ProductosBrowser() {
   const [categorias, setCategorias] = useState<string[]>([]);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
 
-  // 👉 tick de refresco para eventos globales (stock/carro)
   const [refreshTick, setRefreshTick] = useState(0);
 
   // Escuchar eventos globales para refrescar la lista cuando cambia stock o carrito
@@ -45,7 +44,7 @@ export default function ProductosBrowser() {
         const cats = await obtenerCategorias();
         if (!cancelado) setCategorias(cats);
       } catch {
-        // si falla, dejamos categorías vacías (solo "todas")
+        
       } finally {
         if (!cancelado) setLoadingCategorias(false);
       }
@@ -55,7 +54,7 @@ export default function ProductosBrowser() {
     };
   }, []);
 
-  // Buscar productos con debounce + refresco por eventos (refreshTick)
+  // Buscar productos con debounce 
   useEffect(() => {
     let cancelado = false;
     async function fetchData() {

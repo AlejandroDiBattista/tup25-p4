@@ -12,7 +12,6 @@ class CartViewItem(BaseModel):
     precio_unitario: float
     cantidad: int
     imagen: str
-    # ---- NUEVOS (para bloquear el + y mostrar restante) ----
     stock_disponible: int
     max_cantidad: int
 
@@ -32,4 +31,4 @@ class CartView(BaseModel):
 
 class FinalizarCompraIn(BaseModel):
     direccion: str
-    tarjeta: str  # validación mínima de 16 dígitos la hace el front
+    tarjeta: str  

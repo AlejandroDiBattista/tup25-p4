@@ -4,14 +4,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface Filtros {
   search?: string;
-  categoria?: string; // Enviar la categoría exacta; si es "todas" no se envía
+  categoria?: string; 
 }
 
-/**
- * Obtener listado de productos con filtros opcionales (?search=&categoria=).
- */
 export async function obtenerProductos(filtros: Filtros = {}): Promise<Producto[]> {
-  // Normalizamos filtros
+  // Normalizar filtros
   const search = filtros.search?.trim();
   const categoria =
     filtros.categoria && filtros.categoria.toLowerCase() !== 'todas'
@@ -61,14 +58,10 @@ export async function obtenerProductoPorId(id: number): Promise<Producto> {
   return (await response.json()) as Producto;
 }
 
-/**
- * Obtener categorías únicas disponibles (útil para el combo de filtros).
- * Nota: deriva de /productos para no crear un endpoint específico.
- */
 export async function obtenerCategorias(): Promise<string[]> {
   const productos = await obtenerProductos();
   const set = new Set<string>();
   productos.forEach((p) => set.add(p.categoria));
-  // Orden alfabético con "Todas las categorías" al principio (si querés usarlo tal cual)
+  // Orden alfabético con "Todas las categorías" al principio 
   return Array.from(set).sort((a, b) => a.localeCompare(b));
 }

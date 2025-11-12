@@ -17,7 +17,7 @@ export default function CartPanel() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  // --- helper: refresh estable (para usar en efectos) ---
+  // --- helper: refresh estable ---
   const refresh = useCallback(async () => {
     if (!usuarioId) return;
     setErr(null);
@@ -42,7 +42,7 @@ export default function CartPanel() {
     return () => window.removeEventListener("cart:updated", handler as EventListener);
   }, [refresh]);
 
-  // ---------- ACTUALIZACIÓN OPTIMISTA ----------
+  // ---------- ACTUALIZACIÓN ----------
   function optimisticInc(prodId: number) {
     setCart((prev) => {
       if (!prev) return prev;
@@ -81,7 +81,7 @@ export default function CartPanel() {
       const items = prev.items.filter((i) => i.producto_id !== prodId);
       // devolvemos stock a la vista local
       if (removed) {
-        // nada crítico si no coincide exactamente; backend corregirá al sincronizar
+        
       }
       return { ...prev, items };
     });
@@ -96,14 +96,14 @@ export default function CartPanel() {
   async function inc(prodId: number) {
     if (!usuarioId) return;
     setLoading(true);
-    const snapshot = cart; // para rollback
+    const snapshot = cart; 
     try {
       optimisticInc(prodId);
       const data = await addItem(usuarioId, prodId, 1);
-      setCart(data); // sincroniza
+      setCart(data); 
       window.dispatchEvent(new CustomEvent("cart:updated"));
     } catch (e: any) {
-      setCart(snapshot ?? null); // rollback si falla
+      setCart(snapshot ?? null); 
       setErr(e?.message ?? "No se pudo aumentar la cantidad");
     } finally {
       setLoading(false);
@@ -116,9 +116,6 @@ export default function CartPanel() {
     const snapshot = cart;
     try {
       optimisticDec(prodId);
-      // hacemos removeItem (saca 1) y si todavía quedaban, volvemos a agregar n-1
-      // pero nuestro backend ya maneja el -1 con DELETE (según tu router),
-      // así que sólo llamamos a removeItem y luego getCart para asegurar estado.
       await removeItem(usuarioId, prodId);
       await refresh();
       window.dispatchEvent(new CustomEvent("cart:updated"));

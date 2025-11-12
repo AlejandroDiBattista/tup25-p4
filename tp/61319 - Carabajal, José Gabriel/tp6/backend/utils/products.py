@@ -3,7 +3,7 @@ import json
 from typing import List, Dict, Any
 
 # Rutas
-ROOT = Path(__file__).resolve().parents[1]        # .../backend
+ROOT = Path(__file__).resolve().parents[1]       
 PRODUCTOS_PATH = ROOT / "productos.json"
 STOCK_PATH = ROOT / "stock.json"
 
@@ -13,11 +13,11 @@ def cargar_productos() -> List[Dict[str, Any]]:
     with PRODUCTOS_PATH.open("r", encoding="utf-8") as f:
         return json.load(f)
 
-# ------------------ Stock (mapa id -> cantidad) ------------------
+# ------------------ Stock ------------------
 
 def _save_stock_map(data: Dict[str, int]) -> None:
     STOCK_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2),
-                          encoding="utf-8")
+                            encoding="utf-8")
 
 def _load_or_init_stock_map() -> Dict[str, int]:
     """
@@ -47,3 +47,18 @@ def reset_stock_map() -> None:
     productos = cargar_productos()
     data = {str(p["id"]): int(p.get("existencia", 0)) for p in productos}
     _save_stock_map(data)
+
+def listar_productos() -> List[Dict[str, Any]]:
+    """
+    Devuelve los productos con su stock actual (existencia actualizada
+    desde stock.json). Si stock.json no existe, lo crea automáticamente.
+    """
+    productos = cargar_productos()
+    stock_map = _load_or_init_stock_map()
+
+    for p in productos:
+        pid = str(p["id"])
+        # Actualizamos la existencia según el stock actual
+        p["existencia"] = int(stock_map.get(pid, int(p.get("existencia", 0))))
+
+    return productos

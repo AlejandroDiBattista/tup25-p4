@@ -39,7 +39,6 @@ def buscar_producto(prod_list: List[Dict[str, Any]], producto_id: int) -> Dict[s
 
 def calcular_totales(items: List[CartViewItem]) -> CartTotals:
     subtotal = sum(i.precio_unitario * i.cantidad for i in items)
-    # IVA lo calculamos en build_cart_view y lo pisamos abajo
     return CartTotals(subtotal=subtotal, iva=0.0, envio=0.0, total=subtotal)
 
 
@@ -164,7 +163,7 @@ def finalizar_compra(data: FinalizarCompraIn, usuario_id: int, session: Annotate
         usuario_id=usuario_id,
         fecha=datetime.utcnow(),
         direccion=data.direccion,
-        tarjeta=data.tarjeta[-4:],  # demo
+        tarjeta=data.tarjeta[-4:],  
         subtotal=view.totals.subtotal,
         iva=view.totals.iva,
         envio=view.totals.envio,
