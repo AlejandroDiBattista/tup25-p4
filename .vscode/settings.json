@@ -1,11 +1,5 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": [],
-    "markdown.preview.markEditorSelection": false,
-    "markdown.preview.scrollEditorWithPreview": false,
-    "markdown.preview.scrollPreviewWithEditor": false,
-    "liveServer.settings.port": 5504,
-    "workbench.colorTheme": "One Dark Pro Flat",
+    "workbench.colorTheme": "Dracula Theme",
     "workbench.preferredDarkColorTheme": "One Dark Pro Flat",
     "editor.fontSize": 14,
     "dataWrangler.startInEditModeForNotebookEntrypoints": true,
