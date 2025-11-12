@@ -11,5 +11,6 @@ export async function obtenerProductos(): Promise<Producto[]> {
     throw new Error('Error al obtener productos');
   }
   
-  return response.json();
+  const productos: Producto[] = await response.json();
+  return productos;
 }
