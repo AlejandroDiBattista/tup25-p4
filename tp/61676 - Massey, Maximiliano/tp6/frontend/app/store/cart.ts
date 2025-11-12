@@ -129,16 +129,24 @@ const useCartStore = create<CartState>((set, get) => ({
         
         if (token) {
             try {
-                // Primero quitar el item
-                await fetch(`${API_URL}/carrito/quitar/${productoId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                })
-                
-                // Luego agregarlo con la nueva cantidad
-                if (cantidad > 0) {
+                // Si la cantidad es 0, solo eliminar
+                if (cantidad <= 0) {
+                    await fetch(`${API_URL}/carrito/${productoId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    })
+                } else {
+                    // Primero quitar el item completamente
+                    await fetch(`${API_URL}/carrito/${productoId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    })
+                    
+                    // Luego agregarlo con la cantidad exacta (no diferencia, sino total)
                     await fetch(`${API_URL}/carrito/agregar/${productoId}`, {
                         method: 'POST',
                         headers: {
@@ -149,6 +157,7 @@ const useCartStore = create<CartState>((set, get) => ({
                     })
                 }
                 
+                // Sincronizar después de ambas operaciones
                 await get().syncWithBackend()
             } catch (error) {
                 console.error('Error al actualizar cantidad:', error)
