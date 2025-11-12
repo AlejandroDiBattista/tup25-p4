@@ -60,22 +60,30 @@ export default function FinalizarCompra() {
     }
 
     try {
+      console.log('🚀 Iniciando compra...');
+      console.log('Token:', token ? 'Presente' : 'Ausente');
+      console.log('Items en carrito:', items.length);
+      
       // Crear FormData para enviar al backend
-      const formData = new URLSearchParams();
+      const formData = new FormData();
       formData.append('direccion', direccion);
       formData.append('tarjeta', tarjeta.replace(/\s/g, ''));
+
+      console.log('📤 Enviando solicitud a:', `${API_URL}/carrito/finalizar`);
 
       const response = await fetch(`${API_URL}/carrito/finalizar`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: formData.toString(),
+        body: formData,
       });
+
+      console.log('📥 Respuesta recibida:', response.status, response.statusText);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Error del servidor:', errorData);
         throw new Error(errorData.detail || 'Error al finalizar la compra');
       }
 
@@ -253,7 +261,7 @@ export default function FinalizarCompra() {
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-3 pb-3 border-b">
                     <img
-                      src={item.imagen}
+                      src={item.imagen.startsWith('http') ? item.imagen : `${API_URL}/${item.imagen}`}
                       alt={item.nombre || item.titulo}
                       className="w-16 h-16 object-cover rounded"
                     />

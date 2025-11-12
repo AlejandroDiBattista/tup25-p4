@@ -48,7 +48,7 @@ export default function CartPanel() {
             {/* Header */}
             <div className="mb-4 pb-4 border-b">
                 <h2 className="text-xl font-bold text-gray-900 mb-3">
-                    🛒 Carrito ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+                    Carrito
                 </h2>
                 
                 {items.length > 0 && (
@@ -106,7 +106,7 @@ export default function CartPanel() {
                                 {/* Imagen y nombre */}
                                 <div className="flex gap-3 mb-2">
                                     <img
-                                        src={item.imagen}
+                                        src={item.imagen.startsWith('http') ? item.imagen : `${API_URL}/${item.imagen}`}
                                         alt={item.nombre || item.titulo}
                                         className="w-16 h-16 object-cover rounded"
                                     />

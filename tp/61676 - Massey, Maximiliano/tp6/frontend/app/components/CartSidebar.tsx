@@ -65,7 +65,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 <div className="p-4 border-b">
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="text-xl font-bold">
-                            🛒 Carrito ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+                            Carrito
                         </h2>
                         <button
                             onClick={onClose}
@@ -132,7 +132,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                                     <div key={item.id} className="flex gap-4 border-b pb-4">
                                         {/* Imagen del producto */}
                                         <img
-                                            src={item.imagen}
+                                            src={item.imagen.startsWith('http') ? item.imagen : `${API_URL}/${item.imagen}`}
                                             alt={item.nombre || item.titulo}
                                             className="w-20 h-20 object-cover rounded"
                                         />

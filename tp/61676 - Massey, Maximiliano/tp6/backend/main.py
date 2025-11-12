@@ -52,10 +52,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Crear tablas
+# Crear tablas y cargar datos iniciales
 @app.on_event("startup")
 def on_startup():
     SQLModel.metadata.create_all(engine)
+    
+    # Cargar productos desde JSON si la tabla está vacía
+    with Session(engine) as session:
+        # Verificar si ya hay productos
+        productos_existentes = session.exec(select(Producto)).first()
+        if not productos_existentes:
+            # Cargar productos desde JSON
+            productos_data = cargar_productos()
+            for prod_data in productos_data:
+                producto = Producto(
+                    id=prod_data.get("id"),
+                    nombre=prod_data.get("nombre") or prod_data.get("titulo", ""),
+                    titulo=prod_data.get("titulo") or prod_data.get("nombre", ""),
+                    descripcion=prod_data.get("descripcion", ""),
+                    precio=prod_data.get("precio", 0.0),
+                    categoria=prod_data.get("categoria", ""),
+                    existencia=prod_data.get("existencia", 0),
+                    imagen=prod_data.get("imagen", ""),
+                    valoracion=prod_data.get("valoracion", 0.0)
+                )
+                session.add(producto)
+            session.commit()
+            print(f"✓ {len(productos_data)} productos cargados en la base de datos")
 
 # Montar imágenes
 try:
@@ -100,14 +123,22 @@ def verify_token(token: str) -> Optional[str]:
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Usuario:
     email = verify_token(token)
     if not email:
-        raise HTTPException(status_code=401, detail="Token inválido")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     usuario = db.exec(select(Usuario).where(Usuario.email == email)).first()
     if not usuario:
-        raise HTTPException(status_code=401, detail="Usuario no encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario no encontrado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     return usuario
 
-# Cargar productos
 def cargar_productos():
     try:
         ruta = Path(__file__).parent / "productos.json"
@@ -120,50 +151,98 @@ def cargar_productos():
 
 @app.get("/")
 def root():
-    return {"mensaje": "API TP6 Shop - Backend funcionando"}
+    return {"message": "TP6 Shop API - Funcionando correctamente"}
 
 @app.get("/productos")
-async def obtener_productos(search: str = None, categoria: str = None):
-    productos = cargar_productos()
+async def obtener_productos(search: str = None, categoria: str = None, db: Session = Depends(get_db)):
+    """Obtener lista de productos desde la base de datos con filtros opcionales"""
+    query = select(Producto)
     
+    # Aplicar filtro de búsqueda
     if search:
         search = search.lower()
-        productos = [p for p in productos if search in str(p.get("nombre", "")).lower() or search in str(p.get("descripcion", "")).lower()]
+        query = query.where(
+            (Producto.nombre.contains(search)) | 
+            (Producto.titulo.contains(search)) | 
+            (Producto.descripcion.contains(search))
+        )
     
+    # Aplicar filtro de categoría
     if categoria:
-        productos = [p for p in productos if str(p.get("categoria", "")).lower() == categoria.lower()]
+        query = query.where(Producto.categoria == categoria)
     
-    return productos
+    productos = db.exec(query).all()
+    
+    # Convertir a diccionarios para la respuesta
+    return [
+        {
+            "id": p.id,
+            "nombre": p.nombre,
+            "titulo": p.titulo,
+            "descripcion": p.descripcion,
+            "precio": p.precio,
+            "categoria": p.categoria,
+            "existencia": p.existencia,
+            "imagen": p.imagen,
+            "valoracion": p.valoracion
+        }
+        for p in productos
+    ]
+
+@app.get("/productos/{producto_id}")
+async def obtener_producto(producto_id: int, db: Session = Depends(get_db)):
+    """Obtener detalles de un producto específico"""
+    producto = db.exec(select(Producto).where(Producto.id == producto_id)).first()
+    
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    return {
+        "id": producto.id,
+        "nombre": producto.nombre,
+        "titulo": producto.titulo,
+        "descripcion": producto.descripcion,
+        "precio": producto.precio,
+        "categoria": producto.categoria,
+        "existencia": producto.existencia,
+        "imagen": producto.imagen,
+        "valoracion": producto.valoracion
+    }
 
 @app.post("/registrar")
 async def registrar_usuario(usuario_data: UsuarioRegistro, db: Session = Depends(get_db)):
     """Registrar nuevo usuario"""
-    # Verificar si existe
-    existe = db.exec(select(Usuario).where(Usuario.email == usuario_data.email)).first()
-    if existe:
+    # Verificar si el email ya existe
+    usuario_existente = db.exec(select(Usuario).where(Usuario.email == usuario_data.email)).first()
+    if usuario_existente:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
     
-    # Crear usuario
-    usuario = Usuario(
+    # Crear nuevo usuario
+    usuario_nuevo = Usuario(
         nombre=usuario_data.nombre,
         email=usuario_data.email,
         password_hash=hash_password(usuario_data.password)
     )
-    db.add(usuario)
-    db.commit()
-    db.refresh(usuario)
     
-    return {"mensaje": "Usuario registrado exitosamente", "id": usuario.id}
+    db.add(usuario_nuevo)
+    db.commit()
+    db.refresh(usuario_nuevo)
+    
+    return {"mensaje": "Usuario registrado exitosamente", "usuario": {"id": usuario_nuevo.id, "nombre": usuario_nuevo.nombre, "email": usuario_nuevo.email}}
 
 @app.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    """Login de usuario"""
+async def iniciar_sesion(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """Iniciar sesión"""
     usuario = db.exec(select(Usuario).where(Usuario.email == form_data.username)).first()
+    
     if not usuario or not verify_password(form_data.password, usuario.password_hash):
-        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales incorrectas",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     access_token = create_access_token(usuario.email)
-    
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -174,117 +253,119 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         }
     }
 
-@app.get("/user/me")
-async def obtener_usuario_actual(current_user: Usuario = Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "email": current_user.email,
-        "nombre": current_user.nombre
-    }
-
-@app.post("/cerrar-sesion")
-async def cerrar_sesion(current_user: Usuario = Depends(get_current_user)):
-    """
-    Endpoint para cerrar sesión.
-    Con JWT simplificado, el token se invalida en el cliente.
-    En producción, se debería usar una lista negra de tokens.
-    """
-    return {"mensaje": "Sesión cerrada exitosamente"}
-
 @app.get("/carrito")
 async def obtener_carrito(current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
     items = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)).all()
     
-    # Cargar información completa de productos
-    productos = cargar_productos()
     resultado = []
     
     for item in items:
-        producto_data = next((p for p in productos if p["id"] == item.producto_id), None)
-        if producto_data:
+        # Obtener producto de la base de datos
+        producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
+        if producto:
             resultado.append({
                 "id": item.producto_id,
                 "producto_id": item.producto_id,
                 "cantidad": item.cantidad,
-                "nombre": producto_data.get("nombre") or producto_data.get("titulo"),
-                "titulo": producto_data.get("titulo") or producto_data.get("nombre"),
-                "precio": producto_data["precio"],
-                "imagen": producto_data["imagen"],
-                "categoria": producto_data.get("categoria", "general"),
-                "descripcion": producto_data.get("descripcion", ""),
-                "existencia": producto_data.get("existencia", 0),
-                "valoracion": producto_data.get("valoracion", 0)
+                "nombre": producto.nombre,
+                "titulo": producto.titulo,
+                "precio": producto.precio,
+                "imagen": producto.imagen,
+                "categoria": producto.categoria,
+                "descripcion": producto.descripcion,
+                "existencia": producto.existencia,
+                "valoracion": producto.valoracion
             })
     
     return resultado
 
 @app.post("/carrito/agregar/{producto_id}")
 async def agregar_al_carrito(
-    producto_id: int, 
+    producto_id: int,
     request: AgregarCarritoRequest,
-    current_user: Usuario = Depends(get_current_user), 
+    current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     cantidad = request.cantidad
     
-    # Obtener producto de la base de datos
+    # Verificar que el producto existe en la DB
     producto = db.exec(select(Producto).where(Producto.id == producto_id)).first()
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     
-    # Buscar item existente en el carrito
-    item = db.exec(
+    # Verificar si ya está en el carrito
+    item_existente = db.exec(
         select(ItemCarrito).where(
-            ItemCarrito.usuario_id == current_user.id, 
+            ItemCarrito.usuario_id == current_user.id,
             ItemCarrito.producto_id == producto_id
         )
     ).first()
     
-    # Calcular nueva cantidad total
-    cantidad_actual_carrito = item.cantidad if item else 0
-    nueva_cantidad_total = cantidad_actual_carrito + cantidad
-    
-    # Verificar stock disponible contra la nueva cantidad total
-    if producto.existencia < nueva_cantidad_total:
-        stock_disponible = producto.existencia - cantidad_actual_carrito
-        if stock_disponible <= 0:
+    if item_existente:
+        # Actualizar cantidad
+        nueva_cantidad_total = item_existente.cantidad + cantidad
+        
+        # Verificar stock
+        if nueva_cantidad_total > producto.existencia:
+            stock_disponible = producto.existencia - item_existente.cantidad
+            if stock_disponible <= 0:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="No hay más stock disponible. Ya tienes el máximo en el carrito."
+                )
             raise HTTPException(
-                status_code=400, 
-                detail=f"No hay más stock disponible. Ya tienes {cantidad_actual_carrito} unidades en el carrito."
+                status_code=400,
+                detail=f"Stock insuficiente. Solo puedes agregar {stock_disponible} unidades más (tienes {item_existente.cantidad} en el carrito, stock total: {producto.existencia})"
             )
-        else:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Stock insuficiente. Solo puedes agregar {stock_disponible} unidades más (tienes {cantidad_actual_carrito} en el carrito, stock total: {producto.existencia})"
-            )
-    
-    # Actualizar o crear item en el carrito
-    if item:
-        item.cantidad = nueva_cantidad_total
+        
+        item_existente.cantidad = nueva_cantidad_total
+        db.commit()
+        db.refresh(item_existente)
+        
+        return {
+            "mensaje": "Cantidad actualizada en el carrito",
+            "producto_id": producto_id,
+            "cantidad_total": item_existente.cantidad,
+            "stock_disponible": producto.existencia,
+            "stock_restante": producto.existencia - item_existente.cantidad
+        }
     else:
-        item = ItemCarrito(
-            usuario_id=current_user.id, 
-            producto_id=producto_id, 
+        # Verificar stock antes de crear nuevo item
+        if cantidad > producto.existencia:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Stock insuficiente. Solo hay {producto.existencia} unidades disponibles"
+            )
+        
+        # Crear nuevo item en carrito
+        nuevo_item = ItemCarrito(
+            usuario_id=current_user.id,
+            producto_id=producto_id,
             cantidad=cantidad
         )
-        db.add(item)
-    
-    db.commit()
-    db.refresh(item)
-    
-    return {
-        "mensaje": "Producto agregado al carrito",
-        "cantidad_en_carrito": item.cantidad,
-        "stock_disponible": producto.existencia,
-        "stock_restante": producto.existencia - item.cantidad
-    }
+        db.add(nuevo_item)
+        db.commit()
+        db.refresh(nuevo_item)
+        
+        return {
+            "mensaje": "Producto agregado al carrito",
+            "producto_id": producto_id,
+            "cantidad": cantidad,
+            "stock_disponible": producto.existencia,
+            "stock_restante": producto.existencia - cantidad
+        }
 
-@app.delete("/carrito/quitar/{producto_id}")
+@app.delete("/carrito/{producto_id}")
 async def quitar_del_carrito(producto_id: int, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
-    item = db.exec(select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id, ItemCarrito.producto_id == producto_id)).first()
+    item = db.exec(
+        select(ItemCarrito).where(
+            ItemCarrito.usuario_id == current_user.id,
+            ItemCarrito.producto_id == producto_id
+        )
+    ).first()
     
     if not item:
-        raise HTTPException(status_code=404, detail="Item no encontrado")
+        raise HTTPException(status_code=404, detail="Producto no encontrado en el carrito")
     
     db.delete(item)
     db.commit()
@@ -305,26 +386,43 @@ async def finalizar_compra(
     if not items_carrito:
         raise HTTPException(status_code=400, detail="El carrito está vacío")
     
-    # Calcular totales
+    # Calcular subtotal y obtener productos de la DB
     subtotal = 0
-    for item in items_carrito:
-        producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
-        if producto:
-            subtotal += producto.precio * item.cantidad
+    subtotal_electronics = 0
+    subtotal_otros = 0
+    items_con_productos = []
     
-    # Calcular IVA (21% general, 10% electrónica)
-    iva = 0
     for item in items_carrito:
+        # Obtener producto de la DB
         producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
-        if producto:
-            precio_item = producto.precio * item.cantidad
-            if producto.categoria == "electronics":
-                iva += precio_item * 0.10
-            else:
-                iva += precio_item * 0.21
+        if not producto:
+            raise HTTPException(status_code=404, detail=f"Producto {item.producto_id} no encontrado")
+        
+        # Verificar stock disponible
+        if item.cantidad > producto.existencia:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Stock insuficiente para {producto.titulo}. Disponible: {producto.existencia}, solicitado: {item.cantidad}"
+            )
+        
+        precio_item = producto.precio * item.cantidad
+        subtotal += precio_item
+        
+        # Separar por categoría para IVA diferenciado
+        if producto.categoria.lower() == "electronics":
+            subtotal_electronics += precio_item
+        else:
+            subtotal_otros += precio_item
+        
+        items_con_productos.append((item, producto))
     
-    # Calcular envío
-    envio = 50 if subtotal < 1000 else 0
+    # Calcular IVA según README: 21% general, 10% electrónicos
+    iva_electronics = subtotal_electronics * 0.10
+    iva_otros = subtotal_otros * 0.21
+    iva = iva_electronics + iva_otros
+    
+    # Calcular envío: gratis si >$1000, sino $50
+    envio = 0 if subtotal >= 1000 else 50
     
     # Total
     total = subtotal + iva + envio
@@ -344,18 +442,21 @@ async def finalizar_compra(
     db.commit()
     db.refresh(compra)
     
-    # Crear los items de la compra
-    for item in items_carrito:
-        producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
-        if producto:
-            compra_item = CompraItem(
-                compra_id=compra.id,
-                producto_id=item.producto_id,
-                cantidad=item.cantidad,
-                precio_unitario=producto.precio,
-                nombre=producto.titulo or producto.nombre or "Producto"
-            )
-            db.add(compra_item)
+    # Crear los items de la compra y actualizar stock
+    for item, producto in items_con_productos:
+        # Crear item de compra
+        compra_item = CompraItem(
+            compra_id=compra.id,
+            producto_id=item.producto_id,
+            cantidad=item.cantidad,
+            precio_unitario=producto.precio,
+            nombre=producto.titulo or producto.nombre
+        )
+        db.add(compra_item)
+        
+        # ⭐ ACTUALIZAR STOCK EN LA BASE DE DATOS
+        producto.existencia -= item.cantidad
+        db.add(producto)
     
     # Vaciar el carrito
     for item in items_carrito:
@@ -379,16 +480,22 @@ async def obtener_compras(current_user: Usuario = Depends(get_current_user), db:
         .where(Compra.usuario_id == current_user.id)
         .order_by(Compra.fecha.desc())
     ).all()
-    return [{"id": c.id, "total": c.total, "fecha": c.fecha, "direccion": c.direccion, "tarjeta": c.tarjeta} for c in compras]
+    
+    return [
+        {
+            "id": compra.id,
+            "fecha": compra.fecha,
+            "direccion": compra.direccion,
+            "total": compra.total,
+            "envio": compra.envio,
+            "tarjeta": compra.tarjeta
+        }
+        for compra in compras
+    ]
 
 @app.get("/compras/{compra_id}")
-async def obtener_detalle_compra(
-    compra_id: int,
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Obtener detalle completo de una compra específica"""
-    # Buscar la compra
+async def obtener_detalle_compra(compra_id: int, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Verificar que la compra pertenece al usuario
     compra = db.exec(
         select(Compra).where(
             Compra.id == compra_id,
@@ -399,56 +506,56 @@ async def obtener_detalle_compra(
     if not compra:
         raise HTTPException(status_code=404, detail="Compra no encontrada")
     
-    # Obtener los items de la compra
+    # Obtener items de la compra
     items = db.exec(
         select(CompraItem).where(CompraItem.compra_id == compra_id)
     ).all()
     
-    # Calcular subtotal e IVA desglosado
-    subtotal = 0
-    iva_total = 0
+    # Construir lista de productos con información adicional desde la DB
     productos = []
+    subtotal_total = 0
+    iva_total = 0
     
     for item in items:
-        precio_total = item.precio_unitario * item.cantidad
-        subtotal += precio_total
-        
-        # Obtener producto para saber su categoría y calcular IVA
+        # Obtener la imagen y categoría del producto desde la tabla Producto
         producto = db.exec(select(Producto).where(Producto.id == item.producto_id)).first()
-        if producto:
-            tasa_iva = 0.10 if producto.categoria == "electronics" else 0.21
-            iva_item = precio_total * tasa_iva
-            iva_total += iva_item
-            
-            productos.append({
-                "id": item.producto_id,
-                "nombre": item.nombre,
-                "cantidad": item.cantidad,
-                "precio_unitario": item.precio_unitario,
-                "precio_total": precio_total,
-                "iva": iva_item,
-                "imagen": producto.imagen if producto else ""
-            })
+        
+        # Calcular subtotal
+        subtotal = item.precio_unitario * item.cantidad
+        
+        # Calcular IVA según categoría (21% general, 10% electrónicos)
+        if producto and producto.categoria.lower() == "electronics":
+            iva = subtotal * 0.10
         else:
-            productos.append({
-                "id": item.producto_id,
-                "nombre": item.nombre,
-                "cantidad": item.cantidad,
-                "precio_unitario": item.precio_unitario,
-                "precio_total": precio_total,
-                "iva": 0,
-                "imagen": ""
-            })
+            iva = subtotal * 0.21
+        
+        # Calcular precio total (subtotal + IVA)
+        precio_total = subtotal + iva
+        
+        # Acumular totales
+        subtotal_total += subtotal
+        iva_total += iva
+        
+        productos.append({
+            "producto_id": item.producto_id,
+            "nombre": item.nombre,
+            "cantidad": item.cantidad,
+            "precio_unitario": item.precio_unitario,
+            "subtotal": subtotal,
+            "iva": iva,
+            "precio_total": precio_total,
+            "imagen": producto.imagen if producto else "imagenes/placeholder.png"
+        })
     
     return {
         "id": compra.id,
         "fecha": compra.fecha,
         "direccion": compra.direccion,
-        "tarjeta": compra.tarjeta,
-        "subtotal": subtotal,
+        "subtotal": subtotal_total,
         "iva": iva_total,
-        "envio": compra.envio,
         "total": compra.total,
+        "envio": compra.envio,
+        "tarjeta": compra.tarjeta,
         "productos": productos
     }
 
@@ -457,55 +564,17 @@ async def cancelar_carrito(
     current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Vaciar el carrito del usuario (cancelar compra)"""
-    # Obtener todos los items del carrito
+    """Cancelar compra - vaciar carrito"""
     items = db.exec(
         select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)
     ).all()
     
-    if not items:
-        return {"mensaje": "El carrito ya está vacío", "items_eliminados": 0}
-    
-    # Eliminar todos los items
-    count = len(items)
     for item in items:
         db.delete(item)
     
     db.commit()
     
-    return {
-        "mensaje": "Carrito vaciado exitosamente",
-        "items_eliminados": count
-    }
-
-@app.post("/carrito/cancelar")
-async def cancelar_compra(
-    current_user: Usuario = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Cancelar compra (vaciar carrito) - Endpoint requerido por README"""
-    # Obtener todos los items del carrito
-    items = db.exec(
-        select(ItemCarrito).where(ItemCarrito.usuario_id == current_user.id)
-    ).all()
-    
-    if not items:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El carrito está vacío, no hay compra para cancelar"
-        )
-    
-    # Eliminar todos los items
-    count = len(items)
-    for item in items:
-        db.delete(item)
-    
-    db.commit()
-    
-    return {
-        "mensaje": "Compra cancelada exitosamente",
-        "items_eliminados": count
-    }
+    return {"mensaje": "Carrito vaciado exitosamente"}
 
 if __name__ == "__main__":
     import uvicorn
