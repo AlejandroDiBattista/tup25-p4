@@ -1,57 +1,41 @@
-export interface Producto {
+// frontend/app/types.ts
+
+// ---- PRODUCTO ----
+export type Producto = {
   id: number;
   titulo: string;
-  precio: number;
   descripcion: string;
+  precio: number;
   categoria: string;
-  valoracion: number;
-  existencia: number;
   imagen: string;
-}
+  existencia: number; // stock disponible
+  valoracion?: number; // opcional, por si no todos los productos lo tienen
+};
 
-export interface CartViewItem {
+// ---- Ítems del carrito ----
+export type CartViewItem = {
   producto_id: number;
   nombre: string;
   precio_unitario: number;
   cantidad: number;
   imagen: string;
-}
 
-export interface CartTotals {
+  // Campos nuevos de control de stock
+  stock_disponible: number;
+  max_cantidad: number;
+};
+
+// ---- Totales del carrito ----
+export type CartTotals = {
   subtotal: number;
   iva: number;
   envio: number;
   total: number;
-}
+};
 
-export interface CartView {
+// ---- Vista completa del carrito ----
+export type CartView = {
   estado: 'abierto' | 'finalizado' | 'cancelado' | string;
   items: CartViewItem[];
   totals: CartTotals;
-}
-
-export interface CompraItem {
-  producto_id: number;
-  nombre: string;
-  cantidad: number;
-  precio_unitario: number;
-  iva: number; 
-}
-
-export interface CompraResumen {
-  id: number;
-  fecha: string;        
-  total: number;
-}
-
-export interface CompraDetalle {
-  id: number;
-  fecha: string;        
-  direccion: string;
-  tarjeta: string;      
-  items: CompraItem[];
-  subtotal: number;
-  iva: number;
-  envio: number;
-  total: number;
-}
+};

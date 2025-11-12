@@ -1,9 +1,10 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 
 class CartAddIn(BaseModel):
     producto_id: int
     cantidad: int = 1
+
 
 class CartViewItem(BaseModel):
     producto_id: int
@@ -11,6 +12,10 @@ class CartViewItem(BaseModel):
     precio_unitario: float
     cantidad: int
     imagen: str
+    # ---- NUEVOS (para bloquear el + y mostrar restante) ----
+    stock_disponible: int
+    max_cantidad: int
+
 
 class CartTotals(BaseModel):
     subtotal: float
@@ -18,11 +23,13 @@ class CartTotals(BaseModel):
     envio: float
     total: float
 
+
 class CartView(BaseModel):
     estado: str
     items: List[CartViewItem]
     totals: CartTotals
 
+
 class FinalizarCompraIn(BaseModel):
     direccion: str
-    tarjeta: str  # solo demo
+    tarjeta: str  # validación mínima de 16 dígitos la hace el front
