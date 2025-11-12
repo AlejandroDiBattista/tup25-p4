@@ -2,44 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from database.connection import get_session
 from models.carrito import Carrito, ItemCarrito
 from models.productos import Producto
 from models.compra import Compra, ItemCompra
 from schemas.carrito import (
-    CarritoResponse,
     AgregarAlCarritoRequest,
     FinalizarCompraRequest,
 )
-from schemas.compra import CompraResponse
-from utils.auth import decode_token
+from utils.auth import decode_token, obtener_usuario_id
 
 router = APIRouter(prefix="/api", tags=["carrito"])
-
-
-def obtener_usuario_id(token: Optional[str] = Query(None)) -> int:
-    """Extrae el usuario_id del token JWT"""
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No autorizado - token requerido"
-        )
-    try:
-        payload = decode_token(token)
-        usuario_id = payload.get("sub")
-        if usuario_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="No autorizado"
-            )
-        return int(usuario_id)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido"
-        )
 
 
 @router.get("/carrito", response_model=dict)
@@ -71,7 +46,7 @@ def obtener_carrito(
     }
 
 
-@router.post("/carrito/agregar", response_model=dict)
+@router.post("/carrito", response_model=dict)
 def agregar_al_carrito(
     request: AgregarAlCarritoRequest,
     token: Optional[str] = Query(None),
@@ -158,16 +133,22 @@ def agregar_al_carrito(
         )
 
 
-@router.delete("/carrito/item/{item_id}", response_model=dict)
+@router.delete("/carrito/{product_id}", response_model=dict)
 def eliminar_del_carrito(
-    item_id: int,
+    product_id: int,
     token: Optional[str] = Query(None),
     session: Session = Depends(get_session)
 ):
-    """Eliminar un item del carrito"""
+    """Eliminar un producto del carrito"""
     usuario_id = obtener_usuario_id(token)
     
-    item = session.query(ItemCarrito).filter(ItemCarrito.id == item_id).first()
+    # Buscar por producto_id en lugar de item_id
+    item = session.query(ItemCarrito).filter(
+        and_(
+            ItemCarrito.producto_id == product_id,
+            ItemCarrito.carrito_id == session.query(Carrito).filter(Carrito.usuario_id == usuario_id).with_entities(Carrito.id).scalar()
+        )
+    ).first()
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -249,14 +230,8 @@ def finalizar_compra(
     # Calcular subtotal
     subtotal = sum(item.cantidad * item.precio_unitario for item in items)
     
-    # Calcular IVA (10% electrónica, 21% resto)
-    iva_total = 0
-    for item in items:
-        producto = session.query(Producto).filter(Producto.id == item.producto_id).first()
-        if producto.categoria.lower() == "electrónica":
-            iva_total += item.cantidad * item.precio_unitario * 0.10
-        else:
-            iva_total += item.cantidad * item.precio_unitario * 0.21
+    # Calcular IVA (21% para todos los productos)
+    iva_total = subtotal * 0.21
     
     # Calcular envío (free >$1000, else $50)
     envio = 0 if subtotal > 1000 else 50

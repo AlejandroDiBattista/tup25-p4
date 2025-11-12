@@ -5,32 +5,9 @@ from typing import List, Optional
 from database.connection import get_session
 from models.compra import Compra, ItemCompra
 from schemas.compra import CompraResponse
-from utils.auth import decode_token
+from utils.auth import decode_token, obtener_usuario_id
 
 router = APIRouter(prefix="/api", tags=["compras"])
-
-
-def obtener_usuario_id(token: Optional[str] = Query(None)) -> int:
-    """Extrae el usuario_id del token JWT"""
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No autorizado - token requerido"
-        )
-    try:
-        payload = decode_token(token)
-        usuario_id = payload.get("sub")
-        if usuario_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="No autorizado"
-            )
-        return int(usuario_id)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido"
-        )
 
 
 @router.get("/compras", response_model=List[dict])

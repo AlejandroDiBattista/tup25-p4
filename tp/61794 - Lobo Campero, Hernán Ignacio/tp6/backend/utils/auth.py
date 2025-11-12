@@ -2,6 +2,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from typing import Optional
+from fastapi import HTTPException, status, Query
 
 # Configuración de hash de contraseñas usando argon2 (más estable que bcrypt en Python 3.14)
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
@@ -42,3 +43,38 @@ def decode_token(token: str) -> Optional[dict]:
         return {"sub": usuario_id}
     except JWTError:
         return None
+
+
+def obtener_usuario_id(token: Optional[str] = Query(None)) -> int:
+    """Extrae el usuario_id del token JWT - Función consolidada para evitar redundancias"""
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No autorizado - token requerido"
+        )
+    try:
+        payload = decode_token(token)
+        if payload is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido"
+            )
+        usuario_id = payload.get("sub")
+        if usuario_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="No autorizado"
+            )
+        return int(usuario_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido"
+        )
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido"
+        )
