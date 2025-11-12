@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_
 from sqlmodel import Session, select
 
@@ -34,4 +34,12 @@ def listar_productos(
     statement = statement.order_by(Producto.nombre)
     productos = session.exec(statement).all()
     return productos
+
+
+@router.get("/productos/{producto_id}", response_model=ProductoRead)
+def obtener_producto(producto_id: int, session: Session = Depends(get_session)) -> ProductoRead:
+    producto = session.get(Producto, producto_id)
+    if not producto:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+    return producto
 
