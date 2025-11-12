@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCarrito } from "@/app/components/CarritoContext"; 
 import { Producto } from "../types";
 
 export default function ConfirmarCompra() {
+  const router = useRouter(); 
   const { cartItems, cargarCarritoDesdeLocalStorage, vaciarCarrito } = useCarrito();
 
   const [subtotal, setSubtotal] = useState(0);
   const [iva, setIVA] = useState(0);
   const [envio, setEnvio] = useState(0);
   const [total, setTotal] = useState(0);
+  const [direccion, setDireccion] = useState("");
+  const [tarjeta, setTarjeta] = useState("");
 
   // Cargar carrito y calcular totales
   useEffect(() => {
@@ -21,11 +25,11 @@ export default function ConfirmarCompra() {
     calcularTotales(cartItems);
   }, [cartItems]);
 
-  const calcularTotales = (items: any[]) => {
+  const calcularTotales = (items: Producto[]) => {
     let sub = 0;
     let ivaTotal = 0;
     items.forEach((item) => {
-      const precioItem = item.precio * item.cantidad;
+      const precioItem = item.precio * item.existencia;
       sub += precioItem;
       const iva = item.categoria?.toLowerCase() === "electrónica" ? 0.1 : 0.21;
       ivaTotal += precioItem * iva;
@@ -38,10 +42,40 @@ export default function ConfirmarCompra() {
     setTotal(sub + ivaTotal + envioCosto);
   };
 
+  //Guarda la compra en LocalStorage
+    const guardarHistorial = () => {
+    const nuevaCompra = {
+      id: Date.now(),
+      fecha: new Date().toISOString(),
+      direccion,
+      tarjeta: `****-****-****-${tarjeta.slice(-4)}`,
+      productos: cartItems,
+      subtotal,
+      iva,
+      envio,
+      total,
+    };
+
+    const historialPrevio = JSON.parse(localStorage.getItem("historialCompras") || "[]");
+    historialPrevio.unshift(nuevaCompra);
+    localStorage.setItem("historialCompras", JSON.stringify(historialPrevio));
+  };
+
   const finalizarCompra = () => {
-    alert("Compra finalizada con éxito!");
+    if (cartItems.length === 0) {
+      alert("Tu carrito está vacío.");
+      return;
+    }
+
+    if (!direccion || !tarjeta) {
+      alert("Por favor, completá dirección y tarjeta.");
+      return;
+    }
+
+    guardarHistorial();
     vaciarCarrito();
-    window.location.href = "/";
+    alert("!Compra finalizada con exito!");
+    router.push("/mis-compras")
   };
 
   return (
@@ -95,11 +129,16 @@ export default function ConfirmarCompra() {
             <input
               type="text"
               placeholder="Dirección"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)} 
               className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="text"
               placeholder="Tarjeta"
+              maxLength={16}
+              value={tarjeta}
+              onChange={(e) => setTarjeta(e.target.value)} 
               className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 

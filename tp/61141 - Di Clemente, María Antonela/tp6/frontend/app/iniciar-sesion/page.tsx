@@ -31,7 +31,7 @@ export default function Login() {
     const data = await response.json();
     // Guardar token en localStorage
     localStorage.setItem("token", data.access_token);
-    router.push("/"); // Redirige al home
+    router.push("/compra"); // Redirige
   } catch (err: any) {
     setError(err.message || "Error en el inicio de sesión");
   }
@@ -51,7 +51,7 @@ export default function Login() {
       const data = await response.json();
       // Guardar token en localStorage
       localStorage.setItem("token", data.token);
-      router.push("/"); // Redirige al home
+      router.push("/comprar"); // Redirige al home
     } catch (err: any) {
       setError(err.message || "Error en el inicio de sesión");
     }
