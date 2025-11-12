@@ -17,6 +17,9 @@ export function SiteHeader(): JSX.Element {
           <Link href="/" className="transition hover:text-slate-900">
             Productos
           </Link>
+          <Link href="/carrito" className="transition hover:text-slate-900">
+            Carrito
+          </Link>
           {user && (
             <Link href="/compras" className="transition hover:text-slate-900">
               Compras
