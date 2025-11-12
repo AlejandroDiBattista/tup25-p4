@@ -26,7 +26,7 @@ export default function CartSidebar() {
   const cooldownRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
   const [cooldownIds, setCooldownIds] = useState<Set<number>>(new Set());
 
-  const startCooldown = (id: number, ms: number = 120) => {
+  const startCooldown = (id: number, ms: number = 80) => {
     const m = new Map(cooldownRef.current);
     if (m.get(id)) clearTimeout(m.get(id)!);
     m.set(id, setTimeout(() => {
@@ -50,7 +50,7 @@ export default function CartSidebar() {
   const fetchCart = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_URL}/carrito`, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) return;
       const data = await res.json();
       const fromApi: { id: number; cantidad: number }[] = (data.productos || []).map((p: ApiCartItem) => ({ id: p.id, cantidad: p.cantidad }));
@@ -65,12 +65,12 @@ export default function CartSidebar() {
     setMounted(true);
     if (typeof window === "undefined") return;
     const t = localStorage.getItem("token");
-    fetch("http://localhost:8000/productos").then(r=>r.json()).then(setProductos);
+    fetch(`${API_URL}/productos`).then(r=>r.json()).then(setProductos);
     // Si hay token al cargar, sincronizo desde servidor una vez
     (async () => {
       if (t) {
         try {
-          const res = await fetch("http://localhost:8000/carrito", { headers: { Authorization: `Bearer ${t}` } });
+          const res = await fetch(`${API_URL}/carrito`, { headers: { Authorization: `Bearer ${t}` } });
           if (res.ok) {
             const data = await res.json();
             const fromApi: { id: number; cantidad: number }[] = (data.productos || []).map((p: ApiCartItem) => ({ id: p.id, cantidad: p.cantidad }));
@@ -124,27 +124,37 @@ export default function CartSidebar() {
     if (!token) return; // sin token no sincronizo servidor
     if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
     syncTimerRef.current = setTimeout(async () => {
-      const pending = new Map(pendingRef.current); // copia estable
-      if (pending.size === 0) { syncTimerRef.current = null; return; }
+      const snapshot = new Map(pendingRef.current); // copia estable de lo que procesaremos ahora
+      if (snapshot.size === 0) { syncTimerRef.current = null; return; }
       setSyncing(true);
       try {
-        for (const [id, qty] of pending.entries()) {
-          // DELETE siempre para estado limpio
-          await fetch(`http://localhost:8000/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+        for (const [id, qty] of snapshot.entries()) {
+          // DELETE para limpiar estado previo de ese producto
+          await fetch(`${API_URL}/carrito/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
           if (qty > 0) {
-            // un único POST con cantidad total (backend lo suma como qty? si no, repetir)
-            await fetch("http://localhost:8000/carrito", {
+            // Un único POST con la cantidad final deseada (backend lo soporta)
+            await fetch(`${API_URL}/carrito`, {
               method: "POST",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
               body: JSON.stringify({ producto_id: id, cantidad: qty }),
             });
           }
         }
-        pendingRef.current.clear();
+        // Limpiar sólo entradas que no cambiaron durante el sync
+        for (const [id, qty] of snapshot.entries()) {
+          const current = pendingRef.current.get(id);
+          if (current !== undefined && current === qty) {
+            pendingRef.current.delete(id);
+          }
+        }
         await fetchCart();
+      } catch (e) {
+        console.error("Error sincronizando carrito:", e);
       } finally {
         setSyncing(false);
         syncTimerRef.current = null;
+        // Si quedaron pendientes nuevos, programar otro ciclo rápidamente
+        if (pendingRef.current.size > 0) scheduleSync();
       }
     }, 150); // debounce más corto
   };
@@ -186,7 +196,11 @@ export default function CartSidebar() {
   };
   const clear = async () => {
     if (token) {
-      await fetch("http://localhost:8000/carrito/cancelar", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+      try {
+        await fetch(`${API_URL}/carrito/cancelar`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+      } catch (e) {
+        console.error("Error al cancelar carrito:", e);
+      }
       await fetchCart();
     } else {
       updateLocal([]);
@@ -210,9 +224,9 @@ export default function CartSidebar() {
                 <div className="text-sm text-gray-900">Tu carrito está vacío.</div>
               ) : (
                 enriched.map(p => {
-                  const disabled = syncing || cooldownIds.has(p.id); // breve cooldown + sync en lote
+                  const disabled = cooldownIds.has(p.id); // sólo cooldown por producto; no bloquear por sync global
                   return (
-                    <div key={p.id} className="flex items-center justify-between gap-3 text-sm text-gray-900 border rounded-md p-2">
+                    <div key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 text-sm text-gray-900 border rounded-md p-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                           {p.imagen ? (
@@ -229,15 +243,15 @@ export default function CartSidebar() {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-medium line-clamp-1 max-w-[140px]" title={p.titulo}>{p.titulo}</div>
-                          <div className="text-xs">Cantidad: {p.cantidad}</div>
+                          <div className="font-medium truncate max-w-[160px]" title={p.titulo}>{p.titulo}</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Button variant="outline" size="sm" onClick={() => dec(p.id)} disabled={disabled}>-</Button>
-                        <Button variant="outline" size="sm" onClick={() => inc(p.id)} disabled={disabled}>+</Button>
-                        <div className="w-16 text-right">${(p.precio * p.cantidad).toFixed(2)}</div>
+                      <div className="flex items-center gap-2 flex-shrink-0 whitespace-nowrap justify-self-end">
+                        <Button variant="outline" size="sm" onClick={() => dec(p.id)} disabled={disabled} aria-label="Disminuir">-</Button>
+                        <span className="text-xs w-7 text-center select-none">{p.cantidad}</span>
+                        <Button variant="outline" size="sm" onClick={() => inc(p.id)} disabled={disabled} aria-label="Aumentar">+</Button>
                       </div>
+                      <div className="w-16 text-right justify-self-end">${(p.precio * p.cantidad).toFixed(2)}</div>
                     </div>
                   );
                 })
