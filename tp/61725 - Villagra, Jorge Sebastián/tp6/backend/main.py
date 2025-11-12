@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 from typing import Optional
 from pydantic import BaseModel
@@ -11,6 +11,8 @@ import time
 import hashlib
 import secrets
 import json
+
+from models import Usuario, Producto, Carrito, CarritoItem, Compra, CompraItem
 
 # ------------------ CONFIGURACIÓN DE BASE DE DATOS ------------------
 BASE_DIR = Path(__file__).parent
@@ -22,59 +24,7 @@ def get_session():
         yield s
 
 # ------------------ MODELOS DE DATOS ------------------
-class Usuario(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str
-    email: str
-    password_hash: str
-
-class Producto(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str
-    descripcion: Optional[str] = ""
-    precio: float = 0
-    categoria: Optional[str] = ""
-    valoracion: Optional[float] = None
-    existencia: int = 0
-    imagen: Optional[str] = None
-
-class Carrito(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    usuario_id: int = Field(foreign_key="usuario.id")
-    estado: str = "abierto"
-
-class CarritoItem(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    carrito_id: int = Field(foreign_key="carrito.id")
-    producto_id: int = Field(foreign_key="producto.id")
-    cantidad: int = 1
-
-class Compra(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    usuario_id: int = Field(foreign_key="usuario.id")
-    subtotal: float = 0
-    iva_total: float = 0
-    envio: float = 0
-    total: float = 0
-    fecha_iso: str = ""
-    nombre: str = ""
-    direccion: str = ""
-    telefono: str = ""
-    tarjeta_mask: str = ""
-    metodo_pago: str = "tarjeta"
-    estado: str = "confirmada"
-
-class CompraItem(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    compra_id: int = Field(foreign_key="compra.id")
-    producto_id: int = Field(foreign_key="producto.id")
-    cantidad: int = 1
-    precio_unit: float = 0
-    subtotal: float = 0
-    titulo: str = ""
-    imagen: Optional[str] = None
-    categoria: Optional[str] = None
-    iva_rate: float = 0.0
+# Modelos movidos a models/ para mejor organización
 
 # ------------------ HELPERS Y UTILIDADES ------------------
 def _ensure_cart_open(c: Carrito) -> None:
@@ -102,10 +52,7 @@ app = FastAPI()
 # CORS para frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -134,9 +81,17 @@ def _ensure_schema():
         ensure("compra", "iva_total", "REAL")
         ensure("compra", "envio", "REAL")
         ensure("compra", "tarjeta_mask", "TEXT")
+        ensure("compra", "fecha", "TEXT")
+        ensure("compra", "nombre", "TEXT")
+        ensure("compra", "direccion", "TEXT")
+        ensure("compra", "telefono", "TEXT")
+        ensure("compra", "metodo_pago", "TEXT")
+        ensure("compra", "estado", "TEXT")
 
     with engine.begin() as conn:
         cols = {row[1] for row in conn.execute(text("PRAGMA table_info('producto')")).fetchall()}
+        if "titulo" in cols and "nombre" not in cols:
+            conn.execute(text("ALTER TABLE producto RENAME COLUMN titulo TO nombre"))
         def ensure_col(name: str, type_sql: str, default_sql: str | None = None):
             nonlocal cols
             if name not in cols:
@@ -461,7 +416,6 @@ def carrito_finalizar(req: ConfirmCheckoutRequest, uid: int = Depends(current_us
 
     compra = Compra(
         usuario_id=uid,
-        fecha_iso=datetime.utcnow().isoformat(),
         nombre=req.nombre.strip(),
         direccion=req.direccion.strip(),
         telefono=req.telefono.strip(),
@@ -516,7 +470,7 @@ def compras_usuario(uid: int = Depends(current_user_id), s: Session = Depends(ge
         items_count = s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all()
         out.append({
             "id": c.id,
-            "fecha_iso": c.fecha_iso,
+            "fecha_iso": c.fecha.isoformat(),
             "total": c.total,
             "subtotal": c.subtotal,
             "iva_total": c.iva_total,
@@ -535,7 +489,7 @@ def compra_detalle(compra_id: int, uid: int = Depends(current_user_id), s: Sessi
     its = s.exec(select(CompraItem).where(CompraItem.compra_id == c.id)).all()
     return {
         "id": c.id,
-        "fecha_iso": c.fecha_iso,
+        "fecha_iso": c.fecha.isoformat(),
         "estado": c.estado,
         "metodo_pago": c.metodo_pago,
         "nombre": c.nombre,
