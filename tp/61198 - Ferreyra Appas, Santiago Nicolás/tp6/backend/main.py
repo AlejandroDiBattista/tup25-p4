@@ -142,3 +142,183 @@ def obtener_producto(articulo_id: int, session: Session = Depends(get_session)):
         agotado=articulo.existencias <= 0,
         es_electronico=articulo.es_electronico,
     )
+
+
+# ====================
+# Helpers del carrito
+# ====================
+
+def _obtener_carrito_abierto(
+    session: Session, cliente: Cliente
+) -> CarritoCompra:
+    query = select(CarritoCompra).where(
+        CarritoCompra.cliente_id == cliente.id,
+        CarritoCompra.estado == "abierto",
+    )
+    carrito = session.exec(query).first()
+    if not carrito:
+        carrito = CarritoCompra(cliente_id=cliente.id)
+        session.add(carrito)
+        session.commit()
+        session.refresh(carrito)
+    return carrito
+
+
+def _calcular_totales(
+    lineas: List[LineaCarrito],
+) -> Tuple[float, float, float, float]:
+    subtotal = 0.0
+    iva = 0.0
+
+    for linea in lineas:
+        item_subtotal = linea.precio_unitario * linea.cantidad
+        subtotal += item_subtotal
+
+        if linea.articulo and linea.articulo.es_electronico:
+            tasa = 0.10
+        else:
+            tasa = 0.21
+        iva += item_subtotal * tasa
+
+    if subtotal > 1000:
+        envio = 0.0
+    else:
+        envio = 50.0
+
+    total = subtotal + iva + envio
+    return subtotal, iva, envio, total
+
+
+def _carrito_a_schema(carrito: CarritoCompra) -> schemas.CarritoPublico:
+    lineas_publicas: List[schemas.LineaCarritoPublica] = []
+    for linea in carrito.lineas:
+        if linea.articulo is None:
+            continue
+        lineas_publicas.append(
+            schemas.LineaCarritoPublica(
+                articulo_id=linea.articulo_id,
+                nombre=linea.articulo.titulo,
+                imagen=linea.articulo.imagen,
+                cantidad=linea.cantidad,
+                precio_unitario=linea.precio_unitario,
+                subtotal=linea.precio_unitario * linea.cantidad,
+            )
+        )
+
+    subtotal, iva, envio, total = _calcular_totales(carrito.lineas)
+
+    return schemas.CarritoPublico(
+        id=carrito.id,
+        items=lineas_publicas,
+        total_productos=sum(l.cantidad for l in carrito.lineas),
+        subtotal=subtotal,
+        iva=iva,
+        envio=envio,
+        total=total,
+    )
+
+
+# =============
+# CARRITO
+# =============
+
+@app.get("/carrito", response_model=schemas.CarritoPublico)
+def ver_carrito(
+    cliente: Cliente = Depends(get_cliente_actual),
+    session: Session = Depends(get_session),
+):
+    carrito = _obtener_carrito_abierto(session, cliente)
+    session.refresh(carrito)
+    return _carrito_a_schema(carrito)
+
+
+@app.post("/carrito", response_model=schemas.CarritoPublico)
+def agregar_al_carrito(
+    datos: schemas.AgregarAlCarrito,
+    cliente: Cliente = Depends(get_cliente_actual),
+    session: Session = Depends(get_session),
+):
+    articulo = session.get(Articulo, datos.articulo_id)
+    if not articulo:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    if articulo.existencias <= 0:
+        raise HTTPException(status_code=400, detail="Producto agotado")
+
+    carrito = _obtener_carrito_abierto(session, cliente)
+
+    # ¿ya existe la línea?
+    query = select(LineaCarrito).where(
+        LineaCarrito.carrito_id == carrito.id,
+        LineaCarrito.articulo_id == articulo.id,
+    )
+    linea = session.exec(query).first()
+
+    cantidad_nueva = datos.cantidad
+    if linea:
+        cantidad_nueva = linea.cantidad + datos.cantidad
+
+    if cantidad_nueva > articulo.existencias:
+        raise HTTPException(
+            status_code=400,
+            detail="No hay stock suficiente para esa cantidad",
+        )
+
+    if linea:
+        linea.cantidad = cantidad_nueva
+        linea.precio_unitario = articulo.precio
+    else:
+        linea = LineaCarrito(
+            carrito_id=carrito.id,
+            articulo_id=articulo.id,
+            cantidad=datos.cantidad,
+            precio_unitario=articulo.precio,
+        )
+        session.add(linea)
+
+    carrito.actualizado = datetime.utcnow()
+    session.add(carrito)
+    session.commit()
+    session.refresh(carrito)
+    return _carrito_a_schema(carrito)
+
+
+@app.delete("/carrito/{articulo_id}", response_model=schemas.CarritoPublico)
+def quitar_del_carrito(
+    articulo_id: int,
+    cliente: Cliente = Depends(get_cliente_actual),
+    session: Session = Depends(get_session),
+):
+    carrito = _obtener_carrito_abierto(session, cliente)
+
+    query = select(LineaCarrito).where(
+        LineaCarrito.carrito_id == carrito.id,
+        LineaCarrito.articulo_id == articulo_id,
+    )
+    linea = session.exec(query).first()
+    if not linea:
+        raise HTTPException(status_code=404, detail="El producto no está en el carrito")
+
+    session.delete(linea)
+    carrito.actualizado = datetime.utcnow()
+    session.add(carrito)
+    session.commit()
+    session.refresh(carrito)
+    return _carrito_a_schema(carrito)
+
+
+@app.post("/carrito/cancelar", response_model=schemas.CarritoPublico)
+def cancelar_compra(
+    cliente: Cliente = Depends(get_cliente_actual),
+    session: Session = Depends(get_session),
+):
+    carrito = _obtener_carrito_abierto(session, cliente)
+
+    for linea in list(carrito.lineas):
+        session.delete(linea)
+
+    carrito.actualizado = datetime.utcnow()
+    session.add(carrito)
+    session.commit()
+    session.refresh(carrito)
+    return _carrito_a_schema(carrito)
