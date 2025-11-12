@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
 
 import { AppProviders } from "./providers";
+import { Navbar } from "./components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,35 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 text-slate-900 antialiased`}
       >
         <AppProviders>
-          <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-            <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6">
-              <Link href="/" className="text-xl font-semibold tracking-tight text-slate-900">
-                TP6 Shop
-              </Link>
-              <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
-                <Link href="/" className="transition hover:text-slate-900">
-                  Productos
-                </Link>
-                <Link href="/compras" className="transition hover:text-slate-900">
-                  Mis compras
-                </Link>
-              </nav>
-              <div className="flex items-center gap-3 text-sm font-medium">
-                <Link
-                  href="/iniciar-sesion"
-                  className="rounded-md px-3 py-2 text-slate-600 transition hover:text-slate-900"
-                >
-                  Ingresar
-                </Link>
-                <Link
-                  href="/registrar"
-                  className="rounded-md bg-slate-900 px-4 py-2 text-white shadow-sm transition hover:bg-slate-800"
-                >
-                  Crear cuenta
-                </Link>
-              </div>
-            </div>
-          </header>
+          <Navbar />
           <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             {children}
           </main>
