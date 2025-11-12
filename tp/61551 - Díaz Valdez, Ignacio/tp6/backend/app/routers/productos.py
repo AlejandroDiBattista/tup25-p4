@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 from sqlmodel import select
 from sqlalchemy import func
@@ -13,7 +13,10 @@ router = APIRouter(prefix="/productos", tags=["productos"])
 PRODUCTOS_JSON = Path(__file__).resolve().parent.parent.parent / "productos.json"
 
 @router.get("")
-def obtener_productos(q: Optional[str] = None, categoria: Optional[str] = None):
+def obtener_productos(
+    q: Optional[str] = Query(None, alias="buscar"),
+    categoria: Optional[str] = None,
+):
     try:
         with get_session() as session:
             consulta = select(Producto)

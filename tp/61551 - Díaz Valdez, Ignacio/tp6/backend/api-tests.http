@@ -68,7 +68,7 @@ Content-Type: {{contentType}}
 
 {
   "nombre": "Juan Pérez",
-  "email": "juan.perez@example.com",
+  "email": "juan@example.com",
   "password": "miPassword123"
 }
 
