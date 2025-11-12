@@ -248,7 +248,7 @@ def ver_carrito(
         
         subtotal_item = producto.precio * item.cantidad
         
-        tasa_iva = 0.10 if "electro" in producto.categoria.lower() else 0.21
+        tasa_iva = 0.10 if "electrónica" in producto.categoria.lower() else 0.21
         iva_item = subtotal_item * tasa_iva
         
         resultado.append({
@@ -434,7 +434,9 @@ def finalizar_compra(
         if not producto or producto.existencia < item.cantidad:
             raise HTTPException(status_code=400, detail=f"Stock insuficiente para producto {item.producto_id}")
         subtotal = producto.precio * item.cantidad
-        total += subtotal
+        tasa_iva = 0.10 if "electrónica" in producto.categoria.lower() else 0.21
+        iva = subtotal * tasa_iva
+        total += subtotal + iva
         compra_items.append({
             "producto_id": item.producto_id,
             "cantidad": item.cantidad,
@@ -473,12 +475,17 @@ def finalizar_compra(
     session.commit()
 
     compra_items_db = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
-    items_schema = [CompraItemSchema(
-        producto_id=ic.producto_id,
-        cantidad=ic.cantidad,
-        precio_unitario=ic.precio_unitario,
-        subtotal=ic.subtotal
-    ) for ic in compra_items_db]
+    items_schema = []
+    for ic in compra_items_db:
+        producto = session.get(Producto, ic.producto_id)
+        items_schema.append(CompraItemSchema(
+            producto_id=ic.producto_id,
+            titulo=producto.titulo if producto else "Producto no disponible",
+            imagen=producto.imagen if producto else None,
+            cantidad=ic.cantidad,
+            precio_unitario=ic.precio_unitario,
+            subtotal=ic.subtotal
+        ))
 
     return CompraDTO(
         id=compra.id,
@@ -496,7 +503,7 @@ def ver_historial_compras(
     usuario: Usuario = Depends(obtener_usuario_actual),
     session: Session = Depends(get_session)
 ):
-    compras = session.exec(select(Compra).where(Compra.usuario_id == usuario.id)).all()
+    compras = session.exec(select(Compra).where(Compra.usuario_id == usuario.id).order_by(Compra.fecha.desc())).all()
     return [CompraResumenDTO(
         id=c.id,
         fecha=c.fecha,
@@ -514,12 +521,17 @@ def ver_detalle_compra(
     if not compra or compra.usuario_id != usuario.id:
         raise HTTPException(status_code=404, detail="Compra no encontrada")
     items_db = session.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
-    items_schema = [CompraItemSchema(
-        producto_id=ic.producto_id,
-        cantidad=ic.cantidad,
-        precio_unitario=ic.precio_unitario,
-        subtotal=ic.subtotal
-    ) for ic in items_db]
+    items_schema = []
+    for ic in items_db:
+        producto = session.get(Producto, ic.producto_id)
+        items_schema.append(CompraItemSchema(
+            producto_id=ic.producto_id,
+            titulo=producto.titulo if producto else "Producto no disponible",
+            imagen=producto.imagen if producto else None,
+            cantidad=ic.cantidad,
+            precio_unitario=ic.precio_unitario,
+            subtotal=ic.subtotal
+        ))
     return CompraDTO(
         id=compra.id,
         usuario_id=compra.usuario_id,

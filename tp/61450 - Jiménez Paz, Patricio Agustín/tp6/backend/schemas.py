@@ -42,6 +42,8 @@ from typing import List, Optional
 
 class CompraItemSchema(BaseModel):
     producto_id: int
+    titulo: str
+    imagen: str | None = None
     cantidad: int
     precio_unitario: float
     subtotal: float
