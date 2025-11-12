@@ -13,6 +13,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   const nombre = producto.nombre ?? producto.titulo ?? "Producto sin nombre";
   const tieneImagen = Boolean(producto.imagen);
   const agotado = producto.existencia <= 0;
+  const existencia = Math.max(producto.existencia, 0);
   
   return (
     <Card className="overflow-hidden">
@@ -41,14 +42,19 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </span>
         </div>
         <div className="flex w-full flex-col items-start gap-3 sm:w-40 sm:items-end">
-          <div className="text-right">
+          <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
             <p className="text-2xl font-bold text-slate-900">
               ${producto.precio.toFixed(2)}
             </p>
-            <p className="text-xs font-medium text-slate-500">
-              Disponible: {Math.max(producto.existencia, 0)}
-            </p>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${agotado ? "bg-slate-200 text-slate-600" : "bg-emerald-100 text-emerald-700"}`}
+            >
+              {agotado ? "Agotado" : "Disponible"}
+            </span>
           </div>
+          <p className="text-xs font-medium text-slate-500">
+            Disponible: {existencia}
+          </p>
           <Button
             variant={agotado ? "secondary" : "default"}
             className="w-full sm:w-auto"
