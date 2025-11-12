@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
-from app.api.deps import get_session
+from app.api.deps import get_current_user, get_session, oauth2_scheme
+from app.models import Usuario
 from app.schemas.auth import AuthRequest, TokenResponse
 from app.schemas.usuario import UsuarioCreate, UsuarioPublic
 from app.services.auth import (
     EmailAlreadyRegisteredError,
     authenticate_user,
     issue_token,
+    revoke_token,
     register_user,
 )
 
@@ -31,3 +33,11 @@ def iniciar_sesion(payload: AuthRequest, session: Session = Depends(get_session)
 
     token = issue_token(usuario)
     return TokenResponse(access_token=token)
+
+
+@router.post("/cerrar-sesion", status_code=status.HTTP_204_NO_CONTENT)
+def cerrar_sesion(
+    token: str = Depends(oauth2_scheme),
+    _: Usuario = Depends(get_current_user),
+) -> None:
+    revoke_token(token)

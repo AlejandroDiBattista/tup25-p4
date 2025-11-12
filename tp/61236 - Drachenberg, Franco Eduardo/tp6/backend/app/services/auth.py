@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Set
 
 from sqlmodel import Session, select
 
@@ -14,6 +14,9 @@ from app.models import Usuario
 
 class EmailAlreadyRegisteredError(Exception):
     pass
+
+
+_REVOKED_TOKENS: Set[str] = set()
 
 
 def register_user(session: Session, nombre: str, email: str, password: str) -> Usuario:
@@ -48,4 +51,10 @@ def validate_token(token: str) -> int:
     subject = payload.get("sub")
     if subject is None:
         raise JWTError("Token inválido: falta el sujeto")
+    if token in _REVOKED_TOKENS:
+        raise JWTError("Token revocado")
     return int(subject)
+
+
+def revoke_token(token: str) -> None:
+    _REVOKED_TOKENS.add(token)
