@@ -48,10 +48,10 @@ export default function Cart(){
 
         <form onSubmit={handleFinalize} className="mt-6 max-w-md">
           <label>Dirección</label>
-          <input className="w-full border p-2 rounded mb-2" value={direccion} onChange={e=>setDireccion(e.target.value)} />
+          <input className="w-full border p-2 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" value={direccion} onChange={e=>setDireccion(e.target.value)} />
           <label>Tarjeta</label>
-          <input className="w-full border p-2 rounded mb-4" value={tarjeta} onChange={e=>setTarjeta(e.target.value)} />
-          <button className="px-4 py-2 bg-blue-600 text-white rounded">Finalizar compra</button>
+          <input className="w-full border p-2 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-emerald-500" value={tarjeta} onChange={e=>setTarjeta(e.target.value)} />
+          <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-150">Finalizar compra</button>
         </form>
       </main>
     </div>

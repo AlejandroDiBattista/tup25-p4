@@ -40,12 +40,12 @@ export default function ProductCardFixed({p, onAdd}){
       <h3 className="font-semibold">{title}</h3>
       <p className="text-sm text-gray-600">{p.descripcion}</p>
       <div className="flex items-center justify-between mt-3">
-        <div className="text-lg font-bold">${price}</div>
+        <div className="text-lg font-bold text-emerald-600">${price}</div>
         <div>
           {outOfStock ? (
             <span className="text-red-500">Agotado</span>
           ) : (
-            <button onClick={()=> onAdd(p)} className="px-3 py-1 bg-blue-600 text-white rounded">Agregar</button>
+            <button onClick={()=> onAdd(p)} className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-150">Agregar</button>
           )}
         </div>
       </div>
