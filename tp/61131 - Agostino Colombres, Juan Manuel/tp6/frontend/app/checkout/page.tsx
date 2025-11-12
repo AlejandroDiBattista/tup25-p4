@@ -66,7 +66,6 @@ export default function CheckoutPage() {
     }
 
     const handleStorage = (event: StorageEvent) => {
-      // Tomamos cambios de carrito cuando se actualiza en otra pestaña.
       if (event.key !== CART_STORAGE_KEY) {
         return;
       }
@@ -92,7 +91,6 @@ export default function CheckoutPage() {
     };
   }, [router]);
 
-  // Calculamos totales una sola vez por render.
   const subtotal = useMemo(
     () => cartItems.reduce((acc, item) => acc + item.producto.precio * item.cantidad, 0),
     [cartItems],
@@ -121,7 +119,6 @@ export default function CheckoutPage() {
     setError(null);
     setMensaje(null);
 
-    // Validaciones básicas antes de enviar al backend.
     if (cartItems.length === 0) {
       setError("Tu carrito está vacío.");
       return;

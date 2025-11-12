@@ -3,7 +3,7 @@ import hashlib
 
 from datetime import datetime, timedelta
 
-from fastapi import FastAPI, Response
+from fastapi  import FastAPI, Response
 from sqlmodel import SQLModel, Field, create_engine, Session, select
 
 
@@ -69,7 +69,6 @@ def esta_logeado(token: str) -> bool:
     return usuario_logeado(token) is not None
 
 
-
 app = FastAPI()
 
 @app.on_event("startup")
@@ -116,7 +115,7 @@ async def logout(response: Response, session_token: str):
         usuario = session.exec( select(Usuario).where(Usuario.session_token == session_token) ).first()
         
         if usuario:
-            usuario.session_token = None
+            usuario.session_token      = None
             usuario.session_expiration = None
             session.add(usuario)
             session.commit()

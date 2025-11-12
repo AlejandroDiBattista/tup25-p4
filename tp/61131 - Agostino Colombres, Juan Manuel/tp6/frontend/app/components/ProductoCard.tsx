@@ -18,7 +18,6 @@ export default function ProductoCard({ producto, onAdd, isAuthenticated }: Produ
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const hayStock = producto.existencia > 0;
 
-  // Evitamos renders innecesarios cuando el botón está deshabilitado.
   const handleAddClick = () => {
     if (!hayStock || !isAuthenticated) {
       return;
