@@ -58,12 +58,24 @@ const agregarAlCarrito = (producto: Producto) => {
 };
 
   const eliminarDelCarrito = (id: number) => {
-    setCartItems((prev) => {
-      const nuevo = prev.filter((p) => p.id !== id);
-      localStorage.setItem("carrito", JSON.stringify(nuevo));
-      return nuevo;
-    });
-  };
+  setCartItems((prev) => {
+    const nuevo = prev
+      .map((p) => {
+        if (p.id === id) {
+          if (p.cantidad > 1) {
+            return { ...p, cantidad: p.cantidad - 1 };
+          }
+          return null;
+        }
+        return p;
+      })
+      .filter((p): p is ItemCarrito => p !== null);
+
+    localStorage.setItem("carrito", JSON.stringify(nuevo));
+    return nuevo;
+  });
+};
+
 
   const vaciarCarrito = () => {
     setCartItems([]);

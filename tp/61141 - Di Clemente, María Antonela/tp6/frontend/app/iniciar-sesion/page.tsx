@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -29,8 +30,12 @@ export default function Login() {
     }
 
     const data = await response.json();
+
+    console.log("Datos recibidos del backend:", data);
+
     // Guardar token en localStorage
     localStorage.setItem("token", data.access_token);
+    localStorage.setItem("usuario", data.nombre);
     router.push("/compra"); // Redirige
   } catch (err: any) {
     setError(err.message || "Error en el inicio de sesión");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Producto } from "../types";
 
 interface Compra {
@@ -16,8 +17,15 @@ interface Compra {
 }
 
 export default function MisCompras() {
+  const router = useRouter();   
   const [compras, setCompras] = useState<Compra[]>([]);
   const [seleccionada, setSeleccionada] = useState<Compra | null>(null);
+
+  const handleSalir = () => {
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("token");
+    router.push("/iniciar-sesion");
+  };
 
   useEffect(() => {
     const guardadas = localStorage.getItem("historialCompras");
@@ -30,6 +38,35 @@ export default function MisCompras() {
 
   return (
     <div className="p-8 flex flex-col">
+        <header className="bg-white shadow-sm mb-6">
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+             <h1 className="text-xl font-bold text-gray-900 font-serif tracking-tight">
+             TP6 Shop
+             </h1>
+             <nav className="flex items-center gap-5 ml-[-40px]">
+              <button
+                 onClick={() => router.push("/")}
+                 className="text-gray-700 hover:text-blue-600"
+              >
+                  Productos
+             </button>
+
+            <button
+              onClick={() => router.push("/mis-compras")}
+              className="text-gray-700 hover:text-blue-600"
+            >
+              Mis compras
+            </button>
+
+            <button
+              onClick={handleSalir}
+              className="text-red-600 hover:text-red-800 transition"
+            >
+              Salir
+            </button>
+          </nav>
+        </div>
+      </header>
       <h1 className="text-2xl font-bold mb-6">Mis compras</h1>
 
       {compras.length === 0 ? (

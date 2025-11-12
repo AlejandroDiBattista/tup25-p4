@@ -17,13 +17,16 @@ export default function RegistrarPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre,
+          nombre: nombre,
           email: correo,
           password: contrasena,
         }),
       });
 
       if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("usuario", nombre);
+
         alert("Usuario registrado correctamente");
         router.push("/iniciar-sesion");
       } else {

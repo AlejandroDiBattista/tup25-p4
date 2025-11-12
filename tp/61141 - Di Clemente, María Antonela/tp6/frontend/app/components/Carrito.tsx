@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useCarrito } from "./CarritoContext";
 
 export default function Carrito() {
-  const { cartItems: productos, vaciarCarrito } = useCarrito();
+  const { cartItems: productos, vaciarCarrito, agregarAlCarrito, eliminarDelCarrito } = useCarrito();
 
-  const subtotal = productos.reduce((acc, p) => acc + p.precio * (p.existencia || 1), 0);
+  const subtotal = productos.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
   const iva = subtotal * 0.21;
   const envio = subtotal > 0 ? 50 : 0;
   const total = subtotal + iva + envio;
@@ -16,39 +16,46 @@ export default function Carrito() {
       {/* Lista de productos */}
       <div className="space-y-4">
         {productos.map((producto) => {
-          const imagenUrl = `http://localhost:8000/${producto.imagen.replace(/^\/+/, '')}`;
+          const imagenUrl = `http://localhost:8000/${producto.imagen}`;
 
           return (
             <div key={producto.id} className="flex items-center gap-3">
               <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
-                <Image
+                <img
                   src={imagenUrl}
                   alt={producto.titulo}
-                  width={64}
-                  height={64}
-                  className="object-contain"
+                  className="w-16 h-16 object-contain rounded-lg"
                 />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-800">
-                  {producto.titulo || producto.titulo}
+                  {producto.titulo}
                 </p>
                 <p className="text-xs text-gray-500">
                   ${producto.precio.toFixed(2)} c/u
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs text-gray-500">Cantidad:</span>
-                  <button className="px-2 py-1 border rounded text-gray-700 hover:bg-gray-100">
+                  <button
+                    className="px-2 py-1 border rounded text-gray-700 hover:bg-gray-100"
+                     onClick={() => eliminarDelCarrito(producto.id)}
+                  >
                     −
                   </button>
-                  <span className="text-sm">{producto.existencia}</span>
-                  <button className="px-2 py-1 border rounded text-gray-700 hover:bg-gray-100">
+
+                  <span className="text-sm">{producto.cantidad}</span>
+
+                  <button
+                    className="px-2 py-1 border rounded text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                    onClick={() => agregarAlCarrito(producto)} // aumenta 1 unidad
+                    disabled={producto.cantidad >= producto.existencia} // no puede superar stock
+                  >
                     +
                   </button>
                 </div>
               </div>
               <p className="text-sm font-semibold text-gray-800">
-                ${(producto.precio * producto.existencia).toFixed(2)}
+                ${(producto.precio * producto.cantidad).toFixed(2)}
               </p>
             </div>
           );

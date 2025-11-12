@@ -27,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <CarritoProviderClient>{children}</CarritoProviderClient>
+          <CarritoProviderClient>
+            {children}
+            </CarritoProviderClient>  
         </body>
       </html>
     );
