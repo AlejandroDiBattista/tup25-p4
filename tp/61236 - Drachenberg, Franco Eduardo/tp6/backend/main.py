@@ -6,6 +6,7 @@ from app.db.init_db import create_db_and_tables
 from app.db.session import get_engine
 from app.routers.auth import router as auth_router
 from app.routers.carrito import router as carrito_router
+from app.routers.compras import router as compras_router
 from app.routers.productos import router as productos_router
 
 
@@ -38,6 +39,7 @@ def root():
 
 app.include_router(auth_router)
 app.include_router(carrito_router)
+app.include_router(compras_router)
 app.include_router(productos_router)
 
 
