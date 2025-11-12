@@ -1,61 +1,63 @@
-import { Producto } from '../types';
-import Image from 'next/image';
+import Image from "next/image";
+
+import { Producto } from "../types";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 
 interface ProductoCardProps {
   producto: Producto;
 }
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  const nombre = producto.nombre ?? producto.titulo ?? 'Producto sin nombre';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const nombre = producto.nombre ?? producto.titulo ?? "Producto sin nombre";
   const tieneImagen = Boolean(producto.imagen);
-  const valoracion = producto.valoracion ?? null;
+  const agotado = producto.existencia <= 0;
   
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      {tieneImagen ? (
-        <div className="relative h-64 bg-gray-100">
-          <Image
-            src={`${API_URL}/${producto.imagen}`}
-            alt={nombre}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-contain p-4"
-            unoptimized
-          />
-        </div>
-      ) : (
-        <div className="flex h-64 items-center justify-center bg-gray-100 p-4 text-sm text-gray-500">
-          Imagen no disponible
-        </div>
-      )}
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {nombre}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {producto.descripcion}
-        </p>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
-          </span>
-          {valoracion !== null && (
-            <div className="flex items-center gap-1">
-              <span className="text-yellow-500">★</span>
-              <span className="text-sm text-gray-700">{valoracion}</span>
-            </div>
+    <Card className="overflow-hidden">
+      <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+        <div className="flex h-28 w-full shrink-0 items-center justify-center rounded-lg bg-slate-100 sm:w-28">
+          {tieneImagen ? (
+            <Image
+              src={`${API_URL}/${producto.imagen}`}
+              alt={nombre}
+              width={96}
+              height={96}
+              className="h-20 w-20 object-contain"
+              unoptimized
+            />
+          ) : (
+            <span className="text-xs text-slate-500">Sin imagen</span>
           )}
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            ${producto.precio.toFixed(2)}
-          </span>
-          <span className="text-xs text-gray-500">
-            Stock: {producto.existencia}
+        <div className="flex flex-1 flex-col gap-1">
+          <h3 className="text-lg font-semibold text-slate-900">{nombre}</h3>
+          <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">
+            {producto.descripcion}
+          </p>
+          <span className="text-xs font-medium text-slate-500">
+            Categoría: {producto.categoria}
           </span>
         </div>
-      </div>
-    </div>
+        <div className="flex w-full flex-col items-start gap-3 sm:w-40 sm:items-end">
+          <div className="text-right">
+            <p className="text-2xl font-bold text-slate-900">
+              ${producto.precio.toFixed(2)}
+            </p>
+            <p className="text-xs font-medium text-slate-500">
+              Disponible: {Math.max(producto.existencia, 0)}
+            </p>
+          </div>
+          <Button
+            variant={agotado ? "secondary" : "default"}
+            className="w-full sm:w-auto"
+            disabled={agotado}
+          >
+            {agotado ? "Sin stock" : "Agregar al carrito"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
