@@ -133,3 +133,21 @@ def remove_item_from_cart(
     session.refresh(carrito)
 
     return build_cart_summary(session, carrito)
+
+
+def cancel_cart(session: Session, usuario_id: int) -> CarritoRead:
+    carrito = get_or_create_active_cart(session, usuario_id)
+    session.refresh(carrito)
+
+    if carrito.estado != "abierto":
+        raise CarritoCerradoError("El carrito no está disponible para modificaciones")
+
+    statement = select(ItemCarrito).where(ItemCarrito.carrito_id == carrito.id)
+    items = session.exec(statement).all()
+    for item in items:
+        session.delete(item)
+
+    session.commit()
+    session.refresh(carrito)
+
+    return build_cart_summary(session, carrito)
