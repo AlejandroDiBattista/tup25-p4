@@ -88,7 +88,14 @@ export default function ProductoCatalogo() {
         {filtrados.map((producto: any) => (
           <div key={producto.id} className="bg-white p-6 rounded-lg shadow flex gap-6 items-center">
             <div className="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center">
-              <span className="text-gray-500">Imagen</span>
+              <img 
+                src={`/imagenes/${String(producto.id).padStart(4, '0')}.png`}
+                alt={producto.nombre}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
             </div>
 
             <div className="flex-1">

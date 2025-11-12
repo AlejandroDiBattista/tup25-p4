@@ -16,7 +16,7 @@ export default function Navigation() {
       console.error('Error al cerrar sesión:', error);
     }
     logout();
-    router.push('/login');
+    router.push('/Login');
   };
 
   return (

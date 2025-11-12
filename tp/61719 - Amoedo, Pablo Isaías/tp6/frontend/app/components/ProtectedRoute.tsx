@@ -10,7 +10,7 @@ export default function ProtectedRoute({ children }: { readonly children: React.
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/Login');
     }
   }, [isAuthenticated, router]);
 

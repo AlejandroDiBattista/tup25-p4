@@ -14,15 +14,13 @@ def create_db_and_tables():
 
 
 def load_initial_data():
-    # Abrir sesión
+    """Cargar datos iniciales de productos"""
     with Session(engine) as session:
-        # Verificar si ya existen productos en la DB
-        existing = session.exec(select(Producto)).first()
-        if existing:
-            return  # Ya hay productos, no cargar de nuevo
+        # Contar productos existentes
+        count = len(session.exec(select(Producto)).all())
+        if count > 0:
+            return
 
-        # Cargar JSON de productos
-        # Obtener la ruta del directorio actual
         current_dir = os.path.dirname(os.path.abspath(__file__))
         backend_dir = os.path.dirname(current_dir)
         json_file = os.path.join(backend_dir, "productos.json")
@@ -30,8 +28,14 @@ def load_initial_data():
         with open(json_file, "r", encoding="utf-8") as f:
             productos_data = json.load(f)
 
-        # Insertar productos iniciales
         for item in productos_data:
+            # Usar "titulo" como "nombre"
+            if "titulo" in item:
+                item["nombre"] = item.pop("titulo")
+            # Eliminar campos que no existen en el modelo
+            item.pop("valoracion", None)
+            item.pop("imagen", None)
+            
             producto = Producto(**item)
             session.add(producto)
 
