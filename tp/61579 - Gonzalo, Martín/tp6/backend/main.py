@@ -378,6 +378,7 @@ def finalizar_compra(
     session.add(nueva_compra)
     session.commit()
     session.refresh(nueva_compra)
+    
     return nueva_compra
 
 # --- 15. Modelos Pydantic para Historial (¡EL ARREGLO!) ---
