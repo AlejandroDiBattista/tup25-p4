@@ -41,15 +41,15 @@ Accept: {{contentType}}
 GET {{baseUrl}}/productos?buscar=camis
 Accept: {{contentType}}
 
-### 2.3 - Filtrar productos por categoría
-GET {{baseUrl}}/productos?categoria=electro
+### 2.3 - Filtrar productos por categoría  //revisar
+GET {{baseUrl}}/productos?categoria=electró
 Accept: {{contentType}}
 
-### 2.4 - Combinar búsqueda y filtro
+### 2.4 - Combinar búsqueda y filtro   //revisar
 GET {{baseUrl}}/productos?categoria=ropa&buscar=hombre
 Accept: {{contentType}}
 
-### 2.5 - Obtener detalle de un producto (ID: 1)
+### 2.5 - Obtener detalle de un producto (ID: 1) 
 GET {{baseUrl}}/productos/1
 Accept: {{contentType}}
 
@@ -164,15 +164,18 @@ Authorization: Bearer {{token}}
   "cantidad": 2
 }
 
-### 5.2 - Finalizar compra
+
+### 5.2 - Finalizar compra --se agrego nombre y telefono porque mi confirmcheckout request los necesita para funcionar correctamente
 # @name checkout
 POST {{baseUrl}}/carrito/finalizar
 Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 {
-  "direccion": "Av. Corrientes 1234, CABA",
-  "tarjeta": "4111111111111111"
+  "nombre": "María García",
+  "direccion": "Calle Falsa 123, Springfield",
+  "telefono": "11-9876-5432",
+  "tarjeta": "5555555555554444"
 }
 
 ### Guardar el ID de la compra
@@ -245,8 +248,8 @@ Content-Type: {{contentType}}
   "password": "password123"
 }
 
-### 8.3 - Buscar productos de electrónica
-GET {{baseUrl}}/productos?categoria=electro
+### 8.3 - Buscar productos de electrónica //revisar
+GET {{baseUrl}}/productos?categoria=electró
 Accept: {{contentType}}
 
 ### 8.4 - Agregar producto al carrito (Monitor)
@@ -280,11 +283,13 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
 {
+  "nombre": "María García",
   "direccion": "Calle Falsa 123, Springfield",
+  "telefono": "11-9876-5432",
   "tarjeta": "5555555555554444"
 }
 
-### 8.8 - Ver historial de compras
+### 8.8 - Ver historial de compras  #revisar
 GET {{baseUrl}}/compras
 Accept: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}

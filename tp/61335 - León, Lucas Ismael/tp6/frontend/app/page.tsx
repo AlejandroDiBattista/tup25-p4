@@ -1,29 +1,36 @@
 import { obtenerProductos } from './services/productos';
 import ProductoCard from './components/ProductoCard';
+import Filtros from './components/Filtros';
+import SidebarCarrito from './components/SidebarCarrito';
 
-export default async function Home() {
-  const productos = await obtenerProductos();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ buscar?: string | string[]; categoria?: string | string[] }>;
+}) {
+  const sp = await searchParams;
+  const buscar = Array.isArray(sp?.buscar) ? sp.buscar[0] : sp?.buscar;
+  const categoria = Array.isArray(sp?.categoria) ? sp.categoria[0] : sp?.categoria;
+
+  const productos = await obtenerProductos({ buscar, categoria });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
+    <div className="">
+      <div className="mb-4">
+        <div className="bg-white border rounded p-4">
+          <Filtros />
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+        <div className="space-y-3 lg:col-span-2">
           {productos.map((producto) => (
             <ProductoCard key={producto.id} producto={producto} />
           ))}
         </div>
-      </main>
+        <div>
+          <SidebarCarrito />
+        </div>
+      </div>
     </div>
   );
 }

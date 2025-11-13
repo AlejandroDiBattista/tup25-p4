@@ -1,29 +1,23 @@
-import { obtenerProductos } from './services/productos';
-import ProductoCard from './components/ProductoCard';
+'use client';
 
-export default async function Home() {
-  const productos = await obtenerProductos();
+import ProductosBrowser from './components/ProductosBrowser';
+import CartPanel from './components/CartPanel';
 
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
+    // Más espacio respecto al navbar
+    <div className="mx-auto max-w-screen-2xl px-4 pt-12 pb-6">
+      {/* 3/5 para productos, 2/5 para carrito */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 lg:gap-4 gap-3">
+        <div className="lg:col-span-3">
+          <ProductosBrowser />
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
+        <div className="lg:col-span-2">
+          {/* separador para alinear el carrito debajo de la fila de filtros */}
+          <div className="hidden lg:block h-16 mb-4" />
+          <CartPanel />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

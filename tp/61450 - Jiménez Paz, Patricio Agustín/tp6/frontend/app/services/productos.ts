@@ -13,3 +13,15 @@ export async function obtenerProductos(): Promise<Producto[]> {
   
   return response.json();
 }
+
+export async function obtenerProductoPorId(id: number): Promise<Producto> {
+  const response = await fetch(`${API_URL}/productos/${id}`, {
+    cache: 'no-store'
+  });
+  
+  if (!response.ok) {
+    throw new Error('Error al obtener producto');
+  }
+  
+  return response.json();
+}

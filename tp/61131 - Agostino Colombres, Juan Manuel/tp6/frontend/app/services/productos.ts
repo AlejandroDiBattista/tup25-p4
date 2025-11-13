@@ -2,8 +2,24 @@ import { Producto } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export async function obtenerProductos(): Promise<Producto[]> {
-  const response = await fetch(`${API_URL}/productos`, {
+export interface FiltrosProductos {
+  categoria?: string;
+  busqueda?: string;
+}
+
+export async function obtenerProductos(filtros?: FiltrosProductos): Promise<Producto[]> {
+  const params = new URLSearchParams();
+
+  if (filtros?.categoria) {
+    params.set('categoria', filtros.categoria);
+  }
+
+  if (filtros?.busqueda) {
+    params.set('busqueda', filtros.busqueda);
+  }
+
+  const query = params.toString();
+  const response = await fetch(`${API_URL}/productos${query ? `?${query}` : ''}`, {
     cache: 'no-store'
   });
   

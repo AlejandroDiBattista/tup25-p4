@@ -2,13 +2,7 @@
 ### API E-Commerce - Tests REST Client
 ### ========================================
 ### 
-### Este archivo contiene pruebas para todos los endpoints de la API.
-### Usa la extensión REST Client de VSCode para ejecutar las peticiones.
-### 
-### Presiona "Send Request" sobre cada petición o usa:
-### - Ctrl+Alt+R (Windows/Linux) 
-### - Cmd+Alt+R (Mac)
-###
+
 
 @baseUrl = http://localhost:8000
 @contentType = application/json

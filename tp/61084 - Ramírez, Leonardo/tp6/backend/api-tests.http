@@ -252,12 +252,15 @@ Accept: {{contentType}}
 ### 8.4 - Agregar producto al carrito (Monitor)
 POST {{baseUrl}}/carrito
 Content-Type: {{contentType}}
-Authorization: Bearer {{login_test.response.body.access_token}}
+Authorization:Bearer {{login_test.response.body.access_token}}
+
 
 {
-  "producto_id": 13,
-  "cantidad": 1
+  "usuario": "maria.garcia@example.com",
+  "producto_id": 6,
+  "cantidad": 2
 }
+
 
 ### 8.5 - Agregar otro producto (SSD)
 POST {{baseUrl}}/carrito
@@ -265,6 +268,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
 {
+  "usuario": "maria.garcia@example.com",
   "producto_id": 11,
   "cantidad": 2
 }
@@ -275,19 +279,17 @@ Accept: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
 ### 8.7 - Finalizar la compra
-POST {{baseUrl}}/carrito/finalizar
-Content-Type: {{contentType}}
-Authorization: Bearer {{login_test.response.body.access_token}}
+GET {{baseUrl}}/compras
+Accept: {{contentType}}
+Authorization: Bearer Bearer {{login_test.response.body.access_token}}
 
-{
-  "direccion": "Calle Falsa 123, Springfield",
-  "tarjeta": "5555555555554444"
-}
+
 
 ### 8.8 - Ver historial de compras
 GET {{baseUrl}}/compras
 Accept: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}
+
 
 
 ### ========================================

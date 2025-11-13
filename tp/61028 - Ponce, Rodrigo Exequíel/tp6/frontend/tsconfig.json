@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", // <-- Esto es correcto
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -18,9 +19,13 @@
         "name": "next"
       }
     ],
+    // --- ¡ESTA ES LA PARTE MODIFICADA! ---
     "paths": {
-      "@/*": ["./*"]
+      "@/components/*": ["components/*"], // <-- Más específico
+      "@/lib/*": ["lib/*"],              // <-- Más específico
+      "@/*": ["./*"]                      // <-- Mantenemos el general
     }
+    // --- FIN DE LA MODIFICACIÓN ---
   },
   "include": [
     "next-env.d.ts",

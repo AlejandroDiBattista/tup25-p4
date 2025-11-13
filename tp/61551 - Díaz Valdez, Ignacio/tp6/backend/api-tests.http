@@ -10,7 +10,7 @@
 ### - Cmd+Alt+R (Mac)
 ###
 
-@baseUrl = http://localhost:8000
+@baseUrl = http://127.0.0.1:8000
 @contentType = application/json
 
 ### Variables para autenticación (se actualizan después del login)
@@ -26,7 +26,7 @@ GET {{baseUrl}}/
 Accept: {{contentType}}
 
 ### 1.2 - Ver documentación interactiva
-# GET {{baseUrl}}/docs
+ GET {{baseUrl}}/docs
 
 
 ### ========================================
@@ -68,7 +68,7 @@ Content-Type: {{contentType}}
 
 {
   "nombre": "Juan Pérez",
-  "email": "juan.perez@example.com",
+  "email": "juan@example.com",
   "password": "miPassword123"
 }
 
