@@ -1,38 +1,39 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-import json
-from pathlib import Path
+from contextlib import asynccontextmanager
+from database import engine, init_db
+from routers import auth, productos, carrito, compras
 
-app = FastAPI(title="API Productos")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Inicializar base de datos al iniciar
+    init_db()
+    yield
+    # Código de limpieza si es necesario
 
-# Montar directorio de imágenes como archivos estáticos
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+app = FastAPI(
+    title="E-commerce API",
+    description="API RESTful para sitio de comercio electrónico",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],  # Next.js por defecto
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+# Incluir routers
+app.include_router(auth.router, prefix="/api", tags=["Autenticación"])
+app.include_router(productos.router, prefix="/api", tags=["Productos"])
+app.include_router(carrito.router, prefix="/api", tags=["Carrito"])
+app.include_router(compras.router, prefix="/api", tags=["Compras"])
 
 @app.get("/")
-def root():
-    return {"mensaje": "API de Productos - use /productos para obtener el listado"}
+async def root():
+    return {"message": "E-commerce API"}
 
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)

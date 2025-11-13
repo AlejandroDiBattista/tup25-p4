@@ -1,0 +1,89 @@
+### 1. Probar endpoint raíz
+GET http://127.0.0.1:8000/
+
+### 2. Listar todos los productos
+GET http://127.0.0.1:8000/productos
+
+### 3. Buscar productos por nombre
+GET http://127.0.0.1:8000/productos?q=laptop
+
+### 4. Filtrar productos por categoría
+GET http://127.0.0.1:8000/productos?categoria=Electrónica
+
+### 5. Obtener detalle de un producto
+GET http://127.0.0.1:8000/productos/1
+
+### 6. Verificar stock de un producto
+GET http://127.0.0.1:8000/productos/1/stock
+
+### 7. Registrar un nuevo usuario
+POST http://127.0.0.1:8000/registrar
+Content-Type: application/json
+
+{
+  "nombre": "Test Usuario",
+  "email": "test@example.com",
+  "password": "test123456"
+}
+
+### 8. Iniciar sesión (va a fallar porque las credenciales no coinciden con el hash)
+POST http://127.0.0.1:8000/iniciar-sesion?email=test@example.com&password=test123456
+
+### 9. Agregar producto al carrito (requiere usuario_id del registro)
+POST http://127.0.0.1:8000/carrito?usuario_id=1&producto_id=1
+
+### 10. Ver carrito
+GET http://127.0.0.1:8000/carrito?usuario_id=1
+
+### 11. Agregar más del mismo producto (debe verificar stock)
+POST http://127.0.0.1:8000/carrito?usuario_id=1&producto_id=1
+
+### 12. Intentar agregar más allá del stock (debe fallar)
+POST http://127.0.0.1:8000/carrito?usuario_id=1&producto_id=1
+POST http://127.0.0.1:8000/carrito?usuario_id=1&producto_id=1
+POST http://127.0.0.1:8000/carrito?usuario_id=1&producto_id=1
+
+### 13. Quitar producto del carrito
+DELETE http://127.0.0.1:8000/carrito/1?usuario_id=1
+
+### 14. Finalizar compra (con validaciones)
+POST http://127.0.0.1:8000/carrito/finalizar
+Content-Type: application/json
+
+{
+  "usuario_id": 1,
+  "direccion": "Calle Falsa 123, Ciudad",
+  "tarjeta": "4532015112830366"
+}
+
+### 15. Finalizar compra con dirección corta (debe fallar validación)
+POST http://127.0.0.1:8000/carrito/finalizar
+Content-Type: application/json
+
+{
+  "usuario_id": 1,
+  "direccion": "Corta",
+  "tarjeta": "4532015112830366"
+}
+
+### 16. Finalizar compra con tarjeta inválida (debe fallar validación)
+POST http://127.0.0.1:8000/carrito/finalizar
+Content-Type: application/json
+
+{
+  "usuario_id": 1,
+  "direccion": "Calle Falsa 123, Ciudad",
+  "tarjeta": "123"
+}
+
+### 17. Ver historial de compras
+GET http://127.0.0.1:8000/compras?usuario_id=1
+
+### 18. Ver detalle de una compra específica
+GET http://127.0.0.1:8000/compras/1
+
+### 19. Cancelar carrito
+POST http://127.0.0.1:8000/carrito/cancelar?usuario_id=1
+
+### 20. Cerrar sesión
+POST http://127.0.0.1:8000/cerrar-sesion

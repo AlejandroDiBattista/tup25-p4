@@ -1,15 +1,22 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import json
-from pathlib import Path
+from sqlmodel import SQLModel
+from db import engine
 
-app = FastAPI(title="API Productos")
+# ✅ Importar modelos (asegura que las tablas existan)
+from models import Producto, Usuario, Carrito, ItemCarrito, Compra, ItemCompra
 
-# Montar directorio de imágenes como archivos estáticos
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+# ✅ Importar routers
+from routers.auth import router as auth_router
+from routers.carrito import router as carrito_router
+from routers.compras import router as compras_router
+from routers.productos import router as productos_router
 
-# Configurar CORS
+# ✅ Crear instancia de la app
+app = FastAPI(title="E-Commerce FastAPI")
+
+# ✅ Middleware CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,21 +25,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+# ✅ Crear tablas automáticamente al iniciar
+@app.on_event("startup")
+def on_startup():
+    SQLModel.metadata.create_all(engine)
+
+# ✅ Registrar routers
+app.include_router(auth_router)
+app.include_router(productos_router)
+app.include_router(carrito_router)
+app.include_router(compras_router)
+
+# ✅ Servir imágenes estáticas
+app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
 
 @app.get("/")
 def root():
-    return {"mensaje": "API de Productos - use /productos para obtener el listado"}
-
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    return {"mensaje": "API de E-Commerce funcionando correctamente 🚀"}

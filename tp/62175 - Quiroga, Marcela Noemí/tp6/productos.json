@@ -1,0 +1,108 @@
+[
+  {
+    "nombre": "Laptop HP Pavilion",
+    "descripcion": "Laptop de 15.6 pulgadas, Intel Core i5, 8GB RAM, 256GB SSD",
+    "precio": 850.00,
+    "categoria": "Electrónicos",
+    "existencia": 10
+  },
+  {
+    "nombre": "Mouse Logitech MX Master",
+    "descripcion": "Mouse inalámbrico ergonómico con sensor de alta precisión",
+    "precio": 89.99,
+    "categoria": "Electrónicos",
+    "existencia": 25
+  },
+  {
+    "nombre": "Teclado Mecánico RGB",
+    "descripcion": "Teclado mecánico con retroiluminación RGB, switches Cherry MX",
+    "precio": 120.00,
+    "categoria": "Electrónicos",
+    "existencia": 15
+  },
+  {
+    "nombre": "Camiseta Algodón",
+    "descripcion": "Camiseta 100% algodón, disponible en varios colores",
+    "precio": 25.99,
+    "categoria": "Ropa",
+    "existencia": 50
+  },
+  {
+    "nombre": "Pantalón Jeans",
+    "descripcion": "Pantalón jeans clásico, corte regular, varios talles",
+    "precio": 45.00,
+    "categoria": "Ropa",
+    "existencia": 30
+  },
+  {
+    "nombre": "Zapatillas Deportivas",
+    "descripcion": "Zapatillas para running, suela amortiguada, transpirable",
+    "precio": 75.50,
+    "categoria": "Ropa",
+    "existencia": 20
+  },
+  {
+    "nombre": "Libro 'El Quijote'",
+    "descripcion": "Edición clásica de Don Quijote de la Mancha",
+    "precio": 18.99,
+    "categoria": "Libros",
+    "existencia": 40
+  },
+  {
+    "nombre": "Novela de Ciencia Ficción",
+    "descripcion": "Colección de novelas de ciencia ficción, tapa blanda",
+    "precio": 22.50,
+    "categoria": "Libros",
+    "existencia": 35
+  },
+  {
+    "nombre": "Mesa de Madera",
+    "descripcion": "Mesa de comedor de madera maciza, 6 plazas",
+    "precio": 350.00,
+    "categoria": "Hogar",
+    "existencia": 8
+  },
+  {
+    "nombre": "Silla Ergonómica",
+    "descripcion": "Silla de oficina ergonómica con soporte lumbar",
+    "precio": 180.00,
+    "categoria": "Hogar",
+    "existencia": 12
+  },
+  {
+    "nombre": "Lámpara de Escritorio",
+    "descripcion": "Lámpara LED ajustable con brazo flexible",
+    "precio": 35.99,
+    "categoria": "Hogar",
+    "existencia": 18
+  },
+  {
+    "nombre": "Smartphone Samsung",
+    "descripcion": "Smartphone Android, 128GB, pantalla AMOLED 6.1 pulgadas",
+    "precio": 650.00,
+    "categoria": "Electrónicos",
+    "existencia": 5
+  },
+  {
+    "nombre": "Auriculares Bluetooth",
+    "descripcion": "Auriculares inalámbricos con cancelación de ruido",
+    "precio": 95.00,
+    "categoria": "Electrónicos",
+    "existencia": 22
+  },
+  {
+    "nombre": "Tablet iPad",
+    "descripcion": "Tablet de 10.2 pulgadas, 64GB, WiFi",
+    "precio": 450.00,
+    "categoria": "Electrónicos",
+    "existencia": 7
+  },
+  {
+    "nombre": "Chaqueta Impermeable",
+    "descripcion": "Chaqueta resistente al agua, capucha ajustable",
+    "precio": 65.00,
+    "categoria": "Ropa",
+    "existencia": 15
+  }
+]
+

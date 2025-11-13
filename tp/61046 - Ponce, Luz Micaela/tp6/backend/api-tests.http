@@ -1,12 +1,12 @@
 ### ========================================
 ### API E-Commerce - Tests REST Client
 ### ========================================
-### 
+###
 ### Este archivo contiene pruebas para todos los endpoints de la API.
 ### Usa la extensión REST Client de VSCode para ejecutar las peticiones.
-### 
+###
 ### Presiona "Send Request" sobre cada petición o usa:
-### - Ctrl+Alt+R (Windows/Linux) 
+### - Ctrl+Alt+R (Windows/Linux)
 ### - Cmd+Alt+R (Mac)
 ###
 
@@ -176,7 +176,7 @@ Authorization: Bearer {{token}}
 }
 
 ### Guardar el ID de la compra
-@compra_id = {{checkout.response.body.compra_id}}
+@compra_id = {{checkout.response.body.id}}
 
 
 ### ========================================

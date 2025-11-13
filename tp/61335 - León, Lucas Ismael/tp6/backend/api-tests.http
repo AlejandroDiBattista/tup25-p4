@@ -11,10 +11,11 @@
 ###
 
 @baseUrl = http://localhost:8000
-@contentType = application/json
+@json = application/json
+@form = application/x-www-form-urlencoded
 
-### Variables para autenticación (se actualizan después del login)
-# @token = tu_token_aqui
+### Variable global de token (se setea tras login)
+# @token = PONER_TOKEN_AQUI_SI_QUERÉS_EJECUTAR RÁPIDO
 
 
 ### ========================================
@@ -64,7 +65,7 @@ Accept: {{contentType}}
 
 ### 3.1 - Registrar un nuevo usuario
 POST {{baseUrl}}/registrar
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 
 {
   "nombre": "Juan Pérez",
@@ -72,22 +73,19 @@ Content-Type: {{contentType}}
   "password": "miPassword123"
 }
 
-### 3.2 - Iniciar sesión
+### 3.2 - Iniciar sesión (formato x-www-form-urlencoded requerido por OAuth2PasswordRequestForm)
 # @name login
 POST {{baseUrl}}/iniciar-sesion
-Content-Type: {{contentType}}
+Content-Type: {{form}}
 
-{
-  "email": "juan.perez@example.com",
-  "password": "miPassword123"
-}
+username=juan.perez@example.com&password=miPassword123
 
-### Guardar el token de la respuesta anterior
+### Guardar el token de la respuesta anterior (access_token)
 @token = {{login.response.body.access_token}}
 
-### 3.3 - Intentar registrar usuario duplicado (debe devolver 400)
+### 3.3 - Intentar registrar usuario duplicado (debe devolver 400 con detail "El email ya está registrado")
 POST {{baseUrl}}/registrar
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 
 {
   "nombre": "Juan Pérez",
@@ -95,9 +93,9 @@ Content-Type: {{contentType}}
   "password": "miPassword123"
 }
 
-### 3.4 - Cerrar sesión (requiere autenticación)
+### 3.4 - Cerrar sesión (invalidará el token actual)
 POST {{baseUrl}}/cerrar-sesion
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{token}}
 
 
@@ -107,12 +105,12 @@ Authorization: Bearer {{token}}
 
 ### 4.1 - Ver carrito actual (requiere autenticación)
 GET {{baseUrl}}/carrito
-Accept: {{contentType}}
+Accept: {{json}}
 Authorization: Bearer {{token}}
 
 ### 4.2 - Agregar producto al carrito
 POST {{baseUrl}}/carrito
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{token}}
 
 {
@@ -122,7 +120,7 @@ Authorization: Bearer {{token}}
 
 ### 4.3 - Agregar otro producto al carrito
 POST {{baseUrl}}/carrito
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{token}}
 
 {
@@ -136,7 +134,7 @@ Authorization: Bearer {{token}}
 
 ### 4.5 - Intentar agregar producto sin existencia (debe fallar)
 POST {{baseUrl}}/carrito
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{token}}
 
 {
@@ -146,7 +144,7 @@ Authorization: Bearer {{token}}
 
 ### 4.6 - Cancelar compra (vaciar carrito)
 POST {{baseUrl}}/carrito/cancelar
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{token}}
 
 
@@ -156,7 +154,7 @@ Authorization: Bearer {{token}}
 
 ### 5.1 - Agregar productos para la compra
 POST {{baseUrl}}/carrito
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{token}}
 
 {
@@ -167,7 +165,7 @@ Authorization: Bearer {{token}}
 ### 5.2 - Finalizar compra
 # @name checkout
 POST {{baseUrl}}/carrito/finalizar
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{token}}
 
 {
@@ -185,17 +183,17 @@ Authorization: Bearer {{token}}
 
 ### 6.1 - Ver resumen de todas las compras
 GET {{baseUrl}}/compras
-Accept: {{contentType}}
+Accept: {{json}}
 Authorization: Bearer {{token}}
 
 ### 6.2 - Ver detalle de una compra específica
 GET {{baseUrl}}/compras/{{compra_id}}
-Accept: {{contentType}}
+Accept: {{json}}
 Authorization: Bearer {{token}}
 
 ### 6.3 - Ver detalle de compra inexistente (debe devolver 404)
 GET {{baseUrl}}/compras/999
-Accept: {{contentType}}
+Accept: {{json}}
 Authorization: Bearer {{token}}
 
 
@@ -205,11 +203,11 @@ Authorization: Bearer {{token}}
 
 ### 7.1 - Intentar acceder al carrito sin autenticación (debe devolver 401)
 GET {{baseUrl}}/carrito
-Accept: {{contentType}}
+Accept: {{json}}
 
 ### 7.2 - Intentar agregar al carrito sin autenticación (debe devolver 401)
 POST {{baseUrl}}/carrito
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 
 {
   "producto_id": 1,
@@ -218,7 +216,7 @@ Content-Type: {{contentType}}
 
 ### 7.3 - Intentar ver compras sin autenticación (debe devolver 401)
 GET {{baseUrl}}/compras
-Accept: {{contentType}}
+Accept: {{json}}
 
 
 ### ========================================
@@ -227,7 +225,7 @@ Accept: {{contentType}}
 
 ### 8.1 - Registrar nuevo usuario para prueba completa
 POST {{baseUrl}}/registrar
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 
 {
   "nombre": "María García",
@@ -238,20 +236,17 @@ Content-Type: {{contentType}}
 ### 8.2 - Iniciar sesión con el nuevo usuario
 # @name login_test
 POST {{baseUrl}}/iniciar-sesion
-Content-Type: {{contentType}}
+Content-Type: {{form}}
 
-{
-  "email": "maria.garcia@example.com",
-  "password": "password123"
-}
+username=maria.garcia@example.com&password=password123
 
 ### 8.3 - Buscar productos de electrónica
 GET {{baseUrl}}/productos?categoria=electro
-Accept: {{contentType}}
+Accept: {{json}}
 
 ### 8.4 - Agregar producto al carrito (Monitor)
 POST {{baseUrl}}/carrito
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
 {
@@ -261,7 +256,7 @@ Authorization: Bearer {{login_test.response.body.access_token}}
 
 ### 8.5 - Agregar otro producto (SSD)
 POST {{baseUrl}}/carrito
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
 {
@@ -271,12 +266,12 @@ Authorization: Bearer {{login_test.response.body.access_token}}
 
 ### 8.6 - Ver contenido del carrito
 GET {{baseUrl}}/carrito
-Accept: {{contentType}}
+Accept: {{json}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
 ### 8.7 - Finalizar la compra
 POST {{baseUrl}}/carrito/finalizar
-Content-Type: {{contentType}}
+Content-Type: {{json}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
 {
@@ -286,8 +281,13 @@ Authorization: Bearer {{login_test.response.body.access_token}}
 
 ### 8.8 - Ver historial de compras
 GET {{baseUrl}}/compras
-Accept: {{contentType}}
+Accept: {{json}}
 Authorization: Bearer {{login_test.response.body.access_token}}
+### 8.9 - Logout del usuario de prueba
+POST {{baseUrl}}/cerrar-sesion
+Content-Type: {{json}}
+Authorization: Bearer {{login_test.response.body.access_token}}
+
 
 
 ### ========================================

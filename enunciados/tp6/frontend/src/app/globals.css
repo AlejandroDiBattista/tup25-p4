@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ====== VARIABLES DE COLOR ====== */
+:root {
+  --color-primary: #4fc3dc; /* celeste */
+  --color-secondary: #78e08f; /* verde menta */
+  --color-accent: #3a9fbf;
+  --color-bg: #f8fbfc; /* fondo claro */
+  --color-text: #1e2a32;
+}
+
+/* ====== ESTILOS BASE ====== */
+body {
+  font-family: theme("fontFamily.sans");
+  background: linear-gradient(180deg, #f8fbfc 0%, #e8f8fa 100%);
+  color: var(--color-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ====== TITULOS ====== */
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: -0.5px;
+}
+
+h1 {
+  font-size: 2.25rem; /* text-4xl */
+  margin-bottom: 1rem;
+  color: var(--color-primary);
+}
+
+h2 {
+  font-size: 1.5rem; /* text-2xl */
+  margin-bottom: 0.75rem;
+  color: var(--color-accent);
+}
+
+/* ====== BOTONES ====== */
+.btn {
+  @apply px-5 py-2 rounded-full font-medium transition-all duration-300 ease-in-out shadow-md;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #10b981; /* emerald-500 */
+  transform: scale(1.05);
+}
+
+/* ====== TARJETAS DE PRODUCTO ====== */
+.card {
+  @apply bg-white rounded-2xl shadow-lg p-4 transition-all duration-300 hover:shadow-xl hover:scale-[1.02];
+  border: 1px solid #e3f6f9;
+}
+
+.card img {
+  @apply rounded-xl mb-3 w-full h-56 object-cover;
+}
+
+.card-title {
+  @apply text-lg font-semibold;
+  color: var(--color-text);
+}
+
+.card-price {
+  color: var(--color-primary);
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.card button {
+  @apply btn btn-primary w-full mt-3;
+}
+
+/* ====== NAVBAR ====== */
+.navbar {
+  @apply flex justify-between items-center py-4 px-6 bg-white shadow-md sticky top-0 z-50;
+  border-bottom: 3px solid var(--color-primary);
+}
+
+.navbar h1 {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navbar a {
+  color: var(--color-text);
+  font-weight: 500;
+  margin: 0 0.75rem;
+  transition: color 0.3s;
+}
+
+.navbar a:hover {
+  color: var(--color-primary);
+}
+
+/* ====== FOOTER ====== */
+footer {
+  @apply mt-10 py-6 text-center text-sm text-gray-600 bg-white border-t border-gray-200;
+}
+
+/* ====== ANIMACIONES ====== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* ====== INPUTS ====== */
+input,
+select {
+  @apply border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2;
+  --tw-ring-color: var(--color-primary);
+}

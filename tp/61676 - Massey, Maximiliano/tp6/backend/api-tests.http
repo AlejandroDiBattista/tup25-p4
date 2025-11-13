@@ -274,7 +274,11 @@ GET {{baseUrl}}/carrito
 Accept: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
-### 8.7 - Finalizar la compra
+### 8.7 - Cancelar compra (vaciar carrito) - POST /carrito/cancelar
+POST {{baseUrl}}/carrito/cancelar
+Authorization: Bearer {{login_test.response.body.access_token}}
+
+### 8.8 - Finalizar la compra
 POST {{baseUrl}}/carrito/finalizar
 Content-Type: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}
@@ -284,7 +288,7 @@ Authorization: Bearer {{login_test.response.body.access_token}}
   "tarjeta": "5555555555554444"
 }
 
-### 8.8 - Ver historial de compras
+### 8.9 - Ver historial de compras
 GET {{baseUrl}}/compras
 Accept: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}

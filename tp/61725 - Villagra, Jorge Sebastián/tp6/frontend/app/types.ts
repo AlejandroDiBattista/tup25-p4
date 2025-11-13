@@ -1,10 +1,12 @@
-export interface Producto {
+export type Producto = {
   id: number;
-  titulo: string;
+  nombre?: string | null;        // puede venir como 'nombre'
+  titulo?: string | null;        // o como 'titulo'
+  descripcion?: string | null;
+  categoria?: string | null;
   precio: number;
-  descripcion: string;
-  categoria: string;
-  valoracion: number;
-  existencia: number;
-  imagen: string;
-}
+  existencia?: number | null;
+  imagen?: string | null;
+  imagen_url?: string | null;
+  agotado?: boolean;
+};
