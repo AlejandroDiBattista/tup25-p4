@@ -15,32 +15,32 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-blue-600 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold">
-          🛍️ E-Commerce
+    <nav className="bg-black text-white border-b border-gray-800">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <Link href="/" className="text-xl font-medium tracking-tight hover:opacity-70 transition-opacity">
+          E-Commerce
         </Link>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-6 items-center text-sm">
           {usuario ? (
             <>
-              <span className="text-sm">{usuario.email}</span>
-              <Link href="/carrito" className="relative">
-                🛒 Carrito ({cantidadCarrito})
+              <span className="text-gray-300">{usuario.email}</span>
+              <Link href="/carrito" className="hover:opacity-70 transition-opacity">
+                Carrito ({cantidadCarrito})
               </Link>
-              <Link href="/compras" className="hover:underline">
+              <Link href="/compras" className="hover:opacity-70 transition-opacity">
                 Mis compras
               </Link>
               <button
                 onClick={handleCerrarSesion}
-                className="bg-red-500 hover:bg-red-700 px-3 py-1 rounded"
+                className="border border-white hover:bg-white hover:text-black px-4 py-1.5 transition-colors"
               >
                 Cerrar sesión
               </button>
             </>
           ) : (
             <>
-              <Link href="/auth" className="hover:underline">
+              <Link href="/auth" className="border border-white hover:bg-white hover:text-black px-4 py-1.5 transition-colors">
                 Iniciar sesión
               </Link>
             </>

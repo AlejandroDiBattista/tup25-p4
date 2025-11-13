@@ -65,31 +65,37 @@ export default function DetalleCompraBPage() {
   if (!token) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto px-4">
+    <div className="min-h-screen bg-white py-12">
+      <div className="max-w-3xl mx-auto px-6">
         <button
           onClick={() => router.back()}
-          className="text-blue-600 hover:underline mb-4"
+          className="text-black hover:opacity-70 mb-6 text-sm underline transition-opacity"
         >
           ← Volver
         </button>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-6 p-4 border border-black text-black text-sm">
             {error}
           </div>
         )}
 
         {isLoading ? (
-          <div className="text-center py-8">Cargando detalle...</div>
+          <div className="text-center py-12 text-gray-500">Cargando detalle...</div>
         ) : compra ? (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-2xl font-bold mb-4">Compra #{compra.id}</h1>
+          <div className="border border-gray-200 p-8">
+            {/* Mensaje de éxito */}
+            <div className="mb-8 p-6 bg-black text-white text-center">
+              <p className="text-2xl font-light mb-2">✓ Compra exitosa</p>
+              <p className="text-sm opacity-80">Tu pedido ha sido procesado correctamente</p>
+            </div>
 
-            <div className="space-y-4 mb-6 pb-6 border-b">
+            <h1 className="text-2xl font-light mb-8 tracking-tight">Compra #{compra.id}</h1>
+
+            <div className="space-y-6 mb-8 pb-8 border-b border-gray-200">
               <div>
-                <p className="text-sm text-gray-600">Fecha de compra</p>
-                <p className="text-lg font-semibold">
+                <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">Fecha de compra</p>
+                <p className="text-base font-normal">
                   {new Date(compra.fecha).toLocaleDateString('es-AR', {
                     year: 'numeric',
                     month: 'long',
@@ -101,31 +107,31 @@ export default function DetalleCompraBPage() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">Dirección de envío</p>
-                <p className="text-lg font-semibold">{compra.direccion}</p>
+                <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">Dirección de envío</p>
+                <p className="text-base font-normal">{compra.direccion}</p>
               </div>
             </div>
 
-            <div className="mb-6">
-              <h2 className="text-xl font-bold mb-4">Artículos comprados</h2>
-              <div className="space-y-2">
+            <div className="mb-8">
+              <h2 className="text-lg font-normal mb-6 tracking-tight">Artículos comprados</h2>
+              <div className="space-y-3">
                 {compra.items.map((item: CarritoItem) => (
-                  <div key={item.producto_id} className="flex justify-between items-center">
-                    <span>Producto ID: {item.producto_id}</span>
-                    <span className="font-semibold">Cantidad: {item.cantidad}</span>
+                  <div key={item.producto_id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-sm text-gray-700">Producto ID: {item.producto_id}</span>
+                    <span className="text-sm font-normal">Cantidad: {item.cantidad}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-lg mb-2">Monto total</h3>
-              <p className="text-2xl font-bold text-green-600">${compra.total.toFixed(2)}</p>
+            <div className="bg-gray-50 p-6 border border-gray-200">
+              <h3 className="font-normal text-base mb-3 uppercase tracking-wider">Monto total</h3>
+              <p className="text-2xl font-light text-black">${compra.total.toFixed(2)}</p>
             </div>
 
             <button
               onClick={() => router.push('/')}
-              className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded"
+              className="w-full mt-8 bg-black hover:bg-gray-800 text-white font-normal py-3 transition-colors text-sm uppercase tracking-wider"
             >
               Continuar comprando
             </button>

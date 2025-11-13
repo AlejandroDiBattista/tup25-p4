@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 interface CarritoItem {
   producto_id: number;
@@ -18,6 +19,7 @@ const CarritoContext = createContext<CarritoContextType | undefined>(undefined);
 
 export function CarritoProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CarritoItem[]>([]);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   // Cargar carrito del localStorage al montar
   useEffect(() => {
@@ -32,7 +34,8 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('carrito', JSON.stringify(items));
   }, [items]);
 
-  const agregarAlCarrito = (producto_id: number, cantidad: number) => {
+  const agregarAlCarrito = async (producto_id: number, cantidad: number) => {
+    // Primero actualizar el estado local
     setItems((prevItems) => {
       const existente = prevItems.find((item) => item.producto_id === producto_id);
       if (existente) {
@@ -42,10 +45,42 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prevItems, { producto_id, cantidad }];
     });
+
+    // Intentar sincronizar con el backend (si hay token)
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await fetch(`${API_URL}/carrito`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ producto_id, cantidad }),
+        });
+      }
+    } catch (error) {
+      console.error('Error al sincronizar carrito con backend:', error);
+    }
   };
 
-  const quitarDelCarrito = (producto_id: number) => {
+  const quitarDelCarrito = async (producto_id: number) => {
     setItems((prevItems) => prevItems.filter((item) => item.producto_id !== producto_id));
+    
+    // Sincronizar con backend
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await fetch(`${API_URL}/carrito/${producto_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error al quitar del carrito en backend:', error);
+    }
   };
 
   const vaciarCarrito = () => {

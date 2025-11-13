@@ -51,39 +51,47 @@ export default function CarritoPage() {
   if (!token) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Carrito de compras</h1>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-light tracking-tight">Carrito de compras</h1>
+          <a
+            href="/"
+            className="border border-black hover:bg-black hover:text-white text-black px-6 py-2 transition-colors text-sm uppercase tracking-wider"
+          >
+            Seguir comprando
+          </a>
+        </div>
 
         {items.length === 0 ? (
-          <div className="bg-white p-8 rounded-lg shadow-md text-center">
-            <p className="text-gray-600 mb-4">Tu carrito está vacío</p>
-            <a href="/" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          <div className="border border-gray-200 p-12 text-center">
+            <p className="text-gray-500 mb-6">Tu carrito está vacío</p>
+            <a href="/" className="bg-black hover:bg-gray-800 text-white px-6 py-2.5 transition-colors inline-block text-sm uppercase tracking-wider">
               Continuar comprando
             </a>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="border border-gray-200">
                 {items.map((item: any) => {
                   const producto = productos[item.producto_id];
                   if (!producto) return null;
                   return (
                     <div
                       key={item.producto_id}
-                      className="flex items-center justify-between p-4 border-b last:border-b-0"
+                      className="flex items-center justify-between p-6 border-b last:border-b-0"
                     >
                       <div className="flex-1">
-                        <h3 className="font-semibold">{producto.titulo}</h3>
-                        <p className="text-gray-600">${producto.precio}</p>
+                        <h3 className="font-normal text-black mb-1">{producto.titulo}</h3>
+                        <p className="text-gray-500 text-sm">${producto.precio}</p>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <p className="text-lg font-semibold">x{item.cantidad}</p>
-                        <p className="text-lg font-bold">${producto.precio * item.cantidad}</p>
+                      <div className="flex items-center gap-6">
+                        <p className="text-base text-gray-700">x{item.cantidad}</p>
+                        <p className="text-base font-normal text-black min-w-[80px] text-right">${producto.precio * item.cantidad}</p>
                         <button
                           onClick={() => quitarDelCarrito(item.producto_id)}
-                          className="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded"
+                          className="border border-black hover:bg-black hover:text-white text-black px-4 py-1.5 transition-colors text-sm"
                         >
                           Quitar
                         </button>
@@ -94,25 +102,25 @@ export default function CarritoPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 h-fit">
-              <h2 className="text-xl font-bold mb-4">Resumen</h2>
-              <div className="space-y-2 mb-4">
+            <div className="border border-gray-200 p-6 h-fit">
+              <h2 className="text-lg font-normal mb-6 tracking-tight">Resumen</h2>
+              <div className="space-y-3 mb-6 text-sm">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span className="text-gray-500">Subtotal:</span>
+                  <span className="text-black">${total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>IVA (21%):</span>
-                  <span>${(total * 0.21).toFixed(2)}</span>
+                  <span className="text-gray-500">IVA (21%):</span>
+                  <span className="text-black">${(total * 0.21).toFixed(2)}</span>
                 </div>
-                <div className="border-t pt-2 flex justify-between font-bold">
-                  <span>Total:</span>
-                  <span>${(total * 1.21).toFixed(2)}</span>
+                <div className="border-t border-gray-200 pt-3 flex justify-between">
+                  <span className="text-black">Total:</span>
+                  <span className="text-black font-normal">${(total * 1.21).toFixed(2)}</span>
                 </div>
               </div>
               <a
                 href="/checkout"
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded block text-center"
+                className="w-full bg-black hover:bg-gray-800 text-white font-normal py-2.5 px-4 block text-center transition-colors text-sm uppercase tracking-wider"
               >
                 Ir al checkout
               </a>

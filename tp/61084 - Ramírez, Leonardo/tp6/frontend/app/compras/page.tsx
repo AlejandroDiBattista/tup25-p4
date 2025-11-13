@@ -55,22 +55,30 @@ export default function ComprasPage() {
   if (!token) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8">Mis compras</h1>
+    <div className="min-h-screen bg-white py-12">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-light tracking-tight">Mis compras</h1>
+          <a
+            href="/"
+            className="border border-black hover:bg-black hover:text-white text-black px-6 py-2 transition-colors text-sm uppercase tracking-wider"
+          >
+            Volver al inicio
+          </a>
+        </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="mb-6 p-4 border border-black text-black text-sm">
             {error}
           </div>
         )}
 
         {isLoading ? (
-          <div className="text-center py-8">Cargando compras...</div>
+          <div className="text-center py-12 text-gray-500">Cargando compras...</div>
         ) : compras.length === 0 ? (
-          <div className="bg-white p-8 rounded-lg shadow-md text-center">
-            <p className="text-gray-600 mb-4">No tienes compras realizadas</p>
-            <a href="/" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          <div className="border border-gray-200 p-12 text-center">
+            <p className="text-gray-500 mb-6">No tienes compras realizadas</p>
+            <a href="/" className="bg-black hover:bg-gray-800 text-white px-6 py-2.5 transition-colors inline-block text-sm uppercase tracking-wider">
               Ir al catálogo
             </a>
           </div>
@@ -79,36 +87,36 @@ export default function ComprasPage() {
             {compras.map((compra) => (
               <div
                 key={compra.id}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition"
+                className="border border-gray-200 p-6 hover:border-black transition-colors"
               >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div>
-                    <p className="text-sm text-gray-600">Número de compra</p>
-                    <p className="text-lg font-semibold">#{compra.id}</p>
+                    <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">Número de compra</p>
+                    <p className="text-base font-normal">#{compra.id}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Fecha</p>
-                    <p className="text-lg font-semibold">
+                    <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">Fecha</p>
+                    <p className="text-base font-normal">
                       {new Date(compra.fecha).toLocaleDateString('es-AR')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Artículos</p>
-                    <p className="text-lg font-semibold">{compra.items.length}</p>
+                    <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">Artículos</p>
+                    <p className="text-base font-normal">{compra.items.length}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Total</p>
-                    <p className="text-lg font-semibold">${compra.total.toFixed(2)}</p>
+                    <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">Total</p>
+                    <p className="text-base font-normal">${compra.total.toFixed(2)}</p>
                   </div>
                 </div>
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-sm text-gray-600 mb-2">Envío a:</p>
-                  <p className="text-gray-800">{compra.direccion}</p>
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Envío a:</p>
+                  <p className="text-gray-800 text-sm">{compra.direccion}</p>
                 </div>
-                <div className="mt-4 flex gap-2">
+                <div className="mt-6">
                   <button
                     onClick={() => router.push(`/compras/${compra.id}`)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                    className="border border-black hover:bg-black hover:text-white text-black px-6 py-2 transition-colors text-sm uppercase tracking-wider"
                   >
                     Ver detalle
                   </button>

@@ -37,33 +37,35 @@ export default function AuthPage() {
         router.push('/');
       }
     } catch (err: any) {
-      setError('❌ ' + (err.message || 'Error en la autenticación'));
+      const errorMsg = err.message || 'Error en la autenticación';
+      setError(errorMsg);
+      console.error('Error de autenticación:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100">
+    <div className="min-h-screen bg-white flex items-center justify-center p-6">
+      <div className="border border-gray-200 p-10 w-full max-w-md">
         {/* Título */}
-        <h1 className="text-3xl font-bold mb-2 text-center text-gray-900">
-          {isRegistering ? '📝 Registrarse' : '🔐 Iniciar sesión'}
+        <h1 className="text-2xl font-light mb-2 text-center text-black tracking-tight">
+          {isRegistering ? 'Registrarse' : 'Iniciar sesión'}
         </h1>
-        <p className="text-center text-gray-600 text-sm mb-6">
+        <p className="text-center text-gray-500 text-sm mb-8">
           {isRegistering ? 'Crea tu cuenta para comprar' : 'Accede a tu cuenta'}
         </p>
 
         {/* Mensajes de error y éxito */}
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
-            <p className="font-semibold text-sm">{error}</p>
+          <div className="mb-6 p-4 border border-black text-black text-sm">
+            <p>{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded">
-            <p className="font-semibold text-sm">{success}</p>
+          <div className="mb-6 p-4 border border-black text-black text-sm">
+            <p>{success}</p>
           </div>
         )}
 
@@ -71,8 +73,8 @@ export default function AuthPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {isRegistering && (
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
-                👤 Nombre
+              <label className="block text-sm text-gray-700 mb-2 uppercase tracking-wider">
+                Nombre
               </label>
               <input
                 type="text"
@@ -80,14 +82,14 @@ export default function AuthPage() {
                 onChange={(e) => setNombre(e.target.value)}
                 required
                 placeholder="Tu nombre completo"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 text-gray-900 placeholder-gray-400 transition"
+                className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black text-black placeholder-gray-400 transition text-sm"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-2">
-              ✉️ Email
+            <label className="block text-sm text-gray-700 mb-2 uppercase tracking-wider">
+              Email
             </label>
             <input
               type="email"
@@ -95,13 +97,13 @@ export default function AuthPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="tu@email.com"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 text-gray-900 placeholder-gray-400 transition"
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black text-black placeholder-gray-400 transition text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-2">
-              🔑 Contraseña
+            <label className="block text-sm text-gray-700 mb-2 uppercase tracking-wider">
+              Contraseña
             </label>
             <input
               type="password"
@@ -109,7 +111,7 @@ export default function AuthPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Mínimo 6 caracteres"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 text-gray-900 placeholder-gray-400 transition"
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black text-black placeholder-gray-400 transition text-sm"
             />
           </div>
 
@@ -117,23 +119,21 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition shadow-md hover:shadow-lg"
+            className="w-full bg-black hover:bg-gray-800 text-white font-normal py-3 px-4 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm uppercase tracking-wider mt-6"
           >
             {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="animate-spin">⏳</span> Cargando...
-              </span>
+              <span>Cargando...</span>
             ) : isRegistering ? (
-              '✓ Registrarse'
+              'Registrarse'
             ) : (
-              '✓ Iniciar sesión'
+              'Iniciar sesión'
             )}
           </button>
         </form>
 
         {/* Toggle entre registro y login */}
-        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-          <p className="text-gray-700 text-sm mb-3">
+        <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+          <p className="text-gray-600 text-sm mb-3">
             {isRegistering ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
           </p>
           <button
@@ -142,9 +142,9 @@ export default function AuthPage() {
               setError('');
               setSuccess('');
             }}
-            className="text-blue-600 hover:text-blue-800 font-semibold text-sm hover:underline transition"
+            className="text-black hover:opacity-70 font-normal text-sm underline transition"
           >
-            {isRegistering ? '← Inicia sesión aquí' : '→ Regístrate aquí'}
+            {isRegistering ? 'Inicia sesión aquí' : 'Regístrate aquí'}
           </button>
         </div>
       </div>

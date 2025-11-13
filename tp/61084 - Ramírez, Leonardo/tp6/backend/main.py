@@ -38,6 +38,15 @@ def get_user_from_header(request: Request):
         return None
     usuario = tokens.get(token)
     if not usuario:
+        # Fallback resiliente a reinicios en desarrollo:
+        # si el servidor recargó y se vació el dict de tokens, aceptamos
+        # tokens con el formato "token-<email>" si ese usuario existe.
+        if token and token.startswith("token-"):
+            email = token[len("token-"):]
+            if any(u.get("email") == email for u in usuarios):
+                # re-hidratar el token en memoria para próximas peticiones
+                tokens[token] = email
+                return email
         raise HTTPException(status_code=401, detail="Token inválido")
     return usuario
 
@@ -61,7 +70,13 @@ app.add_middleware(
 )
 
 # ----- DATOS EN MEMORIA -----
-usuarios = []
+usuarios = [
+    {
+        "email": "ramirezleonardo113@gmail.com",
+        "password": "123456",
+        "nombre": "Leonardo Ramírez"
+    }
+]
 tokens = {}
 carrito = {}
 # compras por usuario: { email: [compra, ...], ...}
@@ -212,7 +227,7 @@ def obtener_productos(categoria: str = None, busqueda: str = None, buscar: str =
     if categoria:
         productos = [p for p in productos if p["categoria"].lower() == categoria.lower()]
     if busqueda:
-        productos = [p for p in productos if busqueda.lower() in p["nombre"].lower()]
+        productos = [p for p in productos if busqueda.lower() in p["titulo"].lower()]
     return productos
 
 @app.get("/productos/{id}")
@@ -297,15 +312,18 @@ def finalizar_compra(payload: dict, auth_user: str = Depends(get_user_strict)):
     if not items:
         raise HTTPException(status_code=400, detail="Carrito vacío")
 
-    # Calcular total simple (aquí se podría aplicar IVA/envío)
-    total = 0
+    # Calcular subtotal
+    subtotal = 0
     productos = cargar_productos()
     prod_map = {p["id"]: p for p in productos}
     for it in items:
         pid = it["producto_id"]
         cantidad = it.get("cantidad", 1)
         precio = prod_map.get(pid, {}).get("precio", 0)
-        total += precio * cantidad
+        subtotal += precio * cantidad
+    
+    # Aplicar IVA del 21%
+    total = subtotal * 1.21
 
     # Crear registro de compra
     new_id = len(purchases_by_id) + 1

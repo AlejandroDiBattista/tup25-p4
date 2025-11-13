@@ -40,26 +40,26 @@ export default function Home() {
   const categorias = ['Ropa de hombre', 'Ropa de mujer', 'Joyería', 'Electrónica'];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
 
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+      <header className="border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <h1 className="text-2xl font-light text-black mb-6 tracking-tight">
             Catálogo de Productos
           </h1>
-          <div className="flex gap-4 flex-col sm:flex-row">
+          <div className="flex gap-3 flex-col sm:flex-row">
             <input
               type="text"
               placeholder="Buscar productos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-2.5 border border-gray-300 focus:outline-none focus:border-black transition-colors text-sm"
             />
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2.5 border border-gray-300 focus:outline-none focus:border-black transition-colors text-sm bg-white"
             >
               <option value="">Todas las categorías</option>
               {categorias.map((cat) => (
@@ -69,21 +69,21 @@ export default function Home() {
               ))}
             </select>
           </div>
-          <p className="text-gray-600 mt-4">
+          <p className="text-gray-500 mt-4 text-sm">
             {isLoading ? 'Cargando...' : `${productos.length} productos disponibles`}
           </p>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-12">
         {isLoading ? (
-          <div className="text-center py-8">Cargando productos...</div>
+          <div className="text-center py-12 text-gray-500">Cargando productos...</div>
         ) : productos.length === 0 ? (
-          <div className="text-center py-8 text-gray-600">
+          <div className="text-center py-12 text-gray-500">
             No se encontraron productos
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {productos.map((producto) => (
               <ProductoCard key={producto.id} producto={producto} />
             ))}
