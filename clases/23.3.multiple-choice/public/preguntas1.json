@@ -1,0 +1,5933 @@
+[
+    {
+        "numero": 1,
+        "enunciado": "¿Cuál de estos es un identificador **válido**?\n```xml\n<a>\n   <b>\n      c\n   </b>\n</a>\n```",
+        "respuestas": [
+            "`var-iable`",
+            "`_variable`",
+            "`2variable`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 2,
+        "enunciado": "¿Cuál de estos identificadores es **inválido**?",
+        "respuestas": [
+            "`nombreUsuario`",
+            "`$total`",
+            "`for`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 3,
+        "enunciado": "¿Qué identificador es considerado **válido**?",
+        "respuestas": [
+            "`const`",
+            "`PI_MAX`",
+            "`function`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 4,
+        "enunciado": "¿Cuál de estos nombres de variable es **incorrecto**?",
+        "respuestas": [
+            "`_resultadoFinal`",
+            "`123dato`",
+            "`dato123`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 5,
+        "enunciado": "¿Qué identificador es **válido**?",
+        "respuestas": [
+            "`class`",
+            "`precio-total`",
+            "`precio$`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 6,
+        "enunciado": "¿Cuál es el identificador **aceptado** por JavaScript?",
+        "respuestas": [
+            "`Nombre-Completo`",
+            "`let`",
+            "`NombreCompleto`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 7,
+        "enunciado": "¿Cuál de estos nombres de variable es **inválido**?",
+        "respuestas": [
+            "`_temp`",
+            "`$temp`",
+            "`var`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 8,
+        "enunciado": "¿Qué identificador es **válido**?",
+        "respuestas": [
+            "`mi_variable`",
+            "`else`",
+            "`if`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 9,
+        "enunciado": "¿Cuál de estos identificadores puede usarse sin error?",
+        "respuestas": [
+            "`$datoFinal`",
+            "`new`",
+            "`try`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 10,
+        "enunciado": "¿Qué nombre de variable es **incorrecto**?",
+        "respuestas": [
+            "`usuario1`",
+            "`usuario_final`",
+            "`1usuario`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 11,
+        "enunciado": "¿Cuál declara una variable `x` con el valor numérico `10`?",
+        "respuestas": [
+            "```js\nlet x = \"10\";\n```",
+            "```js\nlet x = Number;\n```",
+            "```js\nlet x = 10;\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 12,
+        "enunciado": "¿Cuál de estas asignaciones genera el valor especial `NaN`?",
+        "respuestas": [
+            "```js\nlet n = +\"42\";\n```",
+            "```js\nlet n = 123;\n```",
+            "```js\nlet n = Number(\"abc\");\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 13,
+        "enunciado": "¿Cuál es una declaración válida de número decimal?",
+        "respuestas": [
+            "```js\nlet pi = \"3.14\";\n```",
+            "```js\nlet pi = Number;\n```",
+            "```js\nlet pi = 3.14;\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 14,
+        "enunciado": "¿Qué valor tendrá la variable `n`?\n```js\nlet n = +\"5\";\n```",
+        "respuestas": [
+            "`5`",
+            "`\"5\"`",
+            "`NaN`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 15,
+        "enunciado": "¿Cuál de estas es la forma correcta de convertir un `string` a número?",
+        "respuestas": [
+            "```js\nlet n = number(\"42\");\n```",
+            "```js\nlet n = Num(\"42\");\n```",
+            "```js\nlet n = Number(\"42\");\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 16,
+        "enunciado": "¿Qué declaración es válida para una constante numérica?",
+        "respuestas": [
+            "```js\nconst pi;\n```",
+            "```js\nconst pi = 3.1416;\n```",
+            "```js\nconst pi; pi = 3.1416;\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 17,
+        "enunciado": "¿Cuál inicializa la variable `n` con `Infinity`?",
+        "respuestas": [
+            "```js\nlet n = \"Infinity\";\n```",
+            "```js\nlet n = Infinity;\n```",
+            "```js\nlet n = infinite;\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 18,
+        "enunciado": "¿Qué resultado obtiene la variable `n`?\n```js\nlet n = parseInt(\"123abc\");\n```",
+        "respuestas": [
+            "`123`",
+            "`NaN`",
+            "`\"123abc\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 19,
+        "enunciado": "¿Cuál de estas declaraciones numéricas es **inválida**?",
+        "respuestas": [
+            "```js\nlet x = 0y77;\n```",
+            "```js\nlet x = 0x1F;\n```",
+            "```js\nlet x = 0b1010;\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 20,
+        "enunciado": "¿Qué valor tiene la variable `n`?\n```js\nlet n = parseFloat(\"3.14abc\");\n```",
+        "respuestas": [
+            "`\"3.14abc\"`",
+            "`3.14`",
+            "`NaN`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 21,
+        "enunciado": "¿Qué valor imprime el siguiente código?\n```js\nconsole.log(2 + 3 * 4);\n```",
+        "respuestas": [
+            "`20`",
+            "`14`",
+            "`24`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 22,
+        "enunciado": "¿Qué resultado produce esta operación?\n```js\nconsole.log(10 - 4 / 2);\n```",
+        "respuestas": [
+            "`5`",
+            "`8`",
+            "`3`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 23,
+        "enunciado": "¿Cuál es el resultado de la siguiente expresión?\n```js\nconsole.log((2 + 3) * 4);\n```",
+        "respuestas": [
+            "`14`",
+            "`20`",
+            "`24`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 24,
+        "enunciado": "¿Qué resultado obtiene `x`?\n```js\nlet x = 2 ** 3 * 2;\nconsole.log(x);\n```",
+        "respuestas": [
+            "`256`",
+            "`64`",
+            "`16`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 25,
+        "enunciado": "¿Qué imprime el siguiente código?\n```js\nconsole.log(10 / 2 * 5);\n```",
+        "respuestas": [
+            "`2.5`",
+            "`1`",
+            "`25`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 26,
+        "enunciado": "¿Cuál es el valor de la expresión?\n```js\nconsole.log(5 + 10 % 3);\n```",
+        "respuestas": [
+            "`6`",
+            "`7`",
+            "`8`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 27,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nconsole.log(2 + 3 * 2 ** 2);\n```",
+        "respuestas": [
+            "`22`",
+            "`20`",
+            "`14`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 28,
+        "enunciado": "¿Qué valor se imprime?\n```js\nconsole.log(100 / (5 * 2));\n```",
+        "respuestas": [
+            "`25`",
+            "`20`",
+            "`10`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 29,
+        "enunciado": "¿Cuál es el resultado?\n```js\nconsole.log(10 - 2 + 3);\n```",
+        "respuestas": [
+            "`5`",
+            "`15`",
+            "`11`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 30,
+        "enunciado": "¿Qué valor tiene la variable `y`?\n```js\nlet y = 2 * 3 ** 2;\nconsole.log(y);\n```",
+        "respuestas": [
+            "`36`",
+            "`18`",
+            "`12`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 31,
+        "enunciado": "¿Cuál es una declaración válida de un `string`?",
+        "respuestas": [
+            "```js\nlet s = Hola;\n```",
+            "```js\nlet s = `Hola;\n```",
+            "```js\nlet s = 'Hola';\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 32,
+        "enunciado": "¿Qué forma correcta declara un `string` con comillas dobles?",
+        "respuestas": [
+            "```js\nlet texto = 'Hola mundo;\n```",
+            "```js\nlet texto = \"Hola mundo\";\n```",
+            "```js\nlet texto = Hola mundo;\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 33,
+        "enunciado": "¿Cuál de estas formas es correcta para usar **plantillas literales**?",
+        "respuestas": [
+            "```js\nlet saludo = 'Hola ${nombre}';\n```",
+            "```js\nlet saludo = `Hola ${nombre}`;\n```",
+            "```js\nlet saludo = \"Hola ${nombre}\";\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 34,
+        "enunciado": "¿Qué declaración es válida?",
+        "respuestas": [
+            "```js\nlet mensaje = \"It's ok\";\n```",
+            "```js\nlet mensaje = 'It's ok';\n```",
+            "```js\nlet mensaje = It's ok;\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 35,
+        "enunciado": "¿Cuál de estas es la forma correcta de declarar un `string` vacío?",
+        "respuestas": [
+            "```js\nlet s = '   ';\n```",
+            "```js\nlet s = \"\";\n```",
+            "```js\nlet s = ;\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 36,
+        "enunciado": "¿Cuál declaración es válida con comillas simples?",
+        "respuestas": [
+            "```js\nlet nombre = 'Juan';\n```",
+            "```js\nlet nombre = `Juan;\n```",
+            "```js\nlet nombre = Juan;\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 37,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet s = \"Hola\";\nconsole.log(typeof s);\n```",
+        "respuestas": [
+            "`\"text\"`",
+            "`\"string\"`",
+            "`\"char\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 38,
+        "enunciado": "¿Qué declaración es correcta para un `string` multilínea?",
+        "respuestas": [
+            "```js\nlet texto = \"Primera\nSegunda\";\n```",
+            "```js\nlet texto = 'Primera\nSegunda';\n```",
+            "```js\nlet texto = `Primera\nSegunda`;\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 39,
+        "enunciado": "¿Cuál de estas es la forma correcta de incluir comillas dobles dentro de un `string`?",
+        "respuestas": [
+            "```js\nlet s = \"Ella dijo: \"Hola\"\";\n```",
+            "```js\nlet s = \"Ella dijo: \"Hola\"\";\n```",
+            "```js\nlet s = 'Ella dijo: \"Hola\"\"';\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 40,
+        "enunciado": "¿Qué resultado da este código?\n```js\nlet saludo = `Hola`;\nconsole.log(saludo);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"Hola\"`",
+            "`Hola`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 41,
+        "enunciado": "¿Qué resultado imprime el siguiente código?\n```js\nconsole.log(\"Hola\" + \" Mundo\");\n```",
+        "respuestas": [
+            "`\"Hola + Mundo\"`",
+            "`\"HolaMundo\"`",
+            "`\"Hola Mundo\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 42,
+        "enunciado": "¿Cuál es el resultado?\n```js\nconsole.log(\"5\" + 3);\n```",
+        "respuestas": [
+            "`\"53\"`",
+            "`\"5 + 3\"`",
+            "`8`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 43,
+        "enunciado": "¿Qué imprime este código?\n```js\nconsole.log(\"10\" - 2);\n```",
+        "respuestas": [
+            "`8`",
+            "`\"NaN\"`",
+            "`\"102\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 44,
+        "enunciado": "¿Qué valor devuelve?\n```js\nconsole.log(\"5\" * \"2\");\n```",
+        "respuestas": [
+            "`NaN`",
+            "`10`",
+            "`\"52\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 45,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nconsole.log(\"Hola\".length + \" Mundo\".length);\n```",
+        "respuestas": [
+            "`\"HolaMundo\"`",
+            "`10`",
+            "`\"10\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 46,
+        "enunciado": "¿Qué devuelve el siguiente código?\n```js\nconsole.log(\"Hola\".toUpperCase());\n```",
+        "respuestas": [
+            "`\"HOLA\"`",
+            "`\"hola\"`",
+            "`\"Hola\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 47,
+        "enunciado": "¿Qué imprime este código?\n```js\nconsole.log(\"HOLA\".toLowerCase());\n```",
+        "respuestas": [
+            "`\"hola\"`",
+            "`\"Hola\"`",
+            "`\"HOLA\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 48,
+        "enunciado": "¿Cuál es el resultado?\n```js\nconsole.log(\"JavaScript\".charAt(4));\n```",
+        "respuestas": [
+            "`\"s\"`",
+            "`\"a\"`",
+            "`\"S\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 49,
+        "enunciado": "¿Qué valor devuelve?\n```js\nconsole.log(\"Hola\".includes(\"Ho\"));\n```",
+        "respuestas": [
+            "`true`",
+            "`\"Ho\"`",
+            "`false`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 50,
+        "enunciado": "¿Qué imprime este código?\n```js\nconsole.log(\"Hola Mundo\".indexOf(\"Mundo\"));\n```",
+        "respuestas": [
+            "`0`",
+            "`-1`",
+            "`5`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 51,
+        "enunciado": "¿Qué resultado devuelve?\n```js\nconsole.log(\"Hola Mundo\".slice(0, 4));\n```",
+        "respuestas": [
+            "`\"Hola\"`",
+            "`\"ola\"`",
+            "`\"Mundo\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 52,
+        "enunciado": "¿Qué devuelve este código?\n```js\nconsole.log(\"Hola\".repeat(3));\n```",
+        "respuestas": [
+            "`\"HolaHolaHola\"`",
+            "`\"Hola3\"`",
+            "`\"3Hola\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 53,
+        "enunciado": "¿Qué imprime este código?\n```js\nconsole.log(\"   Hola   \".trim());\n```",
+        "respuestas": [
+            "`\"   Hola   \"`",
+            "`\"Hola\"`",
+            "`\"Hola   \"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 54,
+        "enunciado": "¿Qué devuelve?\n```js\nconsole.log(\"Hola\".startsWith(\"Ho\"));\n```",
+        "respuestas": [
+            "`\"Ho\"`",
+            "`true`",
+            "`false`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 55,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nconsole.log(\"Hola\".endsWith(\"la\"));\n```",
+        "respuestas": [
+            "`false`",
+            "`true`",
+            "`\"la\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 56,
+        "enunciado": "¿Cuál es la forma correcta de declarar un valor booleano `true`?",
+        "respuestas": [
+            "```js\nlet activo = true;\n```",
+            "```js\nlet activo = \"true\";\n```",
+            "```js\nlet activo = True;\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 57,
+        "enunciado": "¿Cuál de las siguientes asignaciones representa un valor booleano `false`?",
+        "respuestas": [
+            "```js\nlet valido = 0;\n```",
+            "```js\nlet valido = \"false\";\n```",
+            "```js\nlet valido = false;\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 58,
+        "enunciado": "¿Qué valor tendrá la variable `flag`?\n```js\nlet flag = Boolean(0);\n```",
+        "respuestas": [
+            "`\"false\"`",
+            "`false`",
+            "`true`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 59,
+        "enunciado": "¿Cuál es el resultado de esta declaración?\n```js\nlet estado = Boolean(\"Hola\");\n```",
+        "respuestas": [
+            "`\"true\"`",
+            "`false`",
+            "`true`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 60,
+        "enunciado": "¿Qué imprime el siguiente código?\n```js\nconsole.log(typeof false);\n```",
+        "respuestas": [
+            "`\"false\"`",
+            "`\"string\"`",
+            "`\"boolean\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 61,
+        "enunciado": "¿Cuál es el resultado de la conversión?\n```js\nconsole.log(Boolean(\"\"));\n```",
+        "respuestas": [
+            "`\"false\"`",
+            "`false`",
+            "`true`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 62,
+        "enunciado": "¿Qué valor imprime?\n```js\nconsole.log(Boolean(0));\n```",
+        "respuestas": [
+            "`true`",
+            "`\"0\"`",
+            "`false`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 63,
+        "enunciado": "¿Cuál será el resultado?\n```js\nconsole.log(Boolean(\"Hola\"));\n```",
+        "respuestas": [
+            "`true`",
+            "`false`",
+            "`\"true\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 64,
+        "enunciado": "¿Qué valor devuelve este código?\n```js\nconsole.log(Boolean(null));\n```",
+        "respuestas": [
+            "`false`",
+            "`\"null\"`",
+            "`true`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 65,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nconsole.log(\"\" || \"Texto\");\n```",
+        "respuestas": [
+            "`false`",
+            "`\"\"`",
+            "`\"Texto\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 66,
+        "enunciado": "¿Cuál será la salida?\n```js\nconsole.log(\"Hola\" && \"Mundo\");\n```",
+        "respuestas": [
+            "`true`",
+            "`\"Hola\"`",
+            "`\"Mundo\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 67,
+        "enunciado": "¿Qué valor imprime?\n```js\nconsole.log(0 || 123);\n```",
+        "respuestas": [
+            "`0`",
+            "`false`",
+            "`123`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 68,
+        "enunciado": "¿Cuál es el resultado de esta operación?\n```js\nconsole.log(0 && \"Texto\");\n```",
+        "respuestas": [
+            "`false`",
+            "`0`",
+            "`\"Texto\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 69,
+        "enunciado": "¿Qué imprime el siguiente código?\n```js\nconsole.log(null || undefined || \"valor\");\n```",
+        "respuestas": [
+            "`\"valor\"`",
+            "`null`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 70,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nconsole.log(\"Texto\" && 0 && true);\n```",
+        "respuestas": [
+            "`true`",
+            "`0`",
+            "`\"Texto\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 71,
+        "enunciado": "¿Cuál es el valor de una variable declarada pero no inicializada?\n```js\nlet x;\nconsole.log(x);\n```",
+        "respuestas": [
+            "`0`",
+            "`undefined`",
+            "`null`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 72,
+        "enunciado": "¿Qué imprime el siguiente código?\n```js\nlet y = null;\nconsole.log(y);\n```",
+        "respuestas": [
+            "`null`",
+            "`undefined`",
+            "`false`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 73,
+        "enunciado": "¿Qué tipo devuelve `typeof undefined`?",
+        "respuestas": [
+            "`\"null\"`",
+            "`\"object\"`",
+            "`\"undefined\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 74,
+        "enunciado": "¿Qué tipo devuelve `typeof null`?",
+        "respuestas": [
+            "`\"undefined\"`",
+            "`\"object\"`",
+            "`\"null\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 75,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nlet a = null;\nlet b;\nconsole.log(a === b);\n```",
+        "respuestas": [
+            "`\"false\"`",
+            "`false`",
+            "`true`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 76,
+        "enunciado": "¿Cuál es el resultado de la comparación?\n```js\nconsole.log(null == undefined);\n```",
+        "respuestas": [
+            "`true`",
+            "`NaN`",
+            "`false`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 77,
+        "enunciado": "¿Qué imprime este código?\n```js\nconsole.log(null === undefined);\n```",
+        "respuestas": [
+            "`NaN`",
+            "`false`",
+            "`true`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 78,
+        "enunciado": "¿Qué valor tendrá `z`?\n```js\nlet z = undefined || \"valor\";\nconsole.log(z);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`null`",
+            "`\"valor\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 79,
+        "enunciado": "¿Cuál es el resultado de esta operación?\n```js\nlet x = null ?? \"alternativo\";\nconsole.log(x);\n```",
+        "respuestas": [
+            "`null`",
+            "`\"alternativo\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 80,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet y = undefined ?? null;\nconsole.log(y);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"undefined\"`",
+            "`null`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 81,
+        "enunciado": "¿Qué resultado imprime este código?\n```js\nconsole.log(true && false);\n```",
+        "respuestas": [
+            "`false`",
+            "`true`",
+            "`\"false\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 82,
+        "enunciado": "¿Qué valor devuelve?\n```js\nconsole.log(true || false);\n```",
+        "respuestas": [
+            "`false`",
+            "`\"true\"`",
+            "`true`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 83,
+        "enunciado": "¿Qué imprime el siguiente código?\n```js\nconsole.log(!true);\n```",
+        "respuestas": [
+            "`true`",
+            "`false`",
+            "`\"false\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 84,
+        "enunciado": "¿Cuál será el resultado?\n```js\nconsole.log(false || (true && false));\n```",
+        "respuestas": [
+            "`true`",
+            "`false`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 85,
+        "enunciado": "¿Qué valor imprime?\n```js\nconsole.log((true && true) || false);\n```",
+        "respuestas": [
+            "`false`",
+            "`\"true\"`",
+            "`true`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 86,
+        "enunciado": "¿Qué devuelve este código?\n```js\nconsole.log(!(false || true));\n```",
+        "respuestas": [
+            "`\"false\"`",
+            "`true`",
+            "`false`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 87,
+        "enunciado": "¿Cuál es el resultado de la operación?\n```js\nconsole.log(true && \"Texto\");\n```",
+        "respuestas": [
+            "`\"Texto\"`",
+            "`false`",
+            "`true`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 88,
+        "enunciado": "¿Qué imprime este código?\n```js\nconsole.log(false && \"Hola\");\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"Hola\"`",
+            "`false`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 89,
+        "enunciado": "¿Qué valor devuelve?\n```js\nconsole.log(null || true);\n```",
+        "respuestas": [
+            "`true`",
+            "`false`",
+            "`null`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 90,
+        "enunciado": "¿Cuál será el resultado?\n```js\nconsole.log(0 && 1 || true);\n```",
+        "respuestas": [
+            "`true`",
+            "`0`",
+            "`false`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 91,
+        "enunciado": "¿Cuál es una declaración válida de un array vacío?",
+        "respuestas": [
+            "```js\nlet arr = {};\n```",
+            "```js\nlet arr = [];\n```",
+            "```js\nlet arr = ();\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 92,
+        "enunciado": "¿Qué forma correcta declara un array con números?",
+        "respuestas": [
+            "```js\nlet numeros = {1, 2, 3};\n```",
+            "```js\nlet numeros = [1, 2, 3];\n```",
+            "```js\nlet numeros = (1, 2, 3);\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 93,
+        "enunciado": "¿Cuál es la forma válida de crear un array usando el constructor?",
+        "respuestas": [
+            "```js\nlet arr = new Array(3);\n```",
+            "```js\nlet arr = Array(1,2,3);\n```",
+            "```js\nlet arr = Array[3];\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 94,
+        "enunciado": "¿Qué declaración es correcta para un array de strings?",
+        "respuestas": [
+            "```js\nlet frutas = [\"manzana\", \"pera\", \"uva\"];\n```",
+            "```js\nlet frutas = {\"manzana\", \"pera\", \"uva\"};\n```",
+            "```js\nlet frutas = (\"manzana\", \"pera\", \"uva\");\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 95,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [];\nconsole.log(typeof arr);\n```",
+        "respuestas": [
+            "`\"object\"`",
+            "`\"array\"`",
+            "`\"list\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 96,
+        "enunciado": "¿Cuál es la forma correcta de declarar un array mixto?",
+        "respuestas": [
+            "```js\nlet datos = {1, \"dos\", true};\n```",
+            "```js\nlet datos = [1, \"dos\", true];\n```",
+            "```js\nlet datos = (1, \"dos\", true);\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 97,
+        "enunciado": "¿Qué resultado devuelve este código?\n```js\nlet arr = new Array(\"a\", \"b\", \"c\");\nconsole.log(arr.length);\n```",
+        "respuestas": [
+            "`3`",
+            "`0`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 98,
+        "enunciado": "¿Cuál de estas es la forma válida de declarar un array de un solo elemento?",
+        "respuestas": [
+            "```js\nlet arr = (42);\n```",
+            "```js\nlet arr = [42];\n```",
+            "```js\nlet arr = {42};\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 99,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nlet arr = [10, 20, 30];\nconsole.log(arr[1]);\n```",
+        "respuestas": [
+            "`20`",
+            "`30`",
+            "`10`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 100,
+        "enunciado": "¿Cuál de estas declaraciones es **inválida**?",
+        "respuestas": [
+            "```js\nlet arr = [1,2,3];\n```",
+            "```js\nlet arr = [];\n```",
+            "```js\nlet arr = [1 2 3];\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 101,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nlet arr = [10, 20, 30];\nconsole.log(arr[0]);\n```",
+        "respuestas": [
+            "`30`",
+            "`10`",
+            "`20`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 102,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nlet arr = [\"a\", \"b\", \"c\"];\nconsole.log(arr[2]);\n```",
+        "respuestas": [
+            "`\"a\"`",
+            "`\"c\"`",
+            "`\"b\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 103,
+        "enunciado": "¿Qué valor se obtiene?\n```js\nlet arr = [1, 2, 3];\nconsole.log(arr[3]);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`0`",
+            "`3`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 104,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [5, 10, 15];\narr[1] = 50;\nconsole.log(arr[1]);\n```",
+        "respuestas": [
+            "`10`",
+            "`15`",
+            "`50`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 105,
+        "enunciado": "¿Cuál es el resultado?\n```js\nlet arr = [1, 2, 3];\narr[3] = 4;\nconsole.log(arr.length);\n```",
+        "respuestas": [
+            "`4`",
+            "`5`",
+            "`3`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 106,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [7, 8, 9];\nconsole.log(arr[arr.length - 1]);\n```",
+        "respuestas": [
+            "`9`",
+            "`8`",
+            "`7`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 107,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nlet arr = [];\narr[2] = 100;\nconsole.log(arr[1]);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`100`",
+            "`0`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 108,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet arr = [\"x\", \"y\", \"z\"];\nconsole.log(arr.at(-1));\n```",
+        "respuestas": [
+            "`\"y\"`",
+            "`\"x\"`",
+            "`\"z\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 109,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [\"uno\", \"dos\"];\narr[0] = \"primero\";\nconsole.log(arr[0]);\n```",
+        "respuestas": [
+            "`\"primero\"`",
+            "`\"uno\"`",
+            "`\"dos\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 110,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nlet arr = [1, 2];\narr[5] = 42;\nconsole.log(arr.length);\n```",
+        "respuestas": [
+            "`2`",
+            "`5`",
+            "`6`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 111,
+        "enunciado": "¿Qué función agrega un elemento al final de un array?",
+        "respuestas": [
+            "```js\npush()\n```",
+            "```js\npop()\n```",
+            "```js\nshift()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 112,
+        "enunciado": "¿Qué función elimina el último elemento de un array?",
+        "respuestas": [
+            "```js\npop()\n```",
+            "```js\npush()\n```",
+            "```js\nunshift()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 113,
+        "enunciado": "¿Qué función agrega un elemento al inicio de un array?",
+        "respuestas": [
+            "```js\nshift()\n```",
+            "```js\npush()\n```",
+            "```js\nunshift()\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 114,
+        "enunciado": "¿Qué función elimina el primer elemento de un array?",
+        "respuestas": [
+            "```js\nshift()\n```",
+            "```js\nunshift()\n```",
+            "```js\npop()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 115,
+        "enunciado": "¿Qué función devuelve una copia de una parte del array sin modificar el original?",
+        "respuestas": [
+            "```js\nslice()\n```",
+            "```js\nsplice()\n```",
+            "```js\nconcat()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 116,
+        "enunciado": "¿Qué función une dos arrays y devuelve uno nuevo?",
+        "respuestas": [
+            "```js\njoin()\n```",
+            "```js\nconcat()\n```",
+            "```js\npush()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 117,
+        "enunciado": "¿Qué función transforma todos los elementos de un array aplicando una función?",
+        "respuestas": [
+            "```js\nmap()\n```",
+            "```js\nforEach()\n```",
+            "```js\nfilter()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 118,
+        "enunciado": "¿Qué función devuelve un nuevo array con los elementos que cumplen una condición?",
+        "respuestas": [
+            "```js\nmap()\n```",
+            "```js\nfilter()\n```",
+            "```js\nreduce()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 119,
+        "enunciado": "¿Qué función reduce un array a un único valor?",
+        "respuestas": [
+            "```js\nmap()\n```",
+            "```js\nfilter()\n```",
+            "```js\nreduce()\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 120,
+        "enunciado": "¿Qué función devuelve el primer elemento que cumple con una condición?",
+        "respuestas": [
+            "```js\nsome()\n```",
+            "```js\nfind()\n```",
+            "```js\nfilter()\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 121,
+        "enunciado": "¿Cuál es la forma correcta de declarar un objeto vacío?",
+        "respuestas": [
+            "```js\nlet obj = ();\n```",
+            "```js\nlet obj = [];\n```",
+            "```js\nlet obj = {};\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 122,
+        "enunciado": "¿Qué declaración es válida para un objeto con una propiedad `nombre`?",
+        "respuestas": [
+            "```js\nlet persona = { nombre: \"Juan\" };\n```",
+            "```js\nlet persona = (nombre: \"Juan\");\n```",
+            "```js\nlet persona = { \"nombre\", \"Juan\" };\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 123,
+        "enunciado": "¿Cuál es la forma correcta de declarar un objeto con varias propiedades?",
+        "respuestas": [
+            "```js\nlet coche = { \n   marca: \"Toyota\", año: 2020 \n};\n```",
+            "```js\nlet coche = (\n   marca: \"Toyota\", año: 2020\n);\n```",
+            "```js\nlet coche = { \n   marca = \"Toyota\", año = 2020 \n};\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 124,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet obj = {};\nconsole.log(typeof obj);\n```",
+        "respuestas": [
+            "`\"object\"`",
+            "`\"array\"`",
+            "`\"null\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 125,
+        "enunciado": "¿Cuál es la forma válida de crear un objeto usando el constructor?",
+        "respuestas": [
+            "```js\nlet obj = Object[];\n```",
+            "```js\nlet obj = new Object();\n```",
+            "```js\nlet obj = Object{};\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 126,
+        "enunciado": "¿Cuál es la forma abreviada correcta cuando el nombre de la variable y la propiedad son iguales?\n```js\nlet nombre = \"Ana\";\nlet persona = { nombre };\nconsole.log(persona.nombre);\n```",
+        "respuestas": [
+            "`\"Ana\"`",
+            "`undefined`",
+            "`\"nombre\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 127,
+        "enunciado": "¿Qué imprime este código?\n```js\n   let x = 10, y = 20;\n   let punto = { x, y };\n   console.log(punto);\n```",
+        "respuestas": [
+            "```js\n{ \"x\": \"y\" }\n```",
+            "```js\n{ x: \"x\", y: \"y\" }\n```",
+            "```js\n{ x: 10, y: 20 }\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 128,
+        "enunciado": "¿Qué declaración es equivalente?\n```js\n   let edad = 30;\n   let persona = { edad };\n```",
+        "respuestas": [
+            "```js\nlet persona = { edad: edad };\n```",
+            "```js\nlet persona = { \"edad\" };\n```",
+            "```js\nlet persona = { edad: \"edad\" };\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 129,
+        "enunciado": "¿Cuál es el valor de la propiedad?\n```js\nlet color = \"rojo\";\nlet coche = { color };\nconsole.log(coche.color);\n```",
+        "respuestas": [
+            "`\"rojo\"`",
+            "`undefined`",
+            "`\"color\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 130,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet a = 1, b = 2;\nlet numeros = { a, b, suma: a + b };\nconsole.log(numeros.suma);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`3`",
+            "`\"a+b\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 131,
+        "enunciado": "¿Qué función devuelve un array con las claves de un objeto?",
+        "respuestas": [
+            "```js\nObject.values()\n```",
+            "```js\nObject.keys()\n```",
+            "```js\nObject.entries()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 132,
+        "enunciado": "¿Qué función devuelve un array con los valores de un objeto?",
+        "respuestas": [
+            "```js\nObject.entries()\n```",
+            "```js\nObject.keys()\n```",
+            "```js\nObject.values()\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 133,
+        "enunciado": "¿Qué función devuelve un array de pares `[clave, valor]`?",
+        "respuestas": [
+            "```js\nObject.values()\n```",
+            "```js\nObject.entries()\n```",
+            "```js\nObject.keys()\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 134,
+        "enunciado": "¿Qué función evita que se agreguen nuevas propiedades a un objeto?",
+        "respuestas": [
+            "```js\nObject.seal()\n```",
+            "```js\nObject.freeze()\n```",
+            "```js\nObject.preventExtensions()\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 135,
+        "enunciado": "¿Qué función congela un objeto para que no se pueda modificar?",
+        "respuestas": [
+            "```js\nObject.preventExtensions()\n```",
+            "```js\nObject.assign()\n```",
+            "```js\nObject.freeze()\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 136,
+        "enunciado": "¿Qué función copia propiedades de un objeto a otro?",
+        "respuestas": [
+            "```js\nObject.keys()\n```",
+            "```js\nObject.values()\n```",
+            "```js\nObject.assign()\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 137,
+        "enunciado": "¿Qué función crea un nuevo objeto con un prototipo específico?",
+        "respuestas": [
+            "```js\nObject.create()\n```",
+            "```js\nObject.assign()\n```",
+            "```js\nObject.defineProperty()\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 138,
+        "enunciado": "¿Qué función define una nueva propiedad en un objeto?",
+        "respuestas": [
+            "```js\nObject.freeze()\n```",
+            "```js\nObject.defineProperty()\n```",
+            "```js\nObject.create()\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 139,
+        "enunciado": "¿Qué función devuelve el prototipo de un objeto?",
+        "respuestas": [
+            "```js\nObject.getPrototypeOf()\n```",
+            "```js\nObject.create()\n```",
+            "```js\nObject.setPrototypeOf()\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 140,
+        "enunciado": "¿Qué función sella un objeto, permitiendo modificar propiedades existentes pero no agregar ni eliminar?",
+        "respuestas": [
+            "```js\nObject.seal()\n```",
+            "```js\nObject.freeze()\n```",
+            "```js\nObject.preventExtensions()\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 141,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nlet [a, b] = [10, 20];\nconsole.log(a);\n```",
+        "respuestas": [
+            "`20`",
+            "`10`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 142,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nlet [x, y, z] = [1, 2, 3];\nconsole.log(z);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`3`",
+            "`2`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 143,
+        "enunciado": "¿Qué resultado imprime?\n```js\nlet [a, , c] = [1, 2, 3];\nconsole.log(c);\n```",
+        "respuestas": [
+            "`2`",
+            "`3`",
+            "`1`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 144,
+        "enunciado": "¿Qué valor obtiene `b`?\n```js\nlet [a, b = 5] = [10];\nconsole.log(b);\n```",
+        "respuestas": [
+            "`5`",
+            "`10`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 145,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet [x, ...rest] = [1, 2, 3, 4];\nconsole.log(rest);\n```",
+        "respuestas": [
+            "```js\n[1, 2, 3]\n```",
+            "```js\n[2, 3, 4]\n```",
+            "```js\n[3, 4]\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 146,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet [, , third] = [\"a\", \"b\", \"c\"];\nconsole.log(third);\n```",
+        "respuestas": [
+            "`\"a\"`",
+            "`\"b\"`",
+            "`\"c\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 147,
+        "enunciado": "¿Qué resultado da este código?\n```js\nlet [x, y, z = 100] = [1, 2];\nconsole.log(z);\n```",
+        "respuestas": [
+            "`2`",
+            "`100`",
+            "`undefined`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 148,
+        "enunciado": "¿Qué imprime?\n```js\nlet [a, b] = [1];\nconsole.log(b);\n```",
+        "respuestas": [
+            "`null`",
+            "`undefined`",
+            "`0`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 149,
+        "enunciado": "¿Qué resultado devuelve?\n```js\nlet [a, , b] = [10, 20, 30];\nconsole.log(a, b);\n```",
+        "respuestas": [
+            "`10 20`",
+            "`20 30`",
+            "`10 30`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 150,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet [a, ...b] = [1];\nconsole.log(b);\n```",
+        "respuestas": [
+            "`[1]`",
+            "`[]`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 151,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nlet { nombre } = { nombre: \"Ana\", edad: 25 };\nconsole.log(nombre);\n```",
+        "respuestas": [
+            "`\"Ana\"`",
+            "`25`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 152,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet { edad } = { nombre: \"Ana\", edad: 25 };\nconsole.log(edad);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`25`",
+            "`\"Ana\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 153,
+        "enunciado": "¿Qué valor obtiene `pais`?\n```js\nlet { pais = \"Argentina\" } = { nombre: \"Ana\" };\nconsole.log(pais);\n```",
+        "respuestas": [
+            "`\"Argentina\"`",
+            "`undefined`",
+            "`\"Ana\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 154,
+        "enunciado": "¿Qué resultado devuelve este código?\n```js\nlet { nombre: n } = { nombre: \"Luis\" };\nconsole.log(n);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"nombre\"`",
+            "`\"Luis\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 155,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet obj = { a: 1, b: 2, c: 3 };\nlet { b } = obj;\nconsole.log(b);\n```",
+        "respuestas": [
+            "`3`",
+            "`1`",
+            "`2`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 156,
+        "enunciado": "¿Qué resultado imprime?\n```js\nlet { x, y } = { x: 5 };\nconsole.log(y);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`5`",
+            "`0`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 157,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet { a = 10 } = { a: 0 };\nconsole.log(a);\n```",
+        "respuestas": [
+            "`10`",
+            "`undefined`",
+            "`0`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 158,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet { nombre, edad } = { nombre: \"Ana\", edad: 30 };\nconsole.log(edad);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`30`",
+            "`\"Ana\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 159,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet { a, ...resto } = { a: 1, b: 2, c: 3 };\nconsole.log(resto);\n```",
+        "respuestas": [
+            "`{ a: 1 }`",
+            "`{ b: 2, c: 3 }`",
+            "`{}`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 160,
+        "enunciado": "¿Qué resultado se obtiene?\n```js\nlet { x, y = 50 } = { x: 10 };\nconsole.log(x, y);\n```",
+        "respuestas": [
+            "`10 50`",
+            "`undefined 50`",
+            "`10 undefined`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 161,
+        "enunciado": "¿Cuál es la forma correcta de un `if` simple?",
+        "respuestas": [
+            "```js\nif (x > 10) { \n   console.log(\"Mayor\"); \n}\n```",
+            "```js\nif x > 10 { \n   console.log(\"Mayor\"); \n}\n```",
+            "```js\nif (x > 10) \n   console.log(\"Mayor\")\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 162,
+        "enunciado": "¿Qué sintaxis es válida para un `if` con `else`?",
+        "respuestas": [
+            "```js\nelseif (x === 5) { \n   console.log(\"Cinco\"); \n} else { \n   console.log(\"Otro\"); \n}   \n```",
+            "```js\nif x === 5 \n   console.log(\"Cinco\"); \nelse \n   console.log(\"Otro\")\n```",
+            "```js\nif (x === 5) { \n   console.log(\"Cinco\"); \n} else { \n   console.log(\"Otro\"); \n}\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 163,
+        "enunciado": "¿Cuál de estos `if` es incorrecto?",
+        "respuestas": [
+            "```js\nif (a == b) \n   console.log(\"Iguales\");\n```",
+            "```js\nif a == b \n   console.log(\"Iguales\");\n```",
+            "```js\nif (a == b) {\n   console.log(\"Iguales\"); \n}\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 164,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet n = 5;\nif (n > 10) console.log(\"Mayor\"); else console.log(\"Menor o igual\");\n```",
+        "respuestas": [
+            "`\"Menor o igual\"`",
+            "`undefined`",
+            "`\"Mayor\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 165,
+        "enunciado": "¿Cuál es la forma correcta de un `if else if`?",
+        "respuestas": [
+            "Ambas son válidas",
+            "```js\nif (x > 0) { \n   console.log(\"Positivo\"); \n} else if (x < 0) { \n   console.log(\"Negativo\"); \n} else { \n   console.log(\"Cero\"); \n}\n```",
+            "```js\nif (x > 0) \n   console.log(\"Positivo\")\nelse (x < 0) \n   console.log(\"Negativo\")\nelse \n   console.log(\"Cero\")\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 166,
+        "enunciado": "¿Qué imprime?\n```js\nlet edad = 18;\nif (edad >= 18) \n   console.log(\"Adulto\");\n```",
+        "respuestas": [
+            "`\"18\"`",
+            "`\"Adulto\"`",
+            "`undefined`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 167,
+        "enunciado": "¿Qué sintaxis es inválida?",
+        "respuestas": [
+            "```js\nif (condicion) { \n   console.log(\"ok\"); \n}\n```",
+            "```js\nif condicion { \n   console.log(\"ok\"); \n}\n```",
+            "```js\nif (condicion) \nconsole.log(\"ok\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 168,
+        "enunciado": "¿Qué resultado imprime?\n```js\nlet x = 0;\nif (x) \n   console.log(\"Verdadero\"); \nelse \n   console.log(\"Falso\");\n```",
+        "respuestas": [
+            "`\"Falso\"`",
+            "`\"Verdadero\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 169,
+        "enunciado": "¿Qué imprime este código?\n```js\nif (\"texto\") \n   console.log(\"Verdadero\"); \nelse \n   console.log(\"Falso\");\n```",
+        "respuestas": [
+            "`\"Verdadero\"`",
+            "`\"Falso\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 170,
+        "enunciado": "¿Qué forma es válida para un `if` en una sola línea?",
+        "respuestas": [
+            "```js\nif (x > 0) { \n   console.log(\"Positivo\") \n}\n```",
+            "```js\nif (x > 0) \n   console.log(\"Positivo\");\n```",
+            "```js\nif x > 0 \n   console.log(\"Positivo\")\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 171,
+        "enunciado": "¿Cuál es la forma correcta de un bucle `while`?",
+        "respuestas": [
+            "```js\nwhile x < 10 { \n   console.log(x); x++; }\n```",
+            "```js\nwhile (x < 10) \n   console.log(x); x++;\n```",
+            "```js\nwhile (x < 10) { \n   console.log(x); x++; \n}\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 172,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet i = 0;\nwhile (i < 3) { \n   console.log(i); i++; \n}\n```",
+        "respuestas": [
+            "`1 2 3`",
+            "`0 1 2 3`",
+            "`0 1 2`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 173,
+        "enunciado": "¿Cuál de estas formas es incorrecta?",
+        "respuestas": [
+            "```js\nwhile (false) { \n   console.log(\"Nunca\"); \n}\n```",
+            "```js\nwhile (true) { \n   break; \n}\n```",
+            "```js\nwhile (true) { \n   break; \n}\n```",
+            "```js\nwhile (true) { \n   break; \n}\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 174,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet x = 5;\nwhile (x > 0) { \n   x--; \n}\nconsole.log(x);\n```",
+        "respuestas": [
+            "`0`",
+            "`1`",
+            "`5`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 175,
+        "enunciado": "¿Qué resultado obtiene este código?\n```js\nlet i = 0;\nwhile (i < 2) {\n   console.log(i++);\n}\n```",
+        "respuestas": [
+            "`1 2`",
+            "`0 1`",
+            "`0 1 2`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 176,
+        "enunciado": "¿Cuál es la sintaxis válida?",
+        "respuestas": [
+            "```js\nwhile (condicion) { /* código */ }\n```",
+            "```js\nwhile condicion { /* código */ }\n```",
+            "Ambas"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 177,
+        "enunciado": "¿Qué imprime este bucle?\n```js\nlet i = 2;\nwhile (i) { \n   console.log(i); i--; \n}\n```",
+        "respuestas": [
+            "`2 1`",
+            "`2 1 0`",
+            "`1 0`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 178,
+        "enunciado": "¿Cuál es el resultado?\n```js\nlet i = 0;\nwhile (i < 0) { \n   console.log(i); i++; \n}\n```",
+        "respuestas": [
+            "Nada (no entra al bucle)",
+            "`undefined`",
+            "`0`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 179,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet i = 3;\nwhile (i--) console.log(i);\n```",
+        "respuestas": [
+            "`2 1 0`",
+            "`3 2 1 0`",
+            "`3 2 1`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 180,
+        "enunciado": "¿Qué forma es válida para un bucle `while` de una sola línea?",
+        "respuestas": [
+            "```js\nwhile x < 5 { \n   x++ \n}\n```",
+            "```js\nwhile (x < 5) { \n   x++ \n}\n```",
+            "```js\nwhile (x < 5) \n   x++;\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 181,
+        "enunciado": "¿Cuál es la forma básica de un bucle `for`?",
+        "respuestas": [
+            "```js\nfor (inicialización condición actualización) { \n   /* código */ \n}\n```",
+            "```js\nfor inicialización; condición; actualización { \n   /* código */ \n}\n```",
+            "```js\nfor (inicialización; condición; actualización) { \n   /* código */ \n}\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 182,
+        "enunciado": "¿Qué imprime este código?\n```js\nfor (let i = 0; i < 3; i++) { \n   console.log(i); \n}\n```",
+        "respuestas": [
+            "`0 1 2`",
+            "`1 2 3`",
+            "`0 1 2 3`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 183,
+        "enunciado": "¿Cuál de estas formas es válida para un bucle infinito?",
+        "respuestas": [
+            "```js\nfor () { }\n```",
+            "```js\nfor (true) { }\n```",
+            "```js\nfor (;;) { }\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 184,
+        "enunciado": "¿Qué imprime este código?\n```js\nfor (let i = 2; i > 0; i--) { \n   console.log(i); \n}\n```",
+        "respuestas": [
+            "`1 0`",
+            "`2 1 0`",
+            "`2 1`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 185,
+        "enunciado": "¿Cuál es el resultado?\n```js\nfor (let i = 0; i < 2; ) { \n   console.log(i); i++; \n}\n```",
+        "respuestas": [
+            "`1 2`",
+            "`0 1`",
+            "`0 1 2`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 186,
+        "enunciado": "¿Qué imprime este código?\n```js\nfor (let i = 0; i < 5; i += 2) { \n   console.log(i); \n}\n```",
+        "respuestas": [
+            "`0 2 4`",
+            "`0 1 2 3 4`",
+            "`1 3 5`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 187,
+        "enunciado": "¿Cuál es la sintaxis inválida?",
+        "respuestas": [
+            "```js\nfor (let i = 0; i < 10) { }\n```",
+            "```js\nfor (;;) { }\n```",
+            "```js\nfor (let i = 0; i < 10; i++) { }\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 188,
+        "enunciado": "¿Qué imprime este código?\n```js\nfor (let i = 3; i--;) \n   console.log(i);\n```",
+        "respuestas": [
+            "`3 2 1`",
+            "`2 1 0`",
+            "`3 2 1 0`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 189,
+        "enunciado": "¿Qué valor tendrá `suma`?\n```js\nlet suma = 0;\nfor (let i = 1; i <= 3; i++) { \n   suma += i; \n}\nconsole.log(suma);\n```",
+        "respuestas": [
+            "`10`",
+            "`6`",
+            "`3`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 190,
+        "enunciado": "¿Qué forma de `for` es válida en una sola línea?",
+        "respuestas": [
+            "```js\nfor (let i = 0, i < 3, i++) { \n   console.log(i); \n}\n```\n",
+            "```js\nfor let i = 0; i < 3; i++ { \n   console.log(i); \n}\n```",
+            "```js\nfor (let i = 0; i < 3; i++) \n   console.log(i);\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 191,
+        "enunciado": "¿Qué hace el bucle `for...in`?",
+        "respuestas": [
+            "Itera sobre los valores de un array",
+            "Itera sobre caracteres de un string",
+            "Itera sobre las propiedades enumerables de un objeto"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 192,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet persona = { nombre: \"Ana\", edad: 25 };\nfor (let clave in persona) {\n  console.log(clave);\n}\n```",
+        "respuestas": [
+            "`nombre edad`",
+            "Error",
+            "`\"Ana\" 25`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 193,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [\"a\", \"b\", \"c\"];\nfor (let i in arr) {\n  console.log(i);\n}\n```",
+        "respuestas": [
+            "`\"a\" \"b\" \"c\"`",
+            "`0 1 2`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 194,
+        "enunciado": "¿Qué diferencia tiene `for...in` con `for...of`?",
+        "respuestas": [
+            "`for...in` itera sobre índices o claves, `for...of` sobre valores",
+            "No hay diferencia",
+            "`for...in` itera solo arrays, `for...of` solo objetos"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 195,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet obj = { a: 1, b: 2 };\nfor (let clave in obj) {\n   console.log(obj[clave]);\n}\n```",
+        "respuestas": [
+            "`1 2`",
+            "`\"a\" \"b\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 196,
+        "enunciado": "¿Qué hace el bucle `for...of`?",
+        "respuestas": [
+            "Itera sobre los valores de un objeto iterable (arrays, strings, etc.)",
+            "Itera sobre las propiedades enumerables de un objeto",
+            "Itera sobre índices únicamente"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 197,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [10, 20, 30];\nfor (let valor of arr) {\n   console.log(valor);\n}\n```",
+        "respuestas": [
+            "`10 20 30`",
+            "Error",
+            "`0 1 2`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 198,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet texto = \"JS\";\nfor (let char of texto) {\n   console.log(char);\n}\n```",
+        "respuestas": [
+            "`J S`",
+            "`\"JS\"`",
+            "`0 1`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 199,
+        "enunciado": "¿Qué diferencia tiene `for...of` con `for...in`?",
+        "respuestas": [
+            "`for...of` solo funciona con objetos, `for...in` con arrays",
+            "`for...of` itera sobre valores, `for...in` sobre índices o claves",
+            "No hay diferencia"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 200,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [\"a\", \"b\"];\nfor (let valor of arr) {\n   console.log(valor.toUpperCase());\n}\n```",
+        "respuestas": [
+            "`A B`",
+            "`\"a\" \"b\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 201,
+        "enunciado": "¿Qué hace la instrucción `break` dentro de un bucle?",
+        "respuestas": [
+            "Salta la iteración actual y continúa con la siguiente",
+            "Termina inmediatamente el bucle",
+            "Reinicia el bucle desde el principio"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 202,
+        "enunciado": "¿Qué hace la instrucción `continue` dentro de un bucle?",
+        "respuestas": [
+            "Sale del programa",
+            "Termina inmediatamente el bucle",
+            "Salta la iteración actual y continúa con la siguiente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 203,
+        "enunciado": "¿Qué imprime este código?\n```js\nfor (let i = 0; i < 5; i++) {\n  if (i === 3) break;\n  console.log(i);\n}\n```",
+        "respuestas": [
+            "`0 1 2 3 4`",
+            "`0 1 2`",
+            "`0 1 2 3`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 204,
+        "enunciado": "¿Qué imprime este código?\n```js\nfor (let i = 0; i < 5; i++) {\n   if (i === 2) continue;\n   console.log(i);\n}\n```",
+        "respuestas": [
+            "`0 1 2 3 4`",
+            "`0 1 3 4`",
+            "`1 2 3 4`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 205,
+        "enunciado": "¿Qué imprime este bucle?\n```js\nlet i = 0;\nwhile (i < 5) {\n   i++;\n   if (i === 4) break;\n   console.log(i);\n}\n```",
+        "respuestas": [
+            "`0 1 2 3`",
+            "`1 2 3`",
+            "`1 2 3 4`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 206,
+        "enunciado": "¿Cuál es la forma básica correcta de un `switch`?",
+        "respuestas": [
+            "```js\nswitch expresion {\n   case valor1: /* código */ break;\n}\n```",
+            "```js\nswitch (expresion) {\n   case valor1: \n      /* código */ break;\n   case valor2: \n      /* código */ break;\n   default: \n      /* código */\n}\n```",
+            "```js\nswitch (expresion)\n   case valor1: /* código */\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 207,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet x = 2;\nswitch (x) {\n   case 1: \n      console.log(\"Uno\"); break;\n   case 2: \n      console.log(\"Dos\"); break;\n   default: \n      console.log(\"Otro\");\n}\n```",
+        "respuestas": [
+            "`\"Dos\"`",
+            "`\"Otro\"`",
+            "`\"Uno\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 208,
+        "enunciado": "¿Qué sucede si falta el `break` en un caso?",
+        "respuestas": [
+            "Ejecuta el caso siguiente también",
+            "Lanza un error",
+            "Termina el `switch` automáticamente"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 209,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet color = \"rojo\";\nswitch (color) {\n   case \"azul\": \n      console.log(\"Azul\"); break;\n   case \"rojo\": \n      console.log(\"Rojo\"); break;\n   default: \n      console.log(\"Otro\");\n}\n```",
+        "respuestas": [
+            "`\"Otro\"`",
+            "`\"Rojo\"`",
+            "`\"Azul\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 210,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet n = 10;\nswitch (n) {\n   case 5: \n      console.log(\"Cinco\"); break;\n   default: \n      console.log(\"Otro\");\n}\n```",
+        "respuestas": [
+            "`\"Otro\"`",
+            "`\"Cinco\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 211,
+        "enunciado": "¿Cuál es la forma correcta de declarar una función?",
+        "respuestas": [
+            "```js\nfunction sumar(a, b) { \n   return a + b; \n}\n```",
+            "```js\nfunction = sumar(a, b) { \n   return a + b; \n}\n```",
+            "```js\nfunc sumar(a, b) { \n   return a + b; \n}\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 212,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction saludo() { return \"Hola\"; }\nconsole.log(saludo());\n```",
+        "respuestas": [
+            "`\"Hola\"`",
+            "`saludo`",
+            "`undefined`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 213,
+        "enunciado": "¿Qué ocurre si no se usa `return` dentro de una función?",
+        "respuestas": [
+            "Devuelve `null`",
+            "Devuelve `undefined`",
+            "Lanza un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 214,
+        "enunciado": "¿Qué forma es válida para una función sin parámetros?",
+        "respuestas": [
+            "```js\nfunction mostrar() { \n   console.log(\"Ok\"); \n}\n```",
+            "```js\nfunction mostrar { \n   console.log(\"Ok\"); \n}\n```",
+            "```js\nfunction() mostrar { \n   console.log(\"Ok\"); \n}\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 215,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction f() {}\nconsole.log(f());\n```",
+        "respuestas": [
+            "`null`",
+            "`0`",
+            "`undefined`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 216,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction sumar(a, b) { \n   return a + b; \n}\nconsole.log(sumar(2, 3));\n```",
+        "respuestas": [
+            "`23`",
+            "`undefined`",
+            "`5`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 217,
+        "enunciado": "¿Qué valor devuelve?\n```js\nfunction f(x = 10) { \n   return x; \n}\nconsole.log(f());\n```",
+        "respuestas": [
+            "`10`",
+            "`undefined`",
+            "`null`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 218,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction f(a, b = 2) { \n   return a * b; \n}\nconsole.log(f(5));\n```",
+        "respuestas": [
+            "`undefined`",
+            "`5`",
+            "`10`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 219,
+        "enunciado": "¿Qué ocurre si se pasan más parámetros de los declarados?\n```js\nfunction f(a, b) { \n   return a + b; \n}\nconsole.log(f(1, 2, 3));\n```",
+        "respuestas": [
+            "`1`",
+            "`3`",
+            "`6`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 220,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction f(a, b) { console.log(arguments.length); }\nf(1, 2, 3, 4);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`4`",
+            "`2`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 221,
+        "enunciado": "¿Qué valor imprime?\n```js\nfunction f(...args) { \n   return args.length; \n}\nconsole.log(f(1, 2, 3));\n```",
+        "respuestas": [
+            "`undefined`",
+            "`2`",
+            "`3`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 222,
+        "enunciado": "¿Qué imprime?\n```js\nfunction f(a, ...rest) { \n   return rest; \n}\nconsole.log(f(1, 2, 3));\n```",
+        "respuestas": [
+            "`[1, 2, 3]`",
+            "`[2, 3]`",
+            "`[3]`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 223,
+        "enunciado": "¿Qué ocurre si no se pasan parámetros?\n```js\nfunction f(a, b) { return a + b; }\nconsole.log(f());\n```",
+        "respuestas": [
+            "`0`",
+            "`undefined`",
+            "`NaN`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 224,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction f(a = 1, b = 2) { \n   return a + b; \n}\nconsole.log(f(undefined, 5));\n```",
+        "respuestas": [
+            "`6`",
+            "`7`",
+            "`3`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 225,
+        "enunciado": "¿Qué es una función anidada?",
+        "respuestas": [
+            "Una función definida dentro de otra función",
+            "Una función sin nombre",
+            "Una función que se ejecuta varias veces"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 226,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction externa() {\n  function interna() {\n    return \"Hola\";\n  }\n  return interna();\n}\nconsole.log(externa());\n```",
+        "respuestas": [
+            "`\"Hola\"`",
+            "Error",
+            "`undefined`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 227,
+        "enunciado": "¿Qué valor imprime?\n```js\nfunction externa() {\n   let x = 10;\n   function interna() {\n      return x;\n   }\n   return interna();\n}\nconsole.log(externa());\n```",
+        "respuestas": [
+            "`10`",
+            "`undefined`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 228,
+        "enunciado": "¿Qué ocurre si intentamos llamar a la función interna desde fuera?\n```js\nfunction externa() {\n   function interna() { \n      return 5; \n   }\n}\nconsole.log(interna());\n```",
+        "respuestas": [
+            "`5`",
+            "Error (interna no está definida en el ámbito global)",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 229,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction externa() {\n   function interna(y) { \n      return y * 2; \n   }\n   return interna(4);\n}\nconsole.log(externa());\n```",
+        "respuestas": [
+            "`8`",
+            "`undefined`",
+            "`4`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 230,
+        "enunciado": "¿Qué es la recursividad en programación?",
+        "respuestas": [
+            "Cuando una función contiene otra función",
+            "Cuando una función se ejecuta varias veces en un bucle",
+            "Cuando una función se llama a sí misma"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 231,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction cuentaAtras(n) {\n   if (n === 0) return \"Fin\";\n   return n + \" \" + cuentaAtras(n - 1);\n}\nconsole.log(cuentaAtras(3));\n```",
+        "respuestas": [
+            "`\"3 2 1 Fin\"`",
+            "`\"3 2 1 0\"`",
+            "`\"Fin\"`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 232,
+        "enunciado": "¿Cuál es el caso base en una función recursiva?",
+        "respuestas": [
+            "La condición que detiene la recursión",
+            "La parte que llama de nuevo a la función",
+            "El primer parámetro de la función"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 233,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction factorial(n) {\n   if (n === 1) return 1;\n   return n * factorial(n - 1);\n}\nconsole.log(factorial(4));\n```",
+        "respuestas": [
+            "`4`",
+            "`24`",
+            "`10`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 234,
+        "enunciado": "¿Qué ocurre si a una función recursiva le falta el caso base?",
+        "respuestas": [
+            "Se detiene automáticamente después de 10 llamadas",
+            "Devuelve `undefined`",
+            "Se produce un bucle infinito y un error de pila (stack overflow)"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 235,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction f() { \n   let x = 10; console.log(x); \n}\nf();\n```",
+        "respuestas": [
+            "`10`",
+            "`undefined`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 236,
+        "enunciado": "¿Qué ocurre?\n```js\nfunction f() { \n   let x = 5; \n}\nconsole.log(x);\n```",
+        "respuestas": [
+            "Error (x no está definida fuera de la función)",
+            "`5`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 237,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet x = 1;\nfunction f() { \n   let x = 2; console.log(x); \n}\nf();\n```",
+        "respuestas": [
+            "`2`",
+            "`undefined`",
+            "`1`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 238,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet x = 1;\nfunction f() { \n   console.log(x); \n}\nf();\n```",
+        "respuestas": [
+            "`1`",
+            "`undefined`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 239,
+        "enunciado": "¿Qué ocurre?\n```js\nfunction f() { \n   y = 10; \n}\nf();\nconsole.log(y);\n```",
+        "respuestas": [
+            "`10`",
+            "Error",
+            "`undefined`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 240,
+        "enunciado": "¿Qué imprime?\n```js\nfunction f() { \n   var x = 7; \n}\nconsole.log(typeof x);\n```",
+        "respuestas": [
+            "`\"undefined\"`",
+            "`\"object\"`",
+            "`\"number\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 241,
+        "enunciado": "¿Qué valor imprime este código?\n```js\nfunction mostrar({ nombre }) { \n   console.log(nombre); \n}\nmostrar({ nombre: \"Ana\", edad: 25 });\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"Ana\"`",
+            "`25`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 242,
+        "enunciado": "¿Qué valor imprime?\n```js\nfunction f({ x, y }) { \n   console.log(x + y); \n}\nf({ x: 2, y: 3 });\n```",
+        "respuestas": [
+            "`undefined`",
+            "`5`",
+            "`23`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 243,
+        "enunciado": "¿Qué resultado da este código?\n```js\nfunction f({ a = 10, b = 20 }) { \n   console.log(a, b); \n}\nf({ a: 5 });\n```",
+        "respuestas": [
+            "`5 undefined`",
+            "`10 20`",
+            "`5 20`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 244,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction componente({ titulo }) { \n   console.log(titulo);    \n}\ncomponente({ titulo: \"React\" });\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"titulo\"`",
+            "`\"React\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 245,
+        "enunciado": "¿Qué valor imprime?\n```js\nfunction f([a, b]) { \n   console.log(a, b); \n}\nf([1, 2]);\n```",
+        "respuestas": [
+            "`undefined undefined`",
+            "`2 1`",
+            "`1 2`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 246,
+        "enunciado": "¿Qué resultado imprime?\n```js\nfunction f([primero, , tercero]) { \n   console.log(tercero);   \n}\nf([10, 20, 30]);\n```",
+        "respuestas": [
+            "`20`",
+            "`30`",
+            "`10`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 247,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction f({ nombre = \"Invitado\" }) { \n   console.log(nombre); \n}\nf({});\n```",
+        "respuestas": [
+            "`\"Invitado\"`",
+            "`\"nombre\"`",
+            "`undefined`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 248,
+        "enunciado": "¿Qué valor imprime?\n```js\nfunction f({ a, ...resto }) { console.log(resto); }\nf({ a: 1, b: 2, c: 3 });\n```",
+        "respuestas": [
+            "```js\n{}\n```",
+            "```js\n{ a: 1 }\n```",
+            "```js\n{ b: 2, c: 3 }\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 249,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction f([x, ...resto]) { \n   console.log(resto); \n}\nf([1, 2, 3]);\n```",
+        "respuestas": [
+            "```js\n[1, 2, 3]\n```",
+            "```js\n[3]\n```",
+            "```js\n[2, 3]\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 250,
+        "enunciado": "¿Qué imprime este ejemplo típico de React?\n```js\nfunction Boton({ texto }) { \n   console.log(texto); \n}\nBoton({ texto: \"Click aquí\" });\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"texto\"`",
+            "`\"Click aquí\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 251,
+        "enunciado": "¿Cuál es la forma correcta de declarar una función anónima y asignarla a una variable?",
+        "respuestas": [
+            "```js\nlet f = function() { \n   return \"Hola\"; \n};\n```",
+            "```js\nfunction = () { \n   return \"Hola\"; \n};\n```",
+            "```js\nlet f = function; { \n   return \"Hola\";\n}\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 252,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet f = function(x) { \n   return x * 2; \n};\nconsole.log(f(5));\n```",
+        "respuestas": [
+            "`10`",
+            "`5`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 253,
+        "enunciado": "¿Cuál es una forma válida de usar una función anónima como parámetro?",
+        "respuestas": [
+            "```js\nsetTimeout(function; { \n   console.log(\"Hola\"); \n}, 1000);\n```",
+            "```js\nsetTimeout(function() { \n   console.log(\"Hola\"); \n}, 1000);\n```",
+            "```js\nsetTimeout(() { \n   console.log(\"Hola\"); \n}, 1000);\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 254,
+        "enunciado": "¿Qué imprime este código?\n```js\n[1, 2, 3].forEach(function(n) { console.log(n); });\n```",
+        "respuestas": [
+            "`1 2 3`",
+            "`0 1 2`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 255,
+        "enunciado": "¿Qué valor devuelve?\n```js\nlet resultado = [1, 2, 3].map(function(n) { return n * 2; });\nconsole.log(resultado);\n```",
+        "respuestas": [
+            "```js\n[2, 4, 6]\n```",
+            "```js\n[1, 2, 3]\n```",
+            "```js\n[n * 2]\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 256,
+        "enunciado": "¿Cuál es la forma correcta de pasar una función anónima a `filter`?",
+        "respuestas": [
+            "```js\nlet pares = [1, 2, 3, 4].filter(\n   function(n) { return n % 2 === 0; }\n);\n```",
+            "```js\nlet pares = [1, 2, 3, 4].filter(\n   function => n % 2 === 0\n);\n```",
+            "```js\nlet pares = [1, 2, 3, 4].filter(n) { \n   return n % 2 === 0; \n};\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 257,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet f = function(nombre) { return \"Hola \" + nombre; };\nconsole.log(f(\"Ana\"));\n```",
+        "respuestas": [
+            "`\"Ana\"`",
+            "`\"Hola Ana\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 258,
+        "enunciado": "¿Qué forma es válida para ejecutar una función anónima inmediatamente?",
+        "respuestas": [
+            "```js\n(() console.log(\"Ejecutada\"); )();\n```",
+            "```js\n(function() {\n   console.log(\"Ejecutada\"); }\n)();\n```",
+            "```js\nfunction() { \n   console.log(\"Ejecutada\"); \n}();\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 261,
+        "enunciado": "¿Cuál es la forma correcta de una función flecha que suma dos números?",
+        "respuestas": [
+            "```js\nlet sumar = (a, b) -> \n   a + b;\n```",
+            "```js\nlet sumar = (a, b) => \n   a + b;\n```",
+            "```js\nlet sumar = (a, b) { \n   return a + b; \n};\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 262,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet f = () => \"Hola\";\nconsole.log(f());\n```",
+        "respuestas": [
+            "`undefined`",
+            "`f`",
+            "`\"Hola\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 263,
+        "enunciado": "¿Qué valor devuelve?\n```js\nlet cuadrado = x => x * x;\nconsole.log(cuadrado(4));\n```",
+        "respuestas": [
+            "`16`",
+            "`4`",
+            "`8`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 264,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet saludo = nombre => \"Hola \" + nombre;\nconsole.log(saludo(\"Ana\"));\n```",
+        "respuestas": [
+            "`\"Ana\"`",
+            "`undefined`",
+            "`\"Hola Ana\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 265,
+        "enunciado": "¿Cuál es la forma correcta de una función flecha sin parámetros?",
+        "respuestas": [
+            "```js\nlet f = {} => 42;\n```",
+            "```js\nlet f = () => 42;\n```",
+            "```js\nlet f = => 42;\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 266,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet suma = (a, b) => { return a + b; };\nconsole.log(suma(2, 3));\n```",
+        "respuestas": [
+            "`5`",
+            "`undefined`",
+            "`23`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 267,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet doble = n => n * 2;\nconsole.log(doble(7));\n```",
+        "respuestas": [
+            "`7`",
+            "`14`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 268,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet resta = (a, b) => a - b;\nconsole.log(resta(10, 3));\n```",
+        "respuestas": [
+            "`7`",
+            "`undefined`",
+            "`13`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 269,
+        "enunciado": "¿Qué resultado devuelve?\n```js\nlet obj = {\n  metodo: () => this.valor\n};\nconsole.log(obj.metodo());\n```",
+        "respuestas": [
+            "`undefined`",
+            "`10`",
+            "`valor`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 270,
+        "enunciado": "¿Qué ventaja tiene usar funciones flecha?",
+        "respuestas": [
+            "No tienen su propio `this`, lo que puede evitar confusiones con el contexto",
+            "Tienen acceso a la API de React",
+            "Son más rápidas que las funciones normales"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 271,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [1, 2, 3];\nlet resultado = arr.map(x => x * 2);\nconsole.log(resultado);\n```",
+        "respuestas": [
+            "```js\n[1, 2, 3]\n```",
+            "```js\n[x * 2]\n```",
+            "```js\n[2, 4, 6]\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 272,
+        "enunciado": "¿Qué resultado devuelve?\n```js\nlet arr = [1, 2, 3, 4];\nlet pares = arr.filter(x => x % 2 === 0);\nconsole.log(pares);\n```",
+        "respuestas": [
+            "```js\n[0, 2, 4]\n```",
+            "```js\n[2, 4]\n```",
+            "```js\n[1, 3]\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 273,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [1, 2, 3];\nlet suma = arr.reduce((a, b) => a + b, 0);\nconsole.log(suma);\n```",
+        "respuestas": [
+            "`0`",
+            "`6`",
+            "`123`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 274,
+        "enunciado": "¿Qué valor devuelve?\n```js\nlet arr = [\"a\", \"b\", \"c\"];\nlet joined = arr.join(\"-\");\nconsole.log(joined);\n```",
+        "respuestas": [
+            "`\"abc\"`",
+            "`[\"a\",\"b\",\"c\"]`",
+            "`\"a-b-c\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 275,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [10, 20, 30];\nlet encontrado = arr.find(x => x > 15);\nconsole.log(encontrado);\n```",
+        "respuestas": [
+            "`10`",
+            "`30`",
+            "`20`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 276,
+        "enunciado": "¿Qué resultado devuelve?\n```js\nlet arr = [1, 2, 3, 4];\nlet existe = arr.some(x => x > 3);\nconsole.log(existe);\n```",
+        "respuestas": [
+            "`undefined`",
+            "`false`",
+            "`true`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 277,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [1, 2, 3, 4];\nlet todos = arr.every(x => x < 5);\nconsole.log(todos);\n```",
+        "respuestas": [
+            "`false`",
+            "`undefined`",
+            "`true`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 278,
+        "enunciado": "¿Qué valor imprime?\n```js\nlet arr = [5, 10, 15];\nlet total = arr.reduce((acc, val) => acc + val);\nconsole.log(total);\n```",
+        "respuestas": [
+            "`25`",
+            "`30`",
+            "`[5, 10]`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 279,
+        "enunciado": "¿Qué imprime este código?\n```js\nlet arr = [1, 2, 3];\narr.forEach(x => console.log(x * 2));\n```",
+        "respuestas": [
+            "`1 2 3`",
+            "`[2, 4, 6]`",
+            "`2 4 6`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 280,
+        "enunciado": "¿Qué resultado devuelve?\n```js\nlet arr = [1, 2, 3, 4, 5];\nlet recortado = arr.slice(1, 4);\nconsole.log(recortado);\n```",
+        "respuestas": [
+            "```js\n[2, 3, 4]\n```",
+            "```js\n[1, 2, 3, 4]\n```",
+            "```js\n[3, 4, 5]\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 281,
+        "enunciado": "¿Cuál es la forma correcta de declarar una clase?",
+        "respuestas": [
+            "```js\nfunction class Persona {}\n```",
+            "```js\nclass Persona {}\n```",
+            "```js\nclass = Persona {}\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 282,
+        "enunciado": "¿Cómo se define un constructor en una clase?",
+        "respuestas": [
+            "```js\nclass Persona {\n   constructor(nombre) { \n      this.nombre = nombre; \n   }\n}\n```",
+            "```js\nclass Persona {\n   function constructor(nombre) { \n      this.nombre = nombre; \n   }\n}\n```",
+            "```js\nclass Persona {\n   construct(nombre) { \n      this.nombre = nombre; \n   }\n}\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 283,
+        "enunciado": "¿Qué imprime este código?\n```js\nclass Animal {\n   constructor(tipo) { this.tipo = tipo; }\n}\nlet perro = new Animal(\"perro\");\nconsole.log(perro.tipo);\n```",
+        "respuestas": [
+            "`\"Animal\"`",
+            "`undefined`",
+            "`\"perro\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 284,
+        "enunciado": "¿Cómo se declara un método en una clase?",
+        "respuestas": [
+            "```js\nclass Persona {\n   function hablar() { \n      return \"Hola\"; \n   }\n}\n```",
+            "```js\nclass Persona {\n   hablar() { \n      return \"Hola\"; \n   }\n}\n```",
+            "```js\nclass Persona {\n   hablar: function() { \n      return \"Hola\"; \n   }\n}\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 285,
+        "enunciado": "¿Qué caracteriza a la programación **reactiva**?",
+        "respuestas": [
+            "El programador debe refrescar manualmente la pantalla",
+            "Los datos nunca cambian en el tiempo",
+            "La interfaz responde automáticamente a los cambios en el estado o datos"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 286,
+        "enunciado": "¿Qué ventaja tiene el enfoque declarativo en React?",
+        "respuestas": [
+            "Permite manipular directamente el DOM con `document.getElementById`",
+            "Hace el código más predecible y fácil de entender",
+            "Requiere más líneas de código que el enfoque imperativo"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 287,
+        "enunciado": "¿Qué ocurre cuando cambia el estado en un componente de React?",
+        "respuestas": [
+            "El programador debe llamar manualmente a `render()`",
+            "La interfaz se actualiza automáticamente (reactividad)",
+            "No ocurre nada hasta reiniciar la aplicación"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 288,
+        "enunciado": "¿Cuál de las siguientes es una característica de la **programación reactiva** en React?",
+        "respuestas": [
+            "Los componentes se vuelven a renderizar automáticamente al cambiar el estado o props",
+            "Se deben usar funciones externas para refrescar la interfaz",
+            "Solo se renderiza una vez y luego nunca cambia"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 421,
+        "enunciado": "¿Qué es un componente en React?",
+        "respuestas": [
+            "Una función o clase que devuelve elementos de interfaz de usuario",
+            "Un archivo CSS para estilos",
+            "Una base de datos para guardar información"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 422,
+        "enunciado": "¿Cómo se declara un **componente funcional** básico en React?",
+        "respuestas": [
+            "```js\nlet Hola = <h1>Hola</h1>;\n```",
+            "```js\nfunction Hola() {\n  return <h1>Hola</h1>;\n}\n```",
+            "```js\nfunction Hola {\n  <h1>Hola</h1>\n}\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 423,
+        "enunciado": "¿Cómo se usan los componentes en React dentro de JSX?",
+        "respuestas": [
+            "```js\n<Componente />\n```",
+            "```js\nComponente();\n```",
+            "```js\n{Componente}\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 424,
+        "enunciado": "¿Cuál es la forma correcta de declarar un componente como **arrow function**?",
+        "respuestas": [
+            "```js\nconst Hola = () => \n   <h1>Hola</h1>;\n```",
+            "```js\nconst Hola => \n   <h1>Hola</h1>;\n```",
+            "```js\nconst Hola = () { \n   return <h1>Hola</h1>; \n};\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 425,
+        "enunciado": "¿Qué distingue a un **componente de clase**?",
+        "respuestas": [
+            "Solo puede devolver cadenas de texto",
+            "Usa la palabra clave `class` y extiende `React.Component`",
+            "No puede tener estado"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 426,
+        "enunciado": "¿Cuál es la sintaxis básica de un **componente de clase**?",
+        "respuestas": [
+            "```js\nfunction class Hola() {\n   return <h1>Hola</h1>;\n}\n```",
+            "```js\nclass Hola {\n   return <h1>Hola</h1>;\n}\n```",
+            "```js\nclass Hola extends React.Component {\n   render() {\n      return <h1>Hola</h1>;\n   }\n}\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 427,
+        "enunciado": "¿Qué característica tienen los **componentes reutilizables**?",
+        "respuestas": [
+            "Solo se pueden declarar una vez",
+            "Pueden usarse varias veces en diferentes partes de la aplicación",
+            "No aceptan parámetros"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 428,
+        "enunciado": "¿Cómo se pueden pasar datos a un componente?",
+        "respuestas": [
+            "Modificando el DOM manualmente",
+            "Usando **props**",
+            "Usando directamente variables globales"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 429,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Saludo(props) {\n   return <h1>Hola {props.nombre}</h1>;\n}\n<Saludo nombre=\"Ana\" />\n```",
+        "respuestas": [
+            "`Hola Ana`",
+            "`Hola`",
+            "`Hola {props.nombre}`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 430,
+        "enunciado": "¿Cuál es la ventaja principal de usar componentes en React?",
+        "respuestas": [
+            "Se necesita menos HTML",
+            "Permiten usar Java en lugar de JavaScript",
+            "Reutilización y modularidad del código"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 431,
+        "enunciado": "¿Cómo se pasan parámetros a un componente en React?",
+        "respuestas": [
+            "A través de **props**",
+            "Modificando directamente el DOM",
+            "Usando variables globales"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 432,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Saludo(props) {\n  return <h1>Hola {props.nombre}</h1>;\n}\n<Saludo nombre=\"Ana\" />\n```",
+        "respuestas": [
+            "`Hola`",
+            "`Hola {props.nombre}`",
+            "`Hola Ana`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 433,
+        "enunciado": "¿Cómo se define un evento `onClick` en React?",
+        "respuestas": [
+            "```js\n<button onclick=\"miFuncion()\">\n   Click\n</button>\n```",
+            "```js\n<button onClick=\"miFuncion()\">\n   Click\n</button>\n```",
+            "```js\n<button onClick={miFuncion}>\n   Click\n</button>\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 434,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Boton() {\n  function manejarClick() {\n    console.log(\"Clickeado\");\n  }\n  return <button onClick={manejarClick}>Click</button>;\n}\n```",
+        "respuestas": [
+            "`\"Clickeado\"` inmediatamente",
+            "`\"Clickeado\"` al hacer click",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 435,
+        "enunciado": "¿Cómo se pasa un parámetro a un evento en React?",
+        "respuestas": [
+            "```js\n<button onClick={() => miFuncion(\"Hola\")}>\n   Click\n</button>\n```",
+            "```js\n<button onClick={miFuncion(\"Hola\")}>\n   Click\n</button>\n```",
+            "```js\n<button onclick=\"miFuncion('Hola')\">\n   Click\n</button>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 436,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Mostrar(props) {\n  return <p>{props.mensaje}</p>;\n}\n<Mostrar mensaje=\"Hola React\" />\n```",
+        "respuestas": [
+            "`mensaje`",
+            "`undefined`",
+            "`Hola React`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 437,
+        "enunciado": "¿Qué ocurre si se pasa una función como prop?",
+        "respuestas": [
+            "Se convierte en string automáticamente",
+            "Lanza un error",
+            "Se ejecuta dentro del componente hijo"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 438,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Hijo(props) {\n  return <button onClick={props.onSaludar}>Saludar</button>;\n}\nfunction Padre() {\n  function saludar() { console.log(\"Hola desde padre\"); }\n  return <Hijo onSaludar={saludar} />;\n}\n```",
+        "respuestas": [
+            "Error",
+            "Nada ocurre",
+            "`\"Hola desde padre\"` al hacer click"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 439,
+        "enunciado": "¿Cómo se pueden pasar múltiples props a un componente?",
+        "respuestas": [
+            "```js\n<Componente (\n   nombre=\"Ana\", \n   edad=25) />\n```",
+            "```js\n<Componente \n   nombre=\"Ana\" \n   edad={25} />\n```",
+            "```js\n<Componente {\n   nombre: \"Ana\", \n   edad: 25} />\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 440,
+        "enunciado": "¿Cuál es la forma correcta de manejar eventos en React?",
+        "respuestas": [
+            "Usar HTML puro sin eventos",
+            "Usar camelCase (`onClick`, `onChange`) y pasar funciones",
+            "Usar atributos en minúsculas (`onclick`) y pasar strings"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 441,
+        "enunciado": "¿Qué son los Hooks en React?",
+        "respuestas": [
+            "Un sistema de estilos en React",
+            "Funciones especiales que permiten usar estado y otras características en componentes funcionales",
+            "Una nueva forma de declarar clases en React"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 442,
+        "enunciado": "¿En qué versión de React se introdujeron los Hooks?",
+        "respuestas": [
+            "React 18",
+            "React 15.0",
+            "React 16.8"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 443,
+        "enunciado": "¿Cuál es la regla principal al usar Hooks?",
+        "respuestas": [
+            "Pueden declararse dentro de cualquier función",
+            "Solo se pueden usar en el nivel superior de un componente",
+            "Pueden usarse dentro de cualquier bucle o condicional"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 444,
+        "enunciado": "¿Cuál es un Hook básico para manejar el estado?",
+        "respuestas": [
+            "`useState`",
+            "`useEffect`",
+            "`useContext`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 445,
+        "enunciado": "¿Qué Hook se usa para manejar efectos secundarios (ejemplo: llamadas a APIs)?",
+        "respuestas": [
+            "`useState`",
+            "`useReducer`",
+            "`useEffect`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 446,
+        "enunciado": "¿Qué permite hacer el Hook `useContext`?",
+        "respuestas": [
+            "Acceder a un contexto sin necesidad de usar un Consumer",
+            "Crear un nuevo estado local",
+            "Definir un ciclo de vida"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 447,
+        "enunciado": "¿Cuál es la ventaja principal de los Hooks?",
+        "respuestas": [
+            "Reemplazan totalmente a los componentes de clase",
+            "Permiten usar estado y lógica reutilizable en componentes funcionales",
+            "Reducen el tamaño de los archivos CSS"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 448,
+        "enunciado": "¿Qué ocurre si se usan Hooks dentro de un condicional?",
+        "respuestas": [
+            "Se convierten en funciones normales",
+            "Puede romper las reglas de los Hooks y causar errores",
+            "Funciona sin problemas siempre"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 451,
+        "enunciado": "¿Qué es `useState`?",
+        "respuestas": [
+            "Un Hook que permite añadir estado a los componentes funcionales",
+            "Un método exclusivo de clases",
+            "Una función para renderizar componentes"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 452,
+        "enunciado": "¿Cómo se importa `useState`?",
+        "respuestas": [
+            "```js\nconst useState = require(\"react\");\n```",
+            "```js\nimport useState from \"react\";\n```",
+            "```js\nimport { useState } from \"react\";\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 453,
+        "enunciado": "¿Qué devuelve la llamada a `useState`?",
+        "respuestas": [
+            "Solo el valor inicial",
+            "Un objeto con el estado y un método `setState`",
+            "Un array con el valor actual y una función para actualizarlo"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 454,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [contador, setContador] = useState(0);\nconsole.log(contador);\n```",
+        "respuestas": [
+            "`0`",
+            "`undefined`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 455,
+        "enunciado": "¿Cómo se actualiza el estado con `useState`?",
+        "respuestas": [
+            "Modificando directamente la variable",
+            "Usando la función de actualización (`setAlgo`)",
+            "Reiniciando el componente"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 456,
+        "enunciado": "¿Qué imprime este código después de un click?\n```js\nconst [contador, setContador] = useState(0);\n<button onClick={() => setContador(contador + 1)}>\n   Incrementar\n</button>\n```",
+        "respuestas": [
+            "El valor de `contador` aumenta en 1",
+            "Da error",
+            "Siempre imprime 0"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 457,
+        "enunciado": "¿Qué ocurre si se llama a `setEstado` varias veces seguidas?",
+        "respuestas": [
+            "Ejecuta cada una inmediatamente en orden",
+            "React agrupa las actualizaciones para optimizar",
+            "Lanza un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 458,
+        "enunciado": "¿Cuál es la sintaxis correcta para usar un valor inicial dinámico en `useState`?",
+        "respuestas": [
+            "```js\nconst [valor, setValor] = useState = \n   calcularInicial();\n```",
+            "```js\nconst [valor, setValor] = useState{\n   calcularInicial()\n};\n```",
+            "```js\nconst [valor, setValor] = useState(() => \n   calcularInicial());\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 459,
+        "enunciado": "¿Qué pasa si se actualiza el estado con el mismo valor?",
+        "respuestas": [
+            "React no vuelve a renderizar el componente",
+            "Siempre vuelve a renderizar",
+            "Lanza un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 460,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [texto, setTexto] = useState(\"Hola\");\nsetTexto(\"Mundo\");\nconsole.log(texto);\n```",
+        "respuestas": [
+            "`\"Hola\"` en el render actual",
+            "`\"Mundo\"` inmediatamente",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 461,
+        "enunciado": "¿Cómo se actualiza correctamente un objeto en `useState`?",
+        "respuestas": [
+            "```js\nsetEstado(estado.nuevoValor = 123);\n```",
+            "```js\nestado.nuevoValor = 123;\n```",
+            "```js\nsetEstado({ ...estado, nuevoValor: 123 });\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 462,
+        "enunciado": "¿Qué ocurre cuando se modifica directamente un objeto en `useState`?",
+        "respuestas": [
+            "Se lanza un error",
+            "React actualiza automáticamente",
+            "No se re-renderiza el componente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 463,
+        "enunciado": "¿Cuál es la forma correcta de agregar un elemento a un array en el estado?",
+        "respuestas": [
+            "```js\nsetLista([...lista, nuevoElemento]);\n```",
+            "```js\nlista.push(nuevoElemento);\n```",
+            "```js\nsetLista(lista.push(nuevoElemento));\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 464,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [usuario, setUsuario] = useState({ nombre: \"Ana\", edad: 20 });\nsetUsuario({ ...usuario, edad: 21 });\nconsole.log(usuario.edad);\n```",
+        "respuestas": [
+            "`20`",
+            "`21`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 465,
+        "enunciado": "¿Cómo se elimina un elemento de un array en el estado?",
+        "respuestas": [
+            "```js\nlista.remove(valor);\n```",
+            "```js\ndelete lista[valor];\n```",
+            "```js\nsetLista(lista.filter(\n   item => item !== valor\n));\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 466,
+        "enunciado": "¿Cómo se actualiza una propiedad anidada en un objeto con `useState`?",
+        "respuestas": [
+            "```js\nsetEstado({ \n   ...estado, \n   direccion: { ...estado.direccion, ciudad: \"Roma\" } });\n```",
+            "```js\nestado.direccion.ciudad = \"Roma\";\n```",
+            "```js\nsetEstado(estado.direccion.ciudad = \"Roma\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 467,
+        "enunciado": "¿Qué ocurre si se reemplaza el array en `useState` sin usar spread?",
+        "respuestas": [
+            "Se pierde el contenido anterior",
+            "Se conservan los elementos previos automáticamente",
+            "Lanza un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 468,
+        "enunciado": "¿Cómo se agrega un objeto nuevo a un array en el estado?",
+        "respuestas": [
+            "```js\nusuarios.push({ id: 3, nombre: \"Luis\" });\n```",
+            "```js\nsetUsuarios([...usuarios, { id: 3, nombre: \"Luis\" }]);\n```",
+            "```js\nsetUsuarios(usuarios.add({ id: 3, nombre: \"Luis\" }));\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 469,
+        "enunciado": "¿Qué pasa si se llama a `setEstado` con el mismo objeto sin crear una copia?",
+        "respuestas": [
+            "React no detecta cambios y no renderiza de nuevo",
+            "React siempre vuelve a renderizar",
+            "Da un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 470,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [lista, setLista] = useState([1, 2, 3]);\nsetLista([...lista, 3]);\nconsole.log(lista);\n```",
+        "respuestas": [
+            "Error",
+            "`[1, 2, 3]`",
+            "`[1, 2, 3, 3]`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 471,
+        "enunciado": "¿Qué es `useEffect` en React?",
+        "respuestas": [
+            "Un método exclusivo de clases",
+            "Un Hook que maneja efectos secundarios en componentes funcionales",
+            "Una función para actualizar el estado"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 472,
+        "enunciado": "¿Cómo se importa `useEffect`?",
+        "respuestas": [
+            "```js\nimport { useEffect } from \"react\";\n```",
+            "```js\nimport useEffect from \"react\";\n```",
+            "```js\nconst useEffect = require(\"react\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 473,
+        "enunciado": "¿Qué imprime este código?\n```js\nuseEffect(() => {\n  console.log(\"Efecto ejecutado\");\n});\n```",
+        "respuestas": [
+            "`\"Efecto ejecutado\"` solo en el primer render",
+            "`\"Efecto ejecutado\"` en cada render",
+            "Nunca imprime nada"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 474,
+        "enunciado": "¿Cómo se ejecuta un efecto solo una vez al montar el componente?",
+        "respuestas": [
+            "Usando `useEffect(() => {...})` sin dependencias",
+            "Pasando un array vacío como dependencia: `useEffect(() => {...}, [])`",
+            "Usando `useEffectOnce`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 475,
+        "enunciado": "¿Qué ocurre si se pasa un array con dependencias a `useEffect`?",
+        "respuestas": [
+            "El efecto nunca se ejecuta",
+            "El efecto se ejecuta cuando cambian esas dependencias",
+            "El efecto se ejecuta siempre en cada render"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 476,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [contador, setContador] = useState(0);\nuseEffect(() => {\n  console.log(\"Cambio en contador\");\n}, [contador]);\n```",
+        "respuestas": [
+            "Nunca imprime nada",
+            "`\"Cambio en contador\"` cada vez que cambia `contador`",
+            "`\"Cambio en contador\"` solo una vez"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 477,
+        "enunciado": "¿Cómo se limpia un efecto en `useEffect`?",
+        "respuestas": [
+            "Usando `useCleanup`",
+            "Retornando una función de limpieza dentro del callback",
+            "Llamando a `clearEffect()`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 478,
+        "enunciado": "¿Qué ocurre con este código?\n```js\nuseEffect(() => {\n  const id = setInterval(() => console.log(\"Tick\"), 1000);\n  return () => clearInterval(id);\n}, []);\n```",
+        "respuestas": [
+            "Imprime `\"Tick\"` cada segundo y se limpia al desmontar el componente",
+            "Imprime `\"Tick\"` una vez y se detiene",
+            "Da un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 479,
+        "enunciado": "¿Qué problema puede ocurrir si no se limpian los efectos correctamente?",
+        "respuestas": [
+            "Fugas de memoria o comportamientos inesperados",
+            "El componente no se renderiza",
+            "El estado deja de actualizarse"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 480,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [x, setX] = useState(0);\nuseEffect(() => {\n  console.log(\"Render con x:\", x);\n}, [x]);\nsetX(5);\n```",
+        "respuestas": [
+            "Error",
+            "`\"Render con x: 0\"` y luego `\"Render con x: 5\"`",
+            "Solo `\"Render con x: 0\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 481,
+        "enunciado": "¿Qué es `useContext` en React?",
+        "respuestas": [
+            "Un método exclusivo de clases",
+            "Una función para manejar efectos secundarios",
+            "Un Hook que permite acceder a un contexto sin necesidad de usar un Consumer"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 482,
+        "enunciado": "¿Cómo se importa `useContext`?",
+        "respuestas": [
+            "```js\nimport useContext from \"react\";\n```",
+            "```js\nimport { useContext } from \"react\";\n```",
+            "```js\nconst useContext = require(\"react\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 483,
+        "enunciado": "¿Qué se necesita antes de usar `useContext`?",
+        "respuestas": [
+            "Importar un reducer",
+            "Crear un contexto con `React.createContext()`",
+            "Definir un `useState`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 484,
+        "enunciado": "¿Cómo se accede a un valor de contexto con `useContext`?",
+        "respuestas": [
+            "```js\nconst valor = MiContexto();\n```",
+            "```js\nconst valor = useContext(MiContexto);\n```",
+            "```js\nconst valor = getContext(MiContexto);\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 485,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst TemaContext = React.createContext(\"claro\");\nfunction Componente() {\n  const tema = useContext(TemaContext);\n  return <p>{tema}</p>;\n}\n```",
+        "respuestas": [
+            "Error",
+            "`undefined`",
+            "`\"claro\"`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 486,
+        "enunciado": "¿Qué ocurre si un componente no está envuelto en un `Provider`?",
+        "respuestas": [
+            "Siempre da error",
+            "Obtiene el valor por defecto del contexto",
+            "Obtiene `null`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 487,
+        "enunciado": "¿Cómo se define un `Provider` de contexto?",
+        "respuestas": [
+            "```jsx\n<MiContexto value=\"algo\">\n  <App />\n</MiContexto>\n```",
+            "```jsx\n<MiContexto.Provider value=\"algo\">\n  <App />\n</MiContexto.Provider>\n```",
+            "```jsx\n<Provider contexto={MiContexto} valor=\"algo\">\n  <App />\n</Provider>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 488,
+        "enunciado": "¿Qué imprime este código si la URL es `/user/42`?\n```jsx\nfunction User() {\n  const params = useParams();\n  return <p>{params.id}</p>;\n}\n```",
+        "respuestas": [
+            "`42`",
+            "`undefined`",
+            "`user`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 489,
+        "enunciado": "¿Qué ocurre si se cambia el valor del contexto en el `Provider`?",
+        "respuestas": [
+            "Lanza un error",
+            "Los componentes que usan `useContext` se re-renderizan con el nuevo valor",
+            "Nada cambia hasta reiniciar la aplicación"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 491,
+        "enunciado": "¿Qué es `useRef` en React?",
+        "respuestas": [
+            "Un Hook que devuelve un objeto mutable con la propiedad `.current`",
+            "Una función para crear estado",
+            "Un método exclusivo de clases"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 492,
+        "enunciado": "¿Cómo se importa `useRef`?",
+        "respuestas": [
+            "```js\nimport { useRef } from \"react\";\n```",
+            "```js\nimport useRef from \"react\";\n```",
+            "```js\nconst useRef = require(\"react\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 493,
+        "enunciado": "¿Qué valor inicial tiene una referencia creada con `useRef()`?",
+        "respuestas": [
+            "`null`",
+            "`undefined`",
+            "`0`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 494,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst ref = useRef(5);\nconsole.log(ref.current);\n```",
+        "respuestas": [
+            "`undefined`",
+            "Error",
+            "`5`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 495,
+        "enunciado": "¿Qué ocurre cuando se actualiza `.current` de un `useRef`?",
+        "respuestas": [
+            "Se lanza un error",
+            "React actualiza automáticamente",
+            "No causa re-render del componente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 496,
+        "enunciado": "¿Cuál es un uso común de `useRef`?",
+        "respuestas": [
+            "Crear un estado global",
+            "Definir reducers",
+            "Referenciar elementos del DOM"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 497,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Componente() {\n  const inputRef = useRef(null);\n  return <input ref={inputRef} />;\n}\n```",
+        "respuestas": [
+            "`null`",
+            "Error",
+            "Una referencia al elemento `<input>`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 498,
+        "enunciado": "¿Qué ocurre si se cambia manualmente `ref.current`?",
+        "respuestas": [
+            "Se actualiza el valor pero no se renderiza el componente",
+            "Lanza un error",
+            "Se vuelve a renderizar automáticamente"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 499,
+        "enunciado": "¿Cómo se usa `useRef` para almacenar un valor que persiste entre renders sin causar renderizados?",
+        "respuestas": [
+            "```js\nconst contador = useRef(0);\ncontador.current += 1;\n```",
+            "```js\nconst [contador, setContador] = useRef(0);\n```",
+            "```js\nconst contador = useRefState(0);\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 500,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst ref = useRef(\"Hola\");\nref.current = \"Mundo\";\nconsole.log(ref.current);\n```",
+        "respuestas": [
+            "`\"Hola\"`",
+            "`\"Mundo\"`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 501,
+        "enunciado": "¿Qué es Vite?",
+        "respuestas": [
+            "Una herramienta de construcción rápida para proyectos frontend",
+            "Una base de datos",
+            "Un framework de backend"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 502,
+        "enunciado": "¿Cómo se crea un nuevo proyecto con Vite usando npm?",
+        "respuestas": [
+            "```bash\nnpm init react-app\n```",
+            "```bash\nnpx start next\n```",
+            "```bash\nnpm create vite@latest\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 503,
+        "enunciado": "¿Qué comando se usa para entrar en la carpeta del proyecto recién creado?",
+        "respuestas": [
+            "```bash\ncd vite\n```",
+            "```bash\nnpm cd nombre-proyecto\n```",
+            "```bash\ncd nombre-proyecto\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 504,
+        "enunciado": "¿Qué comando se usa para instalar las dependencias de un proyecto Vite?",
+        "respuestas": [
+            "```bash\nnpm install\n```",
+            "```bash\nnpm start\n```",
+            "```bash\nnpm build\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 505,
+        "enunciado": "¿Qué comando inicia el servidor de desarrollo en Vite?",
+        "respuestas": [
+            "```bash\nnpm run dev\n```",
+            "```bash\nnpm serve\n```",
+            "```bash\nnpm start\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 506,
+        "enunciado": "¿Cómo se importa React en un archivo de un proyecto con Vite?",
+        "respuestas": [
+            "```js\ninclude React;\n```",
+            "```js\nimport React from \"react\";\n```",
+            "```js\nrequire(\"react\");\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 507,
+        "enunciado": "¿Qué comando se usa para agregar una librería (ejemplo: axios) al proyecto?",
+        "respuestas": [
+            "```bash\nnpm create axios\n```",
+            "```bash\nnpx add axios\n```",
+            "```bash\nnpm install axios\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 508,
+        "enunciado": "¿Cómo se importa una librería instalada en el código?",
+        "respuestas": [
+            "```js\nimport \"axios\";\n```",
+            "```js\nrequire(\"axios\");\n```",
+            "```js\nimport axios from \"axios\";\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 509,
+        "enunciado": "¿Qué comando se usa para generar una versión optimizada para producción?",
+        "respuestas": [
+            "```bash\nnpm package\n```",
+            "```bash\nnpm run build\n```",
+            "```bash\nnpm run prod\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 510,
+        "enunciado": "¿Qué comando se usa para previsualizar la build generada?",
+        "respuestas": [
+            "```bash\nnpm run dev\n```",
+            "```bash\nnpm run test\n```",
+            "```bash\nnpm run preview\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 511,
+        "enunciado": "¿Qué es React Router?",
+        "respuestas": [
+            "Un hook para manejar estado",
+            "Una librería para manejar rutas en aplicaciones React",
+            "Un servidor web para React"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 512,
+        "enunciado": "¿Cómo se instala React Router?",
+        "respuestas": [
+            "```bash\nnpm install react-router\n```",
+            "```bash\nnpm install router-react\n```",
+            "```bash\nnpm install react-router-dom\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 513,
+        "enunciado": "¿Qué componente envuelve toda la aplicación para habilitar el enrutamiento?",
+        "respuestas": [
+            "```jsx\n<BrowserRouter>\n```",
+            "```jsx\n<RouterProvider>\n```",
+            "```jsx\n<RoutesWrapper>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 514,
+        "enunciado": "¿Qué componente se usa para definir un conjunto de rutas?",
+        "respuestas": [
+            "```jsx\n<Switch>\n```",
+            "```jsx\n<Routes>\n```",
+            "```jsx\n<RouteList>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 515,
+        "enunciado": "¿Qué componente se usa para declarar una ruta?",
+        "respuestas": [
+            "```jsx\n<Route>\n```",
+            "```jsx\n<Path>\n```",
+            "```jsx\n<LinkRoute>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 516,
+        "enunciado": "¿Cómo se define una ruta para `/about` que renderiza el componente `About`?",
+        "respuestas": [
+            "```jsx\n<Route \n   path=\"/about\" \n   element={<About />} />\n```",
+            "```jsx\n<Route url=\"/about\">\n   <About />\n</Route>\n```",
+            "```jsx\n<Route \n   component={About} \n   path=\"/about\" />\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 517,
+        "enunciado": "¿Qué componente se usa para crear enlaces de navegación declarativos?",
+        "respuestas": [
+            "```js\n<Navigate>\n```",
+            "```js\n<a>\n```",
+            "```js\n<Link>\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 518,
+        "enunciado": "¿Qué imprime este código si la URL es `/user/42`?\n```jsx\nfunction User() {\n  const params = useParams();\n  return <p>{params.id}</p>;\n}\n```",
+        "respuestas": [
+            "`undefined`",
+            "`42`",
+            "`user`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 519,
+        "enunciado": "¿Qué ocurre si se cambia el valor del contexto en el `Provider`?",
+        "respuestas": [
+            "Nada cambia hasta reiniciar la aplicación",
+            "Los componentes que usan `useContext` se re-renderizan con el nuevo valor",
+            "Lanza un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 531,
+        "enunciado": "¿Qué componente se usa para navegación declarativa?",
+        "respuestas": [
+            "```jsx\n<Navigate>\n```",
+            "```jsx\n<Link>\n```",
+            "```jsx\n<a>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 532,
+        "enunciado": "¿Qué imprime este código?\n```jsx\n<Link to=\"/about\">Acerca de</Link>\n```",
+        "respuestas": [
+            "Un enlace que navega a `/about`",
+            "Un botón",
+            "Nada"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 533,
+        "enunciado": "¿Qué Hook se usa para la navegación programática en React Router?",
+        "respuestas": [
+            "`useHistory`",
+            "`useLocation`",
+            "`useNavigate`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 534,
+        "enunciado": "¿Qué ocurre al ejecutar este código?\n```jsx\nconst navigate = useNavigate();\nnavigate(\"/home\");\n```",
+        "respuestas": [
+            "Redirige a la ruta `/home`",
+            "Muestra un error",
+            "No hace nada"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 535,
+        "enunciado": "¿Cuál es la diferencia entre `<Link>` y `<a>` en React Router?",
+        "respuestas": [
+            "`<Link>` solo funciona en HTML puro",
+            "`<Link>` evita la recarga completa de la página, `<a>` recarga el documento",
+            "No hay diferencia"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 536,
+        "enunciado": "¿Qué componente se usa para redirigir automáticamente a otra ruta?",
+        "respuestas": [
+            "`<Navigate to=\"/ruta\" />`",
+            "`<RouterRedirect to=\"/ruta\" />`",
+            "`<Redirect to=\"/ruta\" />`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 537,
+        "enunciado": "¿Qué imprime este código si la ruta actual es `/`?\n```jsx\n<Navigate to=\"/login\" />\n```",
+        "respuestas": [
+            "Redirige automáticamente a `/login`",
+            "Muestra `/`",
+            "Nada"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 538,
+        "enunciado": "¿Qué Hook se puede usar para ir atrás en la navegación?",
+        "respuestas": [
+            "```jsx\nconst navigate = useNavigate();\nnavigate(-1);\n```",
+            "```jsx\nconst goBack = useRouter();\ngoBack();\n```",
+            "```jsx\nconst back = useHistory();\nback();\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 539,
+        "enunciado": "¿Qué ocurre al hacer clic en este código?\n```jsx\n<Link to=\"/\">Inicio</Link>\n```",
+        "respuestas": [
+            "No ocurre nada",
+            "Navega a la ruta raíz `/`",
+            "Muestra un error"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 540,
+        "enunciado": "¿Qué ventaja tiene la navegación con React Router?",
+        "respuestas": [
+            "Solo funciona con backend en Node.js",
+            "No recarga la página completa, actualiza solo la vista necesaria",
+            "Siempre recarga la página para asegurar cambios"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 400,
+        "enunciado": "¿En qué parte del documento HTML se recomienda colocar la referencia al archivo CSS externo?",
+        "respuestas": [
+            "Dentro de `<head>`",
+            "Dentro de `<body>`",
+            "Al final del documento"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 401,
+        "enunciado": "¿Qué etiqueta se usa para integrar JavaScript en HTML?",
+        "respuestas": [
+            "```html\n<script>\n```",
+            "```html\n<javascript>\n```",
+            "```html\n<code>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 402,
+        "enunciado": "¿Cómo se escribe un script interno en HTML?",
+        "respuestas": [
+            "```html\n<code>\n   console.log(\"Hola mundo\");\n</code>\n```",
+            "```html\n<javascript>\n  console.log(\"Hola mundo\");\n</javascript>\n```",
+            "```html\n<script>\n  console.log(\"Hola mundo\");\n</script>\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 403,
+        "enunciado": "¿Cómo se enlaza un archivo externo de JavaScript?",
+        "respuestas": [
+            "```html\n<link rel=\"script\" href=\"app.js\">\n```",
+            "```html\n<js src=\"app.js\"></js>\n```",
+            "```html\n<script src=\"app.js\"></script>\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 404,
+        "enunciado": "¿Dónde se recomienda colocar los scripts en un documento HTML para optimizar la carga?",
+        "respuestas": [
+            "Justo antes de cerrar la etiqueta `</body>`",
+            "Al inicio dentro de `<head>`",
+            "En cualquier parte del documento"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 405,
+        "enunciado": "¿Qué atributo del script permite cargar el archivo JavaScript de forma asíncrona?",
+        "respuestas": [
+            "`autoload`",
+            "`defer`",
+            "`async`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 406,
+        "enunciado": "¿Qué atributo asegura que el script se ejecute después de que el HTML esté parseado?",
+        "respuestas": [
+            "`defer`",
+            "`delay`",
+            "`async`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 407,
+        "enunciado": "¿Qué imprime este código si se integra en una página?\n```html\n<script>\n  alert(\"Bienvenido\");\n</script>\n```",
+        "respuestas": [
+            "Nada",
+            "Un mensaje en la consola",
+            "Una alerta con el texto \"Bienvenido\""
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 408,
+        "enunciado": "¿Qué ocurre si se enlaza un archivo JS inexistente en `<script src=\"archivo.js\">`?",
+        "respuestas": [
+            "La página no carga en absoluto",
+            "Se produce un error en la consola pero la página sigue cargando",
+            "El navegador ignora la etiqueta"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 409,
+        "enunciado": "¿Qué ventaja tiene usar archivos externos de JavaScript en lugar de scripts internos?",
+        "respuestas": [
+            "Son más rápidos que el código interno",
+            "Permiten reutilizar el código en múltiples páginas",
+            "No requieren navegador moderno"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 410,
+        "enunciado": "¿Qué imprime este código en la consola?\n```html\n<script>\n   console.log(\"Hola desde JS\");\n</script>\n```",
+        "respuestas": [
+            "Nada",
+            "Una alerta con el mensaje",
+            "`Hola desde JS`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 411,
+        "enunciado": "¿Qué es React?",
+        "respuestas": [
+            "Un sistema operativo",
+            "Un lenguaje de programación nuevo",
+            "Una librería de JavaScript para construir interfaces de usuario"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 412,
+        "enunciado": "¿Quién desarrolla y mantiene React?",
+        "respuestas": [
+            "Facebook (ahora Meta)",
+            "Google",
+            "Microsoft"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 413,
+        "enunciado": "¿Cuál es el enfoque principal de React?",
+        "respuestas": [
+            "Construcción de interfaces de usuario basadas en componentes",
+            "Administración de bases de datos",
+            "Desarrollo de sistemas operativos"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 414,
+        "enunciado": "¿Cómo se define React dentro del ecosistema de desarrollo?",
+        "respuestas": [
+            "Una librería",
+            "Un compilador",
+            "Un framework completo"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 415,
+        "enunciado": "¿En qué lenguaje está basado React?",
+        "respuestas": [
+            "JavaScript",
+            "PHP",
+            "Python"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 416,
+        "enunciado": "¿Qué significa que React use un enfoque **declarativo**?",
+        "respuestas": [
+            "Todo se escribe en lenguaje SQL",
+            "Se describe el resultado esperado de la interfaz y React se encarga de actualizar el DOM",
+            "El programador debe manipular el DOM manualmente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 417,
+        "enunciado": "¿Qué caracteriza a la programación **reactiva**?",
+        "respuestas": [
+            "La interfaz responde automáticamente a los cambios en el estado o datos",
+            "Los datos nunca cambian en el tiempo",
+            "El programador debe refrescar manualmente la pantalla"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 418,
+        "enunciado": "¿Qué ventaja tiene el enfoque declarativo en React?",
+        "respuestas": [
+            "Permite manipular directamente el DOM con `document.getElementById`",
+            "Hace el código más predecible y fácil de entender",
+            "Requiere más líneas de código que el enfoque imperativo"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 419,
+        "enunciado": "¿Qué ocurre cuando cambia el estado en un componente de React?",
+        "respuestas": [
+            "No ocurre nada hasta reiniciar la aplicación",
+            "La interfaz se actualiza automáticamente (reactividad)",
+            "El programador debe llamar manualmente a `render()`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 420,
+        "enunciado": "¿Cuál de las siguientes es una característica de la **programación reactiva** en React?",
+        "respuestas": [
+            "Los componentes se vuelven a renderizar automáticamente al cambiar el estado o props",
+            "Se deben usar funciones externas para refrescar la interfaz",
+            "Solo se renderiza una vez y luego nunca cambia"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 421,
+        "enunciado": "¿Qué es un componente en React?",
+        "respuestas": [
+            "Una función o clase que devuelve elementos de interfaz de usuario",
+            "Un archivo CSS para estilos",
+            "Una base de datos para guardar información"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 422,
+        "enunciado": "¿Cómo se declara un **componente funcional** básico en React?",
+        "respuestas": [
+            "```js\nfunction Hola() {\n   return <h1>Hola</h1>;\n}\n```",
+            "```jsx\nlet Hola = <h1>Hola</h1>;\n```",
+            "```js\nfunction Hola {\n   <h1>Hola</h1>\n}\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 423,
+        "enunciado": "¿Cómo se usan los componentes en React dentro de JSX?",
+        "respuestas": [
+            "```jsx\n<Componente />\n```",
+            "```jsx\n{Componente}\n```",
+            "```jsx\nComponente();\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 424,
+        "enunciado": "¿Cuál es la forma correcta de declarar un componente como **arrow function**?",
+        "respuestas": [
+            "```jsx\nconst Hola => \n   <h1>Hola</h1>;\n```",
+            "```jsx\nconst Hola = () => \n   <h1>Hola</h1>;\n```",
+            "```jsx\nconst Hola = () { \n   return <h1>Hola</h1>; \n};\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 425,
+        "enunciado": "¿Qué distingue a un **componente de clase**?",
+        "respuestas": [
+            "Usa la palabra clave `class` y extiende `React.Component`",
+            "No puede tener estado",
+            "Solo puede devolver cadenas de texto"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 426,
+        "enunciado": "¿Cuál es la sintaxis básica de un **componente de clase**?",
+        "respuestas": [
+            "```jsx\nclass Hola {\n  return <h1>Hola</h1>;\n}\n```",
+            "```jsx\nfunction class Hola() {\n  return <h1>Hola</h1>;\n}\n```",
+            "```jsx\nclass Hola extends React.Component {\n  render() {\n    return <h1>Hola</h1>;\n  }\n}\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 427,
+        "enunciado": "¿Qué característica tienen los **componentes reutilizables**?",
+        "respuestas": [
+            "No aceptan parámetros",
+            "Solo se pueden declarar una vez",
+            "Pueden usarse varias veces en diferentes partes de la aplicación"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 428,
+        "enunciado": "¿Cómo se pueden pasar datos a un componente?",
+        "respuestas": [
+            "Usando **props**",
+            "Usando directamente variables globales",
+            "Modificando el DOM manualmente"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 429,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Saludo(props) {\n   return <h1>Hola {props.nombre}</h1>;\n}\n<Saludo nombre=\"Ana\" />\n```",
+        "respuestas": [
+            "`Hola {props.nombre}`",
+            "`Hola Ana`",
+            "`Hola`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 430,
+        "enunciado": "¿Cuál es la ventaja principal de usar componentes en React?",
+        "respuestas": [
+            "Permiten usar Java en lugar de JavaScript",
+            "Se necesita menos HTML",
+            "Reutilización y modularidad del código"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 431,
+        "enunciado": "¿Cómo se pasan parámetros a un componente en React?",
+        "respuestas": [
+            "A través de **props**",
+            "Modificando directamente el DOM",
+            "Usando variables globales"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 432,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Saludo(props) {\n  return <h1>Hola {props.nombre}</h1>;\n}\n<Saludo nombre=\"Ana\" />\n```",
+        "respuestas": [
+            "`Hola Ana`",
+            "`Hola`",
+            "`Hola {props.nombre}`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 433,
+        "enunciado": "¿Cómo se define un evento `onClick` en React?",
+        "respuestas": [
+            "```js\n<button onClick=\"miFuncion()\">\n   Click\n</button>\n```",
+            "```js\n<button onclick=\"miFuncion()\">\n   Click\n</button>\n```",
+            "```js\n<button onClick={miFuncion}>\n   Click\n</button>\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 434,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Boton() {\n   function manejarClick() {\n      console.log(\"Clickeado\");\n   }\n   return <button onClick={manejarClick}>Click</button>;\n}\n```",
+        "respuestas": [
+            "`\"Clickeado\"` al hacer click",
+            "`\"Clickeado\"` inmediatamente",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 435,
+        "enunciado": "¿Cómo se pasa un parámetro a un evento en React?",
+        "respuestas": [
+            "```js\n<button onclick=\"miFuncion('Hola')\">\n   Click\n</button>\n```",
+            "```js\n<button onClick={() => miFuncion(\"Hola\")}>\n   Click\n</button>\n```",
+            "```js\n<button onClick={miFuncion(\"Hola\")}>\n   Click\n</button>\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 436,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Mostrar(props) {\n   return <p>{props.mensaje}</p>;\n}\n<Mostrar mensaje=\"Hola React\" />\n```",
+        "respuestas": [
+            "`mensaje`",
+            "`Hola React`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 437,
+        "enunciado": "¿Qué ocurre si se pasa una función como prop?",
+        "respuestas": [
+            "Puede ejecutarse dentro del componente hijo",
+            "Lanza un error",
+            "Se convierte en string automáticamente"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 438,
+        "enunciado": "¿Qué imprime este código?\n```jsx\nfunction Hijo(props) {\n   return <button onClick={props.onSaludar}>Saludar</button>;\n}\nfunction Padre() {\n   function saludar() { console.log(\"Hola desde padre\"); }\n   return <Hijo onSaludar={saludar} />;\n}\n```",
+        "respuestas": [
+            "Nada ocurre",
+            "Error",
+            "`\"Hola desde padre\"` al hacer click"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 439,
+        "enunciado": "¿Cómo se pueden pasar múltiples props a un componente?",
+        "respuestas": [
+            "```jsx\n<Componente nombre=\"Ana\" edad={25} />\n```",
+            "```jsx\n<Componente (nombre=\"Ana\", edad=25) />\n```",
+            "```jsx\n<Componente {nombre: \"Ana\", edad: 25} />\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 440,
+        "enunciado": "¿Cuál es la forma correcta de manejar eventos en React?",
+        "respuestas": [
+            "Usar camelCase (`onClick`, `onChange`) y pasar funciones",
+            "Usar HTML puro sin eventos",
+            "Usar atributos en minúsculas (`onclick`) y pasar strings"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 441,
+        "enunciado": "¿Qué son los Hooks en React?",
+        "respuestas": [
+            "Una nueva forma de declarar clases en React",
+            "Un sistema de estilos en React",
+            "Funciones especiales que permiten usar estado y otras características en componentes funcionales"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 442,
+        "enunciado": "¿En qué versión de React se introdujeron los Hooks?",
+        "respuestas": [
+            "React 16.8",
+            "React 15.0",
+            "React 18"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 443,
+        "enunciado": "¿Cuál es la regla principal al usar Hooks?",
+        "respuestas": [
+            "Pueden declararse dentro de cualquier función",
+            "Solo se pueden usar en el nivel superior de un componente",
+            "Pueden usarse dentro de cualquier bucle o condicional"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 444,
+        "enunciado": "¿Cuál es un Hook básico para manejar el estado?",
+        "respuestas": [
+            "`useContext`",
+            "`useEffect`",
+            "`useState`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 445,
+        "enunciado": "¿Qué Hook se usa para manejar efectos secundarios (ejemplo: llamadas a APIs)?",
+        "respuestas": [
+            "`useReducer`",
+            "`useState`",
+            "`useEffect`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 446,
+        "enunciado": "¿Qué permite hacer el Hook `useContext`?",
+        "respuestas": [
+            "Definir un ciclo de vida",
+            "Crear un nuevo estado local",
+            "Acceder a un contexto sin necesidad de usar un Consumer"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 447,
+        "enunciado": "¿Cuál es la ventaja principal de los Hooks?",
+        "respuestas": [
+            "Reemplazan totalmente a los componentes de clase",
+            "Permiten usar estado y lógica reutilizable en componentes funcionales",
+            "Reducen el tamaño de los archivos CSS"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 448,
+        "enunciado": "¿Qué Hook se usa para manejar un valor mutable que no causa renderizados?",
+        "respuestas": [
+            "`useMemo`",
+            "`useEffect`",
+            "`useRef`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 449,
+        "enunciado": "¿Qué significa que los Hooks sean **composables**?",
+        "respuestas": [
+            "Se pueden crear Hooks personalizados a partir de otros Hooks",
+            "Deben ejecutarse una única vez en la aplicación",
+            "Solo se pueden usar dentro de clases"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 450,
+        "enunciado": "¿Qué ocurre si se usan Hooks dentro de un condicional?",
+        "respuestas": [
+            "Se convierten en funciones normales",
+            "Puede romper las reglas de los Hooks y causar errores",
+            "Funciona sin problemas siempre"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 451,
+        "enunciado": "¿Qué es `useState`?",
+        "respuestas": [
+            "Un Hook que permite añadir estado a los componentes funcionales",
+            "Una función para renderizar componentes",
+            "Un método exclusivo de clases"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 452,
+        "enunciado": "¿Cómo se importa `useState` en un componente?",
+        "respuestas": [
+            "```js\nconst useState = require(\"react\");\n```",
+            "```js\nimport { useState } from \"react\";\n```",
+            "```js\nimport useState from \"react\";\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 453,
+        "enunciado": "¿Qué devuelve la llamada a `useState`?",
+        "respuestas": [
+            "Solo el valor inicial",
+            "Un objeto con el estado y un método `setState`",
+            "Un array con el valor actual y una función para actualizarlo"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 454,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [contador, setContador] = useState(0);\nconsole.log(contador);\n```",
+        "respuestas": [
+            "Error",
+            "`0`",
+            "`undefined`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 455,
+        "enunciado": "¿Cómo se actualiza el estado con `useState`?",
+        "respuestas": [
+            "Modificando directamente la variable",
+            "Reiniciando el componente",
+            "Usando la función de actualización (`setAlgo`)"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 456,
+        "enunciado": "¿Qué imprime este código después de un click?\n```js\nconst [contador, setContador] = useState(0);\n<button onClick={() => setContador(contador + 1)}>\n   Incrementar\n</button>\n```",
+        "respuestas": [
+            "Siempre imprime 0",
+            "Da error",
+            "El valor de `contador` aumenta en 1"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 457,
+        "enunciado": "¿Qué ocurre si se llama a `setEstado` varias veces seguidas?",
+        "respuestas": [
+            "Ejecuta cada una inmediatamente en orden",
+            "Lanza un error",
+            "React agrupa las actualizaciones para optimizar"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 458,
+        "enunciado": "¿Cuál es la sintaxis correcta para usar un valor inicial dinámico en `useState`?",
+        "respuestas": [
+            "```js\nconst [valor, setValor] = \n   useState{calcularInicial()};\n```",
+            "```js\nconst [valor, setValor] = \n   useState = calcularInicial();\n```",
+            "```js\nconst [valor, setValor] = \n   useState(() => calcularInicial());\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 459,
+        "enunciado": "¿Qué pasa si se actualiza el estado con el mismo valor?",
+        "respuestas": [
+            "Lanza un error",
+            "React no vuelve a renderizar el componente",
+            "Siempre vuelve a renderizar"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 460,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [texto, setTexto] = useState(\"Hola\");\nsetTexto(\"Mundo\");\nconsole.log(texto);\n```",
+        "respuestas": [
+            "`\"Mundo\"` inmediatamente",
+            "`\"Hola\"` en el render actual",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 461,
+        "enunciado": "¿Cómo se actualiza correctamente un objeto en `useState`?",
+        "respuestas": [
+            "```js\nestado.nuevoValor = 123;\n```",
+            "```js\nsetEstado(estado.nuevoValor = 123);\n```",
+            "```js\nsetEstado({ ...estado, nuevoValor: 123 });\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 462,
+        "enunciado": "¿Qué ocurre si se modifica directamente un objeto en `useState`?",
+        "respuestas": [
+            "Se lanza un error",
+            "React actualiza automáticamente",
+            "No se re-renderiza el componente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 463,
+        "enunciado": "¿Cómo se agrega un elemento a un array en el estado?",
+        "respuestas": [
+            "```js\nsetLista([...lista, nuevoElemento]);\n```",
+            "```js\nsetLista(lista.push(nuevoElemento));\n```",
+            "```js\nlista.push(nuevoElemento);\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 464,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [usuario, setUsuario] = useState({ nombre: \"Ana\", edad: 20 });\nsetUsuario({ ...usuario, edad: 21 });\nconsole.log(usuario.edad);\n```",
+        "respuestas": [
+            "`20`",
+            "`21`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 465,
+        "enunciado": "¿Cómo se elimina un elemento de un array en el estado?",
+        "respuestas": [
+            "```js\nsetLista(lista.filter(item => item !== valor));\n```",
+            "```js\nlista.remove(valor);\n```",
+            "```js\ndelete lista[valor];\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 466,
+        "enunciado": "¿Cómo se actualiza una propiedad anidada en un objeto con `useState`?",
+        "respuestas": [
+            "```js\nsetEstado({ ...estado, \n   direccion: { \n      ...estado.direccion, \n      ciudad: \"Roma\" \n   }});\n```",
+            "```js\nestado.direccion.ciudad = \"Roma\";\n```",
+            "```js\nsetEstado(estado.direccion.ciudad = \"Roma\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 467,
+        "enunciado": "¿Qué ocurre si se reemplaza el array en `useState` sin usar spread?",
+        "respuestas": [
+            "Lanza un error",
+            "Se pierde el contenido anterior",
+            "Se conservan los elementos previos automáticamente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 468,
+        "enunciado": "¿Cómo se agrega un objeto nuevo a un array en el estado?",
+        "respuestas": [
+            "```js\nsetUsuarios(usuarios.add({ \n   id: 3, nombre: \"Luis\" \n}));\n```",
+            "```js\nusuarios.push({ id: 3, nombre: \"Luis\" });\n```",
+            "```js\nsetUsuarios([...usuarios, \n   { id: 3, nombre: \"Luis\" }]\n);\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 469,
+        "enunciado": "¿Qué pasa si se llama a `setEstado` con el mismo objeto sin crear una copia?",
+        "respuestas": [
+            "React siempre vuelve a renderizar",
+            "Da un error",
+            "React no detecta cambios y no renderiza de nuevo"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 470,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [lista, setLista] = useState([1, 2]);\nsetLista([...lista, 3]);\nconsole.log(lista);\n```",
+        "respuestas": [
+            "`[1, 2]`",
+            "`[1, 2, 3]`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 471,
+        "enunciado": "¿Qué es `useEffect` en React?",
+        "respuestas": [
+            "Un Hook que maneja efectos secundarios en componentes funcionales",
+            "Una función para actualizar el estado",
+            "Un método exclusivo de clases"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 472,
+        "enunciado": "¿Cómo se importa `useEffect`?",
+        "respuestas": [
+            "```js\nimport { useEffect } from \"react\";\n```",
+            "```js\nimport useEffect from \"react\";\n```",
+            "```js\nconst useEffect = require(\"react\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 473,
+        "enunciado": "¿Qué imprime este código?\n```js\nuseEffect(() => {\n  console.log(\"Efecto ejecutado\");\n});\n```",
+        "respuestas": [
+            "`\"Efecto ejecutado\"` en cada render",
+            "`\"Efecto ejecutado\"` solo en el primer render",
+            "Nunca imprime nada"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 474,
+        "enunciado": "¿Cómo se ejecuta un efecto solo una vez al montar el componente?",
+        "respuestas": [
+            "Pasando un array vacío como dependencia: `useEffect(() => {...}, [])`",
+            "Usando `useEffect(() => {...})` sin dependencias",
+            "Usando `useEffectOnce`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 475,
+        "enunciado": "¿Qué ocurre si se pasa un array con dependencias a `useEffect`?",
+        "respuestas": [
+            "El efecto nunca se ejecuta",
+            "El efecto se ejecuta cuando cambian esas dependencias",
+            "El efecto se ejecuta siempre en cada render"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 476,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [contador, setContador] = useState(0);\nuseEffect(() => {\n   console.log(\"Cambio en contador\");\n}, [contador]);\n```",
+        "respuestas": [
+            "Nunca imprime nada",
+            "`\"Cambio en contador\"` solo una vez",
+            "`\"Cambio en contador\"` cada vez que cambia `contador`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 477,
+        "enunciado": "¿Cómo se limpia un efecto en `useEffect`?",
+        "respuestas": [
+            "Usando `useCleanup`",
+            "Retornando una función de limpieza dentro del callback",
+            "Llamando a `clearEffect()`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 478,
+        "enunciado": "¿Qué ocurre con este código?\n```js\nuseEffect(() => {\n   const id = setInterval(() => console.log(\"Tick\"), 1000);\n   return () => clearInterval(id);\n}, []);\n```",
+        "respuestas": [
+            "Da un error",
+            "Imprime `\"Tick\"` una vez y se detiene",
+            "Imprime `\"Tick\"` cada segundo y se limpia al desmontar el componente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 479,
+        "enunciado": "¿Qué problema puede ocurrir si no se limpian los efectos correctamente?",
+        "respuestas": [
+            "Fugas de memoria o comportamientos inesperados",
+            "El componente no se renderiza",
+            "El estado deja de actualizarse"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 480,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst [x, setX] = useState(0);\nuseEffect(() => {\n   console.log(\"Render con x:\", x);\n}, [x]);\nsetX(5);\n```",
+        "respuestas": [
+            "`\"Render con x: 0\"` y luego `\"Render con x: 5\"`",
+            "Solo `\"Render con x: 0\"`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 481,
+        "enunciado": "¿Qué es `useContext` en React?",
+        "respuestas": [
+            "Un método exclusivo de clases",
+            "Un Hook que permite acceder a un contexto sin necesidad de usar un Consumer",
+            "Una función para manejar efectos secundarios"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 482,
+        "enunciado": "¿Cómo se importa `useContext`?",
+        "respuestas": [
+            "```js\nconst useContext = require(\"react\");\n```",
+            "```js\nimport { useContext } from \"react\";\n```",
+            "```js\nimport useContext from \"react\";\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 483,
+        "enunciado": "¿Qué se necesita antes de usar `useContext`?",
+        "respuestas": [
+            "Crear un contexto con `React.createContext()`",
+            "Definir un `useState`",
+            "Importar un reducer"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 484,
+        "enunciado": "¿Cómo se accede a un valor de contexto con `useContext`?",
+        "respuestas": [
+            "```js\nconst valor = useContext(MiContexto);\n```",
+            "```js\nconst valor = MiContexto();\n```",
+            "```js\nconst valor = getContext(MiContexto);\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 485,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst TemaContext = React.createContext(\"claro\");\nfunction Componente() {\n   const tema = useContext(TemaContext);\n   return <p>{tema}</p>;\n}\n```",
+        "respuestas": [
+            "`undefined`",
+            "`\"claro\"`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 486,
+        "enunciado": "¿Qué ocurre si un componente no está envuelto en un `Provider`?",
+        "respuestas": [
+            "Obtiene el valor por defecto del contexto",
+            "Siempre da error",
+            "Obtiene `null`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 487,
+        "enunciado": "¿Cómo se define un `Provider` de contexto?",
+        "respuestas": [
+            "```js\n<Provider contexto={MiContexto} valor=\"algo\">\n   <App />\n</Provider>\n```",
+            "```js\n<MiContexto value=\"algo\">\n   <App />\n</MiContexto>\n```",
+            "```js\n<MiContexto.Provider value=\"algo\">\n   <App />\n</MiContexto.Provider>\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 488,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst UsuarioContext = React.createContext(\"Invitado\");\nfunction Perfil() {\n   const usuario = useContext(UsuarioContext);\n   return <h1>{usuario}</h1>;\n}\n<UsuarioContext.Provider value=\"Ana\">\n  <Perfil />\n</UsuarioContext.Provider>\n```",
+        "respuestas": [
+            "`\"Ana\"`",
+            "`undefined`",
+            "`\"Invitado\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 489,
+        "enunciado": "¿Qué ventaja tiene `useContext`?",
+        "respuestas": [
+            "Hace que los componentes nunca se re-rendericen",
+            "Reemplaza a `useState`",
+            "Permite compartir datos globales sin necesidad de pasar props manualmente"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 490,
+        "enunciado": "¿Qué ocurre si cambia el valor del contexto en el `Provider`?",
+        "respuestas": [
+            "Lanza un error",
+            "Nada cambia hasta reiniciar la aplicación",
+            "Los componentes que usan `useContext` se re-renderizan con el nuevo valor"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 491,
+        "enunciado": "¿Qué es `useRef` en React?",
+        "respuestas": [
+            "Una función para crear estado",
+            "Un método exclusivo de clases",
+            "Un Hook que devuelve un objeto mutable con la propiedad `.current`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 492,
+        "enunciado": "¿Cómo se importa `useRef`?",
+        "respuestas": [
+            "```js\nimport useRef from \"react\";\n```",
+            "```js\nimport { useRef } from \"react\";\n```",
+            "```js\nconst useRef = require(\"react\");\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 493,
+        "enunciado": "¿Qué valor inicial tiene una referencia creada con `useRef()`?",
+        "respuestas": [
+            "`null`",
+            "`undefined`",
+            "`0`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 494,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst ref = useRef(5);\nconsole.log(ref.current);\n```",
+        "respuestas": [
+            "`5`",
+            "`undefined`",
+            "Error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 495,
+        "enunciado": "¿Qué ocurre cuando se actualiza `.current` de un `useRef`?",
+        "respuestas": [
+            "No causa re-render del componente",
+            "Lanza un error",
+            "Siempre vuelve a renderizar el componente"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 496,
+        "enunciado": "¿Cuál es un uso común de `useRef`?",
+        "respuestas": [
+            "Crear un estado global",
+            "Definir reducers",
+            "Referenciar elementos del DOM"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 497,
+        "enunciado": "¿Qué imprime este código?\n```js\nfunction Componente() {\n  const inputRef = useRef(null);\n  return <input ref={inputRef} />;\n}\n```",
+        "respuestas": [
+            "`null`",
+            "Error",
+            "Una referencia al elemento `<input>`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 498,
+        "enunciado": "¿Qué ocurre si se cambia manualmente `ref.current`?",
+        "respuestas": [
+            "Se vuelve a renderizar automáticamente",
+            "Se actualiza el valor pero no se renderiza el componente",
+            "Lanza un error"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 499,
+        "enunciado": "¿Cómo se usa `useRef` para almacenar un valor que persiste entre renders sin causar renderizados?",
+        "respuestas": [
+            "```js\nconst [contador, setContador] = useRef(0);\n```",
+            "```js\nconst contador = useRef(0);\ncontador.current += 1;\n```",
+            "```js\nconst contador = useRefState(0);\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 500,
+        "enunciado": "¿Qué imprime este código?\n```js\nconst ref = useRef(\"Hola\");\nref.current = \"Mundo\";\nconsole.log(ref.current);\n```",
+        "respuestas": [
+            "`\"Mundo\"`",
+            "`undefined`",
+            "`\"Hola\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 501,
+        "enunciado": "¿Qué es Vite?",
+        "respuestas": [
+            "Un framework de backend",
+            "Una herramienta de construcción rápida para proyectos frontend",
+            "Una base de datos"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 502,
+        "enunciado": "¿Cómo se crea un nuevo proyecto con Vite usando npm?",
+        "respuestas": [
+            "```bash\nnpm create vite@latest\n```",
+            "```bash\nnpx start vite\n```",
+            "```bash\nnpm init react-app\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 503,
+        "enunciado": "¿Qué comando se usa para entrar en la carpeta del proyecto recién creado?",
+        "respuestas": [
+            "```bash\nnpm cd nombre-proyecto\n```",
+            "```bash\ncd nombre-proyecto\n```",
+            "```bash\ncd vite\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 504,
+        "enunciado": "¿Qué comando se usa para instalar las dependencias de un proyecto Vite?",
+        "respuestas": [
+            "```bash\nnpm build\n```",
+            "```bash\nnpm start\n```",
+            "```bash\nnpm install\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 505,
+        "enunciado": "¿Qué comando inicia el servidor de desarrollo en Vite?",
+        "respuestas": [
+            "```bash\nnpm run dev\n```",
+            "```bash\nnpm serve\n```",
+            "```bash\nnpm start\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 506,
+        "enunciado": "¿Cómo se importa React en un archivo de un proyecto con Vite?",
+        "respuestas": [
+            "```js\nimport React from \"react\";\n```",
+            "```js\ninclude React;\n```",
+            "```js\nrequire(\"react\");\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 507,
+        "enunciado": "¿Qué comando se usa para agregar una librería (ejemplo: axios) al proyecto?",
+        "respuestas": [
+            "```bash\nnpm create axios\n```",
+            "```bash\nnpm install axios\n```",
+            "```bash\nvite add axios\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 508,
+        "enunciado": "¿Cómo se importa una librería instalada en el código?",
+        "respuestas": [
+            "```js\nimport axios from \"axios\";\n```",
+            "```js\nimport \"axios\";\n```",
+            "```js\nrequire(\"axios\");\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 509,
+        "enunciado": "¿Qué comando se usa para generar una versión optimizada para producción?",
+        "respuestas": [
+            "```bash\nnpm run build\n```",
+            "```bash\nnpm run prod\n```",
+            "```bash\nnpm package\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 510,
+        "enunciado": "¿Qué comando se usa para previsualizar la build generada?",
+        "respuestas": [
+            "```bash\nnpm run dev\n```",
+            "```bash\nnpm run preview\n```",
+            "```bash\nnpm run test\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 511,
+        "enunciado": "¿Qué es React Router?",
+        "respuestas": [
+            "Un servidor web para React",
+            "Un hook para manejar estado",
+            "Una librería para manejar rutas en aplicaciones React"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 512,
+        "enunciado": "¿Cómo se instala React Router?",
+        "respuestas": [
+            "```bash\nnpm install react-router\n```",
+            "```bash\nnpm install react-router-dom\n```",
+            "```bash\nnpm install router-react\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 513,
+        "enunciado": "¿Qué componente envuelve toda la aplicación para habilitar el enrutamiento?",
+        "respuestas": [
+            "```jsx\n<BrowserRouter>\n```",
+            "```jsx\n<RouterProvider>\n```",
+            "```jsx\n<RoutesWrapper>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 514,
+        "enunciado": "¿Qué componente se usa para definir un conjunto de rutas?",
+        "respuestas": [
+            "```jsx\n<Switch>\n```",
+            "```jsx\n<Routes>\n```",
+            "```jsx\n<RouteList>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 515,
+        "enunciado": "¿Qué componente se usa para declarar una ruta?",
+        "respuestas": [
+            "```jsx\n<LinkRoute>\n```",
+            "```jsx\n<Route>\n```",
+            "```jsx\n<Path>\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 516,
+        "enunciado": "¿Cómo se define una ruta para `/about` que renderiza el componente `About`?",
+        "respuestas": [
+            "```jsx\n<Route \n   path=\"/about\" \n   element={<About />} />\n```",
+            "```jsx\n<Route \n   component={About} \n   path=\"/about\" />\n```",
+            "```jsx\n<Route url=\"/about\">\n   <About />\n</Route>\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 517,
+        "enunciado": "¿Qué componente se usa para crear enlaces de navegación declarativos?",
+        "respuestas": [
+            "```jsx\n<a>\n```",
+            "```jsx\n<Link>\n```",
+            "```jsx\n<Navigate>\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 518,
+        "enunciado": "¿Qué imprime este código?\n```jsx\n<Link to=\"/home\">Inicio</Link>\n```",
+        "respuestas": [
+            "Un botón que cambia el estado",
+            "Un enlace que navega a `/home`",
+            "Un `div` con texto"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 519,
+        "enunciado": "¿Qué ocurre si ninguna ruta coincide con la URL?",
+        "respuestas": [
+            "Se debe declarar una ruta \"catch-all\" (`*`) para manejar páginas no encontradas",
+            "React Router genera automáticamente un error 404",
+            "La aplicación se cierra"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 520,
+        "enunciado": "¿Cuál es la ventaja del enfoque declarativo en React Router?",
+        "respuestas": [
+            "Solo funciona con clases, no con funciones\n ### parámetros dinámicos en React Router",
+            "El enrutamiento se describe con JSX, fácil de entender y mantener",
+            "Obliga a manipular manualmente el `window.location`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 521,
+        "enunciado": "¿Cómo se define un parámetro dinámico en una ruta?",
+        "respuestas": [
+            "Usando `$param` en la propiedad `path`",
+            "Usando `{param}` en la propiedad `path`",
+            "Usando `:nombreParametro` en la propiedad `path`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 522,
+        "enunciado": "¿Cuál es la forma correcta de definir una ruta dinámica para `/user/:id`?",
+        "respuestas": [
+            "```jsx\n<Route \n   path=\"/user/{id}\"\n   element={<User />} />\n```",
+            "```jsx\n<Route \n   path=\"/user/$id\" \n   element={<User />} />\n```",
+            "```jsx\n<Route \n   path=\"/user/:id\" \n   element={<User />} />\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 523,
+        "enunciado": "¿Qué Hook se usa para acceder a los parámetros dinámicos en un componente?",
+        "respuestas": [
+            "`useLocation`",
+            "`useNavigate`",
+            "`useParams`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 524,
+        "enunciado": "¿Qué imprime este código si la URL es `/user/42`?\n```jsx\nfunction User() {\n   const params = useParams();\n   return <p>{params.id}</p>;\n}\n```",
+        "respuestas": [
+            "`undefined`",
+            "`42`",
+            "`user`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 525,
+        "enunciado": "¿Cómo se pueden obtener múltiples parámetros dinámicos?",
+        "respuestas": [
+            "Usando `props` directamente",
+            "Concatenando parámetros con `?`",
+            "Definiendo varios en la ruta: `/post/:id/:comentarioId`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 526,
+        "enunciado": "¿Qué imprime este código si la URL es `/post/10/5`?\n```jsx\nfunction Post() {\n   const { id, comentarioId } = useParams();\n   return <p>{id} - {comentarioId}</p>;\n}\n```",
+        "respuestas": [
+            "`undefined - undefined`",
+            "`10 - 5`",
+            "`post - comentario`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 527,
+        "enunciado": "¿Qué ocurre si no se define un parámetro dinámico en la URL?",
+        "respuestas": [
+            "React Router lanza un error",
+            "La aplicación no renderiza",
+            "`useParams` devuelve `undefined` para ese parámetro"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 528,
+        "enunciado": "¿Qué diferencia hay entre parámetros dinámicos y query params?",
+        "respuestas": [
+            "Son lo mismo",
+            "Los dinámicos se definen en la ruta con `:param`, los query params se pasan con `?`",
+            "Los dinámicos se definen en el estado"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 529,
+        "enunciado": "¿Cómo se acceden a los query params en React Router?",
+        "respuestas": [
+            "Usando `useQuery`",
+            "Usando `useLocation` y `URLSearchParams`",
+            "Usando `useParams`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 530,
+        "enunciado": "¿Qué imprime este código si la URL es `/search?q=react`?\n```jsx\nfunction Search() {\n   const { search } = useLocation();\n   const query = new URLSearchParams(search);\n   return <p>{query.get(\"q\")}</p>;\n}\n```",
+        "respuestas": [
+            "`q=react`",
+            "`react`",
+            "`undefined`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 531,
+        "enunciado": "¿Qué componente se usa para navegación declarativa?",
+        "respuestas": [
+            "```jsx\n<Navigate>\n```",
+            "```jsx\n<a>\n```",
+            "```jsx\n<Link>\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 532,
+        "enunciado": "¿Qué imprime este código?\n```jsx\n<Link to=\"/about\">Acerca de</Link>\n```",
+        "respuestas": [
+            "Nada",
+            "Un enlace que navega a `/about`",
+            "Un botón"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 533,
+        "enunciado": "¿Qué Hook se usa para la navegación programática en React Router?",
+        "respuestas": [
+            "`useHistory`",
+            "`useLocation`",
+            "`useNavigate`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 534,
+        "enunciado": "¿Qué ocurre al ejecutar este código?\n```jsx\nconst navigate = useNavigate();\nnavigate(\"/home\");\n```",
+        "respuestas": [
+            "Redirige a la ruta `/home`",
+            "Muestra un error",
+            "No hace nada"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 535,
+        "enunciado": "¿Cuál es la diferencia entre `<Link>` y `<a>` en React Router?",
+        "respuestas": [
+            "No hay diferencia",
+            "`<Link>` solo funciona en HTML puro",
+            "`<Link>` evita la recarga completa de la página, `<a>` recarga el documento"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 536,
+        "enunciado": "¿Qué componente se usa para redirigir automáticamente a otra ruta?",
+        "respuestas": [
+            "```jsx\n<Navigate to=\"/ruta\" />\n```",
+            "```jsx\n<Redirect to=\"/ruta\" />\n```",
+            "```jsx\n<RouterRedirect to=\"/ruta\" />\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 537,
+        "enunciado": "¿Qué imprime este código si la ruta actual es `/`?\n```jsx\n<Navigate to=\"/login\" />\n```",
+        "respuestas": [
+            "Muestra `/`",
+            "Nada",
+            "Redirige automáticamente a `/login`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 538,
+        "enunciado": "¿Qué Hook se puede usar para ir atrás en la navegación?",
+        "respuestas": [
+            "```jsx\nconst navigate = useNavigate();\nnavigate(-1);\n```",
+            "```jsx\nconst goBack = useRouter();\ngoBack();\n```",
+            "```jsx\nconst back = useHistory();\nback();\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 539,
+        "enunciado": "¿Qué ocurre al hacer clic en este código?\n```jsx\n<Link to=\"/\">Inicio</Link>\n```",
+        "respuestas": [
+            "No ocurre nada",
+            "Navega a la ruta raíz `/`",
+            "Muestra un error"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 540,
+        "enunciado": "¿Qué ventaja tiene la navegación con React Router?",
+        "respuestas": [
+            "No recarga la página completa, actualiza solo la vista necesaria",
+            "Solo funciona con backend en Node.js",
+            "Siempre recarga la página para asegurar cambios"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 541,
+        "enunciado": "¿Qué es React Hook Form?",
+        "respuestas": [
+            "Una librería para manejar formularios en React con Hooks",
+            "Un nuevo Hook de React",
+            "Una librería para manejar rutas"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 542,
+        "enunciado": "¿Cuál es el principal objetivo de React Hook Form?",
+        "respuestas": [
+            "Facilitar la validación y manejo de formularios",
+            "Manejar animaciones en React",
+            "Conectar React con bases de datos"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 543,
+        "enunciado": "¿Cómo se instala React Hook Form?",
+        "respuestas": [
+            "```bash\nnpm install react-hook-form\n```",
+            "```bash\nnpm install hook-form\n```",
+            "```bash\nnpm install form-react\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 544,
+        "enunciado": "¿Qué Hook principal provee la librería?",
+        "respuestas": [
+            "`useEffect`",
+            "`useForm`",
+            "`useState`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 545,
+        "enunciado": "¿Qué devuelve `useForm`?",
+        "respuestas": [
+            "Un objeto con métodos para manejar el formulario (`register`, `handleSubmit`, etc.)",
+            "Solo un array con inputs",
+            "Una función que renderiza un formulario"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 546,
+        "enunciado": "¿Cómo se registra un input en React Hook Form?",
+        "respuestas": [
+            "Usando la función `register`",
+            "Usando `useInput`",
+            "Usando `useState`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 547,
+        "enunciado": "¿Qué imprime este código si se envía el formulario?\n```jsx\nconst { register, handleSubmit } = useForm();\nconst onSubmit = data => console.log(data);\n<form onSubmit={handleSubmit(onSubmit)}>\n   <input {...register(\"nombre\")} />\n   <button type=\"submit\">Enviar</button>\n</form>\n```",
+        "respuestas": [
+            "Un objeto con `{ nombre: \"valorIngresado\" }`",
+            "`undefined`",
+            "Solo el string `\"valorIngresado\"`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 548,
+        "enunciado": "¿Qué ocurre si no se envuelve el `onSubmit` con `handleSubmit`?",
+        "respuestas": [
+            "Se envía igual",
+            "Lanza un error automático",
+            "El formulario no maneja los datos correctamente"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 549,
+        "enunciado": "¿Cómo se acceden a los errores de validación?",
+        "respuestas": [
+            "Usando `useErrors`",
+            "Con `errorMessage()`",
+            "Desde `formState.errors`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 550,
+        "enunciado": "¿Qué Hook se usa para observar valores del formulario en tiempo real?",
+        "respuestas": [
+            "`watch`",
+            "`listen`",
+            "`observe`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 551,
+        "enunciado": "¿Cómo se agrega una validación requerida en un input?",
+        "respuestas": [
+            "```jsx\n<input {...register(\n   \"email\", { required: true })} />\n```",
+            "```jsx\n<input register=\"email\" />\n```",
+            "```jsx\n<input required {...register(\"email\")} />\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 552,
+        "enunciado": "¿Qué imprime este código si el campo está vacío y se intenta enviar?\n```jsx\nconst { register, handleSubmit, formState: { errors } } = useForm();\n<form onSubmit={handleSubmit(data => console.log(data))}>\n   <input {...register(\"nombre\", { required: true })} />\n   {errors.nombre && <span>Requerido</span>}\n   <button type=\"submit\">Enviar</button>\n</form>\n```",
+        "respuestas": [
+            "Muestra `\"Requerido\"`",
+            "Muestra `\"undefined\"`",
+            "Envía los datos vacíos"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 553,
+        "enunciado": "¿Cómo se define una validación de longitud mínima?",
+        "respuestas": [
+            "```js\n{ minlength: 5 }\n```",
+            "```js\n{ minLength: 5 }\n```",
+            "```js\n{ length: { min: 5 } }\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 554,
+        "enunciado": "¿Cómo se valida un campo con expresión regular?",
+        "respuestas": [
+            "```js\n{ regex: /^[A-Za-z]+$/ }\n```",
+            "```js\n{ pattern: /^[A-Za-z]+$/ }\n```",
+            "```js\n{ match: /^[A-Za-z]+$/ }\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 555,
+        "enunciado": "¿Qué Hook se usa para resetear valores de un formulario?",
+        "respuestas": [
+            "`reset`",
+            "`useReset`",
+            "`clear`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 556,
+        "enunciado": "¿Cómo se establece un valor inicial en `useForm`?",
+        "respuestas": [
+            "```js\nconst { register } = useForm(\"Ana\");\n```",
+            "```js\nconst { register } = useForm({ \n   defaultValues: { nombre: \"Ana\" } });\n```",
+            "```js\nconst { register } = useForm({ \n   initialValues: { nombre: \"Ana\" } });\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 557,
+        "enunciado": "¿Cómo se maneja un formulario con varios campos?",
+        "respuestas": [
+            "Usando un único campo global",
+            "Registrando cada campo con `register(\"campo\")`",
+            "Pasando todos en un array"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 558,
+        "enunciado": "¿Qué imprime este código al enviar?\n```jsx\nconst { register, handleSubmit } = useForm();\nconst onSubmit = data => console.log(data);\n<form onSubmit={handleSubmit(onSubmit)}>\n   <input {...register(\"usuario\")} />\n   <input {...register(\"email\")} />\n   <button type=\"submit\">Enviar</button>\n</form>\n```",
+        "respuestas": [
+            "Solo el último valor ingresado",
+            "`undefined`",
+            "Un objeto con `{ usuario: \"valor\", email: \"valor\" }`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 559,
+        "enunciado": "¿Qué ventaja tiene React Hook Form sobre usar `useState` para inputs?",
+        "respuestas": [
+            "Permite usar CSS automáticamente",
+            "Hace que los inputs nunca cambien",
+            "Mejora el rendimiento al no causar renders innecesarios"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 560,
+        "enunciado": "¿Qué ocurre si se llama a `reset()`?",
+        "respuestas": [
+            "Lanza un error",
+            "Borra el formulario del DOM",
+            "Los campos del formulario vuelven a sus valores iniciales"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 561,
+        "enunciado": "¿Qué es shadcn/ui?",
+        "respuestas": [
+            "Una colección de componentes reutilizables para React construidos con TailwindCSS",
+            "Una librería de animaciones",
+            "Un framework backend para Node.js"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 562,
+        "enunciado": "¿Cuál es el objetivo principal de shadcn/ui?",
+        "respuestas": [
+            "Proporcionar componentes accesibles y estilizados listos para usar en proyectos React",
+            "Manejar el enrutamiento en aplicaciones",
+            "Sustituir completamente a React"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 563,
+        "enunciado": "¿Con qué librería de estilos trabaja principalmente shadcn/ui?",
+        "respuestas": [
+            "Material UI",
+            "Bootstrap",
+            "TailwindCSS"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 564,
+        "enunciado": "¿Qué filosofía sigue shadcn/ui en lugar de ser una librería publicada en npm?",
+        "respuestas": [
+            "Se instalan solo como paquete binario",
+            "Los componentes se copian directamente al proyecto, dando control total al desarrollador",
+            "Requiere siempre conexión a internet para usarse"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 565,
+        "enunciado": "¿Qué comando se usa para instalar shadcn/ui en un proyecto con React y Tailwind?",
+        "respuestas": [
+            "```bash\nnpm install shadcn-ui\n```",
+            "```bash\nnpx shadcn-ui init\n```",
+            "```bash\nnpx create-shadcn\n```"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 566,
+        "enunciado": "¿Qué archivo se genera tras inicializar shadcn/ui?",
+        "respuestas": [
+            "`components.json`",
+            "`shadcn.config.js`",
+            "`ui.config.json`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 567,
+        "enunciado": "¿Qué comando se usa para agregar un componente específico de shadcn/ui?",
+        "respuestas": [
+            "```bash\nnpx shadcn-ui add button\n```",
+            "```bash\nnpx add shadcn button\n```",
+            "```bash\nnpm install @shadcn/button\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 568,
+        "enunciado": "¿Qué requisito es necesario para usar shadcn/ui?",
+        "respuestas": [
+            "Tener TailwindCSS configurado en el proyecto",
+            "Tener Express instalado",
+            "Usar TypeScript obligatoriamente"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 569,
+        "enunciado": "¿Qué ventaja tiene copiar los componentes al proyecto en lugar de importarlos como librería?",
+        "respuestas": [
+            "Hace que el proyecto funcione sin React",
+            "Reduce el tamaño del código",
+            "Permite personalizarlos libremente sin depender de actualizaciones externas"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 570,
+        "enunciado": "¿Dónde suelen guardarse los componentes agregados de shadcn/ui?",
+        "respuestas": [
+            "En la carpeta `/lib/shadcn`",
+            "En la carpeta `/src/hooks`",
+            "En la carpeta `/components`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 571,
+        "enunciado": "¿Cómo se importa un componente agregado con shadcn/ui?",
+        "respuestas": [
+            "```js\nimport Button from \"shadcn-ui\";\n```",
+            "```js\nrequire(\"@shadcn/button\");\n```",
+            "```js\nimport { Button } from \"@/components/ui/button\";\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 572,
+        "enunciado": "¿Qué imprime este código?\n```jsx\nimport { Button } from \"@/components/ui/button\";\nexport default function App() {\n   return <Button>Click aquí</Button>;\n}\n```",
+        "respuestas": [
+            "Nada",
+            "Un enlace vacío",
+            "Un botón estilizado con Tailwind"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 573,
+        "enunciado": "¿Cómo se puede personalizar el estilo de un componente de shadcn/ui?",
+        "respuestas": [
+            "Instalando un tema desde npm",
+            "Usando variables globales de React",
+            "Editando directamente el archivo del componente en `/components/ui`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 574,
+        "enunciado": "¿Qué librería suele usarse junto con shadcn/ui para gestionar clases condicionales?",
+        "respuestas": [
+            "`clsx`",
+            "`lodash`",
+            "`axios`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 575,
+        "enunciado": "¿Qué imprime este código si se usa el componente `Input`?\n```jsx\nimport { Input } from \"@/components/ui/input\";\n<Input placeholder=\"Escribe aquí\" />\n```",
+        "respuestas": [
+            "Un botón",
+            "Un campo de texto estilizado",
+            "Nada"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 576,
+        "enunciado": "¿Qué ventaja tiene shadcn/ui respecto a otras librerías como Material UI?",
+        "respuestas": [
+            "Da control total sobre el código de los componentes porque están dentro del proyecto",
+            "No requiere React",
+            "No necesita Tailwind"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 577,
+        "enunciado": "¿Qué ocurre si se borra un componente agregado con shadcn/ui?",
+        "respuestas": [
+            "Se reinstala automáticamente al ejecutar `npm install`",
+            "El proyecto deja de compilar",
+            "Deja de estar disponible hasta volver a importarlo con `npx shadcn-ui add`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 578,
+        "enunciado": "¿Qué comando muestra la ayuda y lista los componentes disponibles?",
+        "respuestas": [
+            "```bash\nnpx shadcn-ui help\n```",
+            "```bash\nnpm run shadcn\n```",
+            "```bash\nnpx shadcn-ui list\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 579,
+        "enunciado": "¿Qué tipo de componentes incluye shadcn/ui?",
+        "respuestas": [
+            "Únicamente hooks de React",
+            "Botones, inputs, menús, modales, tooltips, etc.",
+            "Solo componentes de gráficos"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 580,
+        "enunciado": "¿Cuál es una limitación de shadcn/ui?",
+        "respuestas": [
+            "No permite personalización de estilos",
+            "No es un paquete npm tradicional, requiere copiar componentes al proyecto",
+            "Solo funciona con Vue"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 581,
+        "enunciado": "¿Qué es Next.js?",
+        "respuestas": [
+            "Un framework de React para construir aplicaciones web con renderizado híbrido",
+            "Un lenguaje de programación",
+            "Una librería de animaciones"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 582,
+        "enunciado": "¿Quién mantiene Next.js?",
+        "respuestas": [
+            "Vercel",
+            "Google",
+            "Meta"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 583,
+        "enunciado": "¿Qué ventaja principal tiene Next.js sobre React puro?",
+        "respuestas": [
+            "Reemplaza completamente a React",
+            "Soporte integrado para renderizado del lado del servidor (SSR)",
+            "Permite usar Java en lugar de JavaScript"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 584,
+        "enunciado": "¿Qué comando se usa para crear un nuevo proyecto Next.js?",
+        "respuestas": [
+            "```bash\nnpx start next\n```",
+            "```bash\nnpx create-next-app@latest\n```",
+            "```bash\nnpm init react-app\n```"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 585,
+        "enunciado": "¿Dónde se definen las páginas en un proyecto Next.js?",
+        "respuestas": [
+            "En la carpeta `views`",
+            "En la carpeta `src`",
+            "En la carpeta `pages`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 586,
+        "enunciado": "¿Qué ocurre al crear un archivo `pages/about.js`?",
+        "respuestas": [
+            "No genera ninguna ruta",
+            "Genera automáticamente la ruta `/about`",
+            "Requiere configuración manual del router"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 587,
+        "enunciado": "¿Qué motor de estilos soporta Next.js de forma nativa?",
+        "respuestas": [
+            "CSS Modules",
+            "Material UI únicamente",
+            "Bootstrap únicamente"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 588,
+        "enunciado": "¿Qué comando inicia el servidor de desarrollo en Next.js?",
+        "respuestas": [
+            "```bash\nnpm run dev\n```",
+            "```bash\nnpm serve\n```",
+            "```bash\nnpm start\n```"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 589,
+        "enunciado": "¿Qué significa SSG en Next.js?",
+        "respuestas": [
+            "Server Side GraphQL",
+            "Simple Server Gateway",
+            "Static Site Generation"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 590,
+        "enunciado": "¿Qué significa SSR en Next.js?",
+        "respuestas": [
+            "Single State Rehydration",
+            "Server Side Rendering",
+            "Static Style Rendering"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 591,
+        "enunciado": "¿Qué hook se usa para obtener la ruta actual?",
+        "respuestas": [
+            "`useLocation`",
+            "`useRouter`",
+            "`usePath`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 592,
+        "enunciado": "¿Qué componente se usa para navegación en Next.js?",
+        "respuestas": [
+            "`<a>` de HTML",
+            "`<Navigate>`",
+            "`<Link>` de `next/link`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 593,
+        "enunciado": "¿Qué imprime este código?\n```jsx\nimport Link from \"next/link\";\n<Link href=\"/contact\">Contacto</Link>\n```",
+        "respuestas": [
+            "Nada",
+            "Un botón",
+            "Un enlace que navega a `/contact` sin recargar la página"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 594,
+        "enunciado": "¿Cómo se definen rutas dinámicas en Next.js?",
+        "respuestas": [
+            "Usando query params solamente",
+            "Creando archivos con corchetes, ejemplo: `[id].js`",
+            "Usando `:id` en el nombre del archivo"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 595,
+        "enunciado": "¿Qué función se usa para obtener datos en el servidor en tiempo de compilación?",
+        "respuestas": [
+            "`getInitialProps`",
+            "`getStaticProps`",
+            "`getServerSideProps`"
+        ],
+        "correcta": 1
+    },
+    {
+        "numero": 596,
+        "enunciado": "¿Qué función se usa para obtener datos en cada request (SSR)?",
+        "respuestas": [
+            "`getStaticProps`",
+            "`getServerSideProps`",
+            "`fetchData`"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 597,
+        "enunciado": "¿Qué función se usa para generar rutas dinámicas en tiempo de compilación?",
+        "respuestas": [
+            "`getPaths`",
+            "`getRoutes`",
+            "`getStaticPaths`"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 598,
+        "enunciado": "¿Qué ocurre si se crea un archivo dentro de `pages/api/`?",
+        "respuestas": [
+            "Se convierte en una página normal",
+            "Da error",
+            "Se convierte en una API route"
+        ],
+        "correcta": 2
+    },
+    {
+        "numero": 599,
+        "enunciado": "¿Qué plataforma está más integrada para desplegar proyectos Next.js?",
+        "respuestas": [
+            "Heroku",
+            "Vercel",
+            "Firebase"
+        ],
+        "correcta": 3
+    },
+    {
+        "numero": 600,
+        "enunciado": "¿Cuál es una ventaja de usar Next.js para SEO?",
+        "respuestas": [
+            "El contenido se puede renderizar en el servidor, mejorando la indexación",
+            "No permite modificar etiquetas `<meta>`",
+            "Usa automáticamente palabras clave en HTML"
+        ],
+        "correcta": 2
+    }
+]
