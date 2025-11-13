@@ -18,7 +18,7 @@ interface AuthStore {
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set: any) => ({
       usuario: null,
       token: null,
       isAuthenticated: false,
@@ -70,18 +70,18 @@ interface CarritoStore {
   setCarrito: (items: CarritoItem[], totales: any) => void;
 }
 
-export const useCarritoStore = create<CarritoStore>((set) => ({
+export const useCarritoStore = create<CarritoStore>((set: any) => ({
   items: [],
   total: 0,
   subtotal: 0,
   iva: 0,
   envio: 0,
   addItem: (item: CarritoItem) => {
-    set((state) => {
-      const existing = state.items.find((i) => i.producto_id === item.producto_id);
+    set((state: any) => {
+      const existing = state.items.find((i: any) => i.producto_id === item.producto_id);
       if (existing) {
         return {
-          items: state.items.map((i) =>
+          items: state.items.map((i: any) =>
             i.producto_id === item.producto_id
               ? { ...i, cantidad: i.cantidad + item.cantidad }
               : i
@@ -94,13 +94,13 @@ export const useCarritoStore = create<CarritoStore>((set) => ({
     });
   },
   removeItem: (producto_id: number) => {
-    set((state) => ({
-      items: state.items.filter((i) => i.producto_id !== producto_id),
+    set((state: any) => ({
+      items: state.items.filter((i: any) => i.producto_id !== producto_id),
     }));
   },
   updateQuantity: (producto_id: number, cantidad: number) => {
-    set((state) => ({
-      items: state.items.map((i) =>
+    set((state: any) => ({
+      items: state.items.map((i: any) =>
         i.producto_id === producto_id ? { ...i, cantidad } : i
       ),
     }));
