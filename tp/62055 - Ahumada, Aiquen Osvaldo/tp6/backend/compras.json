@@ -1,0 +1,42 @@
+[
+    {
+        "id": "dfb3659a-73f4-4a94-ac78-e7eb7523cc62",
+        "user_id": 2,
+        "fecha": "2025-11-10T03:24:01.033587",
+        "items": [
+            {
+                "id": 4,
+                "titulo": "Prenda casual entallada",
+                "precio_unitario": 15.99,
+                "cantidad": 1,
+                "subtotal": 15.99,
+                "iva": 3.36,
+                "imagen": "imagenes/0004.png"
+            },
+            {
+                "id": 3,
+                "titulo": "Chaqueta algodon hombre",
+                "precio_unitario": 55.99,
+                "cantidad": 1,
+                "subtotal": 55.99,
+                "iva": 11.76,
+                "imagen": "imagenes/0003.png"
+            },
+            {
+                "id": 1,
+                "titulo": "Mochila Fjallraven Foldsack",
+                "precio_unitario": 109.95,
+                "cantidad": 1,
+                "subtotal": 109.95,
+                "iva": 23.09,
+                "imagen": "imagenes/0001.png"
+            }
+        ],
+        "resumen": {
+            "subtotal": 181.93,
+            "iva": 38.21,
+            "envio": 50,
+            "total": 270.14
+        }
+    }
+]
