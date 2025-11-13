@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#e5e7eb"/>
+  <circle cx="200" cy="150" r="50" fill="#9ca3af"/>
+  <polygon points="50,250 200,150 350,250 350,350 50,350" fill="#9ca3af"/>
+  <text x="200" y="380" font-size="16" text-anchor="middle" fill="#6b7280">Sin imagen</text>
+</svg>

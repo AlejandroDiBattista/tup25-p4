@@ -230,7 +230,5 @@ $RECYCLE.BIN/
 
 /wapp
 clases/21.gpt/.streamlit/secrets.toml
-/clases/22.gpt/.streamlit
-clases/22.gpt/.streamlit/secrets.toml
-*/.streamlit/secrets.toml
-/clases/ia/ia-streamlit
+
+tmp_frontend_index*.html

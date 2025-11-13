@@ -69,7 +69,7 @@ Content-Type: {{contentType}}
 {
   "nombre": "Juan Pérez",
   "email": "juan.perez@example.com",
-  "password": "miPassword123"
+  "contraseña": "miPassword123"
 }
 
 ### 3.2 - Iniciar sesión

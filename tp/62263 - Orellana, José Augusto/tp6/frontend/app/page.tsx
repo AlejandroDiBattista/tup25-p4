@@ -1,29 +1,24 @@
+import { cookies } from 'next/headers';
 import { obtenerProductos } from './services/productos';
-import ProductoCard from './components/ProductoCard';
+import { obtenerCarrito, obtenerPerfil } from './services/usuarios';
+import ProductCatalog from './components/ProductCatalog';
+import type { Carrito, Usuario } from './types';
 
 export default async function Home() {
   const productos = await obtenerProductos();
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token');
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
-        </div>
-      </header>
+  let usuario: Usuario | null = null;
+  let carrito: Carrito | null = null;
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
-        </div>
-      </main>
-    </div>
-  );
+  if (token) {
+    usuario = await obtenerPerfil(token.value);
+
+    if (usuario) {
+      carrito = await obtenerCarrito(token.value);
+    }
+  }
+
+  return <ProductCatalog productos={productos} usuario={usuario} carrito={carrito} />;
 }

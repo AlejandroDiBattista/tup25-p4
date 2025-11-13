@@ -1,24 +1,41 @@
 # Python-generated files
 __pycache__/
 *.py[oc]
+*.pyo
+*.pyd
 build/
 dist/
 wheels/
 *.egg-info
 .pytest_cache/
+*.log
 
 # Virtual environments
 .venv/
+venv/
+env/
+ENV/
 .env
 .env.*
 .python-version
 
-# Tooling
+# IDE and Tooling
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
 .eslintcache
 
 # Database files
 app.db
+*.db
+*.sqlite
+*.sqlite3
+ecommerce.db
+
+# HTTP test files (opcional - depende si quieres versionarlos)
+# *.http
 
 # Node/Next.js artifacts
 frontend/node_modules/

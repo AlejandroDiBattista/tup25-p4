@@ -94,7 +94,7 @@ tp6/
 │   ├── pyproject.toml       # Dependencias Python
 │   └── README.md
 │
-└── frontend/
+── frontend/
     ├── app/
     │   ├── page.tsx         # Página principal
     │   ├── layout.tsx       # Layout general
@@ -105,7 +105,7 @@ tp6/
     │   │   └── productos.ts
     │   └── types.ts         # Tipos TypeScript
     ├── public/              # Archivos estáticos
-    ├── package.json         # Dependencias Node.js
+    ├── package.jso└n         # Dependencias Node.js
     ├── next.config.ts       # Configuración Next.js
     ├── tailwind.config.js   # Configuración Tailwind
     └── tsconfig.json        # Configuración TypeScript

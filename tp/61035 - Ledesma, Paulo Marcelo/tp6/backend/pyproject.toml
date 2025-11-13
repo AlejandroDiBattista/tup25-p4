@@ -1,13 +1,17 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "TP6 FastAPI + SQLModel"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
+
 dependencies = [
     "fastapi>=0.115.5",
     "sqlmodel>=0.0.27",
     "uvicorn[standard]>=0.32.1",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib>=1.7.4",
+    "python-multipart>=0.0.7",
 ]
 
 [dependency-groups]

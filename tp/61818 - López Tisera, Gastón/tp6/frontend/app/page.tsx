@@ -1,29 +1,45 @@
-import { obtenerProductos } from './services/productos';
-import ProductoCard from './components/ProductoCard';
+import { ProductCatalogWithCart } from "@/components/catalog/ProductCatalogWithCart";
+import { fetchProductos } from "@/lib/products";
 
-export default async function Home() {
-  const productos = await obtenerProductos();
+type PageSearchParams =
+  | Record<string, string | string[] | undefined>
+  | Promise<Record<string, string | string[] | undefined>>;
+
+async function resolveSearchParams(
+  searchParams?: PageSearchParams,
+): Promise<Record<string, string | string[] | undefined>> {
+  if (!searchParams) {
+    return {};
+  }
+  return (await Promise.resolve(searchParams)) ?? {};
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: PageSearchParams;
+}) {
+  const params = await resolveSearchParams(searchParams);
+
+  const search =
+    typeof params.search === "string" ? params.search.trim() : undefined;
+  const categoria =
+    typeof params.categoria === "string" ? params.categoria : undefined;
+
+  const [catalogoCompleto, productosFiltrados] = await Promise.all([
+    fetchProductos(),
+    fetchProductos({ search, categoria }),
+  ]);
+
+  const categoriasDisponibles = Array.from(
+    new Set(catalogoCompleto.map((producto) => producto.categoria)),
+  ).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
-        </div>
-      </main>
-    </div>
+    <ProductCatalogWithCart
+      productos={productosFiltrados}
+      categorias={categoriasDisponibles}
+      filters={{ search, categoria }}
+    />
   );
 }

@@ -3,6 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --bg: #f7f8fa;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #6b7280;
+  --accent: #0b1726;
 }
 
 @theme inline {
@@ -20,7 +25,144 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  font-family: Inter, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 12px auto;
+  padding: 0 16px;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.search {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+}
+
+.select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product-card {
+  display: flex;
+  gap: 16px;
+  background: var(--card);
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #e9eef2;
+  align-items: flex-start;
+}
+
+.thumb {
+  width: 160px;
+  height: 100px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: #f1f5f9;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.info h3 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+}
+
+.desc {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 900px) {
+  .row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.price {
+  font-weight: 700;
+}
+
+.stock {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.btn-add {
+  background: #0b1726;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

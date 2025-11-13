@@ -19,6 +19,8 @@ wheels/
 
 # Database files
 app.db
+ecommerce.db
+*.db
 
 # Node/Next.js artifacts
 frontend/node_modules/

@@ -1,0 +1,82 @@
+[
+  {
+    "nombre": "Camiseta deportiva",
+    "categoria": "Ropa",
+    "precio": 500,
+    "stock": 20,
+    "descripcion": "Camiseta ligera ideal para entrenamiento.",
+    "imagen": "camiseta.jpg"
+  },
+  {
+    "nombre": "Auriculares Bluetooth",
+    "categoria": "Electrónica",
+    "precio": 1500,
+    "stock": 10,
+    "descripcion": "Auriculares inalámbricos con micrófono.",
+    "imagen": "auriculares.jpg"
+  },
+  {
+    "nombre": "Zapatillas running",
+    "categoria": "Ropa",
+    "precio": 2500,
+    "stock": 8,
+    "descripcion": "Zapatillas deportivas cómodas y duraderas.",
+    "imagen": "zapatillas.jpg"
+  },
+  {
+    "nombre": "Pantalón Cargo",
+    "categoria": "Ropa",
+    "precio": 1200,
+    "stock": 15,
+    "descripcion": "Pantalón cargo con múltiples bolsillos.",
+    "imagen": "pantalon.jpg"
+  },
+  {
+    "nombre": "Gorra deportiva",
+    "categoria": "Accesorios",
+    "precio": 300,
+    "stock": 25,
+    "descripcion": "Gorra ajustable para cualquier deporte.",
+    "imagen": "gorra.jpg"
+  },
+  {
+    "nombre": "Mochila urbana",
+    "categoria": "Accesorios",
+    "precio": 800,
+    "stock": 12,
+    "descripcion": "Mochila resistente con múltiples compartimentos.",
+    "imagen": "mochila.jpg"
+  },
+  {
+    "nombre": "Reloj deportivo",
+    "categoria": "Electrónica",
+    "precio": 2000,
+    "stock": 7,
+    "descripcion": "Reloj inteligente con monitor de frecuencia cardíaca.",
+    "imagen": "reloj.jpg"
+  },
+  {
+    "nombre": "Sudadera con capucha",
+    "categoria": "Ropa",
+    "precio": 900,
+    "stock": 18,
+    "descripcion": "Sudadera cómoda y abrigada.",
+    "imagen": "sudadera.jpg"
+  },
+  {
+    "nombre": "Shorts deportivos",
+    "categoria": "Ropa",
+    "precio": 450,
+    "stock": 22,
+    "descripcion": "Shorts ligeros para entrenamiento.",
+    "imagen": "shorts.jpg"
+  },
+  {
+    "nombre": "Botella de agua deportiva",
+    "categoria": "Accesorios",
+    "precio": 250,
+    "stock": 30,
+    "descripcion": "Botella reutilizable de 1 litro.",
+    "imagen": "botella.jpg"
+  }
+]

@@ -19,6 +19,10 @@ wheels/
 
 # Database files
 app.db
+database.db
+
+# Python package manager lock (uv)
+uv.lock
 
 # Node/Next.js artifacts
 frontend/node_modules/

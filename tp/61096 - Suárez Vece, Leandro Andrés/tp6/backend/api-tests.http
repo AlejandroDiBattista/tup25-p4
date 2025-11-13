@@ -289,6 +289,12 @@ GET {{baseUrl}}/compras
 Accept: {{contentType}}
 Authorization: Bearer {{login_test.response.body.access_token}}
 
+### 8.9 - Ver historial de compras
+
+GET {{baseUrl}}/compras/1
+Accept: {{contentType}}
+Authorization: Bearer {{login_test.response.body.access_token}}
+
 
 ### ========================================
 ### NOTAS IMPORTANTES

@@ -105,10 +105,7 @@ Authorization: Bearer {{token}}
 ### 4. CARRITO DE COMPRAS
 ### ========================================
 
-### 4.1 - Ver carrito actual (requiere autenticación)
-GET {{baseUrl}}/carrito
-Accept: {{contentType}}
-Authorization: Bearer {{token}}
+
 
 ### 4.2 - Agregar producto al carrito
 POST {{baseUrl}}/carrito
@@ -116,8 +113,8 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 {
-  "producto_id": 1,
-  "cantidad": 2
+  "producto_id": 4,
+  "cantidad": 1
 }
 
 ### 4.3 - Agregar otro producto al carrito
@@ -131,7 +128,7 @@ Authorization: Bearer {{token}}
 }
 
 ### 4.4 - Quitar producto del carrito
-DELETE {{baseUrl}}/carrito/1
+DELETE {{baseUrl}}/carrito/4
 Authorization: Bearer {{token}}
 
 ### 4.5 - Intentar agregar producto sin existencia (debe fallar)
@@ -150,6 +147,13 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 
+### 4.7 - Limpiar carritos abiertos (admin)
+POST {{baseUrl}}/admin/limpiar_carritos_abiertos
+
+### 4.8 - Limpiar carrito BD
+POST {{baseUrl}}/admin/limpiar_todo
+
+
 ### ========================================
 ### 5. FINALIZAR COMPRA
 ### ========================================
@@ -161,7 +165,7 @@ Authorization: Bearer {{token}}
 
 {
   "producto_id": 6,
-  "cantidad": 2
+  "cantidad": 1
 }
 
 ### 5.2 - Finalizar compra
@@ -266,7 +270,7 @@ Authorization: Bearer {{login_test.response.body.access_token}}
 
 {
   "producto_id": 11,
-  "cantidad": 2
+  "cantidad": 1
 }
 
 ### 8.6 - Ver contenido del carrito

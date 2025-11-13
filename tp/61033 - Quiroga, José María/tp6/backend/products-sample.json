@@ -1,0 +1,202 @@
+﻿[
+    {
+        "id":  1,
+        "titulo":  "Mochila Fjallraven Foldsack",
+        "precio":  109.95,
+        "descripcion":  "Mochila resistente para uso diario con funda acolchada para laptop de 15 pulgadas.",
+        "categoria":  "Ropa de hombre",
+        "valoracion":  3.9,
+        "existencia":  5,
+        "imagen":  "imagenes/0001.png"
+    },
+    {
+        "id":  2,
+        "titulo":  "Camiseta ajustada premium",
+        "precio":  22.3,
+        "descripcion":  "Camiseta entallada de mangas raglÃ¡n, tejido ligero y cÃ³modo para estilo casual.",
+        "categoria":  "Ropa de hombre",
+        "valoracion":  4.1,
+        "existencia":  5,
+        "imagen":  "imagenes/0002.png"
+    },
+    {
+        "id":  3,
+        "titulo":  "Chaqueta algodon hombre",
+        "precio":  55.99,
+        "descripcion":  "Chaqueta ligera de algodÃ³n para hombre, ideal para actividades al aire libre en clima frÃ­o.",
+        "categoria":  "Ropa de hombre",
+        "valoracion":  4.7,
+        "existencia":  5,
+        "imagen":  "imagenes/0003.png"
+    },
+    {
+        "id":  4,
+        "titulo":  "Prenda casual entallada",
+        "precio":  15.99,
+        "descripcion":  "Prenda casual entallada para hombre con ajuste cÃ³modo; verifica talles antes de comprar.",
+        "categoria":  "Ropa de hombre",
+        "valoracion":  2.1,
+        "existencia":  5,
+        "imagen":  "imagenes/0004.png"
+    },
+    {
+        "id":  5,
+        "titulo":  "Pulsera Legends Naga",
+        "precio":  695,
+        "descripcion":  "Pulsera Legends Naga inspirada en dragÃ³n acuÃ¡tico, brinda protecciÃ³n o atrae abundancia.",
+        "categoria":  "JoyerÃ­a",
+        "valoracion":  4.6,
+        "existencia":  5,
+        "imagen":  "imagenes/0005.png"
+    },
+    {
+        "id":  6,
+        "titulo":  "Anillo oro micropave",
+        "precio":  168,
+        "descripcion":  "Anillo de oro micropavÃ© con garantÃ­a de satisfacciÃ³n y cambios dentro de 30 dÃ­as.",
+        "categoria":  "JoyerÃ­a",
+        "valoracion":  3.9,
+        "existencia":  5,
+        "imagen":  "imagenes/0006.png"
+    },
+    {
+        "id":  7,
+        "titulo":  "Anillo princesa plata",
+        "precio":  9.99,
+        "descripcion":  "Anillo princesa chapado en plata, regalo ideal para compromisos, bodas o aniversarios.",
+        "categoria":  "JoyerÃ­a",
+        "valoracion":  3,
+        "existencia":  5,
+        "imagen":  "imagenes/0007.png"
+    },
+    {
+        "id":  8,
+        "titulo":  "Aros Pierced Owl rosa",
+        "precio":  10.99,
+        "descripcion":  "Aros Pierced Owl tÃºnel doble en acero inoxidable chapado en oro rosa.",
+        "categoria":  "JoyerÃ­a",
+        "valoracion":  1.9,
+        "existencia":  5,
+        "imagen":  "imagenes/0008.png"
+    },
+    {
+        "id":  9,
+        "titulo":  "Disco duro WD 2TB",
+        "precio":  64,
+        "descripcion":  "Disco duro portÃ¡til WD 2TB USB 3.0, rÃ¡pido y compatible con mÃºltiples sistemas.",
+        "categoria":  "ElectrÃ³nica",
+        "valoracion":  3.3,
+        "existencia":  5,
+        "imagen":  "imagenes/0009.png"
+    },
+    {
+        "id":  10,
+        "titulo":  "SanDisk SSD Plus 1TB",
+        "precio":  109,
+        "descripcion":  "SanDisk SSD Plus 1TB mejora arranque y carga de aplicaciones con velocidades de 535 MB/s.",
+        "categoria":  "ElectrÃ³nica",
+        "valoracion":  2.9,
+        "existencia":  5,
+        "imagen":  "imagenes/0010.png"
+    },
+    {
+        "id":  11,
+        "titulo":  "Silicon Power SSD 256GB",
+        "precio":  109,
+        "descripcion":  "Silicon Power SSD 256GB con cachÃ© SLC, arranque veloz y soporte TRIM, RAID y ECC.",
+        "categoria":  "ElectrÃ³nica",
+        "valoracion":  4.8,
+        "existencia":  5,
+        "imagen":  "imagenes/0011.png"
+    },
+    {
+        "id":  12,
+        "titulo":  "WD Disco PS4 4TB",
+        "precio":  114,
+        "descripcion":  "Disco externo WD 4TB para PS4, configuraciÃ³n rÃ¡pida y diseÃ±o portÃ¡til para llevar juegos.",
+        "categoria":  "ElectrÃ³nica",
+        "valoracion":  4.8,
+        "existencia":  5,
+        "imagen":  "imagenes/0012.png"
+    },
+    {
+        "id":  13,
+        "titulo":  "Monitor Acer SB220Q",
+        "precio":  599,
+        "descripcion":  "Monitor Acer SB220Q Full HD 21.5 pulgadas, panel IPS delgado con FreeSync 75 Hz.",
+        "categoria":  "ElectrÃ³nica",
+        "valoracion":  2.9,
+        "existencia":  5,
+        "imagen":  "imagenes/0013.png"
+    },
+    {
+        "id":  14,
+        "titulo":  "Monitor curvo Samsung 49",
+        "precio":  999.99,
+        "descripcion":  "Monitor curvo Samsung 49 pulgadas QLED, 144 Hz y 1 ms para gaming inmersivo.",
+        "categoria":  "ElectrÃ³nica",
+        "valoracion":  2.2,
+        "existencia":  5,
+        "imagen":  "imagenes/0014.png"
+    },
+    {
+        "id":  15,
+        "titulo":  "Chaqueta snowboard mujer",
+        "precio":  56.99,
+        "descripcion":  "Chaqueta snowboard mujer 3 en 1, forro polar desmontable y mÃºltiples bolsillos seguros.",
+        "categoria":  "Ropa de mujer",
+        "valoracion":  2.6,
+        "existencia":  5,
+        "imagen":  "imagenes/0015.png"
+    },
+    {
+        "id":  16,
+        "titulo":  "Chaqueta biker sintetica",
+        "precio":  29.95,
+        "descripcion":  "Chaqueta biker sintÃ©tica con capucha removible, bolsillos frontales y cuidados fÃ¡ciles.",
+        "categoria":  "Ropa de mujer",
+        "valoracion":  2.9,
+        "existencia":  5,
+        "imagen":  "imagenes/0016.png"
+    },
+    {
+        "id":  17,
+        "titulo":  "Chaqueta impermeable rayas",
+        "precio":  39.99,
+        "descripcion":  "Chaqueta impermeable con capucha y cordÃ³n ajustable, ligera y ideal para viajes.",
+        "categoria":  "Ropa de mujer",
+        "valoracion":  3.8,
+        "existencia":  5,
+        "imagen":  "imagenes/0017.png"
+    },
+    {
+        "id":  18,
+        "titulo":  "Camiseta cuello barco MBJ",
+        "precio":  9.85,
+        "descripcion":  "Camiseta cuello barco MBJ, tejido ligero elÃ¡stico y costuras dobles para comodidad.",
+        "categoria":  "Ropa de mujer",
+        "valoracion":  4.7,
+        "existencia":  5,
+        "imagen":  "imagenes/0018.png"
+    },
+    {
+        "id":  19,
+        "titulo":  "Camiseta Opna secado rapido",
+        "precio":  7.95,
+        "descripcion":  "Camiseta Opna con tejido que absorbe humedad, ligera, cÃ³moda y cuello en V.",
+        "categoria":  "Ropa de mujer",
+        "valoracion":  4.5,
+        "existencia":  5,
+        "imagen":  "imagenes/0019.png"
+    },
+    {
+        "id":  20,
+        "titulo":  "Camiseta Danvouy algodon",
+        "precio":  12.99,
+        "descripcion":  "Camiseta Danvouy de algodÃ³n, estampado casual y tejido suave con ligera elasticidad.",
+        "categoria":  "Ropa de mujer",
+        "valoracion":  3.6,
+        "existencia":  5,
+        "imagen":  "imagenes/0020.png"
+    }
+]
