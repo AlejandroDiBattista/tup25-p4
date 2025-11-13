@@ -26,6 +26,44 @@ Desarrollo de un sitio de comercio electrónico simple utilizando usando React p
 - Frontend: React (Usando next.js con Tailwind CSS & Shadcn UI)
 - Backend: FastAPI (API RESTful, SQLModel + SQLite)
 
+## Cómo ejecutar (PowerShell)
+
+A continuación hay comandos mínimos para levantar el proyecto en Windows PowerShell desde la raíz del repositorio.
+
+- Levantar el backend (usar el virtualenv del backend si está disponible):
+
+```powershell
+cd tp\61033 - Quiroga, José María\tp6\backend
+# activar virtualenv si corresponde (ejemplo):
+# .\.venv\Scripts\Activate.ps1
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+- Levantar el frontend en modo desarrollo (Next.js):
+
+```powershell
+cd tp\61033 - Quiroga, José María\tp6\next-app
+npm install
+npm run dev
+# por defecto Next arranca en http://localhost:3000
+```
+
+- Comandos útiles para producción / compilado (desde `next-app`):
+
+```powershell
+npm ci
+npm run build
+npm run start
+```
+
+Nota: si no querés o no podés compilar el frontend en producción, podés usar el servidor de desarrollo (`npm run dev`) para la presentación local.
+
+## Scripts y utilidades
+
+- `backend/scripts/seed_db.py`: script para recrear y poblar la base de datos de ejemplo.
+- `docker-compose.yml`, `backend/Dockerfile` y `next-app/Dockerfile`: archivos para levantar la aplicación con Docker (opcional).
+
+
 ## Estructura de la base de datos
     - Usuario: id, nombre, email, contraseña (hashed)
     - Producto: id, nombre, descripción, precio, categoría, existencia
@@ -77,6 +115,31 @@ Desarrollo de un sitio de comercio electrónico simple utilizando usando React p
 - Implementar manejo de errores adecuado (e.g., usuario no encontrado, producto agotado).
 - Cargar datos iniciales de productos en la base de datos para pruebas.
 - Los datos de los productos se encuentran en el archivo `productos.json`, las imágenes en la carpeta `/imagenes`.
+
+## Nota importante sobre el build de producción del frontend
+
+Durante la verificación final se detectaron dos problemas que pueden hacer que `npm run build` (Next/Turbopack) falle en entornos distintos al desarrollo local:
+
+1) Bloqueo de archivo nativo SWC (EPERM)
+   - Mensaje típico: "EPERM: operation not permitted, unlink ... next-swc.win32-x64-msvc.node".
+   - Causa habitual: el binario nativo de SWC está siendo usado por otro proceso (por ejemplo, un servidor Next en ejecución, un editor o un proceso Node en segundo plano) y Windows impide reemplazarlo.
+   - Solución/Workaround:
+    - Asegurate de cerrar servidores Next/Node en ejecución y cerrar editores que puedan estar usando módulos (VS Code con extensiones que ejecuten procesos Node). Si persiste, reiniciar Windows libera los locks.
+
+2) PostCSS / Tailwind y Turbopack (plugin requerido)
+   - Mensaje típico: "It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin... install `@tailwindcss/postcss` and update PostCSS config.".
+   - Causa: versiones recientes de Next/Turbopack esperan que Tailwind se use mediante el plugin `@tailwindcss/postcss` en `postcss.config.cjs` en lugar de pasar `tailwindcss` directo cuando PostCSS es evaluado por Turbopack.
+   - Solución/Workaround:
+    - Instalar el plugin en `next-app`:
+
+```powershell
+cd tp\61033 - Quiroga, José María\tp6\next-app
+npm install --save-dev @tailwindcss/postcss
+```
+
+    - Actualizar `postcss.config.cjs` para usar `require('@tailwindcss/postcss')` en lugar de `require('tailwindcss')` como plugin PostCSS cuando corresponda.
+
+Si necesitás, puedo aplicar estos cambios y reintentar el `npm run build` para dejar el repo listo para CI/producción. Para la entrega inmediata, está bien hacer push ahora y presentar desde tu máquina: el frontend en modo desarrollo funciona correctamente y el backend pasó los tests.
 
 
 ## Instrucciones para la entrega.
