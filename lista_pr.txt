@@ -1,0 +1,352 @@
+TP1 - 61572 - Parrado Navarrete, Alex Daniel 
+TP1 - 61131 - Agostino Colombres, Juan Manuel 
+TP1 - 61627 - Juárez Fernández, Lourdes Abril 
+TP1 - 61315 - Robles, Thiago 
+TP1 - 61911 - Llanos, Luciano 
+TP1 - 61221 - Duclós, Marcelo Ezequiel 
+TP1 - 61579 - Gonzalo, Martín 
+TP1 - 61312 - Paz Berrondo, Lucas David 
+TP1 - 61033 - Quiroga, José María 
+TP1 - 62555 - Verón, Matías Gabriel 
+TP1 - 61096 - Suárez Vece, Leandro Andrés 
+TP1 - 61032 - Moya, Mariano 
+TP1 - 61271 - Donelli, Gerardo Exequíel 
+TP1 - 61719 - Amoedo, Pablo Isaías 
+TP1 - 62172 - Salcedo, Mariana Aylén 
+TP1 - 61319 - Carabajal, José Gabriel 
+TP1 - 61139 - Gallo, María Matilde 
+TP1 - 61037 - Paz, Rodrigo Federico 
+TP1 - 61445 - Martínez Campero, Santiago 
+TP1 - 61046 - Ponce, Luz Micaela 
+TP1 - 61335 - León, Lucas Ismael 
+TP1 - 61478 - Soto, Antonella 
+TP1 - 61200 - Gauna Serrano, Martín Javier 
+TP1 - 61626 - Díaz Londero, Sergio Gonzalo 
+TP1 - 61240 - Timo, Héctor Gabriel 
+TP1 - 61167 - Giacobbe, Franco 
+TP1 - 61035 - Ledesma, Paulo Marcelo 
+TP1 - 61725 - Villagra, Jorge Sebastián 
+TP1 - 61450 - Jiménez Paz, Patricio Agustín 
+TP1 - 61794 - Lobo Campero, Hernán Ignacio 
+TP1 - 61793 - Trujillo, Facundo Nahuel 
+TP1 - 62175 - Quiroga, Marcela Noemí 
+TP1 - 61473 - Lagoria García, Tomás Gustavo 
+TP1 - 61565 - Carrizo, Mauro 
+TP1 - 61468 - Samaniego, Esteban Maximiliano 
+TP1 - 54911 - Jatib, Rodrigo Gabriel 
+TP1 - 61667 - Acosta, Maira 
+TP1 - 62053 - Herrera Palomino, Iván Agustín 
+TP1 - 61338 - Morales, Juan Daniel 
+TP1 - 61115 - Ledesma, Santiago Esteban 
+TP1 - 61073 - González Chavez, Rodrigo 
+TP1 - 61028 - Ponce, Rodrigo Exequíel 
+TP1 - 61129 - Tello, Abril María Agostina 
+TP1 - 61236 - Drachenberg, Franco Eduardo 
+TP1 - 61805 - Jerez, Tomás 
+TP1 - 61136 - Sosa, Oscar Ignacio 
+TP1 - 61120 - Guerrero, Ana Sofía 
+TP1 - 61113 - Oríz Caballero, Juan José 
+TP1 - 61150 - Molina Navarro, Juan Martín 
+TP1 - 61198 - Ferreyra Appas, Santiago Nicolás 
+TP1 - 61472 - Díaz, Julieta Camila 
+TP1 - 62263 - Orellana, José Augusto 
+TP1 - 61248 - Palma Collado, Nahuel 
+TP1 - 61197 - Romano, Alfredo Nicolás 
+TP1 - 61551 - Díaz Valdez, Ignacio 
+TP1 - 62318 - Quiroga Castro, Lisandro 
+TP1 - 61818 - López Tisera, Gastón 
+TP1 - 61141 - Di Clemente, María Antonela 
+TP1 - 62093 - Frías Silva, Juan Segundo 
+TP2 - 61572 - Parrado Navarrete, Alex Daniel 
+TP2 - 61200 - Gauna Serrano, Martín Javier 
+TP2 - 61579 - Gonzalo, Martín 
+TP2 - 61315 - Robles, Thiago 
+TP2 - 61719 - Amoedo, Pablo Isaías 
+TP2 - 61271 - Donelli, Gerardo Exequíel 
+TP2 - 61221 - Duclós, Marcelo Ezequiel 
+TP2 - 61338 - Morales, Juan Daniel 
+TP1 - 61203 - Acevedo Costello, Juan Ignacio 
+TP2 - 61203 - Acevedo Costello, Juan Ignacio 
+TP2 - 61073 - González Chavez, Rodrigo 
+TP2 - 61033 - Quiroga, José María 
+TP2 - 61131 - Agostino Colombres, Juan Manuel 
+TP2 - 61312 - Paz Berrondo, Lucas David 
+TP2 - 61037 - Paz, Rodrigo Federico 
+TP2 - 61240 - Timo, Héctor Gabriel 
+TP2 - 61626 - Díaz Londero, Sergio Gonzalo 
+TP2 - 61167 - Giacobbe, Franco 
+TP2 - 62093 - Frías Silva, Juan Segundo 
+TP2 - 61473 - Lagoria García, Tomás Gustavo 
+TP2 - 61624 - Godoy, Alan 
+TP2 - 62055 - Ahumada, Aiquen Osvaldo 
+TP2 - 61445 - Martínez Campero, Santiago 
+TP2 - 62053 - Herrera Palomino, Iván Agustín 
+TP2 - 61198 - Ferreyra Appas, Santiago Nicolás 
+TP2 - 61627 - Juárez Fernández, Lourdes Abril 
+TP2 - 61136 - Sosa, Oscar Ignacio 
+TP2 - 62555 - Verón, Matías Gabriel 
+TP2 - 61911 - Llanos, Luciano 
+TP2 - 61046 - Ponce, Luz Micaela 
+TP2 - 61335 - León, Lucas Ismael 
+TP2 - 61115 - Ledesma, Santiago Esteban 
+TP2 - 61236 - Drachenberg, Franco Eduardo 
+TP2 - 61478 - Soto, Antonella 
+TP2 - 61084 - Ramírez, Leonardo 
+TP2 - 61818 - López Tisera, Gastón 
+TP2 - 61725 - Villagra, Jorge Sebastián 
+TP2 - 61028 - Ponce, Rodrigo Exequíel 
+TP2 - 61468 - Samaniego, Esteban Maximiliano 
+TP2 - 62263 - Orellana, José Augusto 
+TP2 - 61035 - Ledesma, Paulo Marcelo 
+TP2 - 61794 - Lobo Campero, Hernán Ignacio 
+TP2 - 61676 - Massey, Maximiliano 
+TP2 - 61113 - Oríz Caballero, Juan José 
+TP2 - 61793 - Trujillo, Facundo Nahuel 
+TP2 - 61319 - Carabajal, José Gabriel 
+TP2 - 61150 - Molina Navarro, Juan Martín 
+TP2 - 54911 - Jatib, Rodrigo Gabriel 
+TP2 - 61032 - Moya, Mariano 
+TP2 - 61450 - Jiménez Paz, Patricio Agustín 
+TP2 - 61141 - Di Clemente, María Antonela 
+TP2 - 61139 - Gallo, María Matilde 
+TP2 - 61248 - Palma Collado, Nahuel 
+TP2 - 61197 - Romano, Alfredo Nicolás 
+TP2 - 61667 - Acosta, Maira 
+TP2 - 61096 - Suárez Vece, Leandro Andrés 
+TP2 - 61129 - Tello, Abril María Agostina 
+TP3 - 62555 - Verón, Matías Gabriel 
+TP3 - 61131 - Agostino Colombres, Juan Manuel 
+TP3 - 61911 - Llanos, Luciano 
+TP3 - 61139 - Gallo, María Matilde 
+TP3 - 61046 - Ponce, Luz Micaela 
+TP3 - 61338 - Morales, Juan Daniel 
+TP3 - 61035 - Ledesma, Paulo Marcelo 
+TP3 - 61572 - Parrado Navarrete, Alex Daniel 
+TP3 - 61167 - Giacobbe, Franco 
+TP3 - 61312 - Paz Berrondo, Lucas David 
+TP3 - 61315 - Robles, Thiago 
+TP3 - 62093 - Frías Silva, Juan Segundo 
+TP3 - 61626 - Díaz Londero, Sergio Gonzalo 
+TP3 - 61150 - Molina Navarro, Juan Martín 
+TP3 - 61818 - López Tisera, Gastón 
+TP3 - 62055 - Ahumada, Aiquen Osvaldo 
+TP3 - 61221 - Duclós, Marcelo Ezequiel 
+TP3 - 61073 - González Chavez, Rodrigo 
+TP3 - 61037 - Paz, Rodrigo Federico 
+TP3 - 61725 - Villagra, Jorge Sebastián 
+TP3 - 61240 - Timo, Héctor Gabriel 
+TP3 - 61200 - Gauna Serrano, Martín Javier 
+TP3 - 61445 - Martínez Campero, Santiago 
+TP3 - 61627 - Juárez Fernández, Lourdes Abril 
+TP3 - 61335 - León, Lucas Ismael 
+TP3 - 61141 - Di Clemente, María Antonela 
+TP3 - 61032 - Moya, Mariano 
+TP3 - 61115 - Ledesma, Santiago Esteban 
+TP3 - 61794 - Lobo Campero, Hernán Ignacio 
+TP3 - 62263 - Orellana, José Augusto 
+TP3 - 61197 - Romano, Alfredo Nicolás 
+TP3 - 61793 - Trujillo, Facundo Nahuel 
+TP3 - 61136 - Sosa, Oscar Ignacio 
+TP3 - 61478 - Soto, Antonella 
+TP3 - 61033 - Quiroga, José María 
+TP3 - 61468 - Samaniego, Esteban Maximiliano 
+TP3 - 61271 - Donelli, Gerardo Exequíel 
+TP3 - 61719 - Amoedo, Pablo Isaías 
+TP3 - 62053 - Herrera Palomino, Iván Agustín 
+TP3 - 61579 - Gonzalo, Martín 
+TP3 - 61667 - Acosta, Maira 
+TP3 - 54911 - Jatib, Rodrigo Gabriel 
+TP3 - 61473 - Lagoria García, Tomás Gustavo 
+TP3 - 61028 - Ponce, Rodrigo Exequíel 
+TP3 - 61236 - Drachenberg, Franco Eduardo 
+TP3 - 61198 - Ferreyra Appas, Santiago Nicolás 
+TP3 - 61319 - Carabajal, José Gabriel 
+TP3 - 61084 - Ramírez, Leonardo 
+TP3 - 61551 - Díaz Valdez, Ignacio 
+TP3 - 61113 - Oríz Caballero, Juan José 
+TP3 - 61203 - Acevedo Costello, Juan Ignacio 
+TP3 - 62175 - Quiroga, Marcela Noemí 
+TP3 - 61565 - Carrizo, Mauro 
+TP3 - 61129 - Tello, Abril María Agostina 
+TP3 - 61248 - Palma Collado, Nahuel 
+TP2 - 61472 - Díaz, Julieta Camila 
+TP3 - 61993 - Medina, Juan Ignacio 
+TP3 - 61676 - Massey, Maximiliano 
+TP3 - 61450 - Jiménez Paz, Patricio Agustín 
+TP3 - 61096 - Suárez Vece, Leandro Andrés 
+TP2 - 62172 - Salcedo, Mariana Aylén 
+TP4 - 61200 - Gauna Serrano, Martín Javier 
+TP4 - 61037 - Paz, Rodrigo Federico 
+TP4 - 61035 - Ledesma, Paulo Marcelo 
+TP4 - 61115 - Ledesma, Santiago Esteban 
+TP4 - 62263 - Orellana, José Augusto 
+TP4 - 61028 - Ponce, Rodrigo Exequíel 
+TP4 - 61315 - Robles, Thiago 
+TP4 - 61221 - Duclós, Marcelo Ezequiel 
+TP4 - 61312 - Paz Berrondo, Lucas David 
+TP4 - 61473 - Lagoria García, Tomás Gustavo 
+TP4 - 61131 - Agostino Colombres, Juan Manuel 
+TP4 - 61338 - Morales, Juan Daniel 
+TP4 - 61240 - Timo, Héctor Gabriel 
+TP4 - 54911 - Jatib, Rodrigo Gabriel 
+TP4 - 61197 - Romano, Alfredo Nicolás 
+TP4 - 61198 - Ferreyra Appas, Santiago Nicolás 
+TP4 - 61150 - Molina Navarro, Juan Martín 
+TP4 - 61725 - Villagra, Jorge Sebastián 
+TP4 - 61445 - Martínez Campero, Santiago 
+TP4 - 61271 - Donelli, Gerardo Exequíel 
+TP4 - 61794 - Lobo Campero, Hernán Ignacio 
+TP4 - 61033 - Quiroga, José María 
+TP4 - 61676 - Massey, Maximiliano 
+TP4 - 61911 - Llanos, Luciano 
+TP4 - 61818 - López Tisera, Gastón 
+TP4 - 61073 - González Chavez, Rodrigo 
+TP4 - 61667 - Acosta, Maira 
+TP4 - 61572 - Parrado Navarrete, Alex Daniel 
+TP4 - 61793 - Trujillo, Facundo Nahuel 
+TP4 - 61627 - Juárez Fernández, Lourdes Abril 
+TP4 - 61248 - Palma Collado, Nahuel 
+TP4 - 61579 - Gonzalo, Martín 
+TP4 - 61468 - Samaniego, Esteban Maximiliano 
+TP4 - 61046 - Ponce, Luz Micaela 
+TP4 - 61236 - Drachenberg, Franco Eduardo 
+TP4 - 61719 - Amoedo, Pablo Isaías 
+TP4 - 61335 - León, Lucas Ismael 
+TP4 - 61478 - Soto, Antonella 
+TP4 - 61551 - Díaz Valdez, Ignacio 
+TP4 - 61084 - Ramírez, Leonardo 
+TP4 - 61450 - Jiménez Paz, Patricio Agustín 
+TP4 - 61993 - Medina, Juan Ignacio 
+TP4 - 61113 - Oríz Caballero, Juan José 
+TP4 - 61167 - Giacobbe, Franco 
+TP4 - 61565 - Carrizo, Mauro 
+TP4 - 62175 - Quiroga, Marcela Noemí 
+TP4 - 62053 - Herrera Palomino, Iván Agustín 
+TP4 - 61032 - Moya, Mariano 
+TP5 - 61096 - Suárez Vece, Leandro Andrés 
+TP5 - 62555 - Verón, Matías Gabriel 
+TP5 - 61626 - Díaz Londero, Sergio Gonzalo 
+TP4 - 61129 - Tello, Abril María Agostina 
+TP5 - 62263 - Orellana, José Augusto 
+TP5 - 61315 - Robles, Thiago 
+TP5 - 62055 - Ahumada, Aiquen Osvaldo 
+TP5 - 61131 - Agostino Colombres, Juan Manuel 
+TP5 - 61445 - Martínez Campero, Santiago 
+TP5 - 61028 - Ponce, Rodrigo Exequíel 
+TP5 - 61271 - Donelli, Gerardo Exequíel 
+TP5 - 61115 - Ledesma, Santiago Esteban 
+TP5 - 61676 - Massey, Maximiliano 
+TP5 - 61035 - Ledesma, Paulo Marcelo 
+TP5 - 54911 - Jatib, Rodrigo Gabriel 
+TP5 - 61338 - Morales, Juan Daniel 
+TP5 - 61096 - Suárez Vece, Leandro Andrés 
+TP5 - 61221 - Duclós, Marcelo Ezequiel 
+TP5 - 61312 - Paz Berrondo, Lucas David 
+TP5 - 61141 - Di Clemente, María Antonela 
+TP5 - 61139 - Gallo, María Matilde 
+TP5 - 61141 - Di Clemente, María Antonela 
+TP5 - 61139 - Gallo, María Matilde 
+TP5 - 61240 - Timo, Héctor Gabriel 
+TP5 - 61319 - Carabajal, José Gabriel 
+TP5 - 61236 - Drachenberg, Franco Eduardo 
+TP5 - 62555 - Verón, Matías Gabriel 
+TP5 - 61319 - Carabajal, José Gabriel 
+TP5 - 61627 - Juárez Fernández, Lourdes Abril 
+TP5 - 61197 - Romano, Alfredo Nicolás 
+TP5 - 61033 - Quiroga, José María 
+TP5 - 61032 - Moya, Mariano 
+TP5 - 61478 - Soto, Antonella 
+TP5 - 61725 - Villagra, Jorge Sebastián 
+TP5 - 61150 - Molina Navarro, Juan Martín 
+TP5 - 61167 - Giacobbe, Franco 
+TP5 - 62053 - Herrera Palomino, Iván Agustín 
+TP5 - 61793 - Trujillo, Facundo Nahuel 
+TP5 - 61084 - Ramírez, Leonardo 
+TP5 - 61129 - Tello, Abril María Agostina 
+TP5 - 61198 - Ferreyra Appas, Santiago Nicolás 
+TP5 - 61200 - Gauna Serrano, Martín Javier 
+TP5 - 61073 - González Chavez, Rodrigo 
+TP5 - 61473 - Lagoria García, Tomás Gustavo 
+TP5 - 61468 - Samaniego, Esteban Maximiliano 
+TP5 - 61037 - Paz, Rodrigo Federico 
+TP5 - 61667 - Acosta, Maira 
+TP5 - 61046 - Ponce, Luz Micaela 
+TP5 - 61794 - Lobo Campero, Hernán Ignacio 
+TP5 - 61818 - López Tisera, Gastón 
+TP5 - 61551 - Díaz Valdez, Ignacio 
+TP5 - 62318 - Quiroga Castro, Lisandro 
+TP5 - 61993 - Medina, Juan Ignacio 
+TP5 - 61565 - Carrizo, Mauro 
+TP5 - 62175 - Quiroga, Marcela Noemí 
+TP5 - 61911 - Llanos, Luciano 
+TP5 - 61335 - León, Lucas Ismael 
+TP5 - 61248 - Palma Collado, Nahuel 
+TP5 - 62093 - Frías Silva, Juan Segundo 
+TP5 - 61113 - Oríz Caballero, Juan José 
+TP5 - 61450 - Jiménez Paz, Patricio Agustín 
+TP5 - 61626 - Díaz Londero, Sergio Gonzalo 
+TP3 - 61472 - Díaz, Julieta Camila 
+TP6 - 61096 - Suárez Vece, Leandro Andrés 
+TP6 - 62055 - Ahumada, Aiquen Osvaldo 
+TP6 - 61579 - Gonzalo, Martín 
+TP6 - 61719 - Amoedo, Pablo Isaías 
+TP6 - 61335 - León, Lucas Ismael 
+TP4,5 - 62172 - Salcedo, Mariana Aylén 
+TP6 - 62172 - Salcedo, Mariana Aylén 
+TP6 - 61338 - Morales, Juan Daniel 
+TP6 - 61167 - Giacobbe, Franco 
+TP6 - 61468 - Samaniego, Esteban Maximiliano 
+TP6 - 61572 - Parrado Navarrete, Alex Daniel 
+TP1 - 61214 - Collazos Cortez, Máximo Alberto 
+TP6 - 61037 - Paz, Rodrigo Federico 
+TP6 - 61794 - Lobo Campero, Hernán Ignacio 
+TP6 - 61676 - Massey, Maximiliano 
+TP6 - 61131 - Agostino Colombres, Juan Manuel 
+TP6 - 61312 - Paz Berrondo, Lucas David 
+TP6 - 61197 - Romano, Alfredo Nicolás 
+TP5 - 61579 - Gonzalo, Martín 
+TP6 - 61240 - Timo, Héctor Gabriel 
+TP6 - 61032 - Moya, Mariano 
+TP6 - 61626 - Díaz Londero, Sergio Gonzalo 
+TP6 - 61141 - Di Clemente, María Antonela 
+TP6 - 61035 - Ledesma, Paulo Marcelo 
+TP6 - 61315 - Robles, Thiago 
+TP6 - 61667 - Acosta, Maira 
+TP6 - 61150 - Molina Navarro, Juan Martín 
+TP6 - 61139 - Gallo, María Matilde 
+TP6 - 61478 - Soto, Antonella 
+TP6 - 61627 - Juárez Fernández, Lourdes Abril 
+TP6 - 61271 - Donelli, Gerardo Exequíel 
+TP6 - 61818 - López Tisera, Gastón 
+TP6 - 61793 - Trujillo, Facundo Nahuel 
+TP6 - 62053 - Herrera Palomino, Iván Agustín 
+TP6 - 61725 - Villagra, Jorge Sebastián 
+TP6 - 61450 - Jiménez Paz, Patricio Agustín 
+TP6 - 61319 - Carabajal, José Gabriel 
+TP6 - 62093 - Frías Silva, Juan Segundo 
+TP6 - 61473 - Lagoria García, Tomás Gustavo 
+TP6 - 61046 - Ponce, Luz Micaela 
+TP6 - 61073 - González Chavez, Rodrigo 
+TP6 - 61136 - Sosa, Oscar Ignacio 
+TP6 - 62263 - Orellana, José Augusto 
+TP6 - 61115 - Ledesma, Santiago Esteban 
+TP6 - 61198 - Ferreyra Appas, Santiago Nicolás 
+TP6 - 61028 - Ponce, Rodrigo Exequíel 
+TP6 - 61129 - Tello, Abril María Agostina 
+TP6 - 61221 - Duclós, Marcelo Ezequiel 
+TP6 - 61993 - Medina, Juan Ignacio 
+TP6 - 61033 - Quiroga, José María 
+TP6 - 54911 - Jatib, Rodrigo Gabriel 
+TP6 - 61200 - Gauna Serrano, Martín Javier 
+TP6 - 61551 - Díaz Valdez, Ignacio 
+TP6 - 61248 - Palma Collado, Nahuel 
+TP6 - 61084 - Ramírez, Leonardo 
+TP6 - 61445 - Martínez Campero, Santiago 
+TP6 - 61236 - Drachenberg, Franco Eduardo 
+TP6 - 62555 - Verón, Matías Gabriel 
+TP6 - 61565 - Carrizo, Mauro 
+TP6 - 62175 - Quiroga, Marcela Noemí 
+TP4 - 62055 - Ahumada, Aiquen Osvaldo 
+TP5 - 61719 - Amoedo, Pablo Isaías 
+TP6 - 61120 - Guerrero, Ana Sofía 
+TP6 - 61113 - Oríz Caballero, Juan José 
