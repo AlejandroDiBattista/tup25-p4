@@ -20,11 +20,12 @@ import { toast } from 'sonner';
 import { obtenerProductos } from './services/productos';
 import { useCarrito } from './hooks/useCarrito';
 import { useAuth } from './context/AuthContext';
+import { useProductos } from './context/ProductosContext';
 import { Producto } from './types';
 
 export default function HomePage() {
-  const [productos, setProductos] = useState<Producto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { productos, loading: loadingProductos, recargarProductos } = useProductos();
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoria, setCategoria] = useState<string>('todas');
   const [categorias, setCategorias] = useState<string[]>([]);
@@ -32,6 +33,11 @@ export default function HomePage() {
 
   const { agregar } = useCarrito();
   const { isAuthenticated, logout } = useAuth();
+
+  // Cargar productos inicialmente
+  useEffect(() => {
+    recargarProductos();
+  }, []);
 
   // Cargar categorías al inicio
   useEffect(() => {
@@ -61,8 +67,7 @@ export default function HomePage() {
         buscar: searchTerm || undefined,
         categoria: categoria !== 'todas' ? categoria : undefined,
       };
-      const data = await obtenerProductos(filtros);
-      setProductos(data);
+      await recargarProductos();
     } catch (error) {
       toast.error('Error al cargar productos');
       console.error(error);
@@ -97,6 +102,17 @@ export default function HomePage() {
     setSearchTerm('');
     setCategoria('todas');
   };
+
+  // Filtrar productos en memoria
+  const productosFiltrados = productos.filter(producto => {
+    const cumpleBusqueda = !searchTerm || 
+      producto.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const cumpleCategoria = categoria === 'todas' || producto.categoria === categoria;
+    
+    return cumpleBusqueda && cumpleCategoria;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -165,7 +181,7 @@ export default function HomePage() {
         </div>
 
         {/* Resultados */}
-        {loading ? (
+        {loadingProductos || loading ? (
           // Skeleton de carga
           <div className={`grid transition-all duration-500 ease-in-out ${
             cartOpen 
@@ -181,11 +197,11 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        ) : productos.length > 0 ? (
+        ) : productosFiltrados.length > 0 ? (
           <>
             {/* Contador de resultados */}
             <p className="text-sm text-gray-600 mb-4">
-              {productos.length} {productos.length === 1 ? 'producto encontrado' : 'productos encontrados'}
+              {productosFiltrados.length} {productosFiltrados.length === 1 ? 'producto encontrado' : 'productos encontrados'}
             </p>
 
             {/* Grid de productos */}
@@ -194,7 +210,7 @@ export default function HomePage() {
                 ? 'grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-3' 
                 : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
             }`}>
-              {productos.map((producto) => (
+              {productosFiltrados.map((producto) => (
                 <ProductCard
                   key={producto.id}
                   producto={producto}

@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { Carrito } from '../types';
 import * as carritoService from '../services/carrito';
 import { useAuth } from './AuthContext';
+import { useProductos } from './ProductosContext';
 
 interface CarritoContextType {
   carrito: Carrito | null;
@@ -21,6 +22,7 @@ const CarritoContext = createContext<CarritoContextType | undefined>(undefined);
 
 export function CarritoProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
+  const { actualizarStock } = useProductos();
   const [carrito, setCarrito] = useState<Carrito | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,10 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
       setError(null);
       const data = await carritoService.agregarAlCarrito(producto_id, cantidad);
       setCarrito(data);
+      
+      // Actualizar stock localmente (restar la cantidad agregada)
+      actualizarStock(producto_id, -cantidad);
+      
       return data;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al agregar producto';
@@ -83,8 +89,19 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
+      
+      // Guardar la cantidad que tenía para devolver al stock
+      const item = carrito?.items.find(i => i.producto_id === producto_id);
+      const cantidadDevuelta = item?.cantidad || 0;
+      
       const data = await carritoService.quitarDelCarrito(producto_id);
       setCarrito(data);
+      
+      // Actualizar stock localmente (sumar la cantidad devuelta)
+      if (cantidadDevuelta > 0) {
+        actualizarStock(producto_id, cantidadDevuelta);
+      }
+      
       return data;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al quitar producto';
@@ -102,6 +119,14 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
+      
+      // Devolver stock de todos los items antes de cancelar
+      if (carrito?.items) {
+        carrito.items.forEach(item => {
+          actualizarStock(item.producto_id, item.cantidad);
+        });
+      }
+      
       await carritoService.cancelarCarrito();
       await cargarCarrito(); // Recargar carrito vacío
     } catch (err) {

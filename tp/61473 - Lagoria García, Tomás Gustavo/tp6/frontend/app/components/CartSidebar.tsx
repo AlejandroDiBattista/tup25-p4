@@ -43,17 +43,27 @@ export function CartSidebar({ open, onClose }: CartSidebarProps) {
     try {
       const item = carrito?.items.find(i => i.producto_id === productoId);
       if (!item) return;
+      
+      const cantidadActual = item.cantidad;
+      const diferencia = nuevaCantidad - cantidadActual;
 
-      // Primero quitar el producto del carrito
-      await quitar(productoId);
-      
-      // Luego agregarlo con la nueva cantidad
-      await agregar(productoId, nuevaCantidad);
-      
-      toast.success('Cantidad actualizada');
+      if (diferencia > 0) {
+        // Aumentar cantidad: enviar solo las unidades adicionales
+        await agregar(productoId, diferencia);
+        toast.success('Cantidad actualizada');
+      } else if (diferencia < 0) {
+        // Disminuir cantidad: quitar del carrito y volver a agregar
+        await quitar(productoId);
+        if (nuevaCantidad > 0) {
+          await agregar(productoId, nuevaCantidad);
+        }
+        toast.success('Cantidad actualizada');
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al actualizar cantidad';
       toast.error(message);
+      // Recargar el carrito para reflejar el estado real del backend
+      await recargar();
     }
   };
 

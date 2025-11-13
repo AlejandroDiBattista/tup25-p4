@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { ItemCarrito } from '../types';
+import { useProductos } from '../context/ProductosContext';
 
 interface CartItemProps {
   item: ItemCarrito;
@@ -13,8 +14,13 @@ interface CartItemProps {
 }
 
 export function CartItem({ item, onUpdateQuantity, onRemove, isUpdating }: CartItemProps) {
+  const { productos } = useProductos();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
   const imagenUrl = item.imagen ? `${API_URL}/${item.imagen}` : '/placeholder.jpg';
+  
+  // Buscar el producto para obtener su stock actual desde el backend
+  const producto = productos.find(p => p.id === item.producto_id);
+  const stockDisponible = producto?.existencia ?? 0;
 
   const precioFormateado = new Intl.NumberFormat('es-AR', {
     style: 'currency',
@@ -70,7 +76,8 @@ export function CartItem({ item, onUpdateQuantity, onRemove, isUpdating }: CartI
             size="icon"
             className="h-7 w-7"
             onClick={() => onUpdateQuantity(item.producto_id, item.cantidad + 1)}
-            disabled={isUpdating}
+            disabled={isUpdating || stockDisponible <= 0}
+            title={stockDisponible <= 0 ? 'Stock agotado' : 'Aumentar cantidad'}
           >
             <Plus className="h-3 w-3" />
           </Button>
