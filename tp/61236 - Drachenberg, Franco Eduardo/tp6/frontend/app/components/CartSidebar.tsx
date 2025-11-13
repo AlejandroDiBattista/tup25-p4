@@ -6,26 +6,9 @@ import { useRouter } from 'next/navigation';
 
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { calcularTotales, formatCurrency } from '@/lib/pricing';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
-
-const IVA_RATE = 0.21;
-const ENVIO_FLAT = 50;
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
-function calcularTotales(subtotal: number) {
-  const iva = subtotal > 0 ? parseFloat((subtotal * IVA_RATE).toFixed(2)) : 0;
-  const envio = subtotal === 0 ? 0 : subtotal >= 1000 ? 0 : ENVIO_FLAT;
-  const total = parseFloat((subtotal + iva + envio).toFixed(2));
-  return { subtotal, iva, envio, total };
-}
 
 export function CartSidebarSkeleton() {
   return (

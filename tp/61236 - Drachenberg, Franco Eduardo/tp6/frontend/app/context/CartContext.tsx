@@ -13,10 +13,11 @@ import {
 import {
   agregarItem,
   cancelarCarrito,
+  finalizarCompra,
   obtenerCarrito,
   quitarItem,
 } from '../services/carrito';
-import { Carrito } from '../types';
+import { Carrito, CheckoutResponse } from '../types';
 import { useAuth } from './AuthContext';
 
 interface CartValue {
@@ -28,6 +29,7 @@ interface CartValue {
   decreaseItem: (productoId: number) => Promise<void>;
   removeItem: (productoId: number) => Promise<void>;
   cancelar: () => Promise<void>;
+  finalizar: (payload: { direccion: string; tarjeta: string }) => Promise<CheckoutResponse>;
   refresh: () => Promise<void>;
   clearError: () => void;
 }
@@ -167,6 +169,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     await performMutation(null, (authToken) => cancelarCarrito(authToken));
   }, [performMutation]);
 
+  const finalizar = useCallback(
+    async ({ direccion, tarjeta }: { direccion: string; tarjeta: string }) => {
+      if (!token) {
+        throw new Error('Necesitas iniciar sesión para finalizar la compra.');
+      }
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      setLoading(true);
+      setError(null);
+      try {
+        const resultado = await finalizarCompra(token, { direccion, tarjeta }, { signal: controller.signal });
+        const carritoActualizado = await obtenerCarrito(token, { signal: controller.signal });
+        setCarrito(carritoActualizado);
+        return resultado;
+      } catch (operationError) {
+        if ((operationError as Error).name !== 'AbortError') {
+          setError((operationError as Error).message);
+        }
+        throw operationError;
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+        abortControllerRef.current = null;
+      }
+    },
+    [token],
+  );
+
   const value = useMemo<CartValue>(
     () => ({
       carrito,
@@ -176,11 +208,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       decreaseItem,
       removeItem,
       cancelar,
+      finalizar,
       refresh: fetchCarrito,
       clearError,
       isItemUpdating: (productoId: number) => pendingItems.has(productoId),
     }),
-    [carrito, loading, error, addItem, decreaseItem, removeItem, cancelar, fetchCarrito, clearError, pendingItems],
+    [carrito, loading, error, addItem, decreaseItem, removeItem, cancelar, finalizar, fetchCarrito, clearError, pendingItems],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
