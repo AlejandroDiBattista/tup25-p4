@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* New blue-themed palette for "Mercado Azul" variant */
+  --bg-light: #f0fbff;
+  --bg-surface: #e6f7ff;
+  --panel: #ffffff;
+  --border-color: #cdebf7;
+  --muted: #4b6b7a;
+  --accent-dark: #0369a1;
+  --text-dark: #052b36;
 }
 
 @theme inline {
@@ -14,13 +20,65 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #071a22;
+    --foreground: #dbeef6;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-light);
+  color: var(--text-dark);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+.bg-white {
+  background-color: var(--panel) !important;
+  color: var(--text-dark) !important;
+}
+
+
+.text-black {
+  color: var(--text-dark) !important;
+}
+
+.text-gray-500 {
+  color: var(--muted) !important;
+}
+
+
+.border {
+  border-color: var(--border-color) !important;
+}
+
+input, textarea, select {
+  background: var(--panel) !important;
+  color: var(--text-dark) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255,255,255,0.35) !important;
+}
+
+.bg-slate-900, button.bg-slate-900 {
+  background-color: var(--accent-dark) !important;
+  color: #fff !important;
+}
+
+.hover\:bg-gray-50:hover, .hover\:bg-gray-50:focus {
+  background-color: #111214 !important;
+}
+
+a { color: #e6e6e6; }
+
+a { color: #0369a1; }
+
+
+.border-b { border-bottom-color: var(--dark-border) !important; }
+
+.site-header, header, .navbar, .nav {
+  background: var(--dark-surface) !important;
+  color: var(--foreground) !important;
+}
+
