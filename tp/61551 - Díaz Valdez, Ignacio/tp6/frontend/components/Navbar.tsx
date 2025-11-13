@@ -3,14 +3,17 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { toggle, count } = useCart();
   const { authenticated, logout } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const handleLogout = () => {
     logout();
     toast("Sesión cerrada");
+    router.push("/");
   };
   return (
     <nav className="w-full bg-white border-b">
