@@ -332,7 +332,7 @@ class DatosCompra(BaseModel):
 
 
 
-@app.post("/compra/finalizar")
+@app.post("/carrito/finalizar")
 async def finalizar_compra_endpoint(
     datos: DatosCompra = DatosCompra(),
     usuario_actual: Usuario = Depends(obtener_usuario_actual),

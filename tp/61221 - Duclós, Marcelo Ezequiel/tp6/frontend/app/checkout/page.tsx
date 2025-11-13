@@ -43,7 +43,7 @@ export default function CheckoutPage() {
 
     try {
       // Finalizar compra con los datos de envío
-      const response = await fetch(`${API_URL}/compra/finalizar`, {
+      const response = await fetch(`${API_URL}/carrito/finalizar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
