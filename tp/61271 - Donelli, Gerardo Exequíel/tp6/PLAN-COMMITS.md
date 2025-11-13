@@ -1,6 +1,5 @@
 # Plan de Commits para TP6 - E-Commerce
 
-**Objetivo:** Completar el desarrollo del e-commerce cumpliendo ESTRICTAMENTE con las reglas de GUIAPROYECTO.MD  
 **Mínimo de commits:** 10  
 **Fecha límite:** Miércoles 12 de Noviembre 21:00-22:00 hs
 
