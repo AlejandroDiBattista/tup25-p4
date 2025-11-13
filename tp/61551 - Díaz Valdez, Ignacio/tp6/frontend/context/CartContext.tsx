@@ -4,6 +4,8 @@ import {
   obtenerCarrito,
   agregarAlCarrito,
   finalizarCarrito,
+  eliminarDelCarrito,
+  obtenerProducto,
   CarritoResumen,
   Compra
 } from "../lib/api";
@@ -17,6 +19,7 @@ interface CartState {
   close: () => void;
   refresh: () => Promise<void>;
   add: (producto_id: number, cantidad?: number) => Promise<void>;
+  setQty: (producto_id: number, cantidad: number) => Promise<void>;
   checkout: (direccion: string, tarjeta: string) => Promise<Compra>;
   count: number;
 }
@@ -36,7 +39,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const c = await obtenerCarrito();
-      setData(c);
+      // Enriquecer con stock (existencia) por producto
+      const itemsWithStock = await Promise.all(
+        (c.items || []).map(async (it) => {
+          try {
+            const p = await obtenerProducto(it.producto_id);
+            return { ...it, existencia: typeof p.existencia === "number" ? p.existencia : undefined };
+          } catch {
+            return it;
+          }
+        })
+      );
+      setData({ ...c, items: itemsWithStock });
     } catch (e) {
       // si no autenticado ignorar
     } finally {
@@ -83,6 +97,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return compra;
   };
 
+  const setQty = async (producto_id: number, cantidad: number) => {
+    if (cantidad <= 0) {
+      await eliminarDelCarrito(producto_id);
+      await refresh();
+      return;
+    }
+    const currentQty = data?.items.find(i => i.producto_id === producto_id)?.cantidad || 0;
+    if (cantidad === currentQty) return;
+    if (cantidad > currentQty) {
+      await agregarAlCarrito(producto_id, cantidad - currentQty);
+      await refresh();
+      return;
+    }
+    // cantidad menor: no hay endpoint de decremento; rehacer item
+    await eliminarDelCarrito(producto_id);
+    await agregarAlCarrito(producto_id, cantidad);
+    await refresh();
+  };
+
   const value: CartState = {
     open,
     loading,
@@ -92,6 +125,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     close: () => setOpen(false),
     refresh,
     add,
+    setQty,
     checkout,
     count: computeCount(data)
   };
