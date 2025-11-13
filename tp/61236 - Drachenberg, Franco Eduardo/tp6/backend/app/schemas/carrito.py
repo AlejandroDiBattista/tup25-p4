@@ -17,6 +17,7 @@ class ItemCarritoRead(BaseModel):
     precio: float
     cantidad: int
     subtotal: float
+    imagen: str | None = None
 
 
 class CarritoRead(BaseModel):

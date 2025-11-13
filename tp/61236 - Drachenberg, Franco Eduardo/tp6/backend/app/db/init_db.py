@@ -25,7 +25,18 @@ def load_initial_products(engine) -> None:
         products_data = _read_products_file(products_path)
 
         for entry in products_data:
-            producto = Producto(**entry)
+            valoracion_raw = entry.get("valoracion")
+            valoracion = float(valoracion_raw) if valoracion_raw is not None else None
+            producto = Producto(
+                id=entry.get("id"),
+                nombre=str(entry.get("nombre") or entry.get("titulo") or "").strip(),
+                descripcion=str(entry.get("descripcion") or ""),
+                precio=float(entry.get("precio") or 0),
+                categoria=str(entry.get("categoria") or ""),
+                existencia=int(entry.get("existencia") or 0),
+                valoracion=valoracion,
+                imagen=str(entry.get("imagen")) if entry.get("imagen") else None,
+            )
             session.add(producto)
 
         session.commit()

@@ -65,6 +65,7 @@ def build_cart_summary(session: Session, carrito: Carrito) -> CarritoRead:
                 precio=producto.precio,
                 cantidad=item.cantidad,
                 subtotal=round(subtotal, 2),
+                imagen=getattr(producto, "imagen", None),
             )
         )
 
