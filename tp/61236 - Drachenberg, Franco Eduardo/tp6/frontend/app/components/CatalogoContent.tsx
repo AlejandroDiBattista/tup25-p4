@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 
-import { Producto } from '../types';
 import { obtenerProductos } from '../services/productos';
+import { Producto } from '../types';
+import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
@@ -16,7 +17,7 @@ import {
   SelectValue,
 } from './ui/select';
 import ProductoCard from './ProductoCard';
-import { useAuth } from '../context/AuthContext';
+import { CartSidebar, CartSidebarSkeleton } from './CartSidebar';
 
 interface CatalogoContentProps {
   initialProducts: Producto[];
@@ -43,8 +44,6 @@ export function CatalogoContent({
     return unicas.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
   }, [categorias]);
 
-  const isFirstRun = useRef(true);
-
   useEffect(() => {
     const handler = window.setTimeout(() => {
       setDebouncedSearch(searchInput);
@@ -54,11 +53,6 @@ export function CatalogoContent({
   }, [searchInput]);
 
   useEffect(() => {
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-      return;
-    }
-
     const controller = new AbortController();
     const filtros = {
       categoria: categoriaSeleccionada === 'todas' ? undefined : categoriaSeleccionada,
@@ -153,7 +147,7 @@ export function CatalogoContent({
         {initialLoading ? (
           <CartSidebarSkeleton />
         ) : usuario ? (
-          <CartSidebarPlaceholder />
+          <CartSidebar />
         ) : mostrarPanelInvitado ? (
           <Card className="hidden h-min lg:block">
             <CardHeader>
@@ -182,40 +176,6 @@ function CatalogoSkeleton() {
         />
       ))}
     </div>
-  );
-}
-
-function CartSidebarSkeleton() {
-  return (
-    <Card className="hidden h-min animate-pulse bg-slate-100/60 lg:block">
-      <CardHeader>
-        <div className="h-6 w-32 rounded bg-slate-200" />
-        <div className="h-4 w-48 rounded bg-slate-200" />
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {[...Array(4)].map((_, index) => (
-          <div key={index} className="h-12 w-full rounded bg-slate-200" />
-        ))}
-      </CardContent>
-    </Card>
-  );
-}
-
-function CartSidebarPlaceholder() {
-  return (
-    <Card className="hidden h-min lg:block">
-      <CardHeader className="space-y-1">
-        <CardTitle>Tu carrito</CardTitle>
-        <CardDescription>
-          Aún no has agregado productos. Selecciona un artículo del listado para comenzar.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="rounded-md border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-          Los productos que añadas aparecerán aquí con sus cantidades, precios e impuestos.
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 

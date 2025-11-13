@@ -1,5 +1,11 @@
-import Image from "next/image";
+'use client';
 
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { startTransition } from "react";
+
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 import { Producto } from "../types";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -14,6 +20,22 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   const tieneImagen = Boolean(producto.imagen);
   const agotado = producto.existencia <= 0;
   const existencia = Math.max(producto.existencia, 0);
+  const router = useRouter();
+  const { usuario } = useAuth();
+  const { addItem, isItemUpdating } = useCart();
+  const botonDeshabilitado = agotado || isItemUpdating(producto.id);
+
+  const manejarAgregar = () => {
+    if (!usuario) {
+      router.push("/iniciar-sesion");
+      return;
+    }
+    startTransition(() => {
+      addItem(producto.id).catch(() => {
+        /* El contexto maneja el error mostrando feedback en el panel */
+      });
+    });
+  };
   
   return (
     <Card className="overflow-hidden">
@@ -58,9 +80,10 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           <Button
             variant={agotado ? "secondary" : "default"}
             className="w-full sm:w-auto"
-            disabled={agotado}
+            disabled={botonDeshabilitado}
+            onClick={manejarAgregar}
           >
-            {agotado ? "Sin stock" : "Agregar al carrito"}
+            {agotado ? "Sin stock" : isItemUpdating(producto.id) ? "Agregando..." : "Agregar al carrito"}
           </Button>
         </div>
       </CardContent>
