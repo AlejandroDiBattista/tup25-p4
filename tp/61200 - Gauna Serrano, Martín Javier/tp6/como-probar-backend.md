@@ -229,3 +229,5 @@ El archivo está organizado en **8 secciones**:
 7. **Casos de Error** - Pruebas sin autenticación (3 pruebas)
 8. **Flujo Completo** - Prueba de punta a punta (8 pasos)
 
+correr en la carpeta backend
+python  -m uvicorn main:app --reload 
