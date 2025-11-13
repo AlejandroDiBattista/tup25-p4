@@ -73,7 +73,6 @@ export default function CarritoPage() {
     try {
       await finalizarCompra({ direccion, tarjeta }, token);
       
-      alert("¡Compra realizada con éxito!");
       setCarrito(null);
       // Lo mandamos al historial (Commit 10)
       router.push('/compras'); 

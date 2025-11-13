@@ -37,10 +37,12 @@ export default function Navbar() {
           {/* Lógica de Login/Logout */}
           {isLoggedIn ? (
             <>
-              {/* Botón de Perfil (futuro) */}
-              <Button variant="ghost" size="icon" disabled>
-                <User className="h-5 w-5" />
-              </Button>
+            {/* Botón de Perfil -> Lleva a Mis Compras */}
+                <Link href="/compras">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
               {/* Botón de Logout */}
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />

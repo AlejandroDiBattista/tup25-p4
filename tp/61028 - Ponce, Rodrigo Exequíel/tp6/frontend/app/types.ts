@@ -9,29 +9,48 @@ export interface Producto {
   existencia: number;
 }
 
-// Lo que enviamos a la API (POST /carrito)
 export interface ItemCarritoCreate {
   producto_id: number;
   cantidad: number;
 }
 
-// Lo que la API nos devuelve
 export interface ItemCarritoResponse {
   id: number;
   producto_id: number;
   cantidad: number;
-  // --- ¡Campos nuevos! ---
   nombre_producto: string;
   precio_unitario: number;
   subtotal: number;
 }
 
-// --- ¡NUEVA INTERFAZ! ---
-// Esta es la respuesta completa de GET /carrito
 export interface CarritoResponse {
   id: number;
   estado: string;
-  items: ItemCarritoResponse[]; // <-- Una lista de los items de arriba
+  items: ItemCarritoResponse[];
+  total: number;
+  cantidad_items: number;
+}
+
+// --- TIPOS DE COMPRA (Commit 9 y 10) ---
+
+export interface CompraCreate {
+  direccion: string;
+  tarjeta: string;
+}
+
+export interface CompraResponse {
+  id: number;
+  usuario_id: number;
+  fecha: string;
+  direccion: string;
+  total: number;
+  envio: number;
+  items: ItemCarritoResponse[]; 
+}
+
+export interface CompraResumenResponse {
+  id: number;
+  fecha: string;
   total: number;
   cantidad_items: number;
 }

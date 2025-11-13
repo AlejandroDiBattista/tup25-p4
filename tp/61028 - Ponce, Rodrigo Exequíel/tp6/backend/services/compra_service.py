@@ -1,10 +1,13 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from models.models import Carrito, ItemCarrito, Producto, Usuario, Compra, ItemCompra
-from services.carrito_service import CarritoService # Reutilizamos el servicio
-from schemas.compra_schema import CompraCreate, CompraResumenResponse # <--- Importado
+from services.carrito_service import CarritoService
+from schemas.compra_schema import CompraCreate, CompraResumenResponse, CompraResponse
 from datetime import datetime
-from typing import List # <--- Importado
+from typing import List
+
+# Importamos el schema para poder construir la respuesta manualmente
+from schemas.carrito_schema import ItemCarritoResponse 
 
 class CompraService:
     @staticmethod
@@ -12,27 +15,27 @@ class CompraService:
         session: Session,
         usuario: Usuario,
         datos_compra: CompraCreate
-    ) -> Compra:
+    ) -> CompraResponse: # <-- ¡CAMBIO 1: Tipo de retorno!
         
-        # 1. Obtener el carrito activo
+        # 1. Obtener el carrito
         carrito = await CarritoService.obtener_carrito_activo(session, usuario)
+        session.refresh(carrito, ["items"]) 
+        
         if not carrito.items:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="El carrito está vacío"
             )
 
+        # 2. Calcular totales y validar stock
         subtotal = 0.0
         total_iva = 0.0
         
-        # 2. Calcular totales y verificar stock final
         for item in carrito.items:
-            # (Asegúrate de que tus 'items' tienen la relación 'producto' cargada)
             producto = session.get(Producto, item.producto_id)
             if not producto:
                  raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Producto con ID {item.producto_id} no encontrado")
             
-            # Doble chequeo de stock (por si acaso)
             if producto.existencia < item.cantidad:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -42,27 +45,23 @@ class CompraService:
             precio_item = producto.precio * item.cantidad
             subtotal += precio_item
 
-            # Regla de negocio: IVA
-            if producto.categoria.lower() == "electrónicos": # Asume que la categoría se llama así
+            if producto.categoria.lower() == "electrónicos":
                 total_iva += precio_item * 0.10
             else:
                 total_iva += precio_item * 0.21
 
-        # 3. Calcular envío
         costo_envio = 0.0
-        # Regla de negocio: Envío
         if subtotal < 1000:
             costo_envio = 50.0
             
-        # 4. Calcular Total Final
         total_final = subtotal + total_iva + costo_envio
 
-        # 5. Crear el registro de Compra
+        # 3. Crear la Compra
         nueva_compra = Compra(
             usuario_id=usuario.id,
             fecha=datetime.now(),
             direccion=datos_compra.direccion,
-            tarjeta=datos_compra.tarjeta, # En un caso real, hashear o guardar solo últimos 4
+            tarjeta=datos_compra.tarjeta,
             total=total_final,
             envio=costo_envio
         )
@@ -70,18 +69,13 @@ class CompraService:
         session.commit()
         session.refresh(nueva_compra)
 
-        # 6. Mover items del carrito a ItemsCompra y actualizar stock
-        # ¡IMPORTANTE! Refrescar el carrito para cargar los items antes de iterar
-        session.refresh(carrito) 
-        
-        items_a_eliminar = list(carrito.items) # Crear una copia de la lista para iterar
+        # 4. Mover items y actualizar stock
+        items_a_eliminar = list(carrito.items) # Copia de la lista
 
         for item in items_a_eliminar:
             producto = session.get(Producto, item.producto_id)
-            if not producto: # Chequeo por si el producto fue eliminado mientras estaba en el carrito
-                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Producto con ID {item.producto_id} no encontrado durante la finalización")
-
-            # Crear el item de compra (para el historial)
+            
+            # Crear ItemCompra (historial)
             item_compra = ItemCompra(
                 compra_id=nueva_compra.id,
                 producto_id=producto.id,
@@ -91,46 +85,70 @@ class CompraService:
             )
             session.add(item_compra)
             
-            # Regla de negocio: Actualizar stock
+            # Restar Stock
             producto.existencia -= item.cantidad
             session.add(producto)
             
-            # Regla de negocio: Vaciar carrito
-            session.delete(item) # Eliminar item del carrito
+            # Borrar del carrito
+            session.delete(item) 
 
-        # 7. Marcar el carrito como "finalizado"
-        carrito.estado = "finalizado"
-        session.add(carrito)
-        
+        # Primer commit: Guardar items comprados y borrar del carrito
         session.commit()
-        session.refresh(nueva_compra) # Cargar los items recién creados
-        
-        return nueva_compra
-    
-    # --- Métodos para Commit 6 ---
 
+        # 5. Actualizar estado del carrito
+        carrito.estado = "finalizado"
+        
+        # Segundo commit: Actualizar estado del carrito
+        session.commit() 
+        
+        session.refresh(nueva_compra)
+        # Refrescamos para traer los items recién creados
+        session.refresh(nueva_compra, ["items"]) 
+
+        # --- ¡CAMBIO 2: Construcción manual de la respuesta! ---
+        items_formateados = []
+        for item in nueva_compra.items:
+            items_formateados.append(
+                ItemCarritoResponse( 
+                    id=item.id,
+                    producto_id=item.producto_id,
+                    cantidad=item.cantidad,
+                    nombre_producto=item.nombre,
+                    precio_unitario=item.precio_unitario,
+                    subtotal=item.cantidad * item.precio_unitario
+                )
+            )
+
+        # Devolvemos el objeto CompraResponse completo que espera el frontend
+        return CompraResponse(
+            id=nueva_compra.id,
+            usuario_id=nueva_compra.usuario_id,
+            fecha=nueva_compra.fecha,
+            direccion=nueva_compra.direccion,
+            total=nueva_compra.total,
+            envio=nueva_compra.envio,
+            items=items_formateados 
+        )
+        # --- FIN DEL CAMBIO ---
+    
     @staticmethod
     async def obtener_historial_compras(
         session: Session,
         usuario: Usuario
     ) -> List[CompraResumenResponse]:
-        """
-        Obtiene el historial de compras (resumen) del usuario.
-        """
+        
         query = select(Compra).where(Compra.usuario_id == usuario.id).order_by(Compra.fecha.desc())
         compras = session.exec(query).all()
         
-        # Mapear al esquema de resumen
         resumenes = []
         for compra in compras:
-            # Asegurarse de que los items estén cargados (pueden ser lazy-loaded)
             session.refresh(compra, ["items"]) 
             resumenes.append(
                 CompraResumenResponse(
                     id=compra.id,
                     fecha=compra.fecha,
                     total=compra.total,
-                    cantidad_items=len(compra.items) # Calcula la cantidad de items
+                    cantidad_items=len(compra.items)
                 )
             )
         return resumenes
@@ -140,12 +158,8 @@ class CompraService:
         session: Session,
         usuario: Usuario,
         compra_id: int
-    ) -> Compra:
-        """
-        Obtiene el detalle de una compra específica.
-        Asegura que la compra pertenezca al usuario.
-        """
-        # SQLModel cargará automáticamente los 'items' gracias a la relación
+    ) -> CompraResponse:
+        
         query = select(Compra).where(
             Compra.id == compra_id,
             Compra.usuario_id == usuario.id
@@ -158,6 +172,28 @@ class CompraService:
                 detail="Compra no encontrada o no pertenece al usuario"
             )
         
-        # Refrescar para asegurarse de que los items estén cargados
         session.refresh(compra, ["items"])
-        return compra
+
+        # Construcción manual de la respuesta para el frontend
+        items_formateados = []
+        for item in compra.items:
+            items_formateados.append(
+                ItemCarritoResponse(
+                    id=item.id,
+                    producto_id=item.producto_id,
+                    cantidad=item.cantidad,
+                    nombre_producto=item.nombre,
+                    precio_unitario=item.precio_unitario,
+                    subtotal=item.cantidad * item.precio_unitario
+                )
+            )
+
+        return CompraResponse(
+            id=compra.id,
+            usuario_id=compra.usuario_id,
+            fecha=compra.fecha,
+            direccion=compra.direccion,
+            total=compra.total,
+            envio=compra.envio,
+            items=items_formateados
+        )
