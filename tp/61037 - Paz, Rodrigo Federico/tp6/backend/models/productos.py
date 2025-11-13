@@ -13,3 +13,4 @@ class Producto(SQLModel, table=True):
     precio: float = Field(default=0.0, ge=0)
     categoria: str = Field(default="", max_length=100)
     existencia: int = Field(default=0, ge=0) 
+    imagen: str = Field(default="")
