@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP6 Shop - Productos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">TP6 Shop</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Productos</a></li>
+                    <li><a href="carrito.html" id="mis-compras-link">Mis compras</a></li>
+                    <li><a href="perfil.html" id="user-name">Juan Perez</a></li>
+                    <li><a href="#" onclick="logout()">Salir</a></li>
+                </ul>
+                <ul class="nav-links" id="guest-nav">
+                    <li><a href="login.html">Ingresar</a></li>
+                    <li><a href="registro.html">Crear cuenta</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Búsqueda y filtros -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-controls">
+                <input type="text" class="search-box" placeholder="Buscar..." id="search-input">
+                <select class="category-select" id="category-filter">
+                    <option value="">Todas las categorías</option>
+                    <option value="Ropa de hombre">Ropa de hombre</option>
+                    <option value="Ropa de mujer">Ropa de mujer</option>
+                    <option value="Joyería">Joyería</option>
+                    <option value="Electrónicos">Electrónicos</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Productos -->
+    <section class="products-section">
+        <div class="container">
+            <div id="auth-message" class="alert alert-info hidden">
+                Inicia sesión para ver y editar tu carrito.
+            </div>
+            <div class="products-grid" id="products-container">
+                <!-- Los productos se cargarán dinámicamente aquí -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8001';
+        let products = [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAuthUI();
+            loadProducts();
+            
+            // Event listeners
+            document.getElementById('search-input').addEventListener('input', filterProducts);
+            document.getElementById('category-filter').addEventListener('change', filterProducts);
+        });
+
+        // Actualizar UI según autenticación
+        function updateAuthUI() {
+            const guestNav = document.getElementById('guest-nav');
+            const userNav = document.querySelector('.nav-links:not(#guest-nav)');
+            const authMessage = document.getElementById('auth-message');
+            
+            if (currentUser && currentUser.token) {
+                guestNav.style.display = 'none';
+                userNav.style.display = 'flex';
+                document.getElementById('user-name').textContent = currentUser.nombre || 'Usuario';
+                authMessage.classList.add('hidden');
+            } else {
+                guestNav.style.display = 'flex';
+                userNav.style.display = 'none';
+                authMessage.classList.remove('hidden');
+            }
+        }
+
+        // Cargar productos desde la API
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/productos`);
+                if (!response.ok) throw new Error('Error al cargar productos');
+                
+                products = await response.json();
+                renderProducts(products);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('products-container').innerHTML = 
+                    '<p class="text-center">Error al cargar productos. Intenta nuevamente.</p>';
+            }
+        }
+
+        // Renderizar productos
+        function renderProducts(productList) {
+            const container = document.getElementById('products-container');
+            
+            if (productList.length === 0) {
+                container.innerHTML = '<p class="text-center">No se encontraron productos.</p>';
+                return;
+            }
+            
+            container.innerHTML = productList.map(product => `
+                <div class="product-card">
+                    <img src="${product.imagen}" alt="${product.titulo}" class="product-image" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg=='">
+                    <div class="product-info">
+                        <h3 class="product-title">${product.titulo}</h3>
+                        <p class="product-description">${product.descripcion}</p>
+                        <p class="product-category">Categoría: ${product.categoria}</p>
+                        <div class="product-price">$${product.precio.toFixed(2)}</div>
+                        <p class="product-stock">Disponible: ${product.existencia}</p>
+                        <button 
+                            class="btn-primary" 
+                            onclick="addToCart(${product.id})"
+                            ${!currentUser || !currentUser.token ? 'disabled title="Inicia sesión para agregar al carrito"' : ''}
+                            ${product.existencia === 0 ? 'disabled' : ''}
+                        >
+                            ${product.existencia === 0 ? 'Sin stock' : 'Agregar al carrito'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filtrar productos
+        function filterProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const selectedCategory = document.getElementById('category-filter').value;
+            
+            const filtered = products.filter(product => {
+                const matchesSearch = product.titulo.toLowerCase().includes(searchTerm) ||
+                                    product.descripcion.toLowerCase().includes(searchTerm);
+                const matchesCategory = !selectedCategory || product.categoria === selectedCategory;
+                
+                return matchesSearch && matchesCategory;
+            });
+            
+            renderProducts(filtered);
+        }
+
+        // Agregar al carrito
+        async function addToCart(productId) {
+            if (!currentUser || !currentUser.token) {
+                alert('Debes iniciar sesión para agregar productos al carrito');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/carrito/agregar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify({
+                        producto_id: productId,
+                        cantidad: 1
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Producto agregado al carrito exitosamente');
+                    // Actualizar el stock mostrado
+                    loadProducts();
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || 'Error al agregar producto al carrito');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Intenta nuevamente.');
+            }
+        }
+
+        // Cerrar sesión
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            updateAuthUI();
+            loadProducts(); // Recargar para deshabilitar botones
+            alert('Sesión cerrada exitosamente');
+        }
+    </script>
+</body>
+</html>
