@@ -290,11 +290,12 @@ def cancelar_compra(db: Session = Depends(get_session), current_user: Usuario = 
 # --------- Compras ---------
 @app.get("/compras")
 def listar_compras(db: Session = Depends(get_session), current_user: Usuario = Depends(get_current_user)):
-    compras = db.exec(select(Compra).where(Compra.usuario_id == current_user.id)).all()
+    compras = db.exec(select(Compra).where(Compra.usuario_id == current_user.id).order_by(Compra.fecha)).all()
     resultado = []
-    for c in compras:
+    for idx, c in enumerate(compras, start=1):
         resultado.append({
             "id": c.id,
+            "numero_compra": idx,  
             "fecha": c.fecha,
             "total": c.total,
             "envio": c.envio,
@@ -308,8 +309,28 @@ def ver_compra(compra_id: int, db: Session = Depends(get_session), current_user:
     if not compra or compra.usuario_id != current_user.id:
         raise HTTPException(status_code=404, detail="Compra no encontrada")
 
+    # Calcular el número de compra del usuario
+    compras_usuario = db.exec(select(Compra).where(Compra.usuario_id == current_user.id).order_by(Compra.fecha)).all()
+    numero_compra = next((idx for idx, c in enumerate(compras_usuario, start=1) if c.id == compra.id), None)
+
     items = db.exec(select(ItemCompra).where(ItemCompra.compra_id == compra.id)).all()
-    return {"id": compra.id, "fecha": compra.fecha, "direccion": compra.direccion, "tarjeta": compra.tarjeta, "total": compra.total, "envio": compra.envio, "items": [ {"producto_id": i.producto_id, "cantidad": i.cantidad, "nombre": i.nombre, "precio_unitario": i.precio_unitario} for i in items ]}
+    return {
+        "id": compra.id,
+        "numero_compra": numero_compra,  # Número relativo al usuario
+        "fecha": compra.fecha,
+        "direccion": compra.direccion,
+        "tarjeta": compra.tarjeta,
+        "total": compra.total,
+        "envio": compra.envio,
+        "items": [
+            {
+                "producto_id": i.producto_id,
+                "cantidad": i.cantidad,
+                "nombre": i.nombre,
+                "precio_unitario": i.precio_unitario
+            } for i in items
+        ]
+    }
 
 
 # --------- Endpoint para desarrollo: Reset de productos ---------

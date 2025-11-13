@@ -18,6 +18,7 @@ interface ItemCompra {
 
 interface Compra {
   id: number;
+  numero_compra?: number;  // Número relativo al usuario
   fecha: string;
   direccion: string;
   tarjeta: string;
@@ -119,7 +120,9 @@ export default function ComprasPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-base">Compra #{compra.id}</CardTitle>
+                    <CardTitle className="text-base">
+                      Compra #{compra.numero_compra || compra.id}
+                    </CardTitle>
                     <CardDescription className="flex items-center gap-1 mt-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(compra.fecha).toLocaleDateString('es-AR', {
@@ -148,7 +151,7 @@ export default function ComprasPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <ShoppingBag className="h-5 w-5" />
-                  Detalle de la Compra #{compraSeleccionada.id}
+                  Detalle de la Compra #{compraSeleccionada.numero_compra || compraSeleccionada.id}
                 </CardTitle>
                 <CardDescription>
                   {new Date(compraSeleccionada.fecha).toLocaleDateString('es-AR', {
