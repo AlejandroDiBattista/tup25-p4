@@ -1,29 +1,28 @@
-import { obtenerProductos } from './services/productos';
-import ProductoCard from './components/ProductoCard';
+import CatalogClient from './components/CatalogClient'
+import MiniCart from './components/MiniCart'
+import type { Producto } from './types'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export default async function Home() {
-  const productos = await obtenerProductos();
+  // Fetch productos on the server so the catalog shows immediately on first load
+  let productos: Producto[] = []
+  try {
+    const res = await fetch(`${API_URL}/productos`)
+    if (res.ok) productos = await res.json()
+  } catch (e) {
+    // ignore fetch errors on server; productos quedarán vacíos
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Productos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            {productos.length} productos disponibles
-          </p>
-        </div>
-      </header>
+    <div className="grid gap-6 lg:grid-cols-3">
+      <div className="lg:col-span-2 space-y-6">
+        <CatalogClient initialProductos={productos} />
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
-        </div>
-      </main>
+      <aside className="lg:col-span-1">
+        <MiniCart />
+      </aside>
     </div>
-  );
+  )
 }
