@@ -3,6 +3,10 @@ import { useState, FormEvent } from "react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function CheckoutPage() {
   const { data, checkout } = useCart();
@@ -35,43 +39,55 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto py-8">
-      <h1 className="text-2xl font-semibold mb-4">Checkout</h1>
+    <div className="max-w-6xl mx-auto py-8">
+      <h1 className="text-3xl font-semibold mb-6">Finalizar compra</h1>
       {data && data.items.length > 0 ? (
-        <>
-          <div className="mb-4 text-sm text-gray-700">
-            <div className="flex justify-between"><span>Items</span><span>{data.total_items}</span></div>
-            <div className="flex justify-between"><span>Subtotal</span><span>${data.subtotal.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>IVA</span><span>${data.total_iva.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>Envío</span><span>${data.envio.toFixed(2)}</span></div>
-            <div className="flex justify-between font-semibold text-indigo-600"><span>Total</span><span>${data.total.toFixed(2)}</span></div>
-          </div>
-          <form onSubmit={submit} className="space-y-3">
-            <input
-              className="border p-2 w-full"
-              placeholder="Dirección de envío"
-              value={direccion}
-              onChange={(e) => setDireccion(e.target.value)}
-              required
-              minLength={3}
-            />
-            <input
-              className="border p-2 w-full"
-              placeholder="Tarjeta (demo)"
-              value={tarjeta}
-              onChange={(e) => setTarjeta(e.target.value)}
-              required
-              minLength={4}
-            />
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <button
-              className="bg-indigo-600 text-white px-4 py-2 rounded disabled:opacity-50"
-              disabled={loading}
-            >
-              {loading ? "Procesando..." : "Confirmar compra"}
-            </button>
-          </form>
-        </>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Resumen del carrito</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="divide-y">
+                {data.items.map((it, idx) => (
+                  <div key={idx} className="py-3 flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium">{it.titulo ?? `#${it.producto_id}`}</div>
+                      <div className="text-xs text-gray-500">Cantidad: {it.cantidad}</div>
+                    </div>
+                    <div className="text-sm font-medium">${(it.subtotal ?? it.cantidad * it.precio_unitario).toFixed(2)}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-sm text-gray-700 space-y-1">
+                <div className="flex justify-between"><span>Total productos:</span><span>${data.subtotal.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>IVA:</span><span>${data.total_iva.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>Envío:</span><span>${data.envio.toFixed(2)}</span></div>
+                <div className="flex justify-between font-semibold text-indigo-600 text-base"><span>Total a pagar:</span><span>${data.total.toFixed(2)}</span></div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Datos de envío</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={submit} className="space-y-4">
+                <div className="space-y-1">
+                  <Label>Dirección</Label>
+                  <Input value={direccion} onChange={(e) => setDireccion(e.target.value)} required minLength={3} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Tarjeta</Label>
+                  <Input value={tarjeta} onChange={(e) => setTarjeta(e.target.value)} required minLength={4} />
+                </div>
+                {error && <p className="text-sm text-red-600">{error}</p>}
+                <Button disabled={loading}>{loading ? "Procesando..." : "Confirmar compra"}</Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       ) : (
         <p className="text-gray-600">Tu carrito está vacío.</p>
       )}

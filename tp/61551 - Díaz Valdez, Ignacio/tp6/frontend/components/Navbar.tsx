@@ -2,6 +2,7 @@
 import { useCart } from "../context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const { toggle, count } = useCart();
@@ -12,10 +13,14 @@ export default function Navbar() {
     toast("Sesión cerrada");
   };
   return (
-    <nav className="w-full bg-white border-b px-4 py-2 flex gap-4 text-sm text-gray-900">
-      <a href="/" className="font-semibold hover:text-gray-700">Productos</a>
-      <a href="/compras" className="hover:text-gray-700">Compras</a>
-      <div className="ml-auto flex items-center gap-4">
+    <nav className="w-full bg-white border-b">
+      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-6 text-sm text-gray-900">
+        <a href="/" className="text-base font-semibold">TP6 Shop</a>
+        <a href="/" className="hover:text-gray-700">Productos</a>
+        {authenticated && (
+          <a href="/compras" className="hover:text-gray-700">Mis compras</a>
+        )}
+        <div className="ml-auto flex items-center gap-4">
         <button onClick={toggle} className="relative inline-flex items-center justify-center w-9 h-9 rounded hover:bg-gray-100 transition">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
             <path d="M3 3h2l3.6 7.59a1 1 0 0 0 .9.59H17a1 1 0 0 0 .92-.62L21 6H6" />
@@ -28,14 +33,17 @@ export default function Navbar() {
             </span>
           )}
         </button>
-        {authenticated ? (
-          <button onClick={handleLogout} className="hover:text-gray-700">Cerrar sesión</button>
-        ) : (
-          <>
-            <a href="/login" className="hover:text-gray-700">Login</a>
-            <a href="/register" className="hover:text-gray-700">Registro</a>
-          </>
-        )}
+          {authenticated ? (
+            <a href="#" onClick={(e)=>{e.preventDefault(); handleLogout();}} className="hover:text-gray-700">Salir</a>
+          ) : (
+            <>
+              <a href="/login" className="hover:text-gray-700">Ingresar</a>
+              <a href="/register" className="hover:text-gray-700">
+                <Button asChild variant="outline" size="sm" className="rounded-full bg-gray-50"><span>Crear cuenta</span></Button>
+              </a>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

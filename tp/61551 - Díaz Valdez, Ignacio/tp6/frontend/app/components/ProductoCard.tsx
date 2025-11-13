@@ -3,6 +3,9 @@ import { Producto } from "@/app/types";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 interface ProductoCardProps {
@@ -24,7 +27,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
     } catch (e: any) {
       const msg = (e?.message || "").toLowerCase();
       if (msg.includes("autentic")) {
-        // Mostrar mensaje en esquina inferior derecha sin redirigir
+        // Mostrar mensaje sin redirigir
         toast("Falta iniciar sesión");
       } else {
         // eslint-disable-next-line no-console
@@ -37,8 +40,8 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-64 bg-gray-100">
+    <Card className="overflow-hidden hover:shadow transition-shadow">
+      <div className="relative h-56 bg-gray-50">
         <Image
           src={`${API_URL}/${producto.imagen}`}
           alt={producto.titulo}
@@ -48,36 +51,26 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           unoptimized
         />
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {producto.titulo}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {producto.descripcion}
-        </p>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            {producto.categoria}
-          </span>
-          <div className="flex items-center gap-1">
+      <CardContent>
+        <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-1">{producto.titulo}</h3>
+        <p className="text-sm text-gray-600 line-clamp-2 mb-3">{producto.descripcion}</p>
+        <div className="flex items-center justify-between mb-2">
+          <Badge>{producto.categoria}</Badge>
+          <div className="flex items-center gap-1 text-sm text-gray-700">
             <span className="text-yellow-500">★</span>
-            <span className="text-sm text-gray-700">{producto.valoracion}</span>
+            <span>{producto.valoracion}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center gap-2">
-          <span className="text-2xl font-bold text-blue-600">${producto.precio}</span>
-          <span className={`text-xs ${puedeComprar ? 'text-gray-500' : 'text-red-600'}`}>
-            {puedeComprar ? `Stock: ${producto.existencia}` : 'Agotado'}
+        <div className="flex items-center justify-between">
+          <span className="text-2xl font-bold text-indigo-600">${producto.precio}</span>
+          <span className={puedeComprar ? "text-xs text-gray-500" : "text-xs text-red-600"}>
+            {puedeComprar ? `Stock: ${producto.existencia}` : "Agotado"}
           </span>
         </div>
-        <button
-          onClick={handleAdd}
-          disabled={!puedeComprar || adding}
-          className="mt-3 w-full bg-indigo-600 text-white rounded py-2 text-sm disabled:opacity-50"
-        >
-          {adding ? 'Agregando...' : 'Agregar al carrito'}
-        </button>
-      </div>
-    </div>
+        <Button onClick={handleAdd} disabled={!puedeComprar || adding} className="w-full mt-3">
+          {adding ? "Agregando..." : "Agregar al carrito"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
