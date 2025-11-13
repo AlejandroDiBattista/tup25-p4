@@ -1,9 +1,11 @@
 "use client";
 import { useCart } from "../context/CartContext";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function CartDrawer() {
   const { open, close, data, loading, lastAdded } = useCart();
+  const router = useRouter();
   // bloquear scroll cuando abierto
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
@@ -45,7 +47,13 @@ export default function CartDrawer() {
             <div className="flex justify-between"><span>IVA</span><span>${data.total_iva.toFixed(2)}</span></div>
             <div className="flex justify-between"><span>Envío</span><span>${data.envio.toFixed(2)}</span></div>
             <div className="flex justify-between font-semibold text-indigo-600"><span>Total</span><span>${data.total.toFixed(2)}</span></div>
-            <button className="w-full bg-indigo-600 text-white rounded py-2 text-sm mt-2 disabled:opacity-50" disabled={data.items.length===0}>Comprar</button>
+            <button
+              className="w-full bg-indigo-600 text-white rounded py-2 text-sm mt-2 disabled:opacity-50"
+              disabled={data.items.length===0}
+              onClick={() => { close(); router.push('/checkout'); }}
+            >
+              Comprar
+            </button>
           </footer>
         )}
       </aside>

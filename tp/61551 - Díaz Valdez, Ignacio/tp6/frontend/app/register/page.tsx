@@ -1,5 +1,6 @@
 "use client";
 import { useState, FormEvent } from 'react';
+import { registerUser } from "@/lib/api";
 
 export default function RegisterPage() {
   const [nombre, setNombre] = useState('');
@@ -12,9 +13,11 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null); setCargando(true);
     try {
-      // TODO: llamar registerUser
-      await new Promise(r => setTimeout(r, 300));
-      window.location.href = '/login';
+      await registerUser(nombre, email, password);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('flash', 'Usuario creado correctamente');
+        window.location.href = '/login';
+      }
     } catch (err: any) {
       setError(err?.message || 'Error');
     } finally { setCargando(false); }

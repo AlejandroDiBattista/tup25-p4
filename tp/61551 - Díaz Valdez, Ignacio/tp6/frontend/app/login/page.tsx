@@ -1,5 +1,6 @@
 "use client";
 import { useState, FormEvent } from 'react';
+import { loginUser } from "@/lib/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,10 +12,11 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null); setCargando(true);
     try {
-      // TODO: llamar loginUser
-      await new Promise(r => setTimeout(r, 300));
-      // redirect
-      window.location.href = '/';
+      await loginUser(email, password);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('flash', 'Se ha iniciado sesión');
+        window.location.href = '/';
+      }
     } catch (err: any) {
       setError(err?.message || 'Error');
     } finally { setCargando(false); }

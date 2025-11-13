@@ -1,5 +1,9 @@
+"use client";
 import { Producto } from "@/app/types";
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
+import { useState } from "react";
 
 interface ProductoCardProps {
   producto: Producto;
@@ -7,6 +11,30 @@ interface ProductoCardProps {
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const { add } = useCart();
+  const { toast } = useToast();
+  const [adding, setAdding] = useState(false);
+
+  const puedeComprar = (producto.existencia ?? 0) > 0;
+  const handleAdd = async () => {
+    if (!puedeComprar) return;
+    try {
+      setAdding(true);
+      await add(producto.id, 1);
+    } catch (e: any) {
+      const msg = (e?.message || "").toLowerCase();
+      if (msg.includes("autentic")) {
+        // Mostrar mensaje en esquina inferior derecha sin redirigir
+        toast("Falta iniciar sesión");
+      } else {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        toast("No se pudo agregar al carrito");
+      }
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -36,10 +64,19 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             <span className="text-sm text-gray-700">{producto.valoracion}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <span className="text-2xl font-bold text-blue-600">${producto.precio}</span>
-          <span className="text-xs text-gray-500">Stock: {producto.existencia}</span>
+          <span className={`text-xs ${puedeComprar ? 'text-gray-500' : 'text-red-600'}`}>
+            {puedeComprar ? `Stock: ${producto.existencia}` : 'Agotado'}
+          </span>
         </div>
+        <button
+          onClick={handleAdd}
+          disabled={!puedeComprar || adding}
+          className="mt-3 w-full bg-indigo-600 text-white rounded py-2 text-sm disabled:opacity-50"
+        >
+          {adding ? 'Agregando...' : 'Agregar al carrito'}
+        </button>
       </div>
     </div>
   );

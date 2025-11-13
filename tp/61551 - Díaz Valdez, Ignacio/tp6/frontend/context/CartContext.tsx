@@ -49,6 +49,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined" && localStorage.getItem("token")) {
       refresh();
     }
+    // reaccionar a cambios de sesión
+    const handler = () => {
+      if (localStorage.getItem("token")) refresh();
+      else {
+        setData(null);
+        setOpen(false);
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("token-changed", handler);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("token-changed", handler);
+      }
+    };
   }, [refresh]);
 
   const add = async (producto_id: number, cantidad: number = 1) => {

@@ -1,8 +1,16 @@
 "use client";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 
 export default function Navbar() {
   const { toggle, count } = useCart();
+  const { authenticated, logout } = useAuth();
+  const { toast } = useToast();
+  const handleLogout = () => {
+    logout();
+    toast("Sesión cerrada");
+  };
   return (
     <nav className="w-full bg-white border-b px-4 py-2 flex gap-4 text-sm text-gray-900">
       <a href="/" className="font-semibold hover:text-gray-700">Productos</a>
@@ -20,8 +28,14 @@ export default function Navbar() {
             </span>
           )}
         </button>
-        <a href="/login" className="hover:text-gray-700">Login</a>
-        <a href="/register" className="hover:text-gray-700">Registro</a>
+        {authenticated ? (
+          <button onClick={handleLogout} className="hover:text-gray-700">Cerrar sesión</button>
+        ) : (
+          <>
+            <a href="/login" className="hover:text-gray-700">Login</a>
+            <a href="/register" className="hover:text-gray-700">Registro</a>
+          </>
+        )}
       </div>
     </nav>
   );
