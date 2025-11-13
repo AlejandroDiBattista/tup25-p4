@@ -17,7 +17,7 @@ export function CategoryFilter({
         onClick={() => onSelectCategoria('')}
         className={`px-4 py-2 rounded-lg transition ${
           categoriaSeleccionada === ''
-            ? 'bg-blue-600 text-white'
+            ? 'bg-pink-600 text-white'
             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
         }`}
       >
@@ -29,7 +29,7 @@ export function CategoryFilter({
           onClick={() => onSelectCategoria(categoria)}
           className={`px-4 py-2 rounded-lg transition ${
             categoriaSeleccionada === categoria
-              ? 'bg-blue-600 text-white'
+              ? 'bg-pink-600 text-white'
               : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
           }`}
         >

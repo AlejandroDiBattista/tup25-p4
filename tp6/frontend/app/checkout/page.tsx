@@ -59,7 +59,7 @@ export default function CheckoutPage() {
               value={direccion}
               onChange={(e) => setDireccion(e.target.value)}
               placeholder="Calle, número, apartamento, ciudad..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
               rows={4}
               required
             />
@@ -77,7 +77,7 @@ export default function CheckoutPage() {
               onChange={(e) => setTarjeta(e.target.value.replace(/\s/g, '').slice(0, 16))}
               placeholder="1234 5678 9012 3456"
               maxLength={19}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
               required
             />
             <p className="text-sm text-gray-500 mt-2">
@@ -90,7 +90,7 @@ export default function CheckoutPage() {
             <h2 className="text-lg font-semibold mb-4">Resumen de Compra</h2>
             <div className="flex justify-between text-xl font-bold">
               <span>Total a Pagar:</span>
-              <span className="text-green-600">${total.toFixed(2)}</span>
+              <span className="text-pink-600">${total.toFixed(2)}</span>
             </div>
           </div>
 
@@ -106,7 +106,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold disabled:opacity-50"
+              className="flex-1 px-4 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition font-semibold disabled:opacity-50"
             >
               {loading ? 'Procesando...' : 'Finalizar Compra'}
             </button>

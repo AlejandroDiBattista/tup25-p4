@@ -64,7 +64,7 @@ export default function CompraDetallesPage() {
         <p className="text-gray-600 mb-4">Compra no encontrada</p>
         <Link
           href="/compras"
-          className="text-blue-600 hover:underline flex items-center gap-2"
+          className="text-pink-600 hover:underline flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           Volver a mis compras
@@ -77,7 +77,7 @@ export default function CompraDetallesPage() {
     <div className="container mx-auto px-4 py-12">
       <Link
         href="/compras"
-        className="text-blue-600 hover:underline flex items-center gap-2 mb-8"
+        className="text-pink-600 hover:underline flex items-center gap-2 mb-8"
       >
         <ArrowLeft className="w-4 h-4" />
         Volver a mis compras
@@ -147,9 +147,9 @@ export default function CompraDetallesPage() {
             </div>
           </div>
           <div className="flex justify-between text-xl font-bold">
-            <span>Total Pagado:</span>
-            <span className="text-green-600">${compra.total.toFixed(2)}</span>
-          </div>
+              <span>Total Pagado:</span>
+              <span className="text-pink-600">${compra.total.toFixed(2)}</span>
+            </div>
         </div>
       </div>
     </div>

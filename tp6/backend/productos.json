@@ -7,7 +7,7 @@
       "categoria": "Electrónica",
       "existencia": 5,
       "es_electronico": true,
-      "imagen_url": "/imagenes/laptop-gaming.jpg"
+      "imagen_url": "/imagenes/pc-gamer.jpeg"
     },
     {
       "nombre": "Monitor 27\" 144Hz",
@@ -16,7 +16,7 @@
       "categoria": "Electrónica",
       "existencia": 8,
       "es_electronico": true,
-      "imagen_url": "/imagenes/monitor.jpg"
+      "imagen_url": "/imagenes/monitor.avif"
     },
     {
       "nombre": "Teclado Mecánico",
@@ -34,7 +34,7 @@
       "categoria": "Accesorios",
       "existencia": 20,
       "es_electronico": false,
-      "imagen_url": "/imagenes/mouse.jpg"
+      "imagen_url": "/imagenes/Mouse-Gamer-Marvo-M209.jpg"
     },
     {
       "nombre": "Headset Inalámbrico",
@@ -43,7 +43,7 @@
       "categoria": "Accesorios",
       "existencia": 10,
       "es_electronico": false,
-      "imagen_url": "/imagenes/headset.jpg"
+      "imagen_url": "/imagenes/auri.jpg"
     },
     {
       "nombre": "Mousepad Grande",
@@ -52,7 +52,7 @@
       "categoria": "Accesorios",
       "existencia": 25,
       "es_electronico": false,
-      "imagen_url": "/imagenes/mousepad.jpg"
+      "imagen_url": "/imagenes/mouspad.jpg"
     },
     {
       "nombre": "Silla Gamer",
@@ -70,7 +70,7 @@
       "categoria": "Cables",
       "existencia": 50,
       "es_electronico": false,
-      "imagen_url": "/imagenes/cable-hdmi.jpg"
+      "imagen_url": "/imagenes/hdmi.jpg"
     },
     {
       "nombre": "Webcam 1080p",
@@ -88,7 +88,7 @@
       "categoria": "Almacenamiento",
       "existencia": 7,
       "es_electronico": true,
-      "imagen_url": "/imagenes/ssd.jpg"
+      "imagen_url": "/imagenes/memo.jpg"
     }
   ]
 }

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import json
 from sqlmodel import Session
 
@@ -17,11 +18,18 @@ app = FastAPI(
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especificar dominios exactos
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001", "http://localhost:3002", "http://127.0.0.1:3002"],  # permitir el frontend en dev (múltiples puertos)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Servir archivos estáticos (imágenes) si existe la carpeta 'imagenes' en el backend
+try:
+    app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+except Exception:
+    # Si la carpeta no existe en el entorno actual, no interrumpimos el arranque.
+    pass
 
 # Registrar rutas
 app.include_router(auth.router)

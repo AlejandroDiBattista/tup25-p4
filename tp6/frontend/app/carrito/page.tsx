@@ -77,7 +77,7 @@ export default function CarritoPage() {
       <div className="container mx-auto px-4 py-12 text-center">
         <ShoppingCart className="w-16 h-16 mx-auto text-gray-400 mb-4" />
         <h1 className="text-2xl font-bold mb-4">Tu carrito está vacío</h1>
-        <Link href="/" className="text-blue-600 hover:underline">
+        <Link href="/" className="text-pink-600 hover:underline">
           Volver a comprar
         </Link>
       </div>
@@ -111,7 +111,7 @@ export default function CarritoPage() {
                   <p className="text-gray-600">
                     ${item.producto?.precio} x {item.cantidad}
                   </p>
-                  <p className="font-bold text-blue-600">
+                  <p className="font-bold text-pink-600">
                     ${(item.producto ? item.producto.precio * item.cantidad : 0).toFixed(2)}
                   </p>
                 </div>
@@ -128,13 +128,13 @@ export default function CarritoPage() {
           <div className="mt-6 flex gap-4">
             <button
               onClick={handleCancelarCompra}
-              className="flex-1 px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition"
+              className="flex-1 px-4 py-2 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-50 transition focus:outline-none focus:ring-2 focus:ring-pink-500"
             >
               Cancelar Compra
             </button>
             <Link
               href="/"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-center hover:bg-blue-700 transition"
+              className="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg text-center hover:bg-pink-700 transition"
             >
               Seguir Comprando
             </Link>
@@ -162,12 +162,12 @@ export default function CarritoPage() {
 
           <div className="flex justify-between text-lg font-bold mb-6">
             <span>Total:</span>
-            <span>${carrito?.total.toFixed(2)}</span>
+            <span className="text-pink-600">${carrito?.total.toFixed(2)}</span>
           </div>
 
-          <Link
+            <Link
             href="/checkout"
-            className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition text-center block"
+            className="w-full bg-pink-600 text-white py-2 rounded-lg font-semibold hover:bg-pink-700 transition text-center block"
           >
             Ir a Pagar
           </Link>

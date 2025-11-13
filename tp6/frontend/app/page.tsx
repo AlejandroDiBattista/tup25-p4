@@ -6,7 +6,6 @@ import { SearchBar } from '@/components/search-bar';
 import { CategoryFilter } from '@/components/category-filter';
 import { apiClient } from '@/lib/api-client';
 import { ShoppingCart } from 'lucide-react';
-import Link from 'next/link';
 
 interface Producto {
   id: number;

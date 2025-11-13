@@ -81,7 +81,7 @@ export function ProductCard({ producto }: ProductCardProps) {
             <p className="text-sm text-gray-500 mt-1">{producto.categoria}</p>
           </div>
           {producto.es_electronico && (
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+            <span className="bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded">
               Electrónico
             </span>
           )}
@@ -100,7 +100,7 @@ export function ProductCard({ producto }: ProductCardProps) {
       </CardContent>
 
       <CardFooter className="flex justify-between items-center pt-3 border-t">
-        <span className="text-2xl font-bold text-blue-600">
+        <span className="text-2xl font-bold text-pink-600">
           ${producto.precio.toFixed(2)}
         </span>
         <Button

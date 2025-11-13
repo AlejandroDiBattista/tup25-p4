@@ -34,7 +34,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 flex items-center justify-center px-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-2">Iniciar Sesión</h1>
         <p className="text-gray-600 text-center mb-8">Accede a tu cuenta</p>
@@ -58,7 +58,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                 required
               />
             </div>
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 value={contraseña}
                 onChange={(e) => setContraseña(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                 required
               />
             </div>
@@ -84,7 +84,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+            className="w-full bg-pink-600 text-white py-2 rounded-lg font-semibold hover:bg-pink-700 transition disabled:opacity-50"
           >
             {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
@@ -92,7 +92,7 @@ export default function LoginPage() {
 
         <p className="text-center mt-6 text-gray-600">
           ¿No tienes cuenta?{' '}
-          <Link href="/registro" className="text-blue-600 hover:underline font-semibold">
+          <Link href="/registro" className="text-pink-600 hover:underline font-semibold">
             Regístrate
           </Link>
         </p>

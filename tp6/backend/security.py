@@ -14,6 +14,30 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def hash_password(password: str) -> str:
     """Hashea una contraseña"""
+    # Asegurarse de recibir una cadena
+    if password is None:
+        password = ""
+    if isinstance(password, bytes):
+        try:
+            password = password.decode("utf-8")
+        except Exception:
+            password = str(password)
+
+    # Bcrypt tiene un límite de 72 bytes; truncar si es necesario para evitar ValueError
+    try:
+        pw_bytes = password.encode("utf-8")
+    except Exception:
+        pw_bytes = str(password).encode("utf-8", errors="ignore")
+
+    if len(pw_bytes) > 72:
+        # Truncamos a 72 bytes y redecodificamos ignorando bytes incompletos al final
+        pw_bytes = pw_bytes[:72]
+        try:
+            password = pw_bytes.decode("utf-8")
+        except Exception:
+            # Fallback seguro
+            password = pw_bytes.decode("latin-1", errors="ignore")
+
     return pwd_context.hash(password)
 
 
