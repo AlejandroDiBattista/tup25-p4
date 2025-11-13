@@ -1,1 +1,1 @@
-# Este archivo permite que Python trate a 'models' como un paquete
+# Este archivo convierte al directorio 'auth' en un paquete de Python.
