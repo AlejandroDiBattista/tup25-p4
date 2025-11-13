@@ -31,7 +31,7 @@ class Producto(ProductoBase, table=True):
 
 class CarritoBase(SQLModel):
     usuario_id: int = Field(foreign_key="usuario.id")
-    estado: str = "activo"
+    estado: str = Field(default="activo")
 
 class Carrito(CarritoBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -95,4 +95,3 @@ class CarritoResponse(CarritoBase):
 class CompraResponse(CompraBase):
     id: int
     items: List[ItemCompraBase]
-# Este archivo permite que Python trate a 'models' como un paquete

@@ -95,4 +95,3 @@ class CarritoResponse(CarritoBase):
 class CompraResponse(CompraBase):
     id: int
     items: List[ItemCompraBase]
-# Este archivo permite que Python trate a 'models' como un paquete
