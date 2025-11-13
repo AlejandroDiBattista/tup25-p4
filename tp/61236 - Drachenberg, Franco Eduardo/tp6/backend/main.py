@@ -1,10 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import json
-from pathlib import Path
+
+from app.db.init_db import create_db_and_tables
+from app.db.session import get_engine
+from app.routers.auth import router as auth_router
+from app.routers.carrito import router as carrito_router
+from app.routers.compras import router as compras_router
+from app.routers.productos import router as productos_router
+
 
 app = FastAPI(title="API Productos")
+
+
+@app.on_event("startup")
+def startup_event() -> None:
+    engine = get_engine()
+    create_db_and_tables(engine)
+
 
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
@@ -18,21 +31,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
 
 @app.get("/")
 def root():
     return {"mensaje": "API de Productos - use /productos para obtener el listado"}
 
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
+
+app.include_router(auth_router)
+app.include_router(carrito_router)
+app.include_router(compras_router)
+app.include_router(productos_router)
+
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
