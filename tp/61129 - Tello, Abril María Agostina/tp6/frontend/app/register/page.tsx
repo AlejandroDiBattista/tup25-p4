@@ -13,18 +13,36 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const res = await fetch("/api/auth/register", {
+    
+    const registerRes = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, email, password })
     });
-    if (res.ok) {
-      // Simulación: guardar usuario en localStorage
-  localStorage.setItem("usuario", JSON.stringify({ nombre, email }));
-  window.dispatchEvent(new Event('storage'));
-  router.push("/");
-    } else {
+    
+    if (!registerRes.ok) {
       alert("Error al registrarse");
+      return;
+    }
+    
+    const loginRes = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    
+    if (loginRes.ok) {
+      const data = await loginRes.json();
+      localStorage.setItem("usuario", JSON.stringify({ 
+        nombre: data.nombre, 
+        email: data.email, 
+        access_token: data.access_token 
+      }));
+      window.dispatchEvent(new Event('storage'));
+      router.push("/");
+    } else {
+      alert("Registro exitoso, por favor inicie sesión");
+      router.push("/login");
     }
   }
 

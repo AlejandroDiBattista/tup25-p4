@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   const body = await request.json();
   const { nombre, email, password } = body;
-  // Reenviar al backend real
+  
   const params = new URLSearchParams();
   params.append('nombre', nombre);
   params.append('email', email);

@@ -31,7 +31,6 @@ app.add_middleware(
 SECRET_KEY = "supersecret"
 ALGORITHM = "HS256"
 
-# Utilidades
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -57,7 +56,6 @@ def get_current_user(token: str = ""):
 @app.on_event("startup")
 def startup():
     crear_db()
-    # Seed de productos si la tabla está vacía
     from sqlmodel import Session
     ruta_json = Path(__file__).parent / "productos.json"
     with Session(get_session.__globals__["engine"]) as session:
@@ -98,7 +96,6 @@ async def registrar(request: Request, session: Session = Depends(get_session)):
 
 @app.post("/iniciar-sesion")
 async def iniciar_sesion(request: Request, session: Session = Depends(get_session)):
-    # Permitir tanto form-data como JSON
     if request.headers.get("content-type", "").startswith("application/json"):
         data = await request.json()
         email = data.get("email")
@@ -187,25 +184,67 @@ def quitar_item_carrito(token: str, producto_id: int, session: Session = Depends
     return {"ok": True}
 
 @app.post("/carrito/finalizar")
-def finalizar_compra(token: str, direccion: str, tarjeta: str, session: Session = Depends(get_session)):
+async def finalizar_compra(request: Request, token: str, direccion: str, tarjeta: str, session: Session = Depends(get_session)):
     user_id = get_current_user(token)
-    carrito = session.exec(select(Carrito).where((Carrito.usuario_id == user_id) & (Carrito.estado == "activo"))).first()
-    items = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
-    if not items:
+    
+    try:
+        body = await request.body()
+        if body:
+            import json
+            carrito_data = json.loads(body.decode())
+            items_frontend = carrito_data.get("productos", [])
+        else:
+            items_frontend = []
+    except:
+        items_frontend = []
+    
+    if not items_frontend:
+        carrito = session.exec(select(Carrito).where((Carrito.usuario_id == user_id) & (Carrito.estado == "activo"))).first()
+        if carrito:
+            items_bd = session.exec(select(CarritoItem).where(CarritoItem.carrito_id == carrito.id)).all()
+            items_frontend = [{"id": i.producto_id, "cantidad": i.cantidad} for i in items_bd]
+    
+    if not items_frontend:
         raise HTTPException(status_code=400, detail="Carrito vacío")
-    subtotal = sum([session.get(Producto, i.producto_id).precio * i.cantidad for i in items])
+    
+    subtotal = 0
     total_iva = 0
-    for i in items:
-        prod = session.get(Producto, i.producto_id)
-        iva = 0.1 if prod.categoria.lower() == "electronica" else 0.21
-        total_iva += prod.precio * iva * i.cantidad
-    costo_envio = 0 if subtotal > 1000 else 50
+    productos_compra = []
+    
+    for item in items_frontend:
+        prod = session.get(Producto, item["id"])
+        if not prod:
+            raise HTTPException(status_code=404, detail=f"Producto {item['id']} no encontrado")
+        
+        if prod.existencia < item["cantidad"]:
+            raise HTTPException(status_code=400, detail=f"Stock insuficiente para {prod.nombre}. Disponible: {prod.existencia}")
+        
+        cantidad = item["cantidad"]
+        precio_unitario = prod.precio
+        subtotal_item = precio_unitario * cantidad
+        
+        iva_tasa = 0.10 if prod.categoria.lower() in ["electronica", "electrónica"] else 0.21
+        iva_item = subtotal_item * iva_tasa
+        
+        subtotal += subtotal_item
+        total_iva += iva_item
+        
+        productos_compra.append({
+            "producto": prod,
+            "cantidad": cantidad,
+            "precio_unitario": precio_unitario,
+            "subtotal": subtotal_item,
+            "iva": iva_item
+        })
+    
+    costo_envio = 0 if (subtotal + total_iva) > 1000 else 50
     total_final = subtotal + total_iva + costo_envio
+    
     compra = Compra(
         usuario_id=user_id,
         fecha=datetime.now(),
         direccion_envio=direccion,
-        metodo_pago=tarjeta[-4:],
+        metodo_pago=tarjeta[-4:] if len(tarjeta) >= 4 else tarjeta,
         total_productos=subtotal,
         total_iva=total_iva,
         costo_envio=costo_envio,
@@ -214,21 +253,29 @@ def finalizar_compra(token: str, direccion: str, tarjeta: str, session: Session 
     session.add(compra)
     session.commit()
     session.refresh(compra)
-    for i in items:
-        prod = session.get(Producto, i.producto_id)
+    
+    for item in productos_compra:
+        prod = item["producto"]
+        cantidad = item["cantidad"]
+        
         compra_item = CompraItem(
             compra_id=compra.id,
             producto_id=prod.id,
             nombre_producto_snapshot=prod.nombre,
-            precio_unitario_snapshot=prod.precio,
-            cantidad=i.cantidad
+            precio_unitario_snapshot=item["precio_unitario"],
+            cantidad=cantidad
         )
-        prod.existencia -= i.cantidad
+        
+        prod.existencia -= cantidad
         session.add(prod)
         session.add(compra_item)
-    carrito.estado = "finalizado"
+    
+    carrito = session.exec(select(Carrito).where((Carrito.usuario_id == user_id) & (Carrito.estado == "activo"))).first()
+    if carrito:
+        carrito.estado = "finalizado"
+    
     session.commit()
-    return {"compra_id": compra.id}
+    return {"compra_id": compra.id, "total": total_final}
 
 @app.post("/carrito/cancelar")
 def cancelar_carrito(token: str, session: Session = Depends(get_session)):

@@ -1,14 +1,38 @@
 "use client";
 import NavBarClient from "../components/NavBarClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
 export default function CheckoutPage() {
   const [finalizada, setFinalizada] = useState(false);
+  const [carrito, setCarrito] = useState<any[]>([]);
+  const [usuario, setUsuario] = useState<any>(null);
   const router = useRouter();
-  // Obtener productos seleccionados del carrito desde localStorage
-  const carrito = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("carrito") || "[]") : [];
+
+  const obtenerClaveCarrito = (usuarioEmail?: string) => {
+    return usuarioEmail ? `carrito_${usuarioEmail}` : "carrito";
+  };
+
+  useEffect(() => {
+    const usuarioGuardado = localStorage.getItem("usuario");
+    let usuarioObj = null;
+    
+    if (usuarioGuardado) {
+      usuarioObj = JSON.parse(usuarioGuardado);
+      setUsuario(usuarioObj);
+    }
+    
+    if (usuarioObj?.email) {
+      const claveCarrito = obtenerClaveCarrito(usuarioObj.email);
+      const carritoGuardado = localStorage.getItem(claveCarrito);
+      if (carritoGuardado) {
+        setCarrito(JSON.parse(carritoGuardado));
+      }
+    }
+  }, []);
+
   const subtotal = carrito.reduce((acc: number, item: any) => acc + item.precio * item.cantidad, 0);
-  // IVA diferenciado por producto
+  
   const ivaPorProducto = carrito.map((item: any) => {
     const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
     const ivaTasa = esElectronico ? 0.10 : 0.21;
@@ -20,8 +44,6 @@ export default function CheckoutPage() {
 
   const [direccion, setDireccion] = useState("");
   const [tarjeta, setTarjeta] = useState("");
-  // Obtener usuario actual
-  const usuario = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("usuario") || "null") : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,31 +84,84 @@ export default function CheckoutPage() {
               </section>
               <section className="bg-white rounded-2xl shadow p-10 flex-1 border border-gray-200">
                 <h2 className="text-2xl font-bold mb-8">Datos de envío</h2>
-                <form className="flex flex-col gap-6" onSubmit={e => {
+                <form className="flex flex-col gap-6" onSubmit={async (e) => {
                   e.preventDefault();
-                  // Guardar la compra en localStorage, incluyendo IVA por producto
-                  const compras = JSON.parse(localStorage.getItem("compras") || "[]");
-                  // Agregar el IVA de cada producto al carrito
-                  const carritoConIVA = carrito.map((item: any) => {
-                    const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
-                    const ivaTasa = esElectronico ? 0.10 : 0.21;
-                    return { ...item, iva: item.precio * item.cantidad * ivaTasa };
-                  });
-                  compras.push({
-                    fecha: new Date().toISOString(),
-                    carrito: carritoConIVA,
-                    subtotal,
-                    iva,
-                    envio,
-                    total,
-                    direccion,
-                    tarjeta,
-                    usuario: usuario?.email ?? null
-                  });
-                  localStorage.setItem("compras", JSON.stringify(compras));
-                  // Vaciar el carrito
-                  localStorage.setItem("carrito", JSON.stringify([]));
-                  setFinalizada(true);
+                  
+                  try {
+                    const token = usuario?.access_token;
+                    
+                    if (!token) {
+                      alert("Error: No se encontró token de usuario. Por favor, inicie sesión nuevamente.");
+                      console.log("Usuario object:", usuario);
+                      return;
+                    }
+
+                    console.log("Token encontrado:", token.substring(0, 10) + "...");
+                    const compraData = {
+                      productos: carrito.map((item: any) => ({
+                        id: item.id,
+                        cantidad: item.cantidad,
+                        precio: item.precio
+                      }))
+                    };
+
+                    console.log("Enviando compra al backend:", compraData);
+
+                    const params = new URLSearchParams({
+                      token: token,
+                      direccion: direccion,
+                      tarjeta: tarjeta
+                    });
+
+                    const response = await fetch(`http://localhost:8000/carrito/finalizar?${params}`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json"
+                      },
+                      body: JSON.stringify(compraData)
+                    });
+
+                    if (!response.ok) {
+                      let errorMessage = `Error ${response.status}: ${response.statusText}`;
+                      try {
+                        const errorData = await response.text();
+                        errorMessage = errorData || errorMessage;
+                      } catch {}
+                      
+                      console.error("Error en la compra:", errorMessage);
+                      alert(`Error al procesar la compra: ${errorMessage}`);
+                      return;
+                    }
+
+                    const compras = JSON.parse(localStorage.getItem("compras") || "[]");
+
+                    const carritoConIVA = carrito.map((item: any) => {
+                      const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
+                      const ivaTasa = esElectronico ? 0.10 : 0.21;
+                      return { ...item, iva: item.precio * item.cantidad * ivaTasa };
+                    });
+                    compras.push({
+                      fecha: new Date().toISOString(),
+                      carrito: carritoConIVA,
+                      subtotal,
+                      iva,
+                      envio,
+                      total,
+                      direccion,
+                      tarjeta,
+                      usuario: usuario?.email ?? null
+                    });
+                    localStorage.setItem("compras", JSON.stringify(compras));
+                    
+                    const claveCarrito = obtenerClaveCarrito(usuario?.email);
+                    localStorage.setItem(claveCarrito, JSON.stringify([]));
+                    
+                    setFinalizada(true);
+                    
+                  } catch (error) {
+                    console.error("Error al procesar la compra:", error);
+                    alert("Error de red al procesar la compra");
+                  }
                 }}>
                   <div>
                     <label className="block mb-2 text-base font-semibold text-gray-700">Dirección</label>

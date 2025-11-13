@@ -16,31 +16,28 @@ class Producto(SQLModel, table=True):
     imagen: str = Field(default="")
 
 
-# Modelo básico de Usuario
+# Modelo de Usuario
 class Usuario(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str
     email: str
     password: str
 
-# Modelo básico de Carrito
-
-# Modelo extendido de Carrito
+# Modelo de Carrito
 class Carrito(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int
     estado: str = Field(default="activo")
 
-# Modelo básico de CarritoItem
+# Modelo de CarritoItem
 class CarritoItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     carrito_id: int
     producto_id: int
     cantidad: int
 
-# Modelo básico de Compra
 
-# Modelo extendido de Compra
+# Modelo de Compra
 class Compra(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     usuario_id: int
@@ -52,9 +49,8 @@ class Compra(SQLModel, table=True):
     costo_envio: float = 0.0
     total_final: float = 0.0
 
-# Modelo básico de CompraItem
 
-# Modelo extendido de CompraItem
+# Modelo de CompraItem
 class CompraItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     compra_id: int

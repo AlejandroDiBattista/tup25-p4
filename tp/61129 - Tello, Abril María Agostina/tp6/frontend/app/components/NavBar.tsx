@@ -11,7 +11,6 @@ export default function NavBar() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
 
   useEffect(() => {
-    // Simulación: buscar usuario en localStorage
     const getUsuario = () => {
       const user = typeof window !== "undefined" ? localStorage.getItem("usuario") : null;
       if (user) {

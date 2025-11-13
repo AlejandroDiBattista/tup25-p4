@@ -29,7 +29,11 @@ export default function LoginPage() {
     });
     if (res.ok) {
       const data = await res.json();
-      localStorage.setItem("usuario", JSON.stringify({ nombre: data.nombre, email: data.email }));
+      localStorage.setItem("usuario", JSON.stringify({ 
+        nombre: data.nombre, 
+        email: data.email, 
+        access_token: data.access_token 
+      }));
       window.dispatchEvent(new Event('storage'));
       router.push("/");
     } else {

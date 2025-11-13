@@ -14,9 +14,36 @@ export default function Home() {
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>("");
   const [carrito, setCarrito] = useState<(Producto & { cantidad: number })[]>([]);
   const [productosStock, setProductosStock] = useState<Record<number, number>>({});
-  const [usuario, setUsuario] = useState<{ nombre: string } | null>(null);
+  const [usuario, setUsuario] = useState<{ nombre: string; email: string } | null>(null);
 
-  // Función auxiliar para actualizar el stock
+  const obtenerClaveCarrito = () => {
+    return usuario?.email ? `carrito_${usuario.email}` : "carrito";
+  };
+
+  const cargarCarritoUsuario = () => {
+    if (typeof window !== "undefined") {
+      const claveCarrito = obtenerClaveCarrito();
+      const carritoGuardado = localStorage.getItem(claveCarrito);
+      if (carritoGuardado) {
+        try {
+          const carritoParseado = JSON.parse(carritoGuardado);
+          if (Array.isArray(carritoParseado)) {
+            setCarrito(carritoParseado);
+          }
+        } catch {}
+      } else {
+        setCarrito([]); 
+      }
+    }
+  };
+
+  const guardarCarritoUsuario = (nuevoCarrito: (Producto & { cantidad: number })[]) => {
+    if (typeof window !== "undefined") {
+      const claveCarrito = obtenerClaveCarrito();
+      localStorage.setItem(claveCarrito, JSON.stringify(nuevoCarrito));
+    }
+  };
+
   function actualizarStock(nuevosProductos: Producto[]) {
     let stockMap: Record<number, number> = {};
     nuevosProductos.forEach((p: Producto) => {
@@ -26,39 +53,29 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // Escuchar cambios en localStorage para cerrar sesión globalmente
     const syncUsuario = () => {
       const user = typeof window !== "undefined" ? localStorage.getItem("usuario") : null;
       if (user) {
         setUsuario(JSON.parse(user));
       } else {
         setUsuario(null);
+        setCarrito([]); 
       }
     };
     syncUsuario();
     window.addEventListener("storage", syncUsuario);
 
-    // Recuperar carrito de localStorage al cargar la página
-    if (typeof window !== "undefined") {
-      const carritoGuardado = localStorage.getItem("carrito");
-      if (carritoGuardado) {
-        try {
-          const carritoParseado = JSON.parse(carritoGuardado);
-          if (Array.isArray(carritoParseado)) {
-            setCarrito(carritoParseado);
-          }
-        } catch {}
-      }
-    }
-
     return () => window.removeEventListener("storage", syncUsuario);
   }, []);
+
+  useEffect(() => {
+    cargarCarritoUsuario();
+  }, [usuario?.email]);
 
   useEffect(() => {
     obtenerProductos().then((data: Producto[]) => {
       setProductos(data);
       setCategorias(Array.from(new Set(data.map((p: Producto) => p.categoria).filter((cat): cat is string => typeof cat === 'string'))));
-      // Inicializar stock considerando el carrito guardado
       let stockMap: Record<number, number> = {};
       data.forEach((p: Producto) => {
         const stockOriginal = p.existencia || 0;
@@ -68,6 +85,36 @@ export default function Home() {
       setProductosStock(stockMap);
     });
   }, [carrito]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        obtenerProductos().then((data: Producto[]) => {
+          setProductos(data);
+          actualizarStock(data);
+        });
+      }
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'carrito' && e.newValue === '[]') {
+        setTimeout(() => {
+          obtenerProductos().then((data: Producto[]) => {
+            setProductos(data);
+            actualizarStock(data);
+          });
+        }, 1000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const productosFiltrados = productos.filter((p: Producto) =>
     (categoriaFiltro ? p.categoria === categoriaFiltro : true) &&
@@ -90,9 +137,8 @@ export default function Home() {
       } else {
         nuevoCarrito = [...prev, { ...producto, cantidad: 1 }];
       }
-      // Actualizar productosStock para mostrar correctamente el disponible
       setProductosStock((s) => ({ ...s, [producto.id]: stockOriginal - (cantidadEnCarrito + 1) }));
-      localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+      guardarCarritoUsuario(nuevoCarrito);
       setMensajeCarrito(null);
       return nuevoCarrito;
     });
@@ -114,7 +160,7 @@ export default function Home() {
         }
         return item;
       });
-      localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+      guardarCarritoUsuario(nuevoCarrito);
       return nuevoCarrito;
     });
   }
@@ -122,9 +168,8 @@ export default function Home() {
   function eliminarDelCarrito(id: number) {
     setCarrito((prev: (Producto & { cantidad: number })[]) => {
       const nuevoCarrito = prev.filter((item) => item.id !== id);
-      localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+      guardarCarritoUsuario(nuevoCarrito);
       
-      // Restaurar stock del producto eliminado
       const productoEliminado = prev.find((item) => item.id === id);
       if (productoEliminado) {
         const stockOriginal = productos.find((p: Producto) => p.id === id)?.existencia ?? 0;
@@ -135,16 +180,13 @@ export default function Home() {
     });
   }
 
-  // Calcular totales con IVA diferenciado
   const subtotal = carrito.reduce((acc: number, item: Producto & { cantidad: number }) => acc + item.precio * item.cantidad, 0);
-  // IVA por producto: electrónicos 10%, resto 21%
   const ivaPorProducto = carrito.map((item: Producto & { cantidad: number }) => {
     const esElectronico = (item.categoria?.toLowerCase() === "electrónica" || item.categoria?.toLowerCase() === "electronica");
     const ivaTasa = esElectronico ? 0.10 : 0.21;
     return item.precio * item.cantidad * ivaTasa;
   });
   const iva = ivaPorProducto.reduce((acc: number, v: number) => acc + v, 0);
-  // Envío gratis si subtotal + iva > 1000
   const envio = (carrito.length > 0 && (subtotal + iva) > 1000) ? 0 : (carrito.length > 0 ? 50 : 0);
   const total = subtotal + iva + envio;
 
@@ -214,7 +256,6 @@ export default function Home() {
                     const ivaItem = item.precio * item.cantidad * ivaTasa;
                     return (
                       <div key={item.id} className="relative bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-md border border-gray-200 p-4 hover:shadow-lg transition-shadow">
-                        {/* Botón X para eliminar */}
                         <button
                           onClick={() => eliminarDelCarrito(item.id)}
                           className="absolute top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors shadow-md"
@@ -317,8 +358,7 @@ export default function Home() {
                     <button
                       className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105 shadow-lg"
                       onClick={() => {
-                        // Guardar carrito actual en localStorage y redirigir al checkout
-                        localStorage.setItem("carrito", JSON.stringify(carrito));
+                        guardarCarritoUsuario(carrito);
                         router.push('/checkout');
                       }}
                     >

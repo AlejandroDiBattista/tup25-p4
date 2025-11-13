@@ -15,9 +15,8 @@ export default function ComprasPage() {
   useEffect(() => {
     const usuario = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("usuario") || "null") : null;
     const comprasGuardadas = JSON.parse(localStorage.getItem("compras") || "[]");
-    // Filtrar compras por usuario actual
     const comprasUsuario = usuario?.email ? comprasGuardadas.filter((c: any) => c.usuario === usuario.email) : [];
-    setCompras(comprasUsuario.reverse()); // Mostrar la última primero
+    setCompras(comprasUsuario.reverse()); 
   }, []);
 
   return (

@@ -34,7 +34,7 @@ def test_get_productos():
     assert isinstance(response.json(), list)
 
 def test_agregar_y_quitar_producto_carrito():
-    # Registrar y loguear usuario con email único
+
     email = f"carritouser_{uuid.uuid4().hex}@example.com"
     client.post("/registrar", json={
         "nombre": "Carrito User",
@@ -47,13 +47,13 @@ def test_agregar_y_quitar_producto_carrito():
     })
     token = login.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
-    # Obtener productos
+    
     productos = client.get("/productos").json()
     producto_id = productos[0]["id"]
-    # Agregar producto al carrito
+    
     response = client.post(f"/carrito?token={token}&producto_id={producto_id}&cantidad=1", headers=headers)
     assert response.status_code == 200
-    # Quitar producto del carrito
+    
     response = client.delete(f"/carrito/{producto_id}?token={token}", headers=headers)
     assert response.status_code == 200
 
