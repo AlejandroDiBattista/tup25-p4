@@ -1,9 +1,39 @@
 import { Producto } from '../types';
 import Image from 'next/image';
+"use client";
+import { Product } from "../types";
+import { addToCart } from "../services/cart";
+import { getToken } from "../services/auth";
+import { useState } from "react";
 
 interface ProductoCardProps {
   producto: Producto;
 }
+export default function ProductoCard({ producto }: { producto: Product }) {
+  const agotado = producto.existencia <= 0;
+  const [loading, setLoading] = useState(false);
+
+  async function handleAgregar() {
+    if (agotado) return;
+    setLoading(true);
+    try {
+      const res = await addToCart(producto.id, 1);
+      if (res.ok) {
+        alert("Producto agregado al carrito");
+      } else {
+        if (res.status === 401) {
+          alert("Debes iniciar sesión para agregar al carrito");
+        } else {
+          const text = await res.text();
+          alert("Error: " + text);
+        }
+      }
+    } catch (e) {
+      alert("Error al agregar al carrito");
+    } finally {
+      setLoading(false);
+    }
+  }
 
 export default function ProductoCard({ producto }: ProductoCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -19,6 +49,19 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           className="object-contain p-4"
           unoptimized
         />
+    <div className="bg-white p-4 rounded shadow">
+      <div className="h-48 flex items-center justify-center mb-4">
+        {producto.imagen ? (
+          <img src={`${process.env.NEXT_PUBLIC_API_URL || ""}/imagenes/${producto.imagen}`} alt={producto.nombre} className="max-h-full" />
+        ) : (
+          <div className="text-gray-400">Sin imagen</div>
+        )}
+      </div>
+      <h3 className="font-semibold">{producto.nombre}</h3>
+      <p className="text-sm text-gray-600">{producto.descripcion}</p>
+      <div className="mt-2 flex items-center justify-between">
+        <span className="font-bold">${producto.precio.toFixed(2)}</span>
+        {agotado ? <span className="text-red-500">Agotado</span> : <span className="text-green-600">Stock: {producto.existencia}</span>}
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
@@ -44,6 +87,10 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
             Stock: {producto.existencia}
           </span>
         </div>
+      <div className="mt-3">
+        <button onClick={handleAgregar} disabled={agotado || loading} className={`px-3 py-1 rounded ${agotado ? "bg-gray-300" : "bg-blue-600 text-white"}`}>
+          {loading ? "..." : "Agregar"}
+        </button>
       </div>
     </div>
   );
