@@ -82,6 +82,8 @@ export interface CompraResumen {
   envio: number;
   total: number;
   cantidad_items: number;
+  direccion?: string;
+  tarjeta?: string;
 }
 
 export interface CompraDetalle extends CompraResumen {
