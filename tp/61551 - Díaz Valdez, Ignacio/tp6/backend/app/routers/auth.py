@@ -6,7 +6,7 @@ Endpoints:
  - POST /cerrar-sesion: punto para logout (dummy)
 """
 
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Depends
 from sqlmodel import select
 from ..database import get_session
 from models import Usuario
@@ -17,6 +17,7 @@ from ..deps import (
     authenticate_user,
     create_access_token,
     Token,
+    get_current_user,
 )
 
 router = APIRouter(prefix="", tags=["auth"])  # root-level endpoints
@@ -51,3 +52,8 @@ def iniciar_sesion(datos: UsuarioLogin = Body(...)):
 def cerrar_sesion():
     """Cerrar sesión (dummy); el cliente debe descartar el token JWT."""
     return {"message": "Sesión cerrada. El token debe eliminarse en el cliente."}
+
+@router.get("/me", summary="Perfil del usuario autenticado")
+def perfil(current = Depends(get_current_user)):
+    """Devolver datos básicos del usuario autenticado."""
+    return {"id": current.id, "email": current.email, "nombre": current.nombre}

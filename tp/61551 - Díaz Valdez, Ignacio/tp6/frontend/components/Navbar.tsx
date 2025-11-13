@@ -7,10 +7,12 @@ import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { toggle, count } = useCart();
-  const { authenticated, logout } = useAuth();
+  const { authenticated, userName, logout } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const handleLogout = () => {
+    const ok = window.confirm("¿Quieres cerrar sesión?");
+    if (!ok) return;
     logout();
     toast("Sesión cerrada");
     router.push("/");
@@ -37,7 +39,10 @@ export default function Navbar() {
           )}
         </Button>
           {authenticated ? (
-            <Button variant="ghost" size="sm" onClick={handleLogout}>Salir</Button>
+            <>
+              {userName && <span className="text-sm text-gray-700">{userName}</span>}
+              <Button variant="ghost" size="sm" onClick={handleLogout}>Salir</Button>
+            </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm"><a href="/login">Ingresar</a></Button>
