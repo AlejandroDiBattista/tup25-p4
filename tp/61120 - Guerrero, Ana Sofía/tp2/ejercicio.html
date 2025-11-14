@@ -1,15 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <meta charset="utf-8" />
+    <title>TP2 – Agenda de contactos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Pico.css por CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css" />
+    <!-- Estilos propios -->
     <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
   </head>
   <body>
-    <!-- Contenido principal de la agenda -->
+    <header class="container">
+      <nav>
+        <ul>
+          <li><strong>Agenda de contactos</strong></li>
+        </ul>
+        <ul>
+          <li>
+            <input id="search" type="search" placeholder="Buscar nombre, apellido, teléfono o email" aria-label="Buscar" />
+          </li>
+          <li>
+            <button id="addBtn" class="contrast">Agregar</button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section id="cards" aria-live="polite"></section>
+    </main>
+
+    <!-- Diálogo de alta/edición -->
+    <dialog id="contactDialog">
+      <article>
+        <header>
+          <h2 id="dialogTitle">Nuevo contacto</h2>
+        </header>
+        <form id="contactForm">
+          <input type="hidden" id="contactId" />
+          <label>
+            Nombre
+            <input id="nombre" type="text" required />
+          </label>
+          <label>
+            Apellido
+            <input id="apellido" type="text" required />
+          </label>
+          <label>
+            Teléfono
+            <input id="telefono" type="tel" required />
+          </label>
+          <label>
+            Email
+            <input id="email" type="email" required />
+          </label>
+          <footer>
+            <button type="submit" class="primary">Guardar</button>
+            <button type="button" id="cancelBtn" class="secondary">Cancelar</button>
+          </footer>
+        </form>
+      </article>
+    </dialog>
+
+    <script src="./ejercicio.js" type="module"></script>
   </body>
-  </html>
+</html>
+
 
