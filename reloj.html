@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cuenta regresiva personalizada</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-color: #050814;
+      --font-family: "SF Mono", Monaco, "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--bg-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-family);
+      color: #ffffff;
+      position: relative;
+    }
+
+    /* Fondo animado borroso con pasteles */
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      filter: blur(40px);
+      opacity: 0.9;
+      z-index: 0;
+    }
+
+    .bg-layer::before,
+    .bg-layer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .bg-layer::before {
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 160, 215, 0.9), transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(120, 210, 255, 0.85), transparent 55%);
+      animation: floatColors1 8s infinite alternate ease-in-out;
+    }
+
+    .bg-layer::after {
+      background:
+        radial-gradient(circle at 0% 80%, rgba(75, 225, 210, 0.85), transparent 55%),
+        radial-gradient(circle at 90% 85%, rgba(255, 215, 140, 0.9), transparent 55%);
+      animation: floatColors2 9s infinite alternate ease-in-out;
+    }
+
+    @keyframes floatColors1 {
+      0% {
+        transform: translate3d(0, 0, 0) scale(1.2);
+      }
+      25% {
+        transform: translate3d(12%, -8%, 0) scale(1.35);
+      }
+      50% {
+        transform: translate3d(-9%, 10%, 0) scale(1.25);
+      }
+      75% {
+        transform: translate3d(7%, 5%, 0) scale(1.4);
+      }
+      100% {
+        transform: translate3d(-10%, -8%, 0) scale(1.3);
+      }
+    }
+
+    @keyframes floatColors2 {
+      0% {
+        transform: translate3d(0, 0, 0) scale(1.3) rotate(0deg);
+      }
+      25% {
+        transform: translate3d(-10%, 8%, 0) scale(1.2) rotate(8deg);
+      }
+      50% {
+        transform: translate3d(11%, -6%, 0) scale(1.35) rotate(-4deg);
+      }
+      75% {
+        transform: translate3d(-7%, -10%, 0) scale(1.25) rotate(6deg);
+      }
+      100% {
+        transform: translate3d(9%, 11%, 0) scale(1.4) rotate(-3deg);
+      }
+    }
+
+    /* Oscurecer un toque para contraste */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.35), transparent),
+                  radial-gradient(circle at bottom, rgba(0, 0, 0, 0.4), transparent);
+      z-index: 1;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+
+    .card,
+    .timer-wrapper {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .card {
+      width: min(620px, 100%);
+      padding: 2.5rem;
+      border-radius: 24px;
+      background: rgba(5, 8, 20, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(16px);
+    }
+
+    .timer-wrapper {
+      width: min(900px, 100%);
+      padding: 1rem;
+    }
+
+    .card h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+    }
+
+    .card p {
+      opacity: 0.75;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      width: 100%;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    label {
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    textarea,
+    select {
+      width: 100%;
+      padding: 1rem 1.1rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s ease, background 0.2s ease;
+      resize: vertical;
+    }
+
+    textarea::placeholder {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    select:invalid {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #ffffff 50%),
+        linear-gradient(135deg, #ffffff 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(50% + 2px), calc(100% - 12px) calc(50% + 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 2.5rem;
+    }
+
+    select option {
+      background: #050814;
+      color: #ffffff;
+    }
+
+    button {
+      width: 100%;
+      padding: 1.1rem;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(120deg, #f857a6, #ff5858);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(248, 87, 166, 0.35);
+    }
+
+    .helper-text {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+
+    #countdown-message {
+      font-size: 30px;
+      font-weight: 900;
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      line-height: 1.35;
+      white-space: pre-line;
+      text-align: left;
+      align-self: stretch;
+    }
+
+    #countdown-message h1,
+    #countdown-message h2 {
+      margin: 0 0 0.4rem;
+      font-weight: 900;
+      color:#f857a6
+    }
+
+    #countdown-message h2 {
+      font-size: 40px;
+    }
+
+    #countdown-message p {
+      margin: 0 0 0.4rem;
+      font-weight: 400;
+    }
+
+    #countdown-message strong {
+      font-weight: 800;
+    }
+
+    #countdown-message em {
+      font-style: italic;
+    }
+
+    #countdown-message ul,
+    #countdown-message ol {
+      padding-left: 1rem;
+      margin: 0 0 0.4rem;
+    }
+
+    #timer {
+      letter-spacing: 0.12em;
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      /* tamaño gigante responsivo */
+      font-size: clamp(4rem, 16vw, 11rem);
+    }
+
+    /* Estilos para minutos (muy grueso) y segundos (muy fino) */
+    #timer .minutes {
+      font-weight: 900;
+    }
+
+    #timer .seconds {
+      font-weight: 100;
+    }
+
+    .label {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      opacity: 0.78;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="overlay"></div>
+
+  <div class="card" id="setup-screen">
+    <h1>Configura tu cuenta regresiva</h1>
+    <p>Escribe el recordatorio que quieras destacar y elige cuántos minutos durará la cuenta atrás.</p>
+    <form id="setup-form">
+      <div class="form-group">
+        <label for="message-input">Texto destacado</label>
+        <textarea id="message-input" placeholder="Puedes escribir varias líneas o párrafos..." rows="6" maxlength="900" required></textarea>
+        <span class="helper-text">Acepta varios párrafos; se mostrará exactamente como lo escribas.</span>
+      </div>
+      <div class="form-group">
+        <label for="duration-select">Duración</label>
+        <select id="duration-select" required>
+          <option value="" disabled selected>Elige minutos</option>
+          <option value="1">1 minuto</option>
+          <option value="2">2 minutos</option>
+          <option value="3">3 minutos</option>
+          <option value="5">5 minutos</option>
+          <option value="10">10 minutos</option>
+          <option value="15">15 minutos</option>
+          <option value="20">20 minutos</option>
+        </select>
+      </div>
+      <button type="submit">Iniciar cuenta atrás</button>
+    </form>
+  </div>
+
+  <div class="timer-wrapper hidden" id="countdown-screen" aria-live="polite">
+    <div id="countdown-message"></div>
+    <div class="label">Tiempo restante</div>
+    <div id="timer">00:00</div>
+  </div>
+
+  <script>
+    const form = document.getElementById("setup-form");
+    const setupScreen = document.getElementById("setup-screen");
+    const countdownScreen = document.getElementById("countdown-screen");
+    const messageInput = document.getElementById("message-input");
+    const durationSelect = document.getElementById("duration-select");
+    const messageEl = document.getElementById("countdown-message");
+    const timerEl = document.getElementById("timer");
+
+    let remainingSeconds = 0;
+    let countdownInterval = null;
+
+    function updateTimerDisplay(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const sec = seconds % 60;
+      const mm = String(minutes).padStart(2, "0");
+      const ss = String(sec).padStart(2, "0");
+      timerEl.innerHTML = `<span class="minutes">${mm}</span>:<span class="seconds">${ss}</span>`;
+    }
+
+    function escapeHtml(value) {
+      return value.replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#39;");
+    }
+
+    function parseInlineMarkdown(value) {
+      let result = value;
+      result = result.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      result = result.replace(/\*(?!\*)(.+?)\*(?!\*)/g, "<em>$1</em>");
+      return result;
+    }
+
+    function parseMarkdown(text) {
+      const lines = text.split(/\r?\n/);
+      let html = "";
+      let currentList = null;
+
+      const closeList = () => {
+        if (currentList) {
+          html += `</${currentList}>`;
+          currentList = null;
+        }
+      };
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+
+        if (!line) {
+          closeList();
+          html += "<br>";
+          continue;
+        }
+
+        const headingMatch = line.match(/^(#{1,2})\s+(.*)$/);
+        const bulletMatch = line.match(/^[-*]\s+(.*)$/);
+        const numberedMatch = line.match(/^(\d+)\.\s+(.*)$/);
+
+        if (headingMatch) {
+          closeList();
+          const level = headingMatch[1].length === 1 ? "h1" : "h2";
+          const content = parseInlineMarkdown(escapeHtml(headingMatch[2]));
+          html += `<${level}>${content}</${level}>`;
+          continue;
+        }
+
+        if (numberedMatch) {
+          if (currentList !== "ol") {
+            closeList();
+            html += "<ol>";
+            currentList = "ol";
+          }
+          const content = parseInlineMarkdown(escapeHtml(numberedMatch[2]));
+          html += `<li>${content}</li>`;
+          continue;
+        }
+
+        if (bulletMatch) {
+          if (currentList !== "ul") {
+            closeList();
+            html += "<ul>";
+            currentList = "ul";
+          }
+          const content = parseInlineMarkdown(escapeHtml(bulletMatch[1]));
+          html += `<li>${content}</li>`;
+          continue;
+        }
+
+        closeList();
+        const content = parseInlineMarkdown(escapeHtml(line));
+        html += `<p>${content}</p>`;
+      }
+
+      closeList();
+      return html;
+    }
+
+    function startCountdown(totalSeconds) {
+      clearInterval(countdownInterval);
+      remainingSeconds = totalSeconds;
+      updateTimerDisplay(remainingSeconds);
+
+      countdownInterval = setInterval(() => {
+        remainingSeconds = Math.max(remainingSeconds - 1, 0);
+        updateTimerDisplay(remainingSeconds);
+        if (remainingSeconds === 0) {
+          clearInterval(countdownInterval);
+        }
+      }, 1000);
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const message = messageInput.value.trim();
+      const minutes = parseInt(durationSelect.value, 10);
+
+      if (!message || Number.isNaN(minutes)) {
+        return;
+      }
+
+      messageEl.innerHTML = parseMarkdown(message);
+      setupScreen.classList.add("hidden");
+      setupScreen.setAttribute("aria-hidden", "true");
+      countdownScreen.classList.remove("hidden");
+      countdownScreen.setAttribute("aria-hidden", "false");
+
+      startCountdown(minutes * 60);
+    });
+  </script>
+</body>
+</html>
