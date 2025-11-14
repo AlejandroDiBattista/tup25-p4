@@ -6,7 +6,7 @@ export default async function Home() {
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-          Bienvenido a E-Shop
+          Bienvenido a Tienda Online TP6
         </h1>
         <p className="text-xl text-gray-700 mb-8">
           Descubre productos de calidad a los mejores precios

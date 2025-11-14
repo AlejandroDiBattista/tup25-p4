@@ -197,7 +197,7 @@ export default function ProductosPage() {
                         <button
                           onClick={(e) => {
                             e.preventDefault();
-                            // Este botón se implementará en el siguiente paso
+                            router.push(`/producto/${producto.id}`);
                           }}
                           disabled={producto.existencia === 0}
                           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"

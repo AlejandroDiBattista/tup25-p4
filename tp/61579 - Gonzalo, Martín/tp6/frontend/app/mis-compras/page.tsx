@@ -125,12 +125,7 @@ export default function MisComprasPage() {
                     <p className="text-sm text-gray-800">📍 {compra.direccion}</p>
                   </div>
 
-                  {/* Ver Detalles */}
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-blue-600 font-semibold hover:underline">
-                      Ver Detalles →
-                    </p>
-                  </div>
+
                 </div>
               </Link>
             ))}
