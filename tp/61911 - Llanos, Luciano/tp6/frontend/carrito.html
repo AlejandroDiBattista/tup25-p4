@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP6 Shop - Carrito</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">TP6 Shop</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Productos</a></li>
+                    <li><a href="carrito.html">Mis compras</a></li>
+                    <li><a href="perfil.html" id="user-name">Juan Perez</a></li>
+                    <li><a href="#" onclick="logout()">Salir</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Búsqueda y filtros (igual que productos) -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-controls">
+                <input type="text" class="search-box" placeholder="Buscar..." id="search-input">
+                <select class="category-select" id="category-filter">
+                    <option value="">Todas las categorías</option>
+                    <option value="Ropa de hombre">Ropa de hombre</option>
+                    <option value="Ropa de mujer">Ropa de mujer</option>
+                    <option value="Joyería">Joyería</option>
+                    <option value="Electrónicos">Electrónicos</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div id="alert-container"></div>
+        
+        <!-- Grid principal: productos y carrito -->
+        <div class="cart-section">
+            <!-- Lista de productos disponibles -->
+            <div class="cart-items">
+                <h2>Productos disponibles</h2>
+                <div class="products-grid" id="products-container">
+                    <!-- Productos se cargan dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Carrito lateral -->
+            <div class="cart-summary">
+                <h3 class="summary-title" id="cart-title">Carrito vacío</h3>
+                <div id="cart-items-container">
+                    <!-- Items del carrito -->
+                </div>
+                
+                <div id="cart-totals" class="hidden">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>IVA</span>
+                        <span id="iva">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Envío</span>
+                        <span id="envio">$30.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                </div>
+                
+                <div id="cart-actions" class="hidden">
+                    <button class="btn-primary mb-2" onclick="clearCart()">✖ Cancelar</button>
+                    <button class="btn-primary" onclick="proceedToCheckout()">Continuar compra</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8001';
+        let products = [];
+        let cartItems = [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!currentUser || !currentUser.token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            updateAuthUI();
+            loadProducts();
+            loadCart();
+            
+            // Event listeners
+            document.getElementById('search-input').addEventListener('input', filterProducts);
+            document.getElementById('category-filter').addEventListener('change', filterProducts);
+        });
+
+        function updateAuthUI() {
+            if (currentUser && currentUser.nombre) {
+                document.getElementById('user-name').textContent = currentUser.nombre;
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/productos`);
+                if (!response.ok) throw new Error('Error al cargar productos');
+                
+                products = await response.json();
+                renderProducts(products);
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error al cargar productos', 'error');
+            }
+        }
+
+        async function loadCart() {
+            try {
+                const response = await fetch(`${API_BASE}/carrito`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const cart = await response.json();
+                    cartItems = cart.items || [];
+                    renderCart();
+                } else if (response.status === 401) {
+                    // Token expirado
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error al cargar carrito', 'error');
+            }
+        }
+
+        function renderProducts(productList) {
+            const container = document.getElementById('products-container');
+            
+            container.innerHTML = productList.map(product => `
+                <div class="cart-item">
+                    <img src="${product.imagen}" alt="${product.titulo}" class="cart-item-image" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW48L3RleHQ+PC9zdmc+'">
+                    <div class="cart-item-info">
+                        <div class="cart-item-title">${product.titulo}</div>
+                        <div class="cart-item-price">${product.descripcion}</div>
+                        <div class="cart-item-price">Categoría: ${product.categoria}</div>
+                        <div style="font-weight: bold; margin: 0.5rem 0;">$${product.precio.toFixed(2)}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Disponible: ${product.existencia}</div>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <button 
+                            class="btn-primary" 
+                            onclick="addToCart(${product.id})"
+                            ${product.existencia === 0 ? 'disabled' : ''}
+                            style="padding: 8px 16px; font-size: 0.9rem;"
+                        >
+                            ${product.existencia === 0 ? 'Sin stock' : 'Agregar al carrito'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            const cartTitle = document.getElementById('cart-title');
+            const cartTotals = document.getElementById('cart-totals');
+            const cartActions = document.getElementById('cart-actions');
+            
+            if (cartItems.length === 0) {
+                cartTitle.textContent = 'Carrito vacío';
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No hay productos en el carrito</p>';
+                cartTotals.classList.add('hidden');
+                cartActions.classList.add('hidden');
+                return;
+            }
+
+            cartTitle.textContent = `Carrito (${cartItems.length} ${cartItems.length === 1 ? 'producto' : 'productos'})`;
+            
+            container.innerHTML = cartItems.map(item => `
+                <div class="cart-item" style="border-bottom: 1px solid #eee; padding: 1rem 0;">
+                    <img src="${item.producto_imagen || 'placeholder.jpg'}" alt="${item.producto_nombre}" 
+                         class="cart-item-image" style="width: 50px; height: 50px;"
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltZzwvdGV4dD48L3N2Zz4='">
+                    <div class="cart-item-info" style="flex: 1; margin-left: 1rem;">
+                        <div class="cart-item-title" style="font-size: 0.9rem;">${item.producto_nombre}</div>
+                        <div class="cart-item-price" style="font-size: 0.8rem; color: #666;">$${item.precio_unitario.toFixed(2)}</div>
+                        <div class="quantity-controls" style="margin-top: 0.5rem;">
+                            <span style="font-size: 0.8rem;">Cantidad: ${item.cantidad}</span>
+                        </div>
+                        <div style="font-weight: bold; margin-top: 0.3rem; font-size: 0.9rem;">
+                            Subtotal: $${item.subtotal.toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Calcular totales
+            const subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+            const iva = subtotal * 0.21; // 21% IVA
+            const envio = 30.00;
+            const total = subtotal + iva + envio;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('iva').textContent = `$${iva.toFixed(2)}`;
+            document.getElementById('envio').textContent = `$${envio.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+
+            cartTotals.classList.remove('hidden');
+            cartActions.classList.remove('hidden');
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const selectedCategory = document.getElementById('category-filter').value;
+            
+            const filtered = products.filter(product => {
+                const matchesSearch = product.titulo.toLowerCase().includes(searchTerm) ||
+                                    product.descripcion.toLowerCase().includes(searchTerm);
+                const matchesCategory = !selectedCategory || product.categoria === selectedCategory;
+                
+                return matchesSearch && matchesCategory;
+            });
+            
+            renderProducts(filtered);
+        }
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch(`${API_BASE}/carrito/agregar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify({
+                        producto_id: productId,
+                        cantidad: 1
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Producto agregado al carrito', 'success');
+                    loadCart(); // Recargar carrito
+                    loadProducts(); // Recargar productos para actualizar stock
+                } else {
+                    const error = await response.json();
+                    showAlert(error.detail || 'Error al agregar producto', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        async function clearCart() {
+            if (!confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
+                return;
+            }
+
+            try {
+                // Eliminar todos los items uno por uno
+                for (const item of cartItems) {
+                    await fetch(`${API_BASE}/carrito/item/${item.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${currentUser.token}`
+                        }
+                    });
+                }
+                
+                showAlert('Carrito vaciado exitosamente', 'success');
+                loadCart();
+                loadProducts();
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error al vaciar carrito', 'error');
+            }
+        }
+
+        function proceedToCheckout() {
+            if (cartItems.length === 0) {
+                showAlert('El carrito está vacío', 'error');
+                return;
+            }
+            window.location.href = 'checkout.html';
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertClass = type === 'error' ? 'alert-error' : 
+                             type === 'success' ? 'alert-success' : 'alert-info';
+            
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

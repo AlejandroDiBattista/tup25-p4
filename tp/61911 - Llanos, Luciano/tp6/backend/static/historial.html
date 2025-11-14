@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP6 Shop - Historial de compras</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">TP6 Shop</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Productos</a></li>
+                    <li><a href="carrito.html">Mis compras</a></li>
+                    <li><a href="perfil.html" id="user-name">Juan Perez</a></li>
+                    <li><a href="#" onclick="logout()">Salir</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="historial-container">
+        <h2 class="historial-title">Historial de compras</h2>
+        
+        <div id="alert-container"></div>
+
+        <!-- Filtros -->
+        <div class="historial-filters">
+            <div class="form-group">
+                <label for="estado-filter" class="form-label">Filtrar por estado:</label>
+                <select id="estado-filter" class="form-input">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="procesando">Procesando</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="entregado">Entregado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha-desde" class="form-label">Desde:</label>
+                <input type="date" id="fecha-desde" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="fecha-hasta" class="form-label">Hasta:</label>
+                <input type="date" id="fecha-hasta" class="form-input">
+            </div>
+
+            <button onclick="aplicarFiltros()" class="btn-secondary">Aplicar filtros</button>
+            <button onclick="limpiarFiltros()" class="btn-outline">Limpiar</button>
+        </div>
+
+        <!-- Pedidos -->
+        <div id="pedidos-container" class="pedidos-container">
+            <!-- Los pedidos se cargarán aquí dinámicamente -->
+        </div>
+
+        <!-- Estado vacío -->
+        <div id="empty-state" class="empty-state hidden">
+            <h3>No tienes pedidos aún</h3>
+            <p>¡Explora nuestros productos y haz tu primera compra!</p>
+            <a href="index.html" class="btn-primary">Ver productos</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8001';
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let allPedidos = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!currentUser || !currentUser.token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            updateAuthUI();
+            loadPedidos();
+            
+            // Mostrar alerta si hay una compra reciente
+            const lastOrderNumber = localStorage.getItem('lastOrderNumber');
+            if (lastOrderNumber) {
+                showAlert(`¡Compra exitosa! Tu pedido #${lastOrderNumber} ha sido registrado.`, 'success');
+                localStorage.removeItem('lastOrderNumber');
+            }
+
+            // Event listeners para filtros
+            document.getElementById('estado-filter').addEventListener('change', aplicarFiltros);
+            document.getElementById('fecha-desde').addEventListener('change', aplicarFiltros);
+            document.getElementById('fecha-hasta').addEventListener('change', aplicarFiltros);
+        });
+
+        function updateAuthUI() {
+            if (currentUser && currentUser.nombre) {
+                document.getElementById('user-name').textContent = currentUser.nombre;
+            }
+        }
+
+        async function loadPedidos() {
+            try {
+                const response = await fetch(`${API_BASE}/pedidos`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    allPedidos = await response.json();
+                    renderPedidos(allPedidos);
+                } else if (response.status === 401) {
+                    logout();
+                } else {
+                    showAlert('Error al cargar los pedidos', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        function renderPedidos(pedidos) {
+            const container = document.getElementById('pedidos-container');
+            const emptyState = document.getElementById('empty-state');
+
+            if (!pedidos || pedidos.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            container.innerHTML = pedidos.map(pedido => {
+                const fecha = new Date(pedido.fecha_pedido).toLocaleDateString('es-AR');
+                const estadoClass = getEstadoClass(pedido.estado);
+                
+                return `
+                    <div class="pedido-card">
+                        <div class="pedido-header">
+                            <div class="pedido-info">
+                                <h3>Pedido #${pedido.numero_pedido}</h3>
+                                <p class="fecha-pedido">Realizado el ${fecha}</p>
+                            </div>
+                            <div class="pedido-estado">
+                                <span class="estado-badge ${estadoClass}">${capitalize(pedido.estado)}</span>
+                                <span class="pedido-total">$${pedido.total.toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div class="pedido-items">
+                            ${pedido.items ? pedido.items.map(item => `
+                                <div class="item-pedido">
+                                    <div class="item-info">
+                                        <span class="item-nombre">${item.producto_nombre}</span>
+                                        <span class="item-cantidad">x${item.cantidad}</span>
+                                    </div>
+                                    <span class="item-precio">$${item.subtotal.toFixed(2)}</span>
+                                </div>
+                            `).join('') : ''}
+                        </div>
+
+                        ${pedido.direccion_entrega ? `
+                            <div class="pedido-direccion">
+                                <strong>Dirección de entrega:</strong>
+                                ${pedido.direccion_entrega.direccion}, ${pedido.direccion_entrega.ciudad}, ${pedido.direccion_entrega.codigo_postal}
+                            </div>
+                        ` : ''}
+
+                        ${pedido.notas ? `
+                            <div class="pedido-notas">
+                                <strong>Notas:</strong> ${pedido.notas}
+                            </div>
+                        ` : ''}
+
+                        <div class="pedido-actions">
+                            <button onclick="verDetalles(${pedido.id})" class="btn-outline btn-small">Ver detalles</button>
+                            ${pedido.estado === 'pendiente' ? `
+                                <button onclick="cancelarPedido(${pedido.id})" class="btn-danger btn-small">Cancelar</button>
+                            ` : ''}
+                            ${pedido.estado === 'entregado' ? `
+                                <button onclick="recomprar(${pedido.id})" class="btn-secondary btn-small">Recomprar</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getEstadoClass(estado) {
+            const classes = {
+                'pendiente': 'estado-pendiente',
+                'procesando': 'estado-procesando',
+                'enviado': 'estado-enviado',
+                'entregado': 'estado-entregado',
+                'cancelado': 'estado-cancelado'
+            };
+            return classes[estado] || 'estado-default';
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function aplicarFiltros() {
+            const estadoFilter = document.getElementById('estado-filter').value;
+            const fechaDesde = document.getElementById('fecha-desde').value;
+            const fechaHasta = document.getElementById('fecha-hasta').value;
+
+            let pedidosFiltrados = [...allPedidos];
+
+            // Filtrar por estado
+            if (estadoFilter) {
+                pedidosFiltrados = pedidosFiltrados.filter(pedido => pedido.estado === estadoFilter);
+            }
+
+            // Filtrar por fecha
+            if (fechaDesde) {
+                const fechaDesdeObj = new Date(fechaDesde);
+                pedidosFiltrados = pedidosFiltrados.filter(pedido => {
+                    const fechaPedido = new Date(pedido.fecha_pedido);
+                    return fechaPedido >= fechaDesdeObj;
+                });
+            }
+
+            if (fechaHasta) {
+                const fechaHastaObj = new Date(fechaHasta);
+                fechaHastaObj.setHours(23, 59, 59, 999); // Incluir todo el día
+                pedidosFiltrados = pedidosFiltrados.filter(pedido => {
+                    const fechaPedido = new Date(pedido.fecha_pedido);
+                    return fechaPedido <= fechaHastaObj;
+                });
+            }
+
+            renderPedidos(pedidosFiltrados);
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('estado-filter').value = '';
+            document.getElementById('fecha-desde').value = '';
+            document.getElementById('fecha-hasta').value = '';
+            renderPedidos(allPedidos);
+        }
+
+        async function verDetalles(pedidoId) {
+            try {
+                const response = await fetch(`${API_BASE}/pedidos/${pedidoId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const pedido = await response.json();
+                    mostrarModalDetalles(pedido);
+                } else {
+                    showAlert('Error al cargar los detalles del pedido', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        function mostrarModalDetalles(pedido) {
+            const fecha = new Date(pedido.fecha_pedido).toLocaleString('es-AR');
+            
+            const modalHTML = `
+                <div class="modal-overlay" onclick="cerrarModal()">
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h3>Detalles del Pedido #${pedido.numero_pedido}</h3>
+                            <button onclick="cerrarModal()" class="btn-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="detalle-seccion">
+                                <h4>Información del pedido</h4>
+                                <p><strong>Fecha:</strong> ${fecha}</p>
+                                <p><strong>Estado:</strong> <span class="estado-badge ${getEstadoClass(pedido.estado)}">${capitalize(pedido.estado)}</span></p>
+                                <p><strong>Total:</strong> $${pedido.total.toFixed(2)}</p>
+                            </div>
+
+                            ${pedido.direccion_entrega ? `
+                                <div class="detalle-seccion">
+                                    <h4>Dirección de entrega</h4>
+                                    <p>${pedido.direccion_entrega.direccion}</p>
+                                    <p>${pedido.direccion_entrega.ciudad}, ${pedido.direccion_entrega.codigo_postal}</p>
+                                    <p><strong>Teléfono:</strong> ${pedido.direccion_entrega.telefono}</p>
+                                </div>
+                            ` : ''}
+
+                            ${pedido.info_pago ? `
+                                <div class="detalle-seccion">
+                                    <h4>Método de pago</h4>
+                                    <p>${capitalize(pedido.info_pago.metodo_pago.replace('_', ' '))}</p>
+                                </div>
+                            ` : ''}
+
+                            <div class="detalle-seccion">
+                                <h4>Productos</h4>
+                                ${pedido.items ? pedido.items.map(item => `
+                                    <div class="item-detalle">
+                                        <span>${item.producto_nombre}</span>
+                                        <span>x${item.cantidad}</span>
+                                        <span>$${item.subtotal.toFixed(2)}</span>
+                                    </div>
+                                `).join('') : ''}
+                            </div>
+
+                            ${pedido.notas ? `
+                                <div class="detalle-seccion">
+                                    <h4>Notas</h4>
+                                    <p>${pedido.notas}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function cerrarModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        async function cancelarPedido(pedidoId) {
+            if (!confirm('¿Estás seguro de que quieres cancelar este pedido?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/pedidos/${pedidoId}/cancelar`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('Pedido cancelado exitosamente', 'success');
+                    loadPedidos(); // Recargar pedidos
+                } else {
+                    const result = await response.json();
+                    showAlert(result.detail || 'Error al cancelar el pedido', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        async function recomprar(pedidoId) {
+            try {
+                const response = await fetch(`${API_BASE}/pedidos/${pedidoId}/recomprar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('Productos agregados al carrito', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'carrito.html';
+                    }, 1500);
+                } else {
+                    const result = await response.json();
+                    showAlert(result.detail || 'Error al recomprar', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error de conexión', 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertClass = type === 'error' ? 'alert-error' : 
+                             type === 'success' ? 'alert-success' : 'alert-info';
+            
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

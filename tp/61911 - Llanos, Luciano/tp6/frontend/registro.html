@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP6 Shop - Crear cuenta</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">TP6 Shop</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Productos</a></li>
+                    <li><a href="login.html">Ingresar</a></li>
+                    <li><a href="registro.html">Crear cuenta</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Formulario de Registro -->
+    <div class="form-container">
+        <h2 class="form-title">Crear cuenta</h2>
+        
+        <div id="alert-container"></div>
+        
+        <form id="register-form">
+            <div class="form-group">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input 
+                    type="text" 
+                    id="nombre" 
+                    name="nombre" 
+                    class="form-input" 
+                    required
+                    placeholder="Juan Perez"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Correo</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    required
+                    placeholder="jperez@mail.com"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Contraseña</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    required
+                    placeholder="••••••••"
+                    minlength="6"
+                >
+            </div>
+            
+            <button type="submit" class="btn-primary">Registrarme</button>
+        </form>
+        
+        <p class="text-center mt-3">
+            ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+        </p>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8001';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si ya está logueado
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser && currentUser.token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Manejar envío del formulario
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+        });
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // Validaciones básicas
+            if (!nombre || !email || !password) {
+                showAlert('Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('La contraseña debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                showAlert('Por favor ingresa un correo válido', 'error');
+                return;
+            }
+
+            try {
+                // Deshabilitar botón durante la petición
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Registrando...';
+
+                // Separar nombre en nombre y apellido
+                const nameParts = nombre.split(' ');
+                const firstName = nameParts[0];
+                const lastName = nameParts.slice(1).join(' ') || 'Usuario';
+
+                const response = await fetch(`${API_BASE}/registrar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: firstName,
+                        apellido: lastName,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.', 'success');
+                    
+                    // Limpiar formulario
+                    document.getElementById('register-form').reset();
+                    
+                    // Redirigir a login después de un breve delay
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    
+                } else {
+                    showAlert(result.detail || 'Error al crear la cuenta', 'error');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error de conexión. Verifica que el servidor esté funcionando.', 'error');
+            } finally {
+                // Rehabilitar botón
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Registrarme';
+            }
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertClass = type === 'error' ? 'alert-error' : 
+                             type === 'success' ? 'alert-success' : 'alert-info';
+            
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+            
+            // Auto-ocultar después de 5 segundos para mensajes de error
+            if (type === 'error') {
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // Validación en tiempo real de email
+        document.getElementById('email').addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && !validateEmail(email)) {
+                showAlert('Formato de correo inválido', 'error');
+                this.focus();
+            }
+        });
+
+        // Validación en tiempo real de contraseña
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            if (password.length > 0 && password.length < 6) {
+                this.setCustomValidity('La contraseña debe tener al menos 6 caracteres');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html>

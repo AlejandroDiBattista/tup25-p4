@@ -1,13 +1,21 @@
 [project]
-name = "backend"
-version = "0.1.0"
-description = "Add your description here"
+name = "ecommerce-backend"
+version = "1.0.0"
+description = "API Backend para E-Commerce con FastAPI y SQLModel"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
+authors = [
+    {name = "Luciano Llanos", email = "luciano.llanos@student.com"}
+]
+
 dependencies = [
     "fastapi>=0.115.5",
     "sqlmodel>=0.0.27",
     "uvicorn[standard]>=0.32.1",
+    "python-jose[cryptography]>=3.3.0",
+    "python-multipart>=0.0.9",
+    "passlib[bcrypt]>=1.7.4",
+    "python-dotenv>=1.0.0",
 ]
 
 [dependency-groups]
@@ -16,3 +24,7 @@ dev = [
     "pytest>=8.4.2",
     "pytest-asyncio>=1.2.0",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,243 @@
+# Pruebas de la API E-Commerce
+# Asegúrate de que el servidor esté ejecutándose en http://localhost:8002
+
+### 1. Obtener todos los productos
+GET http://localhost:8002/productos/
+Content-Type: application/json
+
+### 2. Obtener un producto específico por ID
+GET http://localhost:8002/productos/1
+Content-Type: application/json
+
+### 3. Registrar un nuevo usuario
+POST http://localhost:8002/auth/registro
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "password123",
+    "nombre": "Usuario Test"
+}
+
+### 4. Login con el usuario registrado
+POST http://localhost:8002/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=test@example.com&password=password123
+
+### 5. Obtener perfil del usuario (requiere token)
+# Primero ejecuta el login y copia el token de acceso
+GET http://localhost:8002/auth/perfil
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 6. Crear un nuevo producto (requiere autenticación)
+POST http://localhost:8002/productos/
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "nombre": "Nuevo Producto",
+    "descripcion": "Descripción del nuevo producto",
+    "precio": 99.99,
+    "categoria": "Electrónicos",
+    "stock": 10,
+    "imagen": "https://via.placeholder.com/300"
+}
+
+### 7. Actualizar un producto existente (requiere autenticación)
+PUT http://localhost:8002/productos/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "nombre": "Smartphone Samsung Galaxy S21 - Actualizado",
+    "descripcion": "Descripción actualizada del smartphone",
+    "precio": 799.99,
+    "categoria": "Electrónicos",
+    "stock": 15,
+    "imagen": "https://via.placeholder.com/300"
+}
+
+### 8. Eliminar un producto (requiere autenticación)
+DELETE http://localhost:8002/productos/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# ===============================================
+# PRUEBAS DEL CARRITO DE COMPRAS
+# ===============================================
+
+### 9. Obtener carrito del usuario (requiere autenticación)
+GET http://localhost:8002/carrito
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 10. Agregar producto al carrito (requiere autenticación)
+POST http://localhost:8002/carrito/agregar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "producto_id": 1,
+    "cantidad": 2
+}
+
+### 11. Agregar otro producto al carrito
+POST http://localhost:8002/carrito/agregar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "producto_id": 5,
+    "cantidad": 1
+}
+
+### 12. Actualizar cantidad de un item del carrito
+PUT http://localhost:8002/carrito/item/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "cantidad": 3
+}
+
+### 13. Obtener resumen del carrito
+GET http://localhost:8002/carrito/resumen
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 14. Eliminar un item del carrito
+DELETE http://localhost:8002/carrito/item/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 15. Vaciar completamente el carrito
+DELETE http://localhost:8002/carrito/vaciar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# ===============================================
+# PRUEBAS DE CHECKOUT Y PEDIDOS
+# ===============================================
+
+### 16. Preview del costo total del checkout
+GET http://localhost:8002/checkout/preview
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 17. Procesar checkout (crear pedido desde carrito)
+POST http://localhost:8002/checkout
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "direccion_entrega": {
+        "direccion": "Av. San Martín 1234, Piso 5, Depto B",
+        "ciudad": "San Miguel de Tucumán",
+        "codigo_postal": "4000",
+        "telefono": "3814567890"
+    },
+    "info_pago": {
+        "metodo_pago": "tarjeta_credito",
+        "numero_tarjeta": "4532123456789012",
+        "nombre_titular": "Juan Perez"
+    },
+    "notas": "Entregar en horario de oficina por favor"
+}
+
+### 18. Obtener historial de pedidos
+GET http://localhost:8002/pedidos
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 19. Obtener pedido específico por ID
+GET http://localhost:8002/pedidos/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 20. Obtener pedido por número
+GET http://localhost:8002/pedidos/numero/PED-20251104-1234
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### 21. Cancelar pedido
+PUT http://localhost:8002/pedidos/1/cancelar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# ===============================================
+# ENDPOINTS ADMINISTRATIVOS (SIMULACIÓN)
+# ===============================================
+
+### 22. Actualizar estado de pedido (admin)
+PUT http://localhost:8002/admin/pedidos/1/estado
+Content-Type: application/json
+
+{
+    "estado": "enviado",
+    "numero_seguimiento": "TRK123456",
+    "fecha_estimada_entrega": "2025-11-10T15:00:00"
+}
+
+### 23. Listar todos los pedidos (admin)
+GET http://localhost:8002/admin/pedidos
+Content-Type: application/json
+
+# ===============================================
+# FLUJO COMPLETO DE PRUEBA
+# ===============================================
+
+### PASO 1: Registrar usuario
+POST http://localhost:8002/registrar
+Content-Type: application/json
+
+{
+    "nombre": "Juan",
+    "apellido": "Perez",
+    "email": "juan.perez@test.com",
+    "password": "password123"
+}
+
+### PASO 2: Iniciar sesión
+POST http://localhost:8002/iniciar-sesion
+Content-Type: application/json
+
+{
+    "email": "juan.perez@test.com",
+    "password": "password123"
+}
+
+### PASO 3: Agregar productos al carrito
+POST http://localhost:8002/carrito/agregar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "producto_id": 1,
+    "cantidad": 2
+}
+
+### PASO 4: Ver preview del checkout
+GET http://localhost:8002/checkout/preview
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+### PASO 5: Procesar pedido completo
+POST http://localhost:8002/checkout
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "direccion_entrega": {
+        "direccion": "Av. San Martín 1234",
+        "ciudad": "San Miguel de Tucumán",
+        "codigo_postal": "4000",
+        "telefono": "3814567890"
+    },
+    "info_pago": {
+        "metodo_pago": "tarjeta_credito",
+        "numero_tarjeta": "4532123456789012",
+        "nombre_titular": "Juan Perez"
+    }
+}
