@@ -20,7 +20,7 @@ export async function agregarAlCarrito(
   productoId: number,
   cantidad: number
 ): Promise<Carrito> {
-  const response = await fetch(`${API_URL}/api/carrito/agregar?token=${token}`, {
+  const response = await fetch(`${API_URL}/api/carrito?token=${token}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
