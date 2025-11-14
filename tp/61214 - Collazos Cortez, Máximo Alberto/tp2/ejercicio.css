@@ -1,1 +1,264 @@
 /* Estilos generales */
+#dialogoContacto {
+  border: none;
+  border-radius: 0.6em;
+  box-shadow: 0 8px 32px #0008;
+  padding: 0;
+  background: #1e1e1e; /* Fondo GitHub Dark */
+  min-width: 540px;
+  max-width: 600px;
+  width: 100%;
+  color: #c9d1d9; /* GitHub text */
+  height: auto;
+}
+
+#dialogoContacto::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+#formContacto {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+#tituloDialogo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 1.2em 1.5em 0.5em 1.5em;
+  color: #ffffff;
+  text-align: center;
+}
+
+#formContacto label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  font-size: 1.1em;
+  font-weight: 500;
+  color: #c9d1d9;
+  margin-bottom: 0;
+}
+
+#formContacto input[type="text"],
+#formContacto input[type="email"],
+#formContacto input[type="tel"] {
+  font-size: 1em;
+  padding: 0.6em 0.8em;
+  border-radius: 0.3em;
+  border: 1.5px solid #30363d;
+  background: #0d1117;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  color: #c9d1d9;
+  transition: border 0.2s;
+}
+
+#formContacto input:focus {
+  border-color: #58a6ff;
+  outline: none;
+}
+
+#formContacto .campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em 1.5em;
+  padding: 0.5em 1.5em 0.5em 1.5em;
+}
+
+@media (max-width: 600px) {
+  #formContacto .campos {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  #dialogoContacto[open] {
+    min-width: 90vw;
+    max-width: 98vw;
+  }
+  #formContacto .campos {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-dialogo {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+  padding: 1.2em 1.5em 1.2em 1.5em;
+  border-top: 1px solid #30363d;
+  background: transparent;
+}
+
+#btnGuardar {
+  background: #238636;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.4em;
+  padding: 0.7em 2em;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+#btnGuardar:hover {
+  background: #2ea043;
+}
+
+#btnCancelar {
+  background: #6e7681;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.4em;
+  padding: 0.7em 2em;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+#btnCancelar:hover {
+  background: #8b949e;
+}
+
+/* === GENERAL === */
+body {
+  background: #0d1117;
+  color: #c9d1d9;
+}
+
+main.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.header-agenda {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  margin-top: 1.5rem;
+}
+
+.header-agenda h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0 2rem 0 0;
+  color: #e6edf3;
+}
+
+.buscador-agenda {
+  flex: 1;
+  padding: 0.8em 1.2em;
+  border-radius: 2em;
+  border: 1.5px solid #30363d;
+  background: #161b22;
+  font-size: 1.1em;
+  outline: none;
+  transition: border 0.2s;
+  color: #c9d1d9;
+}
+
+.buscador-agenda:focus {
+  border-color: #58a6ff;
+}
+
+.btn-agregar {
+  background: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+  border-radius: 0.5em;
+  padding: 0.7em 1.5em;
+  font-size: 1.1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+}
+
+.btn-agregar:hover {
+  background: #30363d;
+  border-color: #8b949e;
+}
+
+/* === LISTADO === */
+.listado-agenda {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: #161b22;
+  border-radius: 0.8em;
+  box-shadow: 0 2px 16px #0004;
+  padding: 1.2em 1.3em 1.1em 1.3em;
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+  justify-content: space-between;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+.card-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 0.7em;
+  background: transparent;
+  border-radius: 0.8em 0.8em 0 0;
+  padding: 0;
+}
+
+.card-nombre {
+  font-size: 1.18em;
+  font-weight: 700;
+  color: #e6edf3;
+  background: transparent;
+  padding: 0.5em 1em 0.5em 0.5em;
+  border-radius: 0.5em 0.5em 0 0;
+}
+
+.card .iconos {
+  margin-top: 0.7em;
+  display: flex;
+  gap: 0.7em;
+}
+
+.icono-editar,
+.icono-borrar {
+  background: none;
+  border: 1.5px solid #8b949e;
+  color: #c9d1d9;
+  border-radius: 50%;
+  width: 2.2em;
+  height: 2.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+}
+
+.icono-editar:hover,
+.icono-borrar:hover {
+  background: #21262d;
+  color: #58a6ff;
+  border-color: #58a6ff;
+}
+
+.card div {
+  margin-bottom: 0.2em;
+  color: #c9d1d9;
+  font-size: 1em;
+}
+
+.card div:last-child {
+  margin-bottom: 0;
+}
