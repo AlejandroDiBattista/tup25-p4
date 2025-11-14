@@ -10,6 +10,45 @@
   </head>
   <body>
     <!-- Contenido principal de la agenda -->
+     <main class="container">
+      <header class="header-agenda">
+        <input id="buscador" type="search" placeholder="Buscar contacto..." aria-label="Buscar contacto" class="buscador-agenda" autocomplete="off" />
+        <button id="btnAgregar" aria-label="Agregar contacto" class="btn-agregar">Agregar</button>
+      </header>
+
+      <section id="listado" class="listado-agenda"></section>
+
+      <dialog id="dialogoContacto">
+        <!-- Fondo semi-transparente detrás del modal -->
+        <div class="dialogo-overlay"></div>
+        <form id="formContacto" method="dialog">
+          <h3 id="tituloDialogo">Nuevo contacto</h3>
+          <input type="hidden" id="contactoId" name="id" />
+          <div class="campos">
+            <label>
+              Nombre
+              <input id="nombre" name="nombre" type="text" required autocomplete="off" />
+            </label>
+            <label>
+              Apellido
+              <input id="apellido" name="apellido" type="text" required autocomplete="off" />
+            </label>
+            <label>
+              Teléfono
+              <input id="telefono" name="telefono" type="tel" required autocomplete="off" />
+            </label>
+            <label>
+              Email
+              <input id="email" name="email" type="email" required autocomplete="off" />
+            </label>
+          </div>
+          <footer class="footer-dialogo">
+            <button type="submit" id="btnGuardar">Guardar</button>
+            <button type="button" id="btnCancelar">Cancelar</button>
+          </footer>
+        </form>
+      </dialog>
+    </main>
   </body>
   </html>
 
