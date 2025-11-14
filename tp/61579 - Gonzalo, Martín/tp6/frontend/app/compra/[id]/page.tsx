@@ -77,11 +77,23 @@ export default function DetalleCompraPage({ params }: { params: Promise<{ id: st
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center p-10">
-          <h1 className="text-2xl font-bold mb-4">❌ Compra no encontrada</h1>
-          <p className="text-gray-800 mb-6">{error || 'La compra que buscas no existe'}</p>
-          <Link href="/mis-compras" className="text-blue-600 hover:underline text-lg font-semibold">
-            ← Volver a mis compras
-          </Link>
+          {esExito ? (
+            <>
+              <h1 className="text-2xl font-bold mb-4">✓ ¡Compra Realizada Exitosamente!</h1>
+              <p className="text-gray-800 mb-6">Tu compra se ha procesado correctamente</p>
+              <Link href="/mis-compras" className="text-blue-600 hover:underline text-lg font-semibold">
+                Ver mis compras →
+              </Link>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold mb-4">❌ Compra no encontrada</h1>
+              <p className="text-gray-800 mb-6">{error || 'La compra que buscas no existe'}</p>
+              <Link href="/mis-compras" className="text-blue-600 hover:underline text-lg font-semibold">
+                ← Volver a mis compras
+              </Link>
+            </>
+          )}
         </div>
       </div>
     );

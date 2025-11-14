@@ -1,1 +1,54 @@
 /* Estilos generales */
+/* Espaciado y layout */
+#cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.name {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Botones icónicos simples (sin imágenes externas) */
+.icon-btn {
+  border: 1px solid var(--pico-muted-border-color);
+  background: transparent;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.icon-btn.edit::before {
+  content: "✏️";
+  margin-right: 0.25rem;
+}
+
+.icon-btn.delete {
+  border-color: #d33;
+  color: #d33;
+}
+.icon-btn.delete::before {
+  content: "🗑️";
+  margin-right: 0.25rem;
+}
+
+/* Diálogo ancho cómodo */
+dialog article {
+  min-width: 320px;
+  max-width: 420px;
+}
