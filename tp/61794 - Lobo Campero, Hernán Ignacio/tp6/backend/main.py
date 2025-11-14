@@ -10,6 +10,15 @@ from sqlmodel import Session
 
 app = FastAPI(title="API Venti Indumentaria")
 
+# Configurar CORS PRIMERO (antes que las rutas)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Crear las tablas de la base de datos al iniciar
 @app.on_event("startup")
 def on_startup():
@@ -18,15 +27,6 @@ def on_startup():
 
 # Montar directorio de imágenes como archivos estáticos
 app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
-
-# Configurar CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Incluir rutas
 app.include_router(auth_router)
