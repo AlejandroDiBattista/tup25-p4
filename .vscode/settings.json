@@ -6,7 +6,7 @@
     "liveServer.settings.port": 5504,
     "workbench.colorTheme": "GitHub Light",
     "workbench.preferredDarkColorTheme": "One Dark Pro Flat",
-    "editor.fontSize": 14,
+    "editor.fontSize": 32,
     "dataWrangler.startInEditModeForNotebookEntrypoints": true,
     "marimo.marimoPath": "uv run marimo",
     "marimo.debug": true,

@@ -62,7 +62,7 @@ def convertir_images(raiz: str, quality: int = 90) -> dict:
         
         if convertir_imagen(origen_path, destino_path, quality=quality):
             convertidos += 1
-            origen_path.unlink()
+            # origen_path.unlink()
         else:
             errores += 1
 
@@ -150,14 +150,10 @@ def copiar_perfiles(raiz: str = "emails"):
             if destino.is_dir() and destino.name.startswith(legajo):
                 destino_path = destino / f"{legajo}.jpeg"
                 destino_path.write_bytes(origen.read_bytes())
-                
-                # viejo = destino / f"{legajo}.png"
-                # if viejo.exists(): viejo.unlink()
-                # viejo = destino / f"{legajo}.jpg"
-                # if viejo.exists(): viejo.unlink()
-                
+                print(f"Copiado: {origen} -> {destino_path}")                   
                 break
-def elinar_0jpeg(raiz: str = "emails"):
+            
+def eliminar_0jpeg(raiz: str = "emails"):
     for origen in recorrer(raiz, "0.jpeg"):
         perfil = origen.with_name("00.jpeg")
         if perfil.exists():
@@ -166,8 +162,8 @@ def elinar_0jpeg(raiz: str = "emails"):
             
 if __name__ == "__main__":
     raiz = Path("emails")
-    # convertir_images(raiz, quality=90)
-    # redimensionar_perfiles(raiz)
-    # procesar_perfiles(raiz)
+    convertir_images(raiz, quality=90)
+    redimensionar_perfiles(raiz)
+    procesar_perfiles(raiz)
     # copiar_perfiles(raiz)
-    elinar_0jpeg(raiz)
+    # elinar_0jpeg(raiz)

@@ -94,15 +94,15 @@
 - 62093  Frías Silva, Juan Segundo            (381) 415-8753  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @juansefriass       
 - 62263  Orellana, José Augusto               (381) 339-2050  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @Jaodem             
 - 62555  Verón, Matías Gabriel                (381) 519-6654  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @MatiasVeron12503   
+- 61139  Gallo, María Matilde                 (381) 333-4836  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @matildegallom      
+- 61141  Di Clemente, María Antonela          (381) 398-3935  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @antodiclemente     
+- 62172  Salcedo, Mariana Aylén               (381) 466-9695  🟢🟢🟢🟢🟢🟢  50 🟩  10 🟩  @marianasalcedo22   
 ```
 
 #### Recuperan para promocionar
 ```text
 - 61136  Sosa, Oscar Ignacio                  (381) 528-9145  🟢🟢🟢🟢🔴🟢  50 🟩  0 🟩  @Oscar40997         
-- 61139  Gallo, María Matilde                 (381) 333-4836  🟢🟢🟢🟢🟢🟢  50 🟩  6 🟩  @matildegallom      
-- 61141  Di Clemente, María Antonela          (381) 398-3935  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @antodiclemente     
 - 61200  Gauna Serrano, Martín Javier         (381) 389-2631  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @MartinGS8          
-- 62172  Salcedo, Mariana Aylén               (381) 466-9695  🟢🟢🔴🟢🟢🟢  50 🟩  0 🟩  @marianasalcedo22   
 ```
 
 #### Libres
