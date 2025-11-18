@@ -150,18 +150,24 @@ def copiar_perfiles(raiz: str = "emails"):
             if destino.is_dir() and destino.name.startswith(legajo):
                 destino_path = destino / f"{legajo}.jpeg"
                 destino_path.write_bytes(origen.read_bytes())
-                viejo = destino / f"{legajo}.png"
-                if viejo.exists():
-                    viejo.unlink()
-                viejo = destino / f"{legajo}.jpg"
-                if viejo.exists():
-                    viejo.unlink()
-                print(f"Copiado {origen} a {destino_path}")
+                
+                # viejo = destino / f"{legajo}.png"
+                # if viejo.exists(): viejo.unlink()
+                # viejo = destino / f"{legajo}.jpg"
+                # if viejo.exists(): viejo.unlink()
+                
                 break
-    
+def elinar_0jpeg(raiz: str = "emails"):
+    for origen in recorrer(raiz, "0.jpeg"):
+        perfil = origen.with_name("00.jpeg")
+        if perfil.exists():
+            origen.unlink()
+            print(f"Eliminado: {origen}")
+            
 if __name__ == "__main__":
     raiz = Path("emails")
-    convertir_images(raiz, quality=90)
-    redimensionar_perfiles(raiz)
-    procesar_perfiles(raiz)
-    copiar_perfiles(raiz)
+    # convertir_images(raiz, quality=90)
+    # redimensionar_perfiles(raiz)
+    # procesar_perfiles(raiz)
+    # copiar_perfiles(raiz)
+    elinar_0jpeg(raiz)
