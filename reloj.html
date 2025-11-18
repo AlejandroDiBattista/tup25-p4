@@ -141,33 +141,42 @@
     }
 
     .card {
-      width: min(620px, 100%);
-      padding: 2.5rem;
-      border-radius: 24px;
-      /* Translucent card surface (no hard border) */
-      background: rgba(255,255,255,0.02);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.03);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
+      width: min(800px, 100%);
+      padding: 2.5rem 0;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.08), rgba(0,0,0,0.1) 45%),
+        linear-gradient(180deg, #1b1c1f 0%, #111114 100%);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 -1px 0 rgba(0,0,0,0.45);
+      -webkit-backdrop-filter: blur(12px) saturate(130%);
+      backdrop-filter: blur(12px) saturate(130%);
       position: relative;
       overflow: visible;
       z-index: 2;
     }
-    /* Pseudo-element used to draw a soft 15px glass border without hard bands */
+
+    .card > * {
+      padding-left: 33px;
+      padding-right: 33px;
+      width: 100%;
+      box-sizing: border-box;
+    }
     .card::before {
       content: "";
       position: absolute;
-      top: -15px;
-      right: -15px;
-      bottom: -15px;
-      left: -15px;
-      border-radius: calc(24px + 15px);
+      inset: -12px;
+      border-radius: calc(26px + 12px);
       pointer-events: none;
-      z-index: 1; /* sits between overlay (1) and card content (2) */
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.06));
-      box-shadow: 0 30px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.02), inset 0 -1px 0 rgba(0,0,0,0.03);
-      /* soften edges to avoid visible bands */
-      filter: blur(1px);
+      z-index: 1;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(28,28,32,0.7));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.04),
+        0 30px 60px rgba(0,0,0,0.55);
+      filter: blur(0.6px);
     }
 
     .timer-wrapper {
@@ -191,6 +200,10 @@
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
+      label {
+        margin-bottom: 0.25rem;
+        margin-top: 1.5rem;
+      }
     }
 
     label {
@@ -201,7 +214,10 @@
     }
 
     textarea,
-    select {
+    select,
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"] {
       width: 100%;
       padding: 1rem 1.1rem;
       border-radius: 20px;
@@ -212,6 +228,7 @@
       font-family: inherit;
       transition: border-color 0.2s ease, background 0.2s ease;
       resize: vertical;
+      box-sizing: border-box; /* Asegura que el padding no expanda más del ancho */
     }
 
     textarea::placeholder {
@@ -366,7 +383,6 @@
       <div class="form-group">
         <label for="message-input">Texto destacado</label>
         <textarea id="message-input" placeholder="Puedes escribir varias líneas o párrafos..." rows="6" maxlength="900"></textarea>
-        <span class="helper-text">Acepta varios párrafos; se mostrará exactamente como lo escribas.</span>
       </div>
       <div class="form-group">
         <label for="duration-select">Duración</label>
@@ -385,7 +401,7 @@
           <option value="60">60 minutos</option>
         </select>
       </div>
-      <button type="submit">Iniciar cuenta atrás</button>
+      <button class="iniciar" type="submit">Iniciar cuenta atrás</button>
     </form>
   </div>
 

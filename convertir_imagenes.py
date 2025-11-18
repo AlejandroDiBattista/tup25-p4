@@ -1,333 +1,167 @@
-import mimetypes
 import os
 from pathlib import Path
-from typing import Iterable
+
+from dotenv import load_dotenv
 
 from PIL import Image
-from dotenv import load_dotenv
+import mimetypes
+
 from google import genai
 from google.genai import types
 
-SUPPORTED_IMAGE_EXTENSIONS = {
-    ".png",
-    ".jpeg",
-    ".jpg",
-    ".bmp",
-    ".gif",
-    ".tiff",
-    ".webp",
-    ".heic",
-    ".heif",
-}
-
-TARGET_JPEG_EXTENSION = ".jpeg"
-MAX_PROFILE_DIMENSION = 1024
+ImagenesSoportadas = { ".png", ".jpeg", ".jpg", ".bmp", ".gif", ".tiff", ".webp", ".heic", ".heif", }
+TamañoPerfil = 1024
 
 load_dotenv()  # Load variables defined in the nearest .env file
 
-try:
-    RESAMPLE_FILTER = Image.Resampling.LANCZOS
-except AttributeError:  # Pillow < 9.1 fallback
-    RESAMPLE_FILTER = Image.LANCZOS
 
-EXTENSION_PRIORITY = {
-    ".jpeg": 2,
-    ".jpg": 1,
-}
+def recorrer(raiz: str, condicion= "*", extensiones=ImagenesSoportadas):
+    """Devuelve archivos de imagen dentro de raiz de forma recursiva."""
 
-def iter_image_paths(root_path: Path) -> Iterable[Path]:
-    """Yield image files inside root_path recursively."""
-    for entry in root_path.rglob("*"):
-        if entry.is_file() and entry.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS:
+    raiz_path = Path(raiz).expanduser().resolve()
+    for entry in raiz_path.rglob(condicion):
+        if entry.is_file() and entry.suffix.lower() in extensiones:
             yield entry
 
-def convert_images_to_jpg(
-    root_dir: str | Path,
-    quality: int = 90,
-    overwrite: bool = False,
-    delete_original: bool = False,
-) -> dict:
-    """Convert every image under root_dir to JPEG, optionally overwriting/deleting originals."""
-    root_path = Path(root_dir).expanduser().resolve()
-    if not root_path.exists():
-        raise FileNotFoundError(f"La carpeta {root_path} no existe")
 
-    converted = 0
-    skipped = 0
-    errors = 0
-
-    for image_path in iter_image_paths(root_path):
-        suffix = image_path.suffix.lower()
-
-        is_target_extension = suffix == TARGET_JPEG_EXTENSION
-        if is_target_extension and not overwrite:
-            skipped += 1
-            continue
-
-        target_path = image_path.with_suffix(TARGET_JPEG_EXTENSION)
-        if target_path.exists() and not overwrite:
-            skipped += 1
-            continue
-
+def convertir_imagen(origen: str, destino: str, tipo="JPEG", quality: int = 90) -> bool:
+    origen_path = Path(origen).expanduser().resolve()
+    destino_path = Path(destino).expanduser().resolve()
+    if origen_path != destino_path:
         try:
-            with Image.open(image_path) as img:
+            with Image.open(origen_path) as img:
                 rgb_img = img.convert("RGB")
-                rgb_img.save(target_path, "JPEG", quality=quality, optimize=True)
+                rgb_img.save(destino_path, tipo, quality=quality, optimize=True)
+        except:
+            return False
+    return True
 
-            converted += 1
-            print(f"Convertido: {image_path} -> {target_path}")
+def redimensionar_imagen(origen: str, tamaño: int = TamañoPerfil) -> bool:
+    """Redimensiona una imagen para que su dimensión más grande sea igual a max_dimension (arriba/abajo)."""
 
-            if delete_original and target_path != image_path:
-                image_path.unlink()
-
-        except Exception as exc:
-            errors += 1
-            print(f"[ERROR] No se pudo convertir {image_path}: {exc}")
-
-    resumen = {"convertidos": converted, "saltados": skipped, "errores": errors}
-    print(f"Resumen: {resumen}")
-    return resumen
-
-
-def _extension_priority(path: Path) -> int:
-    """Return a numeric priority for the extension of a file."""
-    return EXTENSION_PRIORITY.get(path.suffix.lower(), 0)
-
-
-def limpiar_conversion(root_dir: str | Path) -> dict:
-    """Remove duplicate images within each folder based on filename and extension priority."""
-    root_path = Path(root_dir).expanduser().resolve()
-    if not root_path.exists():
-        raise FileNotFoundError(f"La carpeta {root_path} no existe")
-
-    inspected_dirs = 0
-    duplicate_groups = 0
-    removed_files = 0
-    errors = 0
-
-    directories = [root_path]
-    directories.extend(p for p in root_path.rglob("*") if p.is_dir())
-
-    for directory in directories:
-        inspected_dirs += 1
-        files_by_stem: dict[str, list[Path]] = {}
-
-        for file_path in directory.iterdir():
-            if file_path.is_file() and file_path.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS:
-                files_by_stem.setdefault(file_path.stem.lower(), []).append(file_path)
-
-        for files in files_by_stem.values():
-            if len(files) < 2:
-                continue
-
-            duplicate_groups += 1
-
-            files.sort(
-                key=lambda path: (
-                    _extension_priority(path),
-                    path.stat().st_mtime,
-                ),
-                reverse=True,
-            )
-
-            keep = files[0]
-            for duplicate in files[1:]:
-                try:
-                    duplicate.unlink()
-                    removed_files += 1
-                    print(f"Eliminado duplicado: {duplicate} (se mantiene {keep})")
-                except Exception as exc:
-                    errors += 1
-                    print(f"[ERROR] No se pudo eliminar {duplicate}: {exc}")
-
-    resumen = {
-        "carpetas_revisadas": inspected_dirs,
-        "grupos_duplicados": duplicate_groups,
-        "archivos_eliminados": removed_files,
-        "errores": errors,
-    }
-    print(f"Resumen limpieza: {resumen}")
-    return resumen
+    origen_path = Path(origen).expanduser().resolve()
+    
+    try:
+        with Image.open(origen_path) as img:
+            width, height = img.size
+            maximo = max(width, height)
+            escala = tamaño / maximo
+            img = img.resize((width * escala, height * escala), Image.Resampling.LANCZOS)
+            img.save(origen_path, "JPEG", quality=90, optimize=True)
+    except:
+        return False
+    return True    
 
 
-def normalizar_perfil(root_dir: str | Path, max_dimension: int = MAX_PROFILE_DIMENSION) -> dict:
-    """Resize '0.jpeg' images so their largest dimension equals max_dimension (up/down)."""
-    root_path = Path(root_dir).expanduser().resolve()
-    if not root_path.exists():
-        raise FileNotFoundError(f"La carpeta {root_path} no existe")
+def convertir_images(raiz: str, quality: int = 90) -> dict:
+    """Convierte todas las imágenes bajo `raiz` a JPEG, sobrescribiendo los archivos existentes."""
 
-    procesados = 0
-    saltados = 0
-    errores = 0
-
-    for profile_path in root_path.rglob("0.jpeg"):
-        try:
-            with Image.open(profile_path) as img:
-                width, height = img.size
-                max_actual = max(width, height)
-
-                if max_actual == 0:
-                    saltados += 1
-                    continue
-
-                if abs(max_actual - max_dimension) <= 1:
-                    saltados += 1
-                    continue
-
-                escala = max_dimension / max_actual
-                nuevo_tam = (
-                    max(1, int(round(width * escala))),
-                    max(1, int(round(height * escala))),
-                )
-
-                perfil_redimensionado = img.resize(nuevo_tam, RESAMPLE_FILTER)
-                perfil_redimensionado.save(profile_path, "JPEG", quality=90, optimize=True)
-                procesados += 1
-                accion = "Agrandado" if escala > 1 else "Reducido"
-                print( f"{accion} {profile_path}: {width}x{height} -> {nuevo_tam[0]}x{nuevo_tam[1]}" )
-
-        except Exception as exc:
+    convertidos, errores = 0, 0
+    for origen_path in recorrer(raiz):
+        destino_path = origen_path.with_suffix(".jpeg")
+        
+        if convertir_imagen(origen_path, destino_path, quality=quality):
+            convertidos += 1
+            origen_path.unlink()
+        else:
             errores += 1
-            print(f"[ERROR] No se pudo normalizar {profile_path}: {exc}")
 
-    resumen = {
-        "procesados": procesados,
-        "saltados": saltados,
-        "errores": errores,
-    }
-    print(f"Resumen perfiles: {resumen}")
-    return resumen
+    return {"convertidos": convertidos, "errores": errores}
 
 
-def procesar_imagen_nano_banana( origen: str | Path, prompt: str = "", image_size: str = "1K", ) -> list[Path]:
+def redimensionar_perfiles(raiz: str, tamaño: int = TamañoPerfil):
+    """Redimensiona imágenes '0.jpeg' para que su dimensión más grande sea igual a tamaño (arriba/abajo)."""
+    
+    for origen_path in recorrer(raiz, "0.jpeg"):
+        redimensionar_imagen(origen_path, tamaño)
+
+
+def procesar_imagen(origen: str, destino: str, prompt: str = "", image_size: str = "1K" ) -> bool:
     """Procesa una imagen con la API de Google GenAI y guarda el resultado en destino."""
 
-    destino = origen.replace("/0.jpeg", "/00.jpeg")
-    
     if not prompt:
-        prompt = "Convertir al imagen en una foto carnet profesional perfectamente iluminada como si ubiera sido sacada en un estudio fotografico y con la máxima calidad. Preservar exactamente los detalles faciales y elimina todo detalle innecesario. Asegurate de centrar el rostro para que entre en una foto cuadrada, mantener un fondo neutro. Hacer que el rostro no ocupe mas del 80% de la imagen. Si tiene auriculares eliminarlos: NO aisle el rostro, debe mostraerse con el cuerpo y la ropa perfectamente visible"
+        prompt = """
+            Genera una foto de perfil profesional tipo carnet con estas especificaciones:
+            - Iluminación de estudio fotográfico profesional
+            - Fondo neutro uniforme (gris claro)
+            - Rostro centrado ocupando 60-70% del encuadre
+            - Mantener cuerpo y ropa visibles (busto completo)
+            - Preservar detalles faciales exactos
+            - Remover auriculares si existen
+            - Formato cuadrado optimizado (1:1)
+            """
     
-    origen_path = Path(origen).expanduser().resolve()
-    if not origen_path.exists():
-        return []
-
+    origen_path  = Path(origen).expanduser().resolve()
     destino_path = Path(destino).expanduser().resolve()
-    if destino_path.exists():
-        return []
     
-    print(f"- {origen.split('/')[-2]}")
+    if not origen_path.exists() or destino_path.exists(): return False
     
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        raise EnvironmentError("Debe definir la variable de entorno GEMINI_API_KEY para usar Google GenAI.")
-
-    destino_path = Path(destino).expanduser()
-    destino_es_directorio = (destino_path.exists() and destino_path.is_dir()) or destino_path.suffix == ""
-    output_dir = destino_path if destino_es_directorio else destino_path.parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    modelo = "gemini-2.5-flash-image"
     image_bytes = origen_path.read_bytes()
-    mime_type = mimetypes.guess_type(origen_path.name)[0] or "image/jpeg"
+    image_mime  = mimetypes.guess_type(origen_path.name)[0] or "image/jpeg"
 
-    client = genai.Client(api_key=api_key)
+    config = types.GenerateContentConfig(
+        response_modalities=["IMAGE"],
+        response_mime_type="image/jpeg",
+        image_config=types.ImageConfig(image_size=image_size),
+    )
 
     contents = [
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text=prompt),
-                types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                types.Part.from_text(text=prompt.strip()),
+                types.Part.from_bytes(data=image_bytes, mime_type=image_mime),
             ],
         )
     ]
 
-    config = types.GenerateContentConfig(
-        response_modalities=["IMAGE", "TEXT"],
-        image_config=types.ImageConfig(image_size=image_size),
-    )
-
-    saved_files: list[Path] = []
-    file_index = 0
-
-    for chunk in client.models.generate_content_stream(
-        model="gemini-2.5-flash-image",
-        contents=contents,
-        config=config,
-    ):
-        candidate = chunk.candidates[0] if chunk.candidates else None
-        if not candidate or not candidate.content or not candidate.content.parts:
-            continue
-
-        for part in candidate.content.parts:
-            inline = getattr(part, "inline_data", None)
-            if inline and inline.data:
-                extension = mimetypes.guess_extension(inline.mime_type) or destino_path.suffix or ".jpeg"
-
-                if destino_es_directorio:
-                    filename = f"{origen_path.stem}_nano_{file_index}{extension}"
-                    target_path = output_dir / filename
-                else:
-                    if file_index == 0:
-                        target_path = destino_path if destino_path.suffix else destino_path.with_suffix(extension)
-                    else:
-                        suffix = destino_path.suffix or extension
-                        base_name = destino_path.stem or origen_path.stem
-                        target_path = output_dir / f"{base_name}_{file_index}{suffix}"
-
-                target_path.write_bytes(inline.data)
-                saved_files.append(target_path)
-                file_index += 1
-
-            elif getattr(part, "text", None):
-                # print(part.text)
-                pass 
-
-    if not saved_files:
-        raise RuntimeError("La API no devolvió ninguna imagen procesada.")
-
-    return saved_files
-
-
-def procesar_perfiles_nano_banana( root_dir: str | Path, prompt: str = "", image_size: str = "1K", overwrite: bool = False, ) -> dict:
-    """Aplica procesar_imagen_nano_banana a cada '0.jpeg' dentro de root_dir."""
-
-    root_path = Path(root_dir).expanduser().resolve()
-    if not root_path.exists():
-        raise FileNotFoundError(f"La carpeta {root_path} no existe")
-
-    procesados = 0
-    saltados = 0
-    errores = 0
-
-    for profile_path in sorted(root_path.rglob("0.jpeg")):
-        destino = profile_path.with_name("00.jpeg")
-        if destino.exists() and not overwrite:
-            saltados += 1
-            continue
-
-        try:
-            generados = procesar_imagen_nano_banana( origen=str(profile_path), prompt=prompt, image_size=image_size, )
-            if generados:
-                procesados += 1
-        except EnvironmentError:
-            raise
-        except Exception as exc:
-            errores += 1
-            print(f"[ERROR] No se pudo procesar {profile_path}: {exc}")
-
-    resumen = {"procesados": procesados, "saltados": saltados, "errores": errores}
-    print(f"Resumen nano banana: {resumen}")
-    return resumen
-
-CARPETA_IMAGENES = Path("emails")
-if __name__ == "__main__":
-    if CARPETA_IMAGENES.exists():
-        convert_images_to_jpg(CARPETA_IMAGENES, quality=90, overwrite=False, delete_original=False)
-        limpiar_conversion(CARPETA_IMAGENES)
-        normalizar_perfil(CARPETA_IMAGENES)
-        procesar_perfiles_nano_banana(CARPETA_IMAGENES)
-    else:
-        print("La carpeta emails aún no existe. Crear la carpeta o modificar CARPETA_IMAGENES.")
+    respuesta = client.models.generate_content(model=modelo, contents=contents, config=config)
     
+    primero = respuesta.candidates[0] if respuesta.candidates else None
+    if primero and primero.content and hasattr(primero.content, "parts"):
+        for parte in primero.content.parts:
+            inline = getattr(parte, "inline_data", None)
+            if data := getattr(inline, "data", None):   
+                destino_path.write_bytes(data)
+                return True
+    return False
 
-# generados = procesar_imagen_nano_banana( origen= "/Users/adibattista/Documents/GitHub/tup-25-p4/emails/62176/0.jpeg")
+
+def procesar_perfiles( raiz: str | Path, prompt: str = "", image_size: str = "1K" ) -> dict:
+    """Aplica procesar_imagen a cada '0.jpeg' dentro de raiz."""
+
+    procesados, errores = 0, 0
+    for origen_path in recorrer(raiz,"0.jpeg"):
+        destino_path = origen_path.with_name("00.jpeg")
+        if procesar_imagen(origen=origen_path, destino=destino_path, prompt=prompt, image_size=image_size):
+            procesados += 1
+        else:
+            errores += 1
+
+    return {"procesados": procesados, "errores": errores}
+
+def copiar_perfiles(raiz: str = "emails"):
+    for origen in recorrer(raiz, "00.jpeg"):
+        legajo = origen.parent.name
+        
+        for destino in Path("./tp").glob("*"):
+            if destino.is_dir() and destino.name.startswith(legajo):
+                destino_path = destino / f"{legajo}.jpeg"
+                destino_path.write_bytes(origen.read_bytes())
+                viejo = destino / f"{legajo}.png"
+                if viejo.exists():
+                    viejo.unlink()
+                viejo = destino / f"{legajo}.jpg"
+                if viejo.exists():
+                    viejo.unlink()
+                print(f"Copiado {origen} a {destino_path}")
+                break
+    
+if __name__ == "__main__":
+    raiz = Path("emails")
+    convertir_images(raiz, quality=90)
+    redimensionar_perfiles(raiz)
+    procesar_perfiles(raiz)
+    copiar_perfiles(raiz)

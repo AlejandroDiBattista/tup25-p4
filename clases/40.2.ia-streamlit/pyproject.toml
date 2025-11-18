@@ -15,5 +15,5 @@ dependencies = [
 
 [tool.uv.workspace]
 members = [
-    "clase-ia",
+    ".",
 ]
