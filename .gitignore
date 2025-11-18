@@ -232,3 +232,4 @@ $RECYCLE.BIN/
 clases/21.gpt/.streamlit/secrets.toml
 
 tmp_frontend_index*.html
+.streamlit
