@@ -103,7 +103,6 @@ def procesar_imagen(origen: str, destino: str, prompt: str = "", image_size: str
 
     config = types.GenerateContentConfig(
         response_modalities=["IMAGE"],
-        response_mime_type="image/jpeg",
         image_config=types.ImageConfig(image_size=image_size),
     )
 
