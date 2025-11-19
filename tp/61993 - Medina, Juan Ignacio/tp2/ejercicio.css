@@ -1,1 +1,64 @@
-/* Estilos generales */
+body {
+  padding-top: 2rem;
+}
+
+header.container {
+  margin-bottom: 2rem;
+}
+
+nav ul {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+#search {
+  min-width: 260px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  padding: 1.2rem;
+  border-radius: 12px;
+  background: var(--card-background, #fff);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.name {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.meta {
+  color: #666;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+dialog article {
+  width: 350px;
+}
