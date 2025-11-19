@@ -161,18 +161,40 @@ def eliminar_0jpeg(raiz: str = "emails"):
             origen.unlink()
             print(f"Eliminado: {origen}")
 
-def copiar_pantallas(raiz: str = "emails"):
-    for origen in recorrer(raiz):
-        legajo = origen.parent.name
-        
-        for destino in Path("./tp").glob("*"):
-            if destino.is_dir() and destino.name.startswith(legajo):
-                destino_path = destino / f"{legajo}.jpeg"
-                destino_path.write_bytes(origen.read_bytes())
-                print(f"Copiado: {origen} -> {destino_path}")                   
+def copiar_pantallas(origen: str = "emails", destino: str = "tp") -> int:
+    """Copia todos los .jpg de cada legajo hacia `tp/<legajo*/tp6/pantalla/`."""
+
+    import shutil
+
+    copiados = 0
+    for origen_path in Path(origen).rglob("*.jpg"):
+        if origen_path.name.lower() == "00.jpeg":
+            continue
+
+        legajo = origen_path.parent.name
+        if not legajo.isdigit():
+            continue
+
+        destino_base = None
+        for candidato in Path(destino).glob("*"):
+            if candidato.is_dir() and candidato.name.startswith(legajo):
+                destino_base = candidato
                 break
-           
+        if not destino_base:
+            continue
+
+        pantalla_dir = destino_base / "tp6" / "pantalla"
+        pantalla_dir.mkdir(parents=True, exist_ok=True)
+
+        destino_path = pantalla_dir / origen_path.name
+        shutil.copy2(origen_path, destino_path)
+        destino_path.write_bytes(origen.read_bytes())
+        copiados += 1
+        print(f"Copiado {origen_path.name} → {destino_path}")
+
+    return copiados
  
+
 if __name__ == "__main__":
     raiz = Path("emails")
     # convertir_images(raiz, quality=90)
@@ -180,3 +202,4 @@ if __name__ == "__main__":
     # procesar_perfiles(raiz)
     # copiar_perfiles(raiz)
     # eliminar_0jpeg(raiz)
+    copiar_pantallas(raiz)

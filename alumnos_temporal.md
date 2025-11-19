@@ -26,7 +26,7 @@
 - 61565  Carrizo, Mauro                       (381) 610-8745  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @DarkoDarkShadow    
 - 61725  Villagra, Jorge Sebastián            (381) 594-1635  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @JorgeVillagraa     
 - 61911  Llanos, Luciano                      (381) 325-9224  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @LucianoLlanos      
-- 61993  Medina, Juan Ignacio                 (381) 517-1937  🔴🔴🟢🟢🟢🟢  50 🟩  8 🟩  @Soulmain1          
+- 61993  Medina, Juan Ignacio                 (381) 517-1937  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @Soulmain1          
 - 62175  Quiroga, Marcela Noemí               (381) 593-8430  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Marce-Quiroga      
 - 61240  Timo, Héctor Gabriel                 (381) 343-0992  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @GabrielTimo006     
 - 61046  Ponce, Luz Micaela                   (381) 664-7165  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Mica8p             
@@ -37,6 +37,7 @@
 - 61033  Quiroga, José María                  (11) 2399-7675  🟢🟢🟢🟢🟢🟢  50 🟩  6 🟩  @jose-qui           
 - 61084  Ramírez, Leonardo                    (381) 348-9132  🔴🟢🟢🟢🟢🟢  47 🟩  6 🟩  @Leoramirez777      
 - 61120  Guerrero, Ana Sofía                  (381) 418-1564  🟢🟢🟢🟢🟢🟢  48 🟩  0 🟩  @AnaSofi03          
+- 61472  Díaz, Julieta Camila                 (381) 652-9981  🟢🟢🟢🟢🟢🔴  47 🟩  0 🟥  @juliidiiaz04       
 ```
 
 ### Regulariza 
@@ -46,13 +47,12 @@
 
 ### Repite
 ```text
+- 62318  Quiroga Castro, Lisandro             (381) 390-9133  🟢🔴🔴🔴🟢🔴  50 🟩  4 🟥  @Lisandro-18        
 - 61337  Díaz, Christian Gabriel              (381) 571-4797  🔴🔴🔴🔴🔴🔴  45 🟩  0 🟥                      
 - 61463  González, Nicolas (oyente)           (381) 588-3047  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
-- 61472  Díaz, Julieta Camila                 (381) 652-9981  🟢🟢🟢🔴🔴🔴  47 🟩  0 🟥  @juliidiiaz04       
 - 61805  Jerez, Tomás                         (381) 338-0186  🟢🔴🔴🔴🔴🔴   0 🟥  0 🟥  @ElTommmy           
 - 61813  Figueroa, Manuel                     (381) 544-2423  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
 - 62171  Ballespin, Cristián                  (381) 604-5734  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
-- 62318  Quiroga Castro, Lisandro             (381) 390-9133  🟢🔴🔴🔴🟢🔴  50 🟩  4 🟥  @Lisandro-18        
 - 99001  Branda, César                        (381) 212-6932  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
 ```
 
@@ -77,7 +77,7 @@
 - 61450  Jiménez Paz, Patricio Agustín        (381) 388-2674  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @patricio-jp        
 - 61473  Lagoria García, Tomás Gustavo        (381) 357-7724  🟢🟢🟢🟢🟢🟢  48 🟩 10 🟩  @tomaslago27        
 - 61478  Soto, Antonella                      (387) 517-0010  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @anto210            
-- 61572  Parrado Navarrete, Alex Daniel       (381) 409-5039  🟢🟢🟢🟢🔴🟢  50 🟩 10 🟩  @AlexDaniel28       
+- 61572  Parrado Navarrete, Alex Daniel       (381) 409-5039  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @AlexDaniel28       
 - 61579  Gonzalo, Martín                      (381) 418-6882  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Lived18            
 - 61626  Díaz Londero, Sergio Gonzalo         (381) 604-6547  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Gonzalo-diazz      
 - 61627  Juárez Fernández, Lourdes Abril      (381) 647-9914  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @LourdesFernandez1  
@@ -94,19 +94,19 @@
 - 62555  Verón, Matías Gabriel                (381) 519-6654  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @MatiasVeron12503   
 - 61139  Gallo, María Matilde                 (381) 333-4836  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @matildegallom      
 - 61141  Di Clemente, María Antonela          (381) 398-3935  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @antodiclemente     
-- 62172  Salcedo, Mariana Aylén               (381) 466-9695  🟢🟢🟢🟢🟢🟢  50 🟩  10 🟩  @marianasalcedo22   
+- 62172  Salcedo, Mariana Aylén               (381) 466-9695  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @marianasalcedo22   
 ```
 
 ### Recupera
 ```text
 - 61136  Sosa, Oscar Ignacio                  (381) 528-9145  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @Oscar40997         
 - 61200  Gauna Serrano, Martín Javier         (381) 389-2631  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @MartinGS8          
+- 61214  Collazos Cortez, Máximo Alberto      (381) 350-5275  🟢🟢🟢🟢🟢🔴  46 🟩  0 🟥  @maximocollazos                 
 ```
 
 ### Repite
 ```text
 - 61203  Acevedo Costello, Juan Ignacio       (381) 388-7804  🟢🟢🟢🔴🔴🔴  48 🟩  0 🟥  @Ignacioacevedoo    
-- 61214  Collazos Cortez, Máximo Alberto      (381) 350-5275  🟢🟢🔴🔴🔴🔴  46 🟩  0 🟥                      
 - 61624  Godoy, Alan                          (381) 574-4877  🔴🟢🔴🔴🔴🔴  50 🟩  0 🟥  @AlanG46            
 - 61059  Palavecino, Fabricio Gastón          (381) 666-6103  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
 - 61352  García Moya, José Ignacio            (381) 638-9006  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
