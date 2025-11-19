@@ -1,24 +1,28 @@
-import { promises as fsp } from "fs";
-import readline from "readline/promises";
-import { stdin as input, stdout as output } from "node:process";
+import fs from "fs/promises";
+import readline from "readline";
 
+export function prompt(texto) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
-export async function read(origen='./agenda.json'){
-    const data = await fsp.readFile(origen, 'utf-8');
-    return data ?? "[]";
+    return new Promise(resolve => {
+        rl.question(texto, answer => {
+            rl.close();
+            resolve(answer);
+        });
+    });
 }
 
-export async function write(texto, destino='./agenda.json'){
-  await fsp.writeFile(destino, texto, 'utf-8');
+export async function read(path) {
+    try {
+        return JSON.parse(await fs.readFile(path, "utf-8"));
+    } catch (err) {
+        return [];
+    }
 }
 
-export async function prompt(mensaje = "") {
-  const linea = readline.createInterface({ input, output });
-  try {
-    const respuesta = await linea.question(mensaje);
-    return respuesta.trim();
-  } finally {
-    linea.close();
-  }
+export async function write(path, data) {
+    await fs.writeFile(path, JSON.stringify(data, null, 2));
 }
-
