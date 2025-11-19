@@ -152,17 +152,31 @@ def copiar_perfiles(raiz: str = "emails"):
                 print(f"Copiado: {origen} -> {destino_path}")                   
                 break
             
-def eliminar_0jpeg(raiz: str = "emails"):
-    for origen in recorrer(raiz, "0.jpeg"):
+def eliminar_0jpeg(raiz: str = "emails"):    
+    for origen in recorrer(raiz):
+        if origen.name != "0.jpeg": continue
+        
         perfil = origen.with_name("00.jpeg")
         if perfil.exists():
             origen.unlink()
             print(f"Eliminado: {origen}")
-            
+
+def copiar_pantallas(raiz: str = "emails"):
+    for origen in recorrer(raiz):
+        legajo = origen.parent.name
+        
+        for destino in Path("./tp").glob("*"):
+            if destino.is_dir() and destino.name.startswith(legajo):
+                destino_path = destino / f"{legajo}.jpeg"
+                destino_path.write_bytes(origen.read_bytes())
+                print(f"Copiado: {origen} -> {destino_path}")                   
+                break
+           
+ 
 if __name__ == "__main__":
     raiz = Path("emails")
-    convertir_images(raiz, quality=90)
-    redimensionar_perfiles(raiz)
-    procesar_perfiles(raiz)
+    # convertir_images(raiz, quality=90)
+    # redimensionar_perfiles(raiz)
+    # procesar_perfiles(raiz)
     # copiar_perfiles(raiz)
-    # elinar_0jpeg(raiz)
+    # eliminar_0jpeg(raiz)

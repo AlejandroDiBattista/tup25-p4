@@ -3,14 +3,13 @@
 ---
 
 # ATENCIÓN: 
-### Resultados provisionales, sujeto a cambios hasta la publicación oficial.
+## Resultados provisionales, sujeto a cambios hasta la publicación oficial.
 
 ---
 
-
 ## Comisión 1
 
-#### Promoción Directa
+### Promociona
 ```text
 - 54911  Jatib, Rodrigo Gabriel               (381) 655-3096  🟢🟢🟢🟢🟢🟢  47 🟩  8 🟩  @RodrigoJatib       
 - 61035  Ledesma, Paulo Marcelo               (381) 664-8356  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @pauloled           
@@ -30,22 +29,22 @@
 - 61993  Medina, Juan Ignacio                 (381) 517-1937  🔴🔴🟢🟢🟢🟢  50 🟩  8 🟩  @Soulmain1          
 - 62175  Quiroga, Marcela Noemí               (381) 593-8430  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Marce-Quiroga      
 - 61240  Timo, Héctor Gabriel                 (381) 343-0992  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @GabrielTimo006     
+- 61046  Ponce, Luz Micaela                   (381) 664-7165  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Mica8p             
 ```
 
-#### Recupera para promocionar
+### Recupera
 ```text
 - 61033  Quiroga, José María                  (11) 2399-7675  🟢🟢🟢🟢🟢🟢  50 🟩  6 🟩  @jose-qui           
-- 61046  Ponce, Luz Micaela                   (381) 664-7165  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @Mica8p             
 - 61084  Ramírez, Leonardo                    (381) 348-9132  🔴🟢🟢🟢🟢🟢  47 🟩  6 🟩  @Leoramirez777      
 - 61120  Guerrero, Ana Sofía                  (381) 418-1564  🟢🟢🟢🟢🟢🟢  48 🟩  0 🟩  @AnaSofi03          
 ```
 
-#### Regulariza 
+### Regulariza 
 ```text
 - 61551  Díaz Valdez, Ignacio                 (381) 695-8566  🟢🔴🟢🟢🟢🟢  35 🟨 10 🟩  @IgnacioDiazV    
 ```
 
-#### Libres
+### Repite
 ```text
 - 61337  Díaz, Christian Gabriel              (381) 571-4797  🔴🔴🔴🔴🔴🔴  45 🟩  0 🟥                      
 - 61463  González, Nicolas (oyente)           (381) 588-3047  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
@@ -57,10 +56,9 @@
 - 99001  Branda, César                        (381) 212-6932  🔴🔴🔴🔴🔴🔴   0 🟥  0 🟥                      
 ```
 
-
 ## Comisión 3
 
-#### Promoción Directa
+### Promociona
 ```text
 - 61028  Ponce, Rodrigo Exequíel              (381) 569-0318  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @rodrikapo12        
 - 61032  Moya, Mariano                        (381) 670-1164  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @mariano-moya       
@@ -99,13 +97,13 @@
 - 62172  Salcedo, Mariana Aylén               (381) 466-9695  🟢🟢🟢🟢🟢🟢  50 🟩  10 🟩  @marianasalcedo22   
 ```
 
-#### Recuperan para promocionar
+### Recupera
 ```text
-- 61136  Sosa, Oscar Ignacio                  (381) 528-9145  🟢🟢🟢🟢🔴🟢  50 🟩  0 🟩  @Oscar40997         
+- 61136  Sosa, Oscar Ignacio                  (381) 528-9145  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @Oscar40997         
 - 61200  Gauna Serrano, Martín Javier         (381) 389-2631  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @MartinGS8          
 ```
 
-#### Libres
+### Repite
 ```text
 - 61203  Acevedo Costello, Juan Ignacio       (381) 388-7804  🟢🟢🟢🔴🔴🔴  48 🟩  0 🟥  @Ignacioacevedoo    
 - 61214  Collazos Cortez, Máximo Alberto      (381) 350-5275  🟢🟢🔴🔴🔴🔴  46 🟩  0 🟥                      
