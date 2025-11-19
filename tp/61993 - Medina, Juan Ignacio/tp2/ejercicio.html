@@ -1,15 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda de Contactos</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-    <link rel="stylesheet" href="./ejercicio.css" />
-    <script type="module" src="./ejercicio.js"></script>
-  </head>
-  <body>
-    <!-- Contenido principal de la agenda -->
-  </body>
-  </html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="./ejercicio.css" />
+  <script type="module" src="./ejercicio.js"></script>
+</head>
+<body>
 
+  <header class="container">
+    <h1>Agenda de Contactos</h1>
+    <nav>
+      <ul>
+        <li>
+          <input id="search" type="search" placeholder="Buscar contactos..." />
+        </li>
+        <li>
+          <button id="btnAdd">Agregar</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="cards" class="cards"></section>
+  </main>
+
+  <dialog id="dlg">
+    <article>
+      <header>
+        <h2 id="dlgTitle">Contacto</h2>
+      </header>
+      <form id="form">
+        <input type="hidden" id="contactId">
+
+        <label>
+          Nombre
+          <input id="nombre" required />
+        </label>
+
+        <label>
+          Apellido
+          <input id="apellido" required />
+        </label>
+
+        <label>
+          Teléfono
+          <input id="telefono" />
+        </label>
+
+        <label>
+          Email
+          <input id="email" type="email" />
+        </label>
+
+        <footer>
+          <button type="button" id="cancel">Cancelar</button>
+          <button type="submit" id="save">Guardar</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+</body>
+</html>
