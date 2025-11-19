@@ -21,10 +21,10 @@ uploaded_file = st.sidebar.file_uploader(
     type=["csv"]
 )
 
-# Inicializar variable de DataFrame
+# Inicializar DataFrame
 df = None
 
-# Si se cargó un archivo, leerlo
+# Si se cargó archivo, leerlo
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
 
@@ -64,39 +64,65 @@ products = sorted(df_year['producto'].unique())
 for product in products:
     product_data = df_year[df_year['producto'] == product].copy()
     
-    # Calcular métricas
+    # -------------------------------
+    # Calcular métricas totales
+    # -------------------------------
     total_quantity = product_data['cantidad'].sum()
-    product_data['precio_promedio'] = product_data['ingreso'] / product_data['cantidad']
-    product_data['costo_promedio'] = product_data['costo'] / product_data['cantidad']
-    avg_price = product_data['precio_promedio'].mean()
-    avg_cost = product_data['costo_promedio'].mean()
-    
+    total_ingreso = product_data['ingreso'].sum()
+    total_costo = product_data['costo'].sum()
+
+    avg_price = total_ingreso / total_quantity if total_quantity != 0 else 0
+    avg_cost = total_costo / total_quantity if total_quantity != 0 else 0
+
+    # -------------------------------
     # Contenedor con borde
+    # -------------------------------
     with st.container():
-        st.markdown(f"## :red[{product}]")
+        st.markdown(
+            f"""
+            <div style="border:1px solid #ddd; padding:15px; border-radius:10px; margin-bottom:15px;">
+            <h2 style="color:red">{product}</h2>
+            </div>
+            """, unsafe_allow_html=True
+        )
         col1, col2 = st.columns([0.3, 0.7])
-        
-        # Columna de métricas
+
+        # -------------------------------
+        # Columna izquierda - métricas
+        # -------------------------------
         with col1:
             st.markdown(f"**Cantidad de ventas:** {total_quantity:,}")
             st.markdown(f"**Precio promedio:** {avg_price:.2f}")
             st.markdown(f"**Costo promedio:** {avg_cost:.2f}")
-        
-        # Columna de gráfico
+
+        # -------------------------------
+        # Columna derecha - gráfico
+        # -------------------------------
         with col2:
-            # Agrupar por mes
+            # Agrupar por mes y calcular promedio correctamente
             monthly = product_data.groupby('mes').agg({
-                'precio_promedio': 'mean',
-                'costo_promedio': 'mean'
-            }).reset_index().sort_values('mes')
-            
+                'ingreso': 'sum',
+                'costo': 'sum',
+                'cantidad': 'sum'
+            }).reset_index()
+
+            monthly['precio_promedio'] = monthly.apply(
+                lambda row: row['ingreso'] / row['cantidad'] if row['cantidad'] != 0 else 0, axis=1
+            )
+            monthly['costo_promedio'] = monthly.apply(
+                lambda row: row['costo'] / row['cantidad'] if row['cantidad'] != 0 else 0, axis=1
+            )
+
+            monthly = monthly.sort_values('mes')
+
+            # Gráfico de líneas
             fig, ax = plt.subplots(figsize=(8, 3))
             ax.plot(
-                monthly['mes'], monthly['precio_promedio'], 
+                monthly['mes'], monthly['precio_promedio'],
                 marker='o', color='#1f77b4', label='Precio promedio'
             )
             ax.plot(
-                monthly['mes'], monthly['costo_promedio'], 
+                monthly['mes'], monthly['costo_promedio'],
                 marker='o', color='#d62728', label='Costo promedio'
             )
             ax.set_xlabel("Mes")
@@ -104,5 +130,5 @@ for product in products:
             ax.set_title("Evolución de precio y costo promedio")
             ax.legend(loc='best')
             ax.grid(True, linestyle='--', alpha=0.3)
-            
+
             st.pyplot(fig)
