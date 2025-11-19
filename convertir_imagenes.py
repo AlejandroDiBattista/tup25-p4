@@ -167,7 +167,7 @@ def copiar_pantallas(origen: str = "emails", destino: str = "tp") -> int:
     import shutil
 
     copiados = 0
-    for origen_path in Path(origen).rglob("*.jpg"):
+    for origen_path in Path(origen).rglob("*.jpeg"):
         if origen_path.name.lower() == "00.jpeg":
             continue
 
@@ -183,12 +183,13 @@ def copiar_pantallas(origen: str = "emails", destino: str = "tp") -> int:
         if not destino_base:
             continue
 
-        pantalla_dir = destino_base / "tp6" / "pantalla"
+        pantalla_dir = destino_base / "tp6" / "pantallas"
         pantalla_dir.mkdir(parents=True, exist_ok=True)
 
         destino_path = pantalla_dir / origen_path.name
-        shutil.copy2(origen_path, destino_path)
-        destino_path.write_bytes(origen.read_bytes())
+        if destino_path.exists():
+            continue
+        destino_path.write_bytes(origen_path.read_bytes())
         copiados += 1
         print(f"Copiado {origen_path.name} → {destino_path}")
 
