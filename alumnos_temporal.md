@@ -74,7 +74,7 @@
 - 61312  Paz Berrondo, Lucas David            (381) 341-4321  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Lucasdxvid         
 - 61319  Carabajal, José Gabriel              (381) 319-2680  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @7GabrielC          
 - 61445  Martínez Campero, Santiago           (381) 646-6685  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @SantiCampero       
-- 61450  Jiménez Paz, Patricio Agustín        (381) 388-2674  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @patricio-jp        
+- 61450  Jiménez Paz, Patricio Agustín        (381) 388-2674  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @patricio-jp        
 - 61473  Lagoria García, Tomás Gustavo        (381) 357-7724  🟢🟢🟢🟢🟢🟢  48 🟩 10 🟩  @tomaslago27        
 - 61478  Soto, Antonella                      (387) 517-0010  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @anto210            
 - 61572  Parrado Navarrete, Alex Daniel       (381) 409-5039  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @AlexDaniel28       
@@ -90,17 +90,17 @@
 - 62053  Herrera Palomino, Iván Agustín       (381) 697-0643  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @ivanagustinherrera 
 - 62055  Ahumada, Aiquen Osvaldo              (381) 419-9202  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @aiquen7            
 - 62093  Frías Silva, Juan Segundo            (381) 415-8753  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @juansefriass       
-- 62263  Orellana, José Augusto               (381) 339-2050  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @Jaodem             
+- 62263  Orellana, José Augusto               (381) 339-2050  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @Jaodem             
 - 62555  Verón, Matías Gabriel                (381) 519-6654  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @MatiasVeron12503   
 - 61139  Gallo, María Matilde                 (381) 333-4836  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @matildegallom      
 - 61141  Di Clemente, María Antonela          (381) 398-3935  🟢🟢🟢🟢🟢🟢  50 🟩  8 🟩  @antodiclemente     
 - 62172  Salcedo, Mariana Aylén               (381) 466-9695  🟢🟢🟢🟢🟢🟢  50 🟩 10 🟩  @marianasalcedo22   
+- 61200  Gauna Serrano, Martín Javier         (381) 389-2631  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @MartinGS8          
 ```
 
 ### Recupera
 ```text
-- 61136  Sosa, Oscar Ignacio                  (381) 528-9145  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @Oscar40997         
-- 61200  Gauna Serrano, Martín Javier         (381) 389-2631  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟩  @MartinGS8          
+- 61136  Sosa, Oscar Ignacio                  (381) 528-9145  🟢🟢🟢🟢🟢🟢  50 🟩  0 🟥  @Oscar40997         
 - 61214  Collazos Cortez, Máximo Alberto      (381) 350-5275  🟢🟢🟢🟢🟢🔴  46 🟩  0 🟥  @maximocollazos                 
 ```
 
