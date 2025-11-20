@@ -8,6 +8,10 @@ export default function ProductCardNew({p, onAdd}){
   const outOfStock = p.existencia === 0 || p.existence === 0 || (p.existence === undefined && p.existencia === undefined && (p.stock === 0))
   const title = p.nombre || p.titulo || p.name || 'Sin nombre'
   const price = Number(p.precio ?? p.price ?? 0).toFixed(2)
+  const priceNum = Number(p.precio ?? p.price ?? 0)
+  const category = (p.categoria || p.category || '').toString().toLowerCase()
+  const ivaRate = (category.includes('electron') || category.includes('electr')) ? 0.10 : 0.21
+  const priceWithIva = Math.round((priceNum * (1 + ivaRate)) * 100) / 100
   const rawImagen = p.imagen || p.image || ''
   const imagenRaw = (typeof rawImagen === 'string' && (rawImagen === 'undefined' || rawImagen === 'null')) ? '' : rawImagen
 
@@ -49,7 +53,10 @@ export default function ProductCardNew({p, onAdd}){
         <h3 className="font-semibold">{title}</h3>
         <p className="text-sm text-gray-600">{p.descripcion}</p>
         <div className="flex items-center justify-between mt-3">
-          <div className="text-lg font-bold text-red-600">${price}</div>
+          <div>
+            <div className="text-lg font-bold text-red-600">${priceWithIva.toFixed(2)}</div>
+            <div className="text-xs text-gray-500">incl. IVA {Math.round(ivaRate*100)}%</div>
+          </div>
           <div>
             {outOfStock ? (
               <span className="text-red-500">Agotado</span>

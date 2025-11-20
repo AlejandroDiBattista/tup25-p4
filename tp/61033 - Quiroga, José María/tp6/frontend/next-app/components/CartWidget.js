@@ -22,13 +22,17 @@ export default function CartWidget() {
             {items.map((it) => {
               const prod = it.producto || it.product || {}
               const qty = Number(it.cantidad ?? it.quantity ?? 1)
-              const price = Number(prod.precio ?? prod.price ?? 0)
+              const basePrice = Number(prod.precio ?? prod.price ?? 0)
+              const category = (prod.categoria || prod.category || '').toString().toLowerCase()
+              const ivaRate = (category.includes('electron') || category.includes('electr')) ? 0.10 : 0.21
+              const unitWithIva = Math.round((basePrice * (1 + ivaRate)) * 100) / 100
+              const lineTotal = Math.round((unitWithIva * qty) * 100) / 100
               const pid = prod.id ?? prod.producto_id
               return (
                 <li key={pid} className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="font-medium">{prod.nombre || prod.titulo || prod.name}</div>
-                    <div className="text-sm text-gray-600">${price.toFixed(2)} x {qty} = ${(price * qty).toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">${unitWithIva.toFixed(2)} x {qty} = ${lineTotal.toFixed(2)} <span className="ml-2 text-xs text-gray-500">(incl. IVA {Math.round(ivaRate*100)}%)</span></div>
                     <div className="mt-1 flex gap-2">
                       <button className="px-2 py-1 bg-gray-100 rounded" onClick={() => changeQuantity(pid, qty - 1)}>-</button>
                       <span className="px-2">{qty}</span>
@@ -42,7 +46,7 @@ export default function CartWidget() {
           </ul>
 
           <div className="mt-4">
-            <div className="flex justify-between"><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div>
+            <div className="flex justify-between"><span>Subtotal (sin IVA)</span><strong>${subtotal.toFixed(2)}</strong></div>
             <div className="flex justify-between"><span>IVA</span><strong>${iva_total.toFixed(2)}</strong></div>
             <div className="flex justify-between"><span>Envío</span><strong>${envio.toFixed(2)}</strong></div>
             <div className="flex justify-between mt-2 text-lg"><span>Total</span><strong>${total.toFixed(2)}</strong></div>
