@@ -10,7 +10,9 @@ export default function Login(){
     e.preventDefault()
     const res = await login({ username: email, password })
     if(res.access_token){
-      localStorage.setItem('token', res.access_token)
+      // Store token under both keys for compatibility with different components
+      localStorage.setItem('authToken', res.access_token)
+      try { localStorage.setItem('token', res.access_token) } catch (e) {}
       window.location.href = '/'
     } else {
       alert('Credenciales inválidas')

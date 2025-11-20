@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from db import get_session
 from core_models import User
-from auth import get_password_hash, verify_password, create_access_token, revoke_token, oauth2_scheme
+from auth import get_password_hash, verify_password, create_access_token, revoke_token, oauth2_scheme, get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(tags=["Usuarios"]) 
@@ -54,7 +54,12 @@ async def login(request: Request, session: Session = Depends(get_session)):
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect credentials")
     token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+    # Return token plus basic user info to simplify frontend flows
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": user.id, "nombre": user.nombre, "email": user.email}
+    }
 
 
 @router.post("/cerrar-sesion")
@@ -62,4 +67,10 @@ def logout(token: str = Depends(oauth2_scheme)):
     """Cerrar sesión: revoca el token JWT recibido en el header Authorization: Bearer <token>"""
     revoke_token(token)
     return {"ok": True}
+
+
+@router.get("/me")
+def me(user=Depends(get_current_user)):
+    """Devuelve información del usuario actual autenticado."""
+    return {"id": user.id, "nombre": user.nombre, "email": user.email}
 

@@ -17,6 +17,7 @@ class Product(SQLModel, table=True):
     precio: float
     categoria: str
     existencia: int
+    imagen: Optional[str] = None
 
 
 class Cart(SQLModel, table=True):

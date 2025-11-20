@@ -5,7 +5,9 @@ export default function ProductCardFixed({p, onAdd}){
   const outOfStock = p.existencia === 0 || p.existence === 0 || (p.existence === undefined && p.existencia === undefined && (p.stock === 0))
   const title = p.nombre || p.titulo || p.name || 'Sin nombre'
   const price = Number(p.precio ?? p.price ?? 0).toFixed(2)
-  const imagenRaw = p.imagen || p.image || ''
+  // Normalize raw image field and ignore string values 'undefined'/'null'
+  const rawImagen = p.imagen || p.image || ''
+  const imagenRaw = (typeof rawImagen === 'string' && (rawImagen === 'undefined' || rawImagen === 'null')) ? '' : rawImagen
 
   // Normalize image source:
   // - If it's a full URL (http/https), use as-is
@@ -40,7 +42,7 @@ export default function ProductCardFixed({p, onAdd}){
       <h3 className="font-semibold">{title}</h3>
       <p className="text-sm text-gray-600">{p.descripcion}</p>
       <div className="flex items-center justify-between mt-3">
-        <div className="text-lg font-bold text-emerald-600">${price}</div>
+        <div className="text-lg font-bold text-red-600">${price}</div>
         <div>
           {outOfStock ? (
             <span className="text-red-500">Agotado</span>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Navbar from '../components/Navbar'
-import { register } from '../lib/api'
+import { register, login } from '../lib/api'
 
 export default function Register(){
   const [nombre, setNombre] = useState('')
@@ -9,11 +9,26 @@ export default function Register(){
 
   async function handleSubmit(e){
     e.preventDefault()
-    const res = await register({ nombre, email, password })
-    if(res && res.email){
-      alert('Registrado correctamente'); window.location.href='/login'
-    } else {
-      alert('Error al registrar')
+    try {
+      const res = await register({ nombre, email, password })
+      if(res && res.email){
+        // intento autologin usando el email como username (backend lo espera así)
+        try {
+          const lg = await login({ username: email, password })
+          if(lg && lg.access_token){
+            try { localStorage.setItem('authToken', lg.access_token); localStorage.setItem('token', lg.access_token) } catch(e){}
+            window.location.href = '/'
+            return
+          }
+        } catch (e) {
+          // si falla el autologin, seguimos y redirigimos a /login
+        }
+        alert('Registrado correctamente'); window.location.href='/login'
+      } else {
+        alert('Error al registrar')
+      }
+    } catch (err) {
+      alert('Error al registrar: ' + (err && err.message ? err.message : String(err)))
     }
   }
 
