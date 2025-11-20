@@ -8,3 +8,4 @@ export interface Producto {
   existencia: number;
   imagen: string;
 }
+//
