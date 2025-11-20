@@ -1,37 +1,31 @@
-# Backend
-backend/__pycache__/
-backend/.pytest_cache/
-backend/.env
-backend/venv/
-backend/env/
-backend/*.db
-backend/*.sqlite
-backend/.DS_Store
-backend/.vscode/
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
 
-# Frontend
+# Virtual environments
+.venv/
+.env
+.env.*
+.python-version
+
+# Tooling
+.vscode/
+.eslintcache
+
+# Database files
+app.db
+
+# Node/Next.js artifacts
 frontend/node_modules/
 frontend/.next/
-frontend/.env.local
-frontend/.env.*.local
+frontend/.turbo/
+frontend/.swc/
 frontend/out/
-frontend/dist/
-frontend/.DS_Store
-frontend/.vscode/
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# macOS
 .DS_Store
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS
-Thumbs.db

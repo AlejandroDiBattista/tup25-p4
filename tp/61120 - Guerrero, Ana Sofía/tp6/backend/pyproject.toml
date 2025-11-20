@@ -1,0 +1,20 @@
+[project]
+name = "tp6-backend"
+version = "0.1.0"
+description = "Backend para el TP6 de Programación 4"
+authors = [
+    {name = "Tu Nombre", email = "tu@email.com"},
+]
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "sqlmodel>=0.0.18",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt==4.1.3",
+    "python-jose[cryptography]>=3.3.0",
+    "python-multipart>=0.0.9",
+]
+requires-python = ">=3.9"
+
+[tool.uv]
+dev-dependencies = []
