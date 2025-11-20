@@ -1,0 +1,42 @@
+body {
+  background: #f5f5f7;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Helvetica Neue", sans-serif;
+}
+
+.card {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: 0.25s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+img {
+  border-radius: 8px;
+}
+html.light {
+  --bg: #fafafa;
+  --text: #111;
+}
+
+html.dark {
+  --bg: #111;
+  --text: #fafafa;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s ease, color 0.3s ease;
+}
