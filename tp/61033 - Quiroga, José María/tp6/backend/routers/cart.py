@@ -62,12 +62,20 @@ def view_cart(user=Depends(get_current_user), session: Session = Depends(get_ses
     items = session.exec(select(CartItem).where(CartItem.cart_id == cart.id)).all()
     result = []
     total = 0.0
+    iva_total = 0.0
     for it in items:
         prod = session.get(Product, it.producto_id)
         subtotal = prod.precio * it.cantidad
-        result.append({"producto": prod, "cantidad": it.cantidad, "subtotal": subtotal})
+        # compute IVA per product category
+        iva_rate = 0.10 if prod.categoria.lower() == "electrónica" or prod.categoria.lower() == "electronica" else 0.21
+        iva = subtotal * iva_rate
+        iva_total += iva
+        result.append({"producto": prod, "cantidad": it.cantidad, "subtotal": subtotal, "iva": iva})
         total += subtotal
-    return {"items": result, "total": total}
+
+    envio = 0.0 if total > 1000 else 50.0
+    grand_total = total + iva_total + envio
+    return {"items": result, "subtotal": total, "iva_total": iva_total, "envio": envio, "total": grand_total}
 
 
 class FinalizeSchema(BaseModel):
@@ -116,7 +124,7 @@ def finalize_cart(payload: FinalizeSchema, user=Depends(get_current_user), sessi
     cart.estado = "finalizado"
     session.commit()
 
-    return {"ok": True, "compra_id": purchase.id, "total": grand_total}
+    return {"ok": True, "compra_id": purchase.id, "subtotal": total, "iva_total": iva_total, "envio": envio, "total": grand_total}
 
 
 @router.post("/carrito/cancelar")
