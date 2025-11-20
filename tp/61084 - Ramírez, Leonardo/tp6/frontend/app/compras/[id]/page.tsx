@@ -13,9 +13,22 @@ interface Compra {
   id: number;
   usuario: string;
   items: CarritoItem[];
+  subtotal?: number;
+  iva?: number;
+  envio?: number;
   total: number;
   direccion: string;
   fecha: string;
+  // El backend enriquece con 'items_detallados'
+  items_detallados?: Array<{
+    producto_id: number;
+    cantidad: number;
+    titulo?: string;
+    precio?: number;
+    imagen?: string;
+    categoria?: string;
+    subtotal?: number;
+  }>;
 }
 
 export default function DetalleCompraBPage() {
@@ -115,18 +128,48 @@ export default function DetalleCompraBPage() {
             <div className="mb-8">
               <h2 className="text-lg font-normal mb-6 tracking-tight">Artículos comprados</h2>
               <div className="space-y-3">
-                {compra.items.map((item: CarritoItem) => (
-                  <div key={item.producto_id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                    <span className="text-sm text-gray-700">Producto ID: {item.producto_id}</span>
-                    <span className="text-sm font-normal">Cantidad: {item.cantidad}</span>
-                  </div>
-                ))}
+                {(compra.items_detallados ?? compra.items).map((item: any) => {
+                  const precioUnitario = item.precio || 0;
+                  const totalProducto = precioUnitario * item.cantidad;
+                  
+                  return (
+                    <div key={item.producto_id} className="flex justify-between items-start py-3 border-b border-gray-100 last:border-b-0">
+                      <div className="flex-1">
+                        <p className="text-sm font-normal text-gray-900 mb-1">
+                          {item.titulo ? item.titulo : `Producto ID: ${item.producto_id}`}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          ${precioUnitario.toFixed(2)} × {item.cantidad} unidades
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-normal text-black">
+                          ${totalProducto.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div className="bg-gray-50 p-6 border border-gray-200">
-              <h3 className="font-normal text-base mb-3 uppercase tracking-wider">Monto total</h3>
-              <p className="text-2xl font-light text-black">${compra.total.toFixed(2)}</p>
+              <h3 className="font-normal text-base mb-3 uppercase tracking-wider">Resumen</h3>
+              <div className="space-y-2 text-sm mb-3">
+                {typeof compra.subtotal === 'number' && (
+                  <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span>${compra.subtotal.toFixed(2)}</span></div>
+                )}
+                {typeof compra.iva === 'number' && (
+                  <div className="flex justify-between"><span className="text-gray-600">IVA</span><span>${compra.iva.toFixed(2)}</span></div>
+                )}
+                {typeof compra.envio === 'number' && (
+                  <div className="flex justify-between"><span className="text-gray-600">Envío{compra.envio === 0 ? ' (gratis)' : ''}</span><span>${compra.envio.toFixed(2)}</span></div>
+                )}
+              </div>
+              <div className="flex justify-between text-base border-t border-gray-200 pt-3">
+                <span className="font-normal">Total</span>
+                <span className="text-2xl font-light text-black">${compra.total.toFixed(2)}</span>
+              </div>
             </div>
 
             <button

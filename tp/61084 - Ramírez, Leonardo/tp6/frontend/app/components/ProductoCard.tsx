@@ -4,6 +4,7 @@ import { Producto } from '../types';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface ProductoCardProps {
   producto: Producto;
@@ -13,6 +14,7 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
   const { agregarAlCarrito } = useCarrito();
   const { token } = useAuth();
   const router = useRouter();
+  const [cantidad, setCantidad] = useState(1);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   const handleAgregarAlCarrito = () => {
@@ -20,8 +22,20 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
       router.push('/auth');
       return;
     }
-    agregarAlCarrito(producto.id, 1);
-   
+    agregarAlCarrito(producto.id, cantidad);
+    setCantidad(1); // Resetear a 1 después de agregar
+  };
+
+  const incrementar = () => {
+    if (cantidad < producto.existencia) {
+      setCantidad(prev => prev + 1);
+    }
+  };
+
+  const decrementar = () => {
+    if (cantidad > 1) {
+      setCantidad(prev => prev - 1);
+    }
   };
 
   return (
@@ -53,13 +67,38 @@ export default function ProductoCard({ producto }: ProductoCardProps) {
           </div>
         </div>
         <div className="flex justify-between items-center mb-4 mt-auto">
-          <span className="text-xl font-light text-black">
+          <span className="text-xl font-light text-black-600">
             ${producto.precio}
           </span>
           <span className="text-xs text-gray-400">
             Stock: {producto.existencia}
           </span>
         </div>
+        
+        {/* Selector de cantidad */}
+        {producto.existencia > 0 && (
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <button
+              onClick={decrementar}
+              disabled={cantidad <= 1}
+              className="border border-gray-400 hover:border-black px-3 py-1 text-sm disabled:opacity-40 transition-colors"
+            >
+              −
+            </button>
+            <span className="text-base text-gray-700 min-w-[40px] text-center font-medium">
+              {cantidad}
+            </span>
+            <button
+              onClick={incrementar}
+              disabled={cantidad >= producto.existencia}
+              title={cantidad >= producto.existencia ? 'Stock máximo alcanzado' : ''}
+              className="border border-gray-400 hover:border-black px-3 py-1 text-sm disabled:opacity-40 transition-colors"
+            >
+              +
+            </button>
+          </div>
+        )}
+        
         <button
           onClick={handleAgregarAlCarrito}
           disabled={producto.existencia === 0}
