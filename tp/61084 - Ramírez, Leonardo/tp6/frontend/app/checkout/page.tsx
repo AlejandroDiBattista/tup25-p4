@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCarrito } from '../context/CarritoContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Producto } from '../types';
 
 export default function CheckoutPage() {
   const { token } = useAuth();
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [productos, setProductos] = useState<{ [key: number]: Producto }>({});
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -39,6 +41,44 @@ export default function CheckoutPage() {
     
     return () => clearTimeout(timer);
   }, [mounted, token, items.length, router]);
+
+  // Cargar detalles de productos para calcular IVA y totales
+  useEffect(() => {
+    if (!mounted || !token) return;
+    const loadProductos = async () => {
+      try {
+        const productosMap: { [key: number]: Producto } = {};
+        for (const item of items) {
+          const resp = await fetch(`${API_URL}/productos/${item.producto_id}`);
+          if (resp.ok) {
+            const prod = await resp.json();
+            productosMap[item.producto_id] = prod;
+          }
+        }
+        setProductos(productosMap);
+      } catch (e) {
+        console.error('Error al cargar productos en checkout:', e);
+      }
+    };
+    loadProductos();
+  }, [mounted, token, items, API_URL]);
+
+  const subtotal = items.reduce((sum: number, it) => {
+    const p = productos[it.producto_id];
+    return sum + (p?.precio || 0) * it.cantidad;
+  }, 0);
+
+  const calcularIVAItem = (p: Producto | undefined, cantidad: number) => {
+    if (!p) return 0;
+    const base = p.precio * cantidad;
+    const categoria = p.categoria?.toLowerCase() || '';
+    const tasa = categoria.includes('electr') ? 0.10 : 0.21;
+    return base * tasa;
+  };
+
+  const ivaTotal = items.reduce((sum: number, it) => sum + calcularIVAItem(productos[it.producto_id], it.cantidad), 0);
+  const envio = (subtotal + ivaTotal) > 1000 ? 0 : 50;
+  const total = subtotal + ivaTotal + envio;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,8 +156,44 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        <div className="border border-gray-200 p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Resumen del carrito */}
+          <div className="border border-gray-200 p-8">
+            <h2 className="text-lg font-normal mb-6 tracking-tight">Resumen del carrito</h2>
+
+            <div className="space-y-4 mb-6">
+              {items.map((it) => {
+                const p = productos[it.producto_id];
+                if (!p) return null;
+                const ivaItem = calcularIVAItem(p, it.cantidad);
+                const totalItem = p.precio * it.cantidad + ivaItem;
+                return (
+                  <div key={it.producto_id} className="flex justify-between items-start pb-4 border-b border-gray-100 last:border-b-0">
+                    <div>
+                      <p className="text-sm text-black mb-1">{p.titulo}</p>
+                      <p className="text-xs text-gray-500">Cantidad: {it.cantidad}</p>
+                      <p className="text-xs text-gray-500">IVA: ${ivaItem.toFixed(2)}</p>
+                    </div>
+                    <div className="text-sm text-black">${totalItem.toFixed(2)}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="border-t border-gray-200 pt-4 space-y-1 text-sm">
+              <div className="flex justify-between"><span className="text-gray-600">Total productos</span><span>${subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">IVA</span><span>${ivaTotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Envío{envio === 0 ? ' (gratis)' : ''}</span><span>${envio.toFixed(2)}</span></div>
+            </div>
+
+            <div className="flex justify-between mt-3 pt-3 border-t border-gray-200">
+              <span className="font-normal">Total a pagar</span>
+              <span className="font-medium">${total.toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* Formulario de pago/envío */}
+          <form onSubmit={handleSubmit} className="border border-gray-200 p-8 space-y-6">
             <div>
               <label className="block text-sm text-gray-700 mb-2 uppercase tracking-wider">Dirección de envío</label>
               <textarea
@@ -144,17 +220,13 @@ export default function CheckoutPage() {
               <p className="text-xs text-gray-400 mt-2">Se aceptan tarjetas de prueba como 4111111111111111</p>
             </div>
 
-            <div className="bg-gray-50 p-6 border border-gray-200 mt-8">
-              <h3 className="font-normal mb-3 text-sm uppercase tracking-wider">Resumen del pedido:</h3>
-              <p className="text-gray-600 mb-6 text-sm">Artículos: {items.length}</p>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-black hover:bg-gray-800 text-white font-normal py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider"
-              >
-                {isLoading ? 'Procesando...' : 'Confirmar compra'}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-black hover:bg-gray-800 text-white font-normal py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider"
+            >
+              {isLoading ? 'Procesando...' : 'Confirmar compra'}
+            </button>
           </form>
         </div>
       </div>

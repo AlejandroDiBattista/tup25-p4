@@ -8,7 +8,7 @@ import { Producto } from '../types';
 
 export default function CarritoPage() {
   const { token } = useAuth();
-  const { items, quitarDelCarrito } = useCarrito();
+  const { items, quitarDelCarrito, actualizarCantidad, agregarAlCarrito } = useCarrito();
   const [productos, setProductos] = useState<{ [key: number]: Producto }>({});
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -43,10 +43,26 @@ export default function CarritoPage() {
     loadProductos();
   }, [items, token, router, API_URL]);
 
-  const total = items.reduce((sum: number, item: any) => {
+  const subtotal = items.reduce((sum: number, item: any) => {
     const producto = productos[item.producto_id];
     return sum + (producto?.precio || 0) * item.cantidad;
   }, 0);
+
+  // Calcular IVA diferenciado: 10% para electrónicos, 21% para otros
+  const calcularIVATotal = () => {
+    return items.reduce((sum: number, item: any) => {
+      const producto = productos[item.producto_id];
+      if (!producto) return sum;
+      const itemSubtotal = producto.precio * item.cantidad;
+      const categoria = producto.categoria?.toLowerCase() || '';
+      const tasaIVA = categoria.includes('electr') ? 0.10 : 0.21;
+      return sum + (itemSubtotal * tasaIVA);
+    }, 0);
+  };
+
+  const ivaTotal = calcularIVATotal();
+  const envio = (subtotal + ivaTotal) > 1000 ? 0 : 50;
+  const total = subtotal + ivaTotal + envio;
 
   if (!token) return null;
 
@@ -87,8 +103,23 @@ export default function CarritoPage() {
                         <p className="text-gray-500 text-sm">${producto.precio}</p>
                       </div>
                       <div className="flex items-center gap-6">
-                        <p className="text-base text-gray-700">x{item.cantidad}</p>
-                        <p className="text-base font-normal text-black min-w-[80px] text-right">${producto.precio * item.cantidad}</p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => actualizarCantidad(item.producto_id, item.cantidad - 1)}
+                            disabled={item.cantidad <= 1}
+                            className="border border-gray-400 px-2 py-1 text-sm disabled:opacity-40"
+                          >-
+                          </button>
+                          <span className="text-base text-gray-700 w-6 text-center">{item.cantidad}</span>
+                          <button
+                            onClick={() => actualizarCantidad(item.producto_id, item.cantidad + 1)}
+                            disabled={producto.existencia !== undefined && item.cantidad >= producto.existencia}
+                            title={producto.existencia !== undefined && item.cantidad >= producto.existencia ? 'Stock máximo disponible alcanzado' : ''}
+                            className="border border-gray-400 px-2 py-1 text-sm disabled:opacity-40"
+                          >+
+                          </button>
+                        </div>
+                        <p className="text-base font-normal text-black min-w-[80px] text-right">${(producto.precio * item.cantidad).toFixed(2)}</p>
                         <button
                           onClick={() => quitarDelCarrito(item.producto_id)}
                           className="border border-black hover:bg-black hover:text-white text-black px-4 py-1.5 transition-colors text-sm"
@@ -107,15 +138,19 @@ export default function CarritoPage() {
               <div className="space-y-3 mb-6 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Subtotal:</span>
-                  <span className="text-black">${total.toFixed(2)}</span>
+                  <span className="text-black">${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">IVA (21%):</span>
-                  <span className="text-black">${(total * 0.21).toFixed(2)}</span>
+                  <span className="text-gray-500">IVA (10% electrónicos, 21% otros):</span>
+                  <span className="text-black">${ivaTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Envío { (subtotal + ivaTotal) > 1000 ? '(gratis)' : '' }:</span>
+                  <span className="text-black">${envio.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-3 flex justify-between">
                   <span className="text-black">Total:</span>
-                  <span className="text-black font-normal">${(total * 1.21).toFixed(2)}</span>
+                  <span className="text-black font-normal">${total.toFixed(2)}</span>
                 </div>
               </div>
               <a

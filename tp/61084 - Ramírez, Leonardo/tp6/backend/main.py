@@ -10,6 +10,8 @@ import datetime
 # Persistencia con SQLModel
 from sqlmodel import SQLModel, create_engine, Session, select
 from models.productos import Producto
+from models.usuario import Usuario
+from models.compra import Compra
 from pathlib import Path as _Path
 
 app = FastAPI(title="API Productos")
@@ -75,7 +77,10 @@ usuarios = [
         "email": "ramirezleonardo113@gmail.com",
         "password": "123456",
         "nombre": "Leonardo Ramírez"
-    }
+    },
+    # Usuarios de prueba para facilitar el ingreso durante la corrección/demos
+    {"email": "admin@admin.com", "password": "admin", "nombre": "Admin"},
+    {"email": "demo@demo.com", "password": "demo", "nombre": "Usuario Demo"},
 ]
 tokens = {}
 carrito = {}
@@ -124,6 +129,19 @@ def init_db():
     """Crear tablas y poblar productos desde productos.json si la tabla está vacía."""
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
+        # Poblar usuarios si no existen
+        usuarios_existentes = session.exec(select(Usuario)).all()
+        if len(usuarios_existentes) == 0:
+            for u in usuarios:
+                usuario_db = Usuario(
+                    email=u["email"],
+                    password=u["password"],  # En producción: hashear con bcrypt
+                    nombre=u["nombre"]
+                )
+                session.add(usuario_db)
+            session.commit()
+        
+        # Poblar productos si no existen
         productos_existentes = session.exec(select(Producto)).all()
         if len(productos_existentes) == 0:
             # poblar desde productos.json
@@ -219,7 +237,7 @@ async def cerrar_sesion(request: Request):
 
 # ----- ENDPOINTS DE PRODUCTOS -----
 @app.get("/productos")
-def obtener_productos(categoria: str = None, busqueda: str = None, buscar: str = None):
+def obtener_productos(categoria: Optional[str] = None, busqueda: Optional[str] = None, buscar: Optional[str] = None):
     # aceptar "buscar" como alias para compatibilidad con los tests
     if not busqueda and buscar:
         busqueda = buscar
@@ -238,6 +256,159 @@ def obtener_producto(id: int):
             return p
     raise HTTPException(status_code=404, detail="Producto no encontrado")
 
+# ----- ENDPOINTS DE GESTIÓN DE STOCK -----
+
+@app.get("/productos/{id}/stock")
+def consultar_stock(id: int):
+    """
+    Consultar el stock disponible de un producto específico.
+    """
+    with Session(engine) as session:
+        producto = session.get(Producto, id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        return {
+            "producto_id": producto.id,
+            "titulo": producto.titulo,
+            "existencia": producto.existencia,
+            "precio": producto.precio,
+            "categoria": producto.categoria
+        }
+
+@app.put("/productos/{id}/stock")
+def actualizar_stock(id: int, datos: dict, auth_user: str = Depends(get_user_strict)):
+    """
+    Actualizar el stock de un producto manualmente.
+    Requiere autenticación.
+    
+    Body puede contener:
+    - { "existencia": <nuevo_valor> } -> Establece stock absoluto
+    - { "ajuste": <cantidad> } -> Suma o resta del stock actual (ej: +10 o -5)
+    """
+    with Session(engine) as session:
+        producto = session.get(Producto, id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        stock_anterior = producto.existencia
+        
+        if "existencia" in datos:
+            nueva_existencia = datos["existencia"]
+            if nueva_existencia < 0:
+                raise HTTPException(status_code=400, detail="El stock no puede ser negativo")
+            producto.existencia = nueva_existencia
+        elif "ajuste" in datos:
+            ajuste = datos["ajuste"]
+            nueva_existencia = producto.existencia + ajuste
+            if nueva_existencia < 0:
+                raise HTTPException(status_code=400, detail="El ajuste resultaría en stock negativo")
+            producto.existencia = nueva_existencia
+        else:
+            raise HTTPException(status_code=400, detail="Debe proporcionar 'existencia' o 'ajuste'")
+        
+        session.add(producto)
+        session.commit()
+        session.refresh(producto)
+        
+        return {
+            "mensaje": "Stock actualizado correctamente",
+            "producto_id": producto.id,
+            "titulo": producto.titulo,
+            "stock_anterior": stock_anterior,
+            "stock_actual": producto.existencia,
+            "cambio": producto.existencia - stock_anterior
+        }
+
+@app.get("/stock/bajo")
+def productos_stock_bajo(limite: int = 10):
+    """
+    Obtener lista de productos con stock bajo (menor o igual al límite especificado).
+    Por defecto retorna productos con 10 o menos unidades.
+    """
+    with Session(engine) as session:
+        productos = session.exec(
+            select(Producto).where(Producto.existencia <= limite)
+        ).all()
+        
+        return [
+            {
+                "id": p.id,
+                "titulo": p.titulo,
+                "existencia": p.existencia,
+                "categoria": p.categoria,
+                "precio": p.precio
+            }
+            for p in productos
+        ]
+
+@app.get("/stock/agotados")
+def productos_agotados():
+    """
+    Obtener lista de productos sin stock (existencia = 0).
+    """
+    with Session(engine) as session:
+        productos = session.exec(
+            select(Producto).where(Producto.existencia == 0)
+        ).all()
+        
+        return [
+            {
+                "id": p.id,
+                "titulo": p.titulo,
+                "categoria": p.categoria,
+                "precio": p.precio
+            }
+            for p in productos
+        ]
+
+@app.post("/stock/reponer")
+def reponer_stock(datos: dict, auth_user: str = Depends(get_user_strict)):
+    """
+    Reponer stock de múltiples productos a la vez.
+    Requiere autenticación.
+    
+    Body: {
+        "productos": [
+            {"id": 1, "cantidad": 50},
+            {"id": 2, "cantidad": 30}
+        ]
+    }
+    """
+    if "productos" not in datos:
+        raise HTTPException(status_code=400, detail="Debe proporcionar lista de 'productos'")
+    
+    resultados = []
+    
+    with Session(engine) as session:
+        for item in datos["productos"]:
+            producto_id = item.get("id")
+            cantidad = item.get("cantidad")
+            
+            if not producto_id or cantidad is None:
+                continue
+            
+            producto = session.get(Producto, producto_id)
+            if producto:
+                stock_anterior = producto.existencia
+                producto.existencia += cantidad
+                session.add(producto)
+                
+                resultados.append({
+                    "id": producto.id,
+                    "titulo": producto.titulo,
+                    "stock_anterior": stock_anterior,
+                    "stock_actual": producto.existencia,
+                    "cantidad_agregada": cantidad
+                })
+        
+        session.commit()
+    
+    return {
+        "mensaje": f"Stock repuesto para {len(resultados)} productos",
+        "productos": resultados
+    }
+
 # ----- ENDPOINTS DEL CARRITO -----
 @app.post("/carrito")
 def agregar_al_carrito(datos: dict, auth_user: Optional[str] = Depends(get_user_from_header)):
@@ -251,9 +422,80 @@ def agregar_al_carrito(datos: dict, auth_user: Optional[str] = Depends(get_user_
 
     if usuario not in carrito:
         carrito[usuario] = []
+    # Validar stock real en la base de datos
+    with Session(engine) as session:
+        producto = session.get(Producto, producto_id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        if producto.existencia <= 0:
+            raise HTTPException(status_code=400, detail="Producto sin stock disponible")
 
-    carrito[usuario].append({"producto_id": producto_id, "cantidad": cantidad})
-    return {"mensaje": "Producto agregado al carrito"}
+        # Cantidad actual en el carrito (si existe ya)
+        cantidad_en_carrito = 0
+        for it in carrito[usuario]:
+            if it["producto_id"] == producto_id:
+                cantidad_en_carrito += it["cantidad"]
+
+        nueva_cantidad_total = cantidad_en_carrito + cantidad
+        if nueva_cantidad_total > producto.existencia:
+            raise HTTPException(status_code=400, detail="Stock insuficiente para la cantidad solicitada")
+
+        # Actualizar (merge) en vez de duplicar líneas
+        item_existente = next((it for it in carrito[usuario] if it["producto_id"] == producto_id), None)
+        if item_existente:
+            item_existente["cantidad"] = nueva_cantidad_total
+        else:
+            carrito[usuario].append({"producto_id": producto_id, "cantidad": cantidad})
+
+    return {
+        "mensaje": "Producto agregado al carrito",
+        "producto_id": producto_id,
+        "cantidad_en_carrito": nueva_cantidad_total,
+        "stock_disponible": producto.existencia,
+        "stock_restante": producto.existencia - nueva_cantidad_total
+    }
+
+@app.patch("/carrito/{product_id}")
+def actualizar_cantidad_carrito(product_id: int, datos: dict, auth_user: Optional[str] = Depends(get_user_from_header)):
+    """Actualizar la cantidad de un producto en el carrito.
+    Body: { "cantidad": <nueva_cantidad> }
+    - Si cantidad == 0 -> eliminar item.
+    - Valida stock contra existencia en DB.
+    """
+    usuario = auth_user or datos.get("usuario")
+    if not usuario:
+        raise HTTPException(status_code=400, detail="Falta usuario o token")
+    if usuario not in carrito:
+        carrito[usuario] = []
+    nueva_cantidad = datos.get("cantidad")
+    if nueva_cantidad is None or nueva_cantidad < 0:
+        raise HTTPException(status_code=400, detail="Cantidad inválida")
+
+    # Buscar item existente
+    item_existente = next((it for it in carrito[usuario] if it["producto_id"] == product_id), None)
+    if not item_existente:
+        raise HTTPException(status_code=404, detail="Producto no está en el carrito")
+
+    if nueva_cantidad == 0:
+        carrito[usuario] = [it for it in carrito[usuario] if it["producto_id"] != product_id]
+        return {"mensaje": "Producto eliminado", "producto_id": product_id, "cantidad": 0}
+
+    # Validar contra stock real
+    with Session(engine) as session:
+        producto = session.get(Producto, product_id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        if nueva_cantidad > producto.existencia:
+            raise HTTPException(status_code=400, detail="Stock insuficiente para la cantidad solicitada")
+
+    item_existente["cantidad"] = nueva_cantidad
+    return {
+        "mensaje": "Cantidad actualizada",
+        "producto_id": product_id,
+        "cantidad": nueva_cantidad,
+        "stock_disponible": producto.existencia,
+        "stock_restante": producto.existencia - nueva_cantidad
+    }
 
 @app.delete("/carrito/{product_id}")
 def quitar_del_carrito(product_id: int, usuario: Optional[str] = None, auth_user: Optional[str] = Depends(get_user_from_header)):
@@ -280,14 +522,68 @@ def ver_carrito(usuario: Optional[str] = None, auth_user: Optional[str] = Depend
 def ver_compras(auth_user: str = Depends(get_user_strict)):
     # exigir token válido y devolver historial del usuario autenticado
     usuario = auth_user
-    return compras.get(usuario, [])
+    with Session(engine) as session:
+        compras_db = session.exec(
+            select(Compra).where(Compra.usuario_email == usuario)
+        ).all()
+        
+        resultado = []
+        for c in compras_db:
+            resultado.append({
+                "id": c.id,
+                "usuario": c.usuario_email,
+                "items": json.loads(c.items),
+                "subtotal": c.subtotal,
+                "iva": c.iva,
+                "envio": c.envio,
+                "total": c.total,
+                "direccion": c.direccion,
+                "fecha": c.fecha.isoformat()
+            })
+        return resultado
   
 @app.get("/compras/{id}")
 def detalle_compra(id: int):
-    # buscar en la lista global purchases_by_id por campo 'id'
-    for c in purchases_by_id:
-        if c.get("id") == id:
-            return c
+    # Buscar compra en la base de datos
+    with Session(engine) as session:
+        compra_db = session.get(Compra, id)
+        if not compra_db:
+            raise HTTPException(status_code=404, detail="Compra no encontrada")
+        
+        c = {
+            "id": compra_db.id,
+            "usuario": compra_db.usuario_email,
+            "items": json.loads(compra_db.items),
+            "subtotal": compra_db.subtotal,
+            "iva": compra_db.iva,
+            "envio": compra_db.envio,
+            "total": compra_db.total,
+            "direccion": compra_db.direccion,
+            "fecha": compra_db.fecha.isoformat()
+        }
+        
+        if True:
+            # Enriquecer con detalles de productos
+            compra_detallada = c.copy()
+            items_detallados = []
+            
+            productos = cargar_productos()
+            prod_map = {p["id"]: p for p in productos}
+            
+            for item in c.get("items", []):
+                producto = prod_map.get(item["producto_id"], {})
+                items_detallados.append({
+                    "producto_id": item["producto_id"],
+                    "cantidad": item["cantidad"],
+                    "titulo": producto.get("titulo", "Producto no encontrado"),
+                    "precio": producto.get("precio", 0),
+                    "imagen": producto.get("imagen", ""),
+                    "categoria": producto.get("categoria", ""),
+                    "subtotal": producto.get("precio", 0) * item["cantidad"]
+                })
+            
+            compra_detallada["items_detallados"] = items_detallados
+            return compra_detallada
     raise HTTPException(status_code=404, detail="Compra no encontrada")
  
 @app.post("/carrito/cancelar")
@@ -312,31 +608,69 @@ def finalizar_compra(payload: dict, auth_user: str = Depends(get_user_strict)):
     if not items:
         raise HTTPException(status_code=400, detail="Carrito vacío")
 
-    # Calcular subtotal
+    # Calcular subtotal e IVA diferenciado (10% electrónicos, 21% otros)
     subtotal = 0
+    iva_total = 0
     productos = cargar_productos()
     prod_map = {p["id"]: p for p in productos}
     for it in items:
         pid = it["producto_id"]
         cantidad = it.get("cantidad", 1)
-        precio = prod_map.get(pid, {}).get("precio", 0)
-        subtotal += precio * cantidad
-    
-    # Aplicar IVA del 21%
-    total = subtotal * 1.21
+        producto = prod_map.get(pid, {})
+        precio = producto.get("precio", 0)
+        categoria = producto.get("categoria", "").lower()
+        
+        item_subtotal = precio * cantidad
+        subtotal += item_subtotal
+        
+        # Calcular IVA: 10% para electrónicos, 21% para otros
+        if "electr" in categoria:
+            iva_total += item_subtotal * 0.10
+        else:
+            iva_total += item_subtotal * 0.21
 
-    # Crear registro de compra
-    new_id = len(purchases_by_id) + 1
-    compra = {
-        "id": new_id,
-        "usuario": usuario,
-        "items": items,
-        "total": total,
-        "direccion": direccion,
-        "fecha": datetime.datetime.utcnow().isoformat()
-    }
-    purchases_by_id.append(compra)
-    compras.setdefault(usuario, []).append(compra)
+    # Costo de envío: gratis si (subtotal + IVA) > 1000, sino $50
+    envio = 0 if (subtotal + iva_total) > 1000 else 50
+    total = subtotal + iva_total + envio
+
+    # ============================================================
+    # DESCUENTO DE STOCK: Actualizar existencias en la base de datos
+    # ============================================================
+    with Session(engine) as session:
+        for it in items:
+            pid = it["producto_id"]
+            cantidad = it.get("cantidad", 1)
+            
+            # Obtener el producto de la base de datos
+            producto_db = session.get(Producto, pid)
+            
+            if producto_db:
+                # Descontar la cantidad vendida del stock disponible
+                producto_db.existencia -= cantidad
+                
+                # Agregar a la sesión para guardar cambios
+                session.add(producto_db)
+        
+        # Confirmar todos los cambios de stock en la base de datos
+        session.commit()
+    # ============================================================
+
+    # Crear registro de compra en la base de datos
+    with Session(engine) as session:
+        compra_db = Compra(
+            usuario_email=usuario,
+            items=json.dumps(items),  # Convertir lista a JSON string
+            subtotal=subtotal,
+            iva=iva_total,
+            envio=envio,
+            total=total,
+            direccion=direccion,
+            tarjeta=tarjeta
+        )
+        session.add(compra_db)
+        session.commit()
+        session.refresh(compra_db)
+        new_id = compra_db.id
 
     # Vaciar carrito
     carrito[usuario] = []
