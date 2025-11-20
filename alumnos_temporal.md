@@ -35,7 +35,7 @@
 ### Recupera
 ```text
 - 61033  Quiroga, José María                  (11) 2399-7675  🟢🟢🟢🟢🟢🟢  50 🟩  6 🟩  @jose-qui           
-- 61084  Ramírez, Leonardo                    (381) 348-9132  🔴🟢🟢🟢🟢🟢  47 🟩  6 🟩  @Leoramirez777      
+- 61084  Ramírez, Leonardo                    (381) 348-9132  🟢🟢🟢🟢🟢🟢  47 🟩  6 🟩  @Leoramirez777      
 - 61120  Guerrero, Ana Sofía                  (381) 418-1564  🟢🟢🟢🟢🟢🟢  48 🟩  0 🟩  @AnaSofi03          
 - 61472  Díaz, Julieta Camila                 (381) 652-9981  🟢🟢🟢🟢🟢🔴  47 🟩  0 🟥  @juliidiiaz04       
 ```
