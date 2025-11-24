@@ -1,12 +1,15 @@
-import "./globals.css";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/Navbar";
+import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
 
-import { AuthProvider } from "../src/context/AuthContext";
-import { CartProvider } from "../src/context/CartContext"
-import Navbar from "../components/NavBar";
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "TP6 Shop",
+  description: "E-commerce con Next.js y FastAPI",
 };
 
 export default function RootLayout({
@@ -15,12 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className="bg-[#f5f5f7] text-slate-900">
+    <html lang="en">
+      <body className={`${inter.className} bg-gray-100`}>
         <AuthProvider>
           <CartProvider>
             <Navbar />
-            <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
+            <main className="container mx-auto p-6">{children}</main>
           </CartProvider>
         </AuthProvider>
       </body>

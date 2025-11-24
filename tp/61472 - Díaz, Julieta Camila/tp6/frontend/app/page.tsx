@@ -1,131 +1,100 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "../src/context/AuthContext";
-import { useCart } from "../src/context/CartContext";
+import { useState, useEffect } from "react";
+import { getProductos } from "@/services/api";
+import { Producto } from "@/types";
+import ProductoCard from "@/components/ProductoCard";
+import Carrito from "@/components/Carrito";
+import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
-export default function ProductosPage() {
-  const { user, token } = useAuth();
-  const { addToCart } = useCart();
+export default function Home() {
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [loading, setLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
+  const { cart } = useCart(); // Obtenemos el carrito del contexto
 
-  const [productos, setProductos] = useState([]);
-  const [busqueda, setBusqueda] = useState("");
-  const [categoria, setCategoria] = useState("");
-  const [categorias, setCategorias] = useState([]);
-
-  // Cargar productos desde backend
-  const cargarProductos = async () => {
-    try {
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/productos`;
-
-      const params = [];
-
-      if (busqueda) params.push(`busqueda=${busqueda}`);
-      if (categoria) params.push(`categoria=${categoria}`);
-
-      if (params.length > 0) {
-        url += `?${params.join("&")}`;
+  useEffect(() => {
+    // Cargar todas las categorías al montar el componente
+    const fetchCategorias = async () => {
+      try {
+        const todosLosProductos = await getProductos();
+        const categoriasUnicas = Array.from(new Set(todosLosProductos.map(p => p.categoria)));
+        setCategorias(categoriasUnicas);
+      } catch (error) {
+        console.error("Error al cargar categorías:", error);
       }
+    };
+    fetchCategorias();
+  }, []);
 
-      const res = await fetch(url);
-      const data = await res.json();
-
+  const fetchProductos = async () => {
+    setLoading(true);
+    try {
+      const data = await getProductos(searchQuery, selectedCategory);
       setProductos(data);
-
-      // categorías únicas
-      const cats = [...new Set(data.map((p: any) => p.categoria))];
-      setCategorias(cats);
     } catch (error) {
-      console.log("Error cargando productos:", error);
+      console.error("Error al buscar productos:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    cargarProductos();
-  }, [busqueda, categoria]);
+    fetchProductos();
+  }, [searchQuery, selectedCategory, cart]); // Añadimos 'cart' a las dependencias
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Productos</h1>
-
-      {/* Buscador + Categoría */}
-      <div className="flex items-center gap-4">
-        <input
-          type="text"
-          placeholder="Buscar..."
-          className="w-full px-4 py-2 border rounded-md bg-white shadow-sm"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-
-        <select
-          className="px-4 py-2 border rounded-md bg-white shadow-sm"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-        >
-          <option value="">Todas las categorías</option>
-          {categorias.map((c, index) => (
-            <option key={index} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Mensaje si no está logueado */}
-      {!user && (
-        <div className="w-full p-4 border rounded-md bg-white text-center text-sm text-slate-600 shadow-sm">
-          Inicia sesión para ver y editar tu carrito.
-        </div>
-      )}
-
-      {/* Lista de productos */}
-      <div className="space-y-4">
-        {productos.map((prod: any) => (
-          <div
-            key={prod.id}
-            className="flex bg-white border rounded-lg p-4 shadow-sm"
-          >
-            {/* Imagen */}
-            <img
-              src={`${process.env.NEXT_PUBLIC_API_URL}/${prod.imagen}`}
-              alt={prod.titulo}
-              className="w-32 h-32 object-cover rounded-md border"
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Columna de Productos */}
+        <div className="lg:col-span-2">
+          <h1 className="text-3xl font-bold mb-6 text-white">Catálogo de Productos</h1>
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <input
+              type="text"
+              placeholder="Buscar por nombre..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border rounded-lg px-4 py-2 w-full md:w-1/3 bg-black text-white"
             />
-
-            <div className="flex-1 px-4 flex flex-col justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">{prod.titulo}</h3>
-                <p className="text-sm text-slate-600">{prod.descripcion}</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Categoría: {prod.categoria}
-                </p>
-              </div>
-            </div>
-
-            {/* Precio / botón */}
-            <div className="flex flex-col justify-between items-end">
-              <p className="text-lg font-semibold">${prod.precio}</p>
-              <p className="text-sm text-slate-600">
-                Disponible: {prod.existencia}
-              </p>
-
-              {user ? (
-                <button
-                  onClick={() => addToCart(prod.id)}
-                  className="px-4 py-2 bg-slate-900 text-white rounded-md text-sm hover:bg-slate-700"
-                >
-                  Agregar al carrito
-                </button>
-              ) : (
-                <button className="px-4 py-2 bg-gray-300 text-gray-600 rounded-md text-sm cursor-not-allowed">
-                  Agregar al carrito
-                </button>
-              )}
-            </div>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="border rounded-lg px-4 py-2 w-full md:w-1/4 bg-black text-white"
+            >
+              <option value="" className="bg-black text-white">Todas las categorías</option>
+              {categorias.map(cat => (
+                <option key={cat} value={cat} className="bg-black text-white">{cat}</option>
+              ))}
+            </select>
           </div>
-        ))}
+
+          {loading ? (
+            <p className="text-center mt-8">Cargando productos...</p>
+          ) : productos.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {productos.map((producto) => (
+                <ProductoCard key={producto.id} producto={producto} onProductUpdate={fetchProductos} />
+              ))}
+            </div>
+          ) : (
+            <p>No se encontraron productos que coincidan con tu búsqueda.</p>
+          )}
+        </div>
+
+        {/* Columna del Carrito */}
+        <div className="lg:col-span-1">
+          {isAuthenticated ? (
+            <Carrito />
+          ) : (
+            <div className="border rounded-lg p-4 mt-16 text-center bg-white shadow">
+              <p className="text-gray-600">Inicia sesión para ver y editar tu carrito.</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
 }

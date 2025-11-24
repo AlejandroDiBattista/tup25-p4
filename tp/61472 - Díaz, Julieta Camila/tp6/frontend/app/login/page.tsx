@@ -1,75 +1,75 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import Navbar from "../../components/NavBar";
-import { useAuth } from "../..";
-import { useRouter } from "next/navigation";
+import { useState, FormEvent } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const { login } = useAuth();
+    const router = useRouter();
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError("");
-    try {
-      await login(email, password);
-      router.push("/");
-    } catch {
-      setError("Correo o contraseña incorrectos");
-    }
-  }
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setError(null);
 
-  return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="mx-auto flex max-w-6xl justify-center px-6 py-10">
-        <div className="w-full max-w-md rounded-xl border bg-white px-6 py-6 shadow-sm">
-          <h1 className="text-lg font-semibold text-slate-900 mb-4">
-            Iniciar sesión
-          </h1>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="text-sm">
-              <label className="mb-1 block text-slate-700">Correo</label>
-              <input
-                type="email"
-                className="w-full rounded-md border px-3 py-2 text-sm"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+        if (!email || !password) {
+            setError("Por favor, completa todos los campos.");
+            return;
+        }
+
+        try {
+            await login(email, password);
+            router.push('/'); // Redirige al inicio después del login exitoso
+        } catch (err: any) {
+            // Mostrar el mensaje de error que viene del backend
+            // o uno genérico si no hay mensaje específico.
+            const errorMessage = err.response?.data?.detail || 'Error al iniciar sesión. Verifica tus credenciales.';
+            setError(errorMessage);
+        }
+    };
+
+    return (
+        <div className="flex justify-center items-center mt-10">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+                <h1 className="text-2xl font-bold text-center text-black">Iniciar sesión</h1>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo</label>
+                        <input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-black"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-black"
+                            required
+                        />
+                    </div>
+                    {error && <p className="text-sm text-red-600">{error}</p>}
+                    <div>
+                        <button type="submit" className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+                <p className="text-sm text-center text-gray-600">
+                    ¿No tienes cuenta? <Link href="/register" className="font-medium text-blue-600 hover:underline">Regístrate</Link>
+                </p>
             </div>
-            <div className="text-sm">
-              <label className="mb-1 block text-slate-700">Contraseña</label>
-              <input
-                type="password"
-                className="w-full rounded-md border px-3 py-2 text-sm"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            {error && (
-              <p className="text-xs text-red-600">
-                {error}
-              </p>
-            )}
-            <button
-              type="submit"
-              className="mt-2 w-full rounded-md bg-slate-900 py-2 text-sm font-medium text-white"
-            >
-              Entrar
-            </button>
-          </form>
-          <p className="mt-4 text-xs text-slate-500">
-            ¿No tienes cuenta?{" "}
-            <a href="/registrar" className="text-slate-900 underline">
-              Regístrate
-            </a>
-          </p>
         </div>
-      </main>
-    </div>
-  );
+    );
 }
