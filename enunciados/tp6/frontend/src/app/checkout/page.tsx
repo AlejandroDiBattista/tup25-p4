@@ -1,11 +1,11 @@
-'use client';
+'use client'; 
 
 import { useCart } from '@/app/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 
-export default function CheckoutPage() {
+export default function CheckoutPage() { 
   const { cart, total, clearCart } = useCart();
   const router = useRouter();
   const [form, setForm] = useState({
@@ -20,13 +20,13 @@ export default function CheckoutPage() {
     anioVencimiento: '',
     cvv: '',
   });
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(false); 
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  }; 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { 
     e.preventDefault();
     setLoading(true);
 

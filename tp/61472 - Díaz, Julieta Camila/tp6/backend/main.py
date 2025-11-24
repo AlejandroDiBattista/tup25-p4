@@ -1,38 +1,59 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 import json
-from pathlib import Path
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from sqlmodel import Session, select
+from database import create_db_and_tables, engine
+from models import Producto
+from routes.productos import router as productos_router
+from routes.auth import router as auth_router
+from routes.carrito import router as carrito_router
+from routes.compras import router as compras_router
 
-app = FastAPI(title="API Productos")
 
-# Montar directorio de imágenes como archivos estáticos
-app.mount("/imagenes", StaticFiles(directory="imagenes"), name="imagenes")
+def load_initial_products():
+    with Session(engine) as session:
+        exist = session.exec(select(Producto)).first()
 
-# Configurar CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+        if not exist:
+            print("Cargando productos iniciales...")
+            with open("productos.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-# Cargar productos desde el archivo JSON
-def cargar_productos():
-    ruta_productos = Path(__file__).parent / "productos.json"
-    with open(ruta_productos, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+            productos = []
+            for item in data:
+                p = Producto(
+                    nombre=item["nombre"],
+                    descripcion=item["descripcion"],
+                    precio=item["precio"],
+                    categoria=item["categoria"],
+                    existencia=item["existencia"],
+                    valoracion=item["valoracion"],
+                    imagen=item["imagen"]
+                )
+                productos.append(p)
+
+            session.add_all(productos)
+            session.commit()
+            print("Productos cargados.")
+        else:
+            print("Productos ya existen.")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    load_initial_products()
+    yield
+
+
+app = FastAPI(title="API TP6", lifespan=lifespan)
+
+app.include_router(productos_router)
+app.include_router(auth_router)
+app.include_router(carrito_router)
+app.include_router(compras_router)
+
 
 @app.get("/")
 def root():
-    return {"mensaje": "API de Productos - use /productos para obtener el listado"}
-
-@app.get("/productos")
-def obtener_productos():
-    productos = cargar_productos()
-    return productos
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    return {"mensaje": "API funcionando"}

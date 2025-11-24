@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "titulo": "Mochila Fjallraven Foldsack",
+        "nombre": "Mochila Fjallraven Foldsack",
         "precio": 109.95,
         "descripcion": "Mochila resistente para uso diario con funda acolchada para laptop de 15 pulgadas.",
         "categoria": "Ropa de hombre",
@@ -11,7 +11,7 @@
     },
     {
         "id": 2,
-        "titulo": "Camiseta ajustada premium",
+        "nombre": "Camiseta ajustada premium",
         "precio": 22.3,
         "descripcion": "Camiseta entallada de mangas raglán, tejido ligero y cómodo para estilo casual.",
         "categoria": "Ropa de hombre",
@@ -21,7 +21,7 @@
     },
     {
         "id": 3,
-        "titulo": "Chaqueta algodon hombre",
+        "nombre": "Chaqueta algodón hombre",
         "precio": 55.99,
         "descripcion": "Chaqueta ligera de algodón para hombre, ideal para actividades al aire libre en clima frío.",
         "categoria": "Ropa de hombre",
@@ -31,7 +31,7 @@
     },
     {
         "id": 4,
-        "titulo": "Prenda casual entallada",
+        "nombre": "Prenda casual entallada",
         "precio": 15.99,
         "descripcion": "Prenda casual entallada para hombre con ajuste cómodo; verifica talles antes de comprar.",
         "categoria": "Ropa de hombre",
@@ -41,7 +41,7 @@
     },
     {
         "id": 5,
-        "titulo": "Pulsera Legends Naga",
+        "nombre": "Pulsera Legends Naga",
         "precio": 695,
         "descripcion": "Pulsera Legends Naga inspirada en dragón acuático, brinda protección o atrae abundancia.",
         "categoria": "Joyería",
@@ -51,7 +51,7 @@
     },
     {
         "id": 6,
-        "titulo": "Anillo oro micropave",
+        "nombre": "Anillo oro micropavé",
         "precio": 168,
         "descripcion": "Anillo de oro micropavé con garantía de satisfacción y cambios dentro de 30 días.",
         "categoria": "Joyería",
@@ -61,7 +61,7 @@
     },
     {
         "id": 7,
-        "titulo": "Anillo princesa plata",
+        "nombre": "Anillo princesa plata",
         "precio": 9.99,
         "descripcion": "Anillo princesa chapado en plata, regalo ideal para compromisos, bodas o aniversarios.",
         "categoria": "Joyería",
@@ -71,7 +71,7 @@
     },
     {
         "id": 8,
-        "titulo": "Aros Pierced Owl rosa",
+        "nombre": "Aros Pierced Owl rosa",
         "precio": 10.99,
         "descripcion": "Aros Pierced Owl túnel doble en acero inoxidable chapado en oro rosa.",
         "categoria": "Joyería",
@@ -81,7 +81,7 @@
     },
     {
         "id": 9,
-        "titulo": "Disco duro WD 2TB",
+        "nombre": "Disco duro WD 2TB",
         "precio": 64,
         "descripcion": "Disco duro portátil WD 2TB USB 3.0, rápido y compatible con múltiples sistemas.",
         "categoria": "Electrónica",
@@ -91,7 +91,7 @@
     },
     {
         "id": 10,
-        "titulo": "SanDisk SSD Plus 1TB",
+        "nombre": "SanDisk SSD Plus 1TB",
         "precio": 109,
         "descripcion": "SanDisk SSD Plus 1TB mejora arranque y carga de aplicaciones con velocidades de 535 MB/s.",
         "categoria": "Electrónica",
@@ -101,7 +101,7 @@
     },
     {
         "id": 11,
-        "titulo": "Silicon Power SSD 256GB",
+        "nombre": "Silicon Power SSD 256GB",
         "precio": 109,
         "descripcion": "Silicon Power SSD 256GB con caché SLC, arranque veloz y soporte TRIM, RAID y ECC.",
         "categoria": "Electrónica",
@@ -111,7 +111,7 @@
     },
     {
         "id": 12,
-        "titulo": "WD Disco PS4 4TB",
+        "nombre": "WD Disco PS4 4TB",
         "precio": 114,
         "descripcion": "Disco externo WD 4TB para PS4, configuración rápida y diseño portátil para llevar juegos.",
         "categoria": "Electrónica",
@@ -121,7 +121,7 @@
     },
     {
         "id": 13,
-        "titulo": "Monitor Acer SB220Q",
+        "nombre": "Monitor Acer SB220Q",
         "precio": 599,
         "descripcion": "Monitor Acer SB220Q Full HD 21.5 pulgadas, panel IPS delgado con FreeSync 75 Hz.",
         "categoria": "Electrónica",
@@ -131,7 +131,7 @@
     },
     {
         "id": 14,
-        "titulo": "Monitor curvo Samsung 49",
+        "nombre": "Monitor curvo Samsung 49",
         "precio": 999.99,
         "descripcion": "Monitor curvo Samsung 49 pulgadas QLED, 144 Hz y 1 ms para gaming inmersivo.",
         "categoria": "Electrónica",
@@ -141,7 +141,7 @@
     },
     {
         "id": 15,
-        "titulo": "Chaqueta snowboard mujer",
+        "nombre": "Chaqueta snowboard mujer",
         "precio": 56.99,
         "descripcion": "Chaqueta snowboard mujer 3 en 1, forro polar desmontable y múltiples bolsillos seguros.",
         "categoria": "Ropa de mujer",
@@ -151,7 +151,7 @@
     },
     {
         "id": 16,
-        "titulo": "Chaqueta biker sintetica",
+        "nombre": "Chaqueta biker sintética",
         "precio": 29.95,
         "descripcion": "Chaqueta biker sintética con capucha removible, bolsillos frontales y cuidados fáciles.",
         "categoria": "Ropa de mujer",
@@ -161,7 +161,7 @@
     },
     {
         "id": 17,
-        "titulo": "Chaqueta impermeable rayas",
+        "nombre": "Chaqueta impermeable rayas",
         "precio": 39.99,
         "descripcion": "Chaqueta impermeable con capucha y cordón ajustable, ligera y ideal para viajes.",
         "categoria": "Ropa de mujer",
@@ -171,7 +171,7 @@
     },
     {
         "id": 18,
-        "titulo": "Camiseta cuello barco MBJ",
+        "nombre": "Camiseta cuello barco MBJ",
         "precio": 9.85,
         "descripcion": "Camiseta cuello barco MBJ, tejido ligero elástico y costuras dobles para comodidad.",
         "categoria": "Ropa de mujer",
@@ -181,7 +181,7 @@
     },
     {
         "id": 19,
-        "titulo": "Camiseta Opna secado rapido",
+        "nombre": "Camiseta Opna secado rápido",
         "precio": 7.95,
         "descripcion": "Camiseta Opna con tejido que absorbe humedad, ligera, cómoda y cuello en V.",
         "categoria": "Ropa de mujer",
@@ -191,7 +191,7 @@
     },
     {
         "id": 20,
-        "titulo": "Camiseta Danvouy algodon",
+        "nombre": "Camiseta Danvouy algodón",
         "precio": 12.99,
         "descripcion": "Camiseta Danvouy de algodón, estampado casual y tejido suave con ligera elasticidad.",
         "categoria": "Ropa de mujer",
